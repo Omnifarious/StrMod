@@ -1,0 +1,156 @@
+rootdir = @top_srcdir@
+PWD = @pwd@
+CMP = @cmp@
+CAT = @cat@
+PROCLIBSRC = @proclibsrc@
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
+CC = @CC@
+CFLAGS = @CFLAGS@
+
+MYMAKE = $(MAKE) CC='$(CC)' CFLAGS='$(CFLAGS)' CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS\)'
+
+SUBDIR = .
+ifeq ($(SUBDIR),.)
+   SUBPREFIX =
+else
+   SUBPREFIX = $(SUBDIR)/
+endif
+
+INCLUDEDIR = $(rootdir)/include
+MYINCLUDEBASE = $(INCLUDEDIR)
+MYINCLUDEDIR = $(MYINCLUDEBASE)/StrMod
+
+ifeq ($(rootdir),.)
+   OUTDIR = generated
+else
+   OUTDIR = $(rootdir)/generated
+endif
+ifeq ($(SUBDIR),.)
+   MYOUTDIR = $(OUTDIR)
+else
+   MYOUTDIR = $(OUTDIR)/$(SUBDIR)
+endif
+
+OBJDIR = $(MYOUTDIR)/obj
+LIBDIR = $(MYOUTDIR)/lib
+LIBSRC = $(MYOUTDIR)/lib_src
+
+LIBCXX = EchoModule.cxx  STR_ClassIdent.cxx  StreamModule.cxx  \
+         StrChunk.cxx  StrChunkPtr.cxx  LinearExtent.cxx  GroupVector.cxx \
+         GV_Iterator.cxx  StrSubChunk.cxx  GroupChunk.cxx \
+         LinearExtentStrmOp.cxx  StrChunkPtrT.cxx  OutSerializer.cxx \
+         InSerializer.cxx  StreamFDModule.cxx  StreamSplitter.cxx \
+         SocketModule.cxx  SockListenModule.cxx  EOFStrChunk.cxx  FDUtil.cxx \
+         SimpleMulti.cxx  StreamProcessor.cxx  ProcessorModule.cxx \
+         CharChopper.cxx  PassThrough.cxx  NewlineChopper.cxx  BufferChunk.cxx \
+         PreAllocBuffer.cxx  DynamicBuffer.cxx  BufferChunkFactory.cxx \
+         InfiniteModule.cxx  TelnetParser.cxx  SimpleTelnetClient.cxx
+
+TESTCCS = tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx  \
+          tests/testecho.cxx   tests/testsock.cxx tests/echoserv.cxx  \
+          tests/testextent.cxx tests/testGV.cxx  tests/testmulti.cxx \
+	  tests/testserial.cxx tests/TelnetToAscii.cxx tests/ttelnet.cxx \
+          tests/testPreAlloc.cxx tests/testinfinite.cxx  tests/tstelnet.cxx
+
+.PHONY: directories always
+
+UNIQUEDIRS = $(sort $(INCLUDEDIR) $(MYINCLUDEBASE) $(OUTDIR) $(MYOUTDIR))
+
+all: $(LIBDIR)/libStrMod.a
+
+directories: $(UNIQUEDIRS) $(MYINCLUDEDIR)
+
+$(UNIQUEDIRS):
+	mkdir -p $@
+
+$(MYOUTDIR)/lib_src: $(MYOUTDIR)
+
+pwd_test: always
+	@if [ ! -f pwd_test ]; then $(PWD) >pwd_test; else \
+	if $(PWD) | $(CMP) - pwd_test >/dev/null 2>/dev/null; then :; else \
+	   $(PWD) >pwd_test; \
+	fi; fi
+
+$(MYINCLUDEDIR): pwd_test
+	$(MYMAKE) $(MYINCLUDEBASE) 
+	rm -f $@
+	ln -s `$(CAT) pwd_test`/StrMod $@
+
+$(LIBSRC): Makefile $(MYINCLUDEDIR)
+	$(PROCLIBSRC) -a $@ $(LIBCXX) Makefile
+
+$(LIBDIR)/libStrMod.a:
+
+tests/testserial : tests/testserial.o OutSerializer.o InSerializer.o BufferChunk.o DynamicBuffer.o StrChunkPtr.o GroupVector.o GV_Iterator.o StrChunk.o LinearExtent.o STR_ClassIdent.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/testserial
+
+tests/server : tests/server.o
+	$(CXX) tests/server.o $(LDFLAGS) $(LIBS) -o tests/server
+
+tests/echoserv : tests/echoserv.o StreamModule.o StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o  GroupVector.o LinearExtent.o SocketModule.o EchoModule.o SockListenModule.o EOFStrChunk.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/echoserv 2>&1 | c++filt
+
+tests/infinite : tests/testinfinite.o FDUtil.o StreamFDModule.o \
+                 StreamSplitter.o BufferChunk.o StrChunkPtr.o InfiniteModule.o \
+                 StreamModule.o PreAllocBuffer.o EOFStrChunk.o DynamicBuffer.o \
+                 GroupVector.o StrChunk.o STR_ClassIdent.o LinearExtent.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/infinite 2>&1 | c++filt
+
+tests/multitest : tests/testmulti.o EchoModule.o SimpleMulti.o StreamModule.o \
+                  SockListenModule.o StrChunkPtr.o StrChunkPtrT.o \
+                  STR_ClassIdent.o StrChunk.o SocketModule.o LinearExtent.o \
+                  StreamFDModule.o FDUtil.o  EOFStrChunk.o DynamicBuffer.o \
+                  GroupVector.o ProcessorModule.o StreamProcessor.o \
+                  CharChopper.o NewlineChopper.o PassThrough.o GroupChunk.o \
+                  GV_Iterator.o StrSubChunk.o BufferChunk.o PreAllocBuffer.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/multitest 2>&1 | c++filt
+
+tests/testdist : tests/testdist.o
+	$(CXX) tests/testdist.o $(LDFLAGS) -o tests/testdist
+
+tests/testsock : tests/testsock.o StreamModule.o StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o  GroupVector.o LinearExtent.o SocketModule.o StreamSplitter.o EOFStrChunk.o FDUtil.o DynamicBuffer.o BufferChunk.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/testsock 2>&1 | c++filt
+
+tests/testPreAlloc : tests/testPreAlloc.o PreAllocBuffer.o StrChunk.o BufferChunk.o LinearExtent.o STR_ClassIdent.o GroupVector.o DynamicBuffer.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o $@ 2>&1 | c++filt
+
+tests/tstelnet : tests/tstelnet.o tests/TelnetToAscii.o SimpleTelnetClient.o \
+                 StreamModule.o SimpleMulti.o \
+                 ProcessorModule.o PassThrough.o StreamProcessor.o \
+                 DynamicBuffer.o BufferChunk.o PreAllocBuffer.o \
+                 StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o \
+                 GroupVector.o LinearExtent.o SocketModule.o \
+                 StreamSplitter.o EOFStrChunk.o FDUtil.o TelnetParser.o \
+                 GroupChunk.o GV_Iterator.o StrSubChunk.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/tstelnet 2>&1 | c++filt
+
+tests/ttelnet : tests/ttelnet.o tests/TelnetToAscii.o StreamModule.o \
+                StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o \
+                GroupVector.o LinearExtent.o SocketModule.o \
+                StreamSplitter.o EOFStrChunk.o FDUtil.o TelnetParser.o \
+                StreamProcessor.o PassThrough.o ProcessorModule.o \
+                GroupChunk.o GV_Iterator.o StrSubChunk.o DynamicBuffer.o \
+                BufferChunk.o PreAllocBuffer.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/ttelnet 2>&1 | c++filt
+
+tests/testchunk : tests/testchunk.o StrChunk.o GroupVector.o DynamicBuffer.o \
+                  LinearExtent.o  STR_ClassIdent.o BufferChunk.o
+	$(CXX) $^ -o $@ $(LDFLAGS) -lLCore 2>&1 | c++filt
+
+tests/testecho : tests/testecho.o
+	$(CXX) tests/testecho.o $(LDFLAGS) $(LIBS) -o tests/testecho 2>&1 | c++filt
+
+tests/teststrfd : tests/teststrfd.o EchoModule.o StreamModule.o StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o GroupVector.o LinearExtent.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/teststrfd 2>&1 | c++filt
+
+tests/testsplit : tests/testsplit.o EchoModule.o StreamModule.o StreamFDModule.o StreamSplitter.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o GroupVector.o LinearExtent.o EOFStrChunk.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/testsplit 2>&1 | c++filt
+
+tests/testextent : tests/testextent.o LinearExtent.o
+	$(CXX) $^ -o $@ 2>&1 | c++filt
+
+tests/testGV : tests/testGV.o GroupVector.o GV_Iterator.o StrChunk.o \
+               GroupChunk.o StrChunkPtr.o LinearExtent.o \
+               StrSubChunk.o LinearExtentStrmOp.o
+	$(CXX) $^ -o $@ $(LDFLAGS) -lNet 2>&1 | c++filt
