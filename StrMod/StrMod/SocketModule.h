@@ -1,4 +1,4 @@
-#ifndef _STR_SocketModule_H_
+#ifndef _STR_SocketModule_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #  pragma interface
@@ -7,8 +7,11 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/22 04:46:50  hopper
- // Initial revision
+ // Revision 1.2  1996/07/03 03:44:33  hopper
+ // Added C++ comment so emacs mode would be right.
+ //
+ // Revision 1.1.1.1  1995/07/22 04:46:50  hopper
+ // Imported sources
  //
  // -> Revision 0.16  1995/04/17  22:54:25  hopper
  // -> Changed things for integration into the rest of my libraries.
