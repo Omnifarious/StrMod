@@ -53,7 +53,7 @@ class Debugable : virtual public Protocol {
    /** This should print out as much of the internal state of a class as would
     * be needed to debug it properly.
     */
-   virtual void printState(std::ostream &os) const = 0;
+   virtual void printState(::std::ostream &os) const = 0;
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
