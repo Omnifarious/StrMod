@@ -2,7 +2,8 @@
 
 /* $Header$ */
 
-// $Log$
+// For a log, see ../ChangeLog
+//
 // Revision 1.6  1999/01/12 04:01:46  hopper
 // All kinds of changes to make the code more portable and compile
 // properly with the DEC compiler.
@@ -81,8 +82,6 @@ class SPS_ClassIdent : public ClassIdent {
 
    const SPS_ClassNum GetClass() const     { return(ClassIdent::GetClass()); }
 
-   inline bool_val operator ==(const ClassIdent &b) const;
-
    inline SPS_ClassIdent(SPS_ClassNum cnum);
 };
 
@@ -96,8 +95,6 @@ class SPSCORE_ClassIdent : public SPS_ClassIdent {
    static const SPSCORE_ClassIdent identifier;
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   inline bool_val operator ==(const ClassIdent &b) const;
 
    inline SPSCORE_ClassIdent(U4Byte cnum);
 };
@@ -145,11 +142,6 @@ inline int SPS_ClassIdent::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || ClassIdent::AreYouA(cid));
 }
 
-inline bool_val SPS_ClassIdent::operator ==(const ClassIdent &b) const
-{
-   return(ClassIdent::operator ==(b));
-}
-
 inline SPS_ClassIdent::SPS_ClassIdent(SPS_ClassNum cnum) :
    ClassIdent(StPaulSoftware_0, cnum)
 {
@@ -165,11 +157,6 @@ inline const ClassIdent *SPSCORE_ClassIdent::i_GetIdent() const
 inline int SPSCORE_ClassIdent::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || SPS_ClassIdent::AreYouA(cid));
-}
-
-inline bool_val SPSCORE_ClassIdent::operator ==(const ClassIdent &b) const
-{
-   return(SPS_ClassIdent::operator ==(b));
 }
 
 inline SPSCORE_ClassIdent::SPSCORE_ClassIdent(U4Byte cnum) :
