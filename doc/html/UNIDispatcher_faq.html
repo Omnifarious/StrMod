@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+                      "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>UNIDispatcher subsystem manual</title>
+  <meta name="description" content="A Manual describing how to use a          
+      UNIDispatcher, and other, related classes.">
+  <meta name="revision" content="$Revision$" </head>
+</head>
+
+<body>
+<h1 align="center">FAQ style manual for the UNIDispatcher subsystem</h1>
+<dl>
+  <dt><h2>Overview</h2>
+  </dt>
+    <dd><dl>
+        <dt><h3>What the heck's a UNIDispatcher?</h3>
+        </dt>
+          <dd><p>A UNIDispatcher is an interface class the provides very
+            simplistic event dispatching capabilities.  It has methods (that
+            subclasses must implement) to allow you to add events to its
+            queue, and methods that cause it to 'fire' one or more of these
+            events.</p>
+          </dd>
+        <dt><h3>What's a UNIEvent?</h3>
+        </dt>
+          <dd><p>A UNIEvent is the event that the UNIDispatcher keeps track of
+            and 'fires'.  It behaves a little like a function pointer to a
+            function that takes the dispatcher that fired the event as an
+            argument.  UNIEvents are supposed to be re-used, and not created
+            individually for each event. That's why they inherit from
+            uReferenceCounted and have the UNIEventPtr type.</p>
+          </dd>
+        <dt><h3>Why would I use an implementation of UNIDispatcher?</h3>
+        </dt>
+          <dd><p>This is a complicated question.  The short answer is that
+            you'd use it when you need to use events to communicate between
+            different parts of your program.</p>
+            <p>Of course, this begs the question of why you'd use events
+            instead of simple function call, so here are a list of
+            reasons:</p>
+            <ul>
+              <li>The function you're calling may do something to the object
+                you're calling it from that's hard to deal with. (i.e. In the
+                place where the call would normally be made, your class
+                invariant might be false.)</li>
+              <li>You may not want the function call to be carried out right
+                away, in order to give other things a chance to do stuff.</li>
+              <li>The function you want to call may be part of an object that
+                logically belongs in a different thread, and you want the call
+                to occur in the control flow of that thread to avoid locking
+                issues.</li>
+              <li>You may not have any good way of actually figuring out which
+                function you need to call on which object.</li>
+            </ul>
+          </dd>
+        <dt><h3>So, what's this got to do with the StreamModule sytem?</h3>
+        </dt>
+          <dd><p>There are a few ways in which the UNIEvent subsystem is used
+            in the StreamModule system.</p>
+            <ul>
+              <li>The UNIXPollManager uses events to notify interested parties
+                about the state of file descriptors.</li>
+              <li>The SimpleMultiplexer uses events to give other things a
+                chance to run.  This is so one stream can't hog the
+                many-to-one direction of the multiplexer.</li>
+              <li>The StreamFDModule will be changed to use events to notify
+                interested parties about error conditions.</li>
+              <li>When signal handling is finished, the signal handler will
+                use events to fold signals back into the normal flow of
+                control.</li>
+              <li>When multi-threading is supported, and the InterThreadModule
+                is done, the InterThreadModule will use events to notify
+                itself (in the proper thread context) about items on the
+                queue.</li>
+              <li>Modules that need to destroy themselves (or the modules they
+                communicate with) will post an event, and the event will do
+                the destruction in order to avoid having this pointers on the
+                stack that point to a dead object.</li>
+            </ul>
+          </dd>
+      </dl>
+    </dd>
+</dl>
+</body>
+</html>
