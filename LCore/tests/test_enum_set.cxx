@@ -22,7 +22,7 @@
 
 #include <LCore/enum_set.h>
 
-enum Barney { One, Two, Three };
+enum Barney { One = 2, Two, Three };
 
 typedef enum_set<Barney, One, Three> BarneySet;
 
