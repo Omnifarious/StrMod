@@ -7,6 +7,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.4  1996/02/26 03:42:15  hopper
+// Added stuff for new ShallowCopy method.
+//
 // Revision 1.3  1996/02/22 03:52:28  hopper
 // Made some changes now that we have ReferenceCounting again.
 //
@@ -208,7 +211,11 @@ class DataBlockStrChunk : public StrChunk {
 
    inline void Resize(unsigned int newsize);
 
+   inline DataBlockStrChunk *ShallowCopy() const;
+
  protected:
+   DataBlockStrChunk(const DataBlockStrChunk &b);
+
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
    void SetBuf(StrChunkBuffer *b);
@@ -219,8 +226,12 @@ class DataBlockStrChunk : public StrChunk {
    virtual int i_PutIntoFd(int fd, int start,
 			   int maxsize, int issocket, int flags);
 
+   virtual StrChunk *i_ShallowCopy() const;
+
  private:
    StrChunkBuffer *buf;
+
+   void operator =(const DataBlockStrChunk &b);
 };
 
 //------------------------inline functions for StrChunk------------------------
@@ -285,6 +296,11 @@ inline void DataBlockStrChunk::Resize(unsigned int newsize)
       buf->Resize(newsize);
    else
       SetBuf(new StrChunkBuffer(newsize));
+}
+
+inline DataBlockStrChunk *DataBlockStrChunk::ShallowCopy() const
+{
+   return(static_cast<DataBlockStrChunk *>(i_ShallowCopy()));
 }
 
 inline DataBlockStrChunk::DataBlockStrChunk(unsigned int length) : buf(0)

@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/02/26 03:43:03  hopper
+// Added stuff for new ShallowCopy method.
+//
 // Revision 1.2  1995/07/23 04:00:32  hopper
 // Added #include <string.h> in various places to avoid triggering a bug
 // in libg++ 2.7.0
@@ -54,6 +57,15 @@ extern "C" int recv(int, void *, int, int);
 extern "C" int send(int, const void *, int, int);
 
 const STR_ClassIdent DataBlockStrChunk::identifier(7UL);
+
+DataBlockStrChunk::~DataBlockStrChunk()
+{
+   if (buf) {
+      buf->DelReference();
+      if (buf->NumReferences() <= 0)
+	 delete buf;
+   }
+}
 
 void DataBlockStrChunk::SetBuf(StrChunkBuffer *b)
 {
@@ -151,11 +163,12 @@ int DataBlockStrChunk::i_PutIntoFd(int fd, int start,
    }
 }
 
-DataBlockStrChunk::~DataBlockStrChunk()
+DataBlockStrChunk::DataBlockStrChunk(const DataBlockStrChunk &b) : buf(0)
 {
-   if (buf) {
-      buf->DelReference();
-      if (buf->NumReferences() <= 0)
-	 delete buf;
-   }
+   SetBuf(b.buf);
+}
+
+StrChunk *DataBlockStrChunk::i_ShallowCopy() const
+{
+   return(new DataBlockStrChunk(*this));
 }
