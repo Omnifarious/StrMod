@@ -20,13 +20,13 @@ namespace strmod {
 namespace xml {
 namespace utf8 {
 
+/** \class Lexer Lexer.h xml/utf8/Lexer.h
+ * Finds tokens and reports them, and their positions to a Builder.
+ */
 class Lexer
 {
- private:
-   typedef Builder::BufHandle BufHandle;
-   typedef Builder::Position Position;
-
  public:
+   //! Constructs a Lexer in the between tag, not in a comment state.
    Lexer()
         : nonwsok_(false)
    {
@@ -45,9 +45,12 @@ class Lexer
     * @return true if Lexer is storing no BufHandles, and lastbuf contains a valid BufHandle, false if it isn't.
     */
    bool lex(const char *buf, unsigned int len,
-            BufHandle &lastbuf, Builder &builder);
+            Builder::BufHandle &lastbuf, Builder &builder);
 
  private:
+   typedef Builder::Position Position;
+   typedef Builder::BufHandle BufHandle;
+
    enum XState { XBad, XStart, XLess,
                  XCommentExcl, XCommentExclDash, XInComment, XDashInComment,
                  XDashDashInComment,
