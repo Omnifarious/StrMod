@@ -1,5 +1,8 @@
 Mon Sep  2 18:04:03 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* ProcessorModule.cc (i_Write): Commented out all kinds of
+ 	debugging stuff.
+
 	* GNUmakefile.in (LIBCCS): Added new library source modules for
 	CharChopper, PassThrough, NewlineChopper, StreamProcessor, and
 	ProcessorModule classes.
