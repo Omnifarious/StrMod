@@ -28,17 +28,32 @@
 
 #define _STR_StackSwapper_H_
 
-//: An exception safe class to do a difficult to describe thing.
-// <p>This could be thought of as maintaining a particular variable
-// (<code>classvar</code>) as the top stack value in a recursive function that
-// maintained a stack of values on the execution stack.</p>
-// <p>Using the constructor and destructor to maintain these values causes
-// this manipulation to be exception safe.  It eliminates the need for a lot
-// of <code>try { } catch (...) { }</code> blocks to clean stuff up and make
-// things exception safe.</p>
+/** \class StackSwapper StackSwapper.h StrMod/StackSwapper.h
+ * A class to make a certain means of doing dynamic scoping in a lexically
+ * scoped language exception safe.
+ *
+ * This could be thought of as maintaining a particular global or member
+ * variable (<code>classvar</code>) as the top stack value in a recursive
+ * function that maintained a stack of values on the execution stack.
+ *
+ * This establishes something akin to dynamic scope.
+ *
+ * Using the constructor and destructor to maintain these values causes this
+ * manipulation to be exception safe.  It eliminates the need for a lot of
+ * <code>try { } catch (...) { }</code> blocks to clean stuff up and make
+ * things exception safe. */
 template <class T> class StackSwapper {
  public:
+   /** Saves the value in classvar, then sets classvar to newval.
+    * @param classvar A reference to the variable who's valued is to be saved,
+    * then restored on scope exit.
+    *
+    * @param newval The new value to be stored in classvar.
+    */
    inline StackSwapper(T &classvar, const T &newval);
+   /** \brief Restores the value of the variable referenced by classvar in the
+    * constructor.
+    */
    inline ~StackSwapper();
 
  private:
