@@ -174,17 +174,20 @@ void UnixEventPoll::doPoll(bool wait)
          if (pollval.revents)
          {
             const FDCondSet condset = pollmask_to_condmask(pollval.revents);
+            const FDCondSet badset(FD_Closed, FD_Invalid);
             --pollresult;
-            const FDMap::iterator fdend = impl_.fdmap_.upper_bound(pollval.fd);
             FDMap::iterator fdcur = impl_.fdmap_.lower_bound(pollval.fd);
+            const FDMap::iterator fdend = impl_.fdmap_.upper_bound(pollval.fd);
             while (fdcur != fdend)
             {
                const FDEvent &curfdev = fdcur->second;
-               FDCondSet tmp = curfdev.condset_;
-               tmp &= condset;
-               if (tmp)
+               if (condset & curfdev.condset_)
                {
                   getDispatcher()->addEvent(curfdev.ev_);
+                  impl_.fdmap_.erase(fdcur++);
+               }
+               else if (badset & condset)
+               {
                   impl_.fdmap_.erase(fdcur++);
                }
                else
@@ -193,6 +196,7 @@ void UnixEventPoll::doPoll(bool wait)
                }
             }
          }
+         ++i;
       }
    }
 }
