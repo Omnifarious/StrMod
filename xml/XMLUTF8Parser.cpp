@@ -11,9 +11,13 @@
 #include <stack>
 #include <vector>
 #include <stdexcept>
-#include "XMLUTF8Lexer.h"
+#include "xml/utf8/Builder.h"
+#include "xml/utf8/Lexer.h"
 
 namespace {
+
+using ::strmod::xml::utf8::Lexer;
+using ::strmod::xml::utf8::Builder;
 
 using ::std::cout;
 
@@ -45,10 +49,10 @@ struct ElementData
    }
 };
 
-class TestBuilder : public XMLBuilder
+class TestBuilder : public Builder
 {
  public:
-   TestBuilder(const char *buf, XMLUTF8Lexer &lexer) : buf_(buf), lexer_(lexer) { }
+   TestBuilder(const char *buf, Lexer &lexer) : buf_(buf), lexer_(lexer) { }
    virtual ~TestBuilder() { }
 
    virtual void startElementTag(const Position &begin, const ::std::string &name)
@@ -129,7 +133,7 @@ class TestBuilder : public XMLBuilder
 
  private:
    const char * const buf_;
-   XMLUTF8Lexer &lexer_;
+   Lexer &lexer_;
    ::std::stack<ElementData> elstack_;
 };
 
@@ -158,11 +162,11 @@ int main()
 "      </down>\n"
 "   </went>\n"
 "</fred>\n";
-      XMLUTF8Lexer lexer;
+      Lexer lexer;
       {
          TestBuilder ts(xmlstr, lexer);
          ::std::cout << "Parsing: [" << xmlstr << "]\n\n";
-         XMLBuilder::BufHandle bh;
+         Builder::BufHandle bh;
          bh.ulval_ = 0;
          lexer.lex(xmlstr, ::strlen(xmlstr), bh, ts);
       }
@@ -170,7 +174,7 @@ int main()
       {
          TestBuilder ts(xml2str, lexer);
          ::std::cout << "Parsing: [" << xml2str << "]\n\n";
-         XMLBuilder::BufHandle bh;
+         Builder::BufHandle bh;
          bh.ulval_ = 0;
          lexer.lex(xml2str, ::strlen(xml2str), bh, ts);
       }

@@ -4,47 +4,55 @@
  * $Rev$
  */
 
-#include "XMLUTF8Lexer.h"
+#include "xml/utf8/Lexer.h"
+#include "xml/utf8/Builder.h"
 #include <string>
 #include <stdexcept>
 
-const ::std::string XMLUTF8Lexer::out_of_range_message("XMLUTF8Lexer::lex: Element, attribute or entity name too large!");
-const ::std::string XMLUTF8Lexer::bad_case_message("XMLUTF8Lexer::lex: Programmer error!  Bad case!");
+namespace strmod {
+namespace xml {
+namespace utf8 {
 
-void XMLUTF8Lexer::throw_out_of_range()
+const ::std::string Lexer::out_of_range_message("Lexer::lex: Element, attribute or entity name too large!");
+const ::std::string Lexer::bad_case_message("Lexer::lex: Programmer error!  Bad case!");
+
+void Lexer::throw_out_of_range()
 {
    throw ::std::out_of_range(out_of_range_message);
 }
 
-void XMLUTF8Lexer::throw_bad_case()
+void Lexer::throw_bad_case()
 {
    throw ::std::logic_error(bad_case_message);
 }
 
-void XMLUTF8Lexer::call_startElementTag(const Position &first, size_t namepos,
-                                        XMLBuilder &parser)
+void Lexer::call_startElementTag(const Position &first, size_t namepos,
+                                        Builder &parser)
 {
    parser.startElementTag(first, ::std::string(name_, namepos));
 }
 
-void XMLUTF8Lexer::call_closeElementTag(const Position &first,
+void Lexer::call_closeElementTag(const Position &first,
                                         const Position &last,
-                                        size_t namepos, XMLBuilder &parser)
+                                        size_t namepos, Builder &parser)
 {
    parser.closeElementTag(first, last, ::std::string(name_, namepos));
 }
 
-void XMLUTF8Lexer::call_addAttribute(const Position &attrbegin,
+void Lexer::call_addAttribute(const Position &attrbegin,
                                      const Position &attrend,
                                      const Position &valbegin,
                                      const Position &valend,
-                                     size_t namepos, XMLBuilder &parser)
+                                     size_t namepos, Builder &parser)
 {
    parser.addAttribute(attrbegin, attrend,
                        valbegin, valend,
                        ::std::string(name_, namepos));
 }
 
+} // namespace utf8
+} // namespace xml
+} // namespace strmod
 
 // $Log$
 // Revision 1.6  2003/01/10 02:29:10  hopper

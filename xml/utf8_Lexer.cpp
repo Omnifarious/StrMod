@@ -5,14 +5,18 @@
  */
 
 #ifdef __GNUG__
-#  pragma implementation "XMLUTF8Lexer.h"
+#  pragma implementation "Lexer.h"
 #endif
 
-#include "XMLUTF8Lexer.h"
+#include "xml/utf8/Lexer.h"
 #include <string>
 #include <stdexcept>
 
-inline bool XMLUTF8Lexer::iswhite(const char c)
+namespace strmod {
+namespace xml {
+namespace utf8 {
+
+inline bool Lexer::iswhite(const char c)
 {
    return
       (c == '\x20') || // Space in UTF8, ' ' depends on encoding used by C compiler.
@@ -21,7 +25,7 @@ inline bool XMLUTF8Lexer::iswhite(const char c)
       (c == '\xD');  // carraige return
 }
 
-inline bool XMLUTF8Lexer::isnamestart(const char c)
+inline bool Lexer::isnamestart(const char c)
 {
    return
       (c == colon) || // :
@@ -33,7 +37,7 @@ inline bool XMLUTF8Lexer::isnamestart(const char c)
       ((c >= '\xF8') && (c <= '\xFF')); // ø-ÿ
 }
 
-inline bool XMLUTF8Lexer::isnamebody(const char c)
+inline bool Lexer::isnamebody(const char c)
 {
    return
       isnamestart(c) ||
@@ -42,12 +46,12 @@ inline bool XMLUTF8Lexer::isnamebody(const char c)
       (c == '\xB7');  // Extender, whatever that is.
 }
 
-inline bool XMLUTF8Lexer::isdigit(const char c)
+inline bool Lexer::isdigit(const char c)
 {
    return (c >= '\x30') && (c <= '\x39');  // 0-9
 }
 
-inline bool XMLUTF8Lexer::isxdigit(const char c)
+inline bool Lexer::isxdigit(const char c)
 {
    return
       isdigit(c) ||
@@ -55,9 +59,9 @@ inline bool XMLUTF8Lexer::isxdigit(const char c)
       ((c >= '\x61') && (c <= '\x66'));
 }
 
-inline void XMLUTF8Lexer::advanceState(const char c, const size_t i,
-                                       const BufHandle &bh,
-                                       LocalState &ss, XMLBuilder &parser)
+inline void Lexer::advanceState(const char c, const size_t i,
+                                const BufHandle &bh,
+                                LocalState &ss, Builder &parser)
 {
    if (ss.substate_ != XSNone)
    {
@@ -425,8 +429,8 @@ inline void XMLUTF8Lexer::advanceState(const char c, const size_t i,
    }
 }
 
-bool XMLUTF8Lexer::lex(const char *buf, unsigned int len,
-                       BufHandle &lastbuf, XMLBuilder &parser)
+bool Lexer::lex(const char *buf, unsigned int len,
+                       BufHandle &lastbuf, Builder &parser)
 {
    LocalState stackstate(localstate_);
    for (unsigned int i = 0; (i < len) && (stackstate.state_ != XBad); ++i)
@@ -446,6 +450,10 @@ bool XMLUTF8Lexer::lex(const char *buf, unsigned int len,
    }
    return false;
 }
+
+} // namespace utf8
+} // namespace xml
+} // namespace strmod
 
 // $Log$
 // Revision 1.6  2003/01/10 02:27:04  hopper

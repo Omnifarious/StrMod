@@ -41,7 +41,7 @@ namespace utf8 {
  *            valbegin<-'        `->valend
  * </pre>
  */
-class XMLBuilder
+class Builder
 {
  public:
    //! Handle for positions from previous calls to XMLUTF8Lexer::lex
@@ -87,9 +87,9 @@ class XMLBuilder
    };
 
    //! It's an interface, so this doesn't do anything.
-   XMLBuilder() { }
+   Builder() { }
    //! It's an interface, so this doesn't do anything.
-   virtual ~XMLBuilder() {}
+   virtual ~Builder() {}
 
    /** The lexer encountered an element open tag, atributes may follow
     *
@@ -132,8 +132,8 @@ class XMLBuilder
                                 const ::std::string &name) = 0;
 };
 
-#endif
-
 } // namespace utf8
 } // namespace xml
 } // namespace strmod
+
+#endif

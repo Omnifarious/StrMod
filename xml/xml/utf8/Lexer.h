@@ -12,14 +12,22 @@
 #  pragma interface
 #endif
 
-#include "XMLUTF8Builder.h"
+#include <xml/utf8/Builder.h>
 #include <cstddef>
 #include <string>
 
-class XMLUTF8Lexer
+namespace strmod {
+namespace xml {
+namespace utf8 {
+
+class Lexer
 {
+ private:
+   typedef Builder::BufHandle BufHandle;
+   typedef Builder::Position Position;
+
  public:
-   XMLUTF8Lexer()
+   Lexer()
         : nonwsok_(false)
    {
    }
@@ -32,12 +40,12 @@ class XMLUTF8Lexer
    /** Process the UTF-8 encoded characters in buf, calling the builder at the appropriate points.
     * @param buf A pointer to an array of characters to process.
     * @param len The number of characters in the array pointed to by buf.
-    * @param lastbuf IN: A buffer handle to identify which call of lex a particular token started in / OUT: The earlist buffer handle still being used internally by the XMLUTF8Lexer.
+    * @param lastbuf IN: A buffer handle to identify which call of lex a particular token started in / OUT: The earlist buffer handle still being used internally by the Lexer.
     * @param builder The builder to call when tokens are encountered.
-    * @return true if XMLUTF8Lexer is storing no BufHandles, and lastbuf contains a valid BufHandle, false if it isn't.
+    * @return true if Lexer is storing no BufHandles, and lastbuf contains a valid BufHandle, false if it isn't.
     */
    bool lex(const char *buf, unsigned int len,
-            BufHandle &lastbuf, XMLBuilder &builder);
+            BufHandle &lastbuf, Builder &builder);
 
  private:
    enum XState { XBad, XStart, XLess,
@@ -51,8 +59,6 @@ class XMLUTF8Lexer
                     XSStartName, XSInName,
                     XSEntity, XSNamedEntity, XSCharEntity, XSDecEntity,
                     XSHexEntityStart, XSHexEntity, XSEndEntity };
-   typedef XMLBuilder::BufHandle BufHandle;
-   typedef XMLBuilder::Position Position;
 
    static const char exclamation = '\x21';
    static const char doublequote = '\x22';
@@ -94,18 +100,22 @@ class XMLUTF8Lexer
    static inline bool isxdigit(const char c);
 
    inline void advanceState(const char c, const size_t i, const BufHandle &bh,
-                            LocalState &ss, XMLBuilder &parser);
+                            LocalState &ss, Builder &parser);
 
    static void throw_out_of_range();
    static void throw_bad_case();
    void call_startElementTag(const Position &begin, size_t namepos,
-                             XMLBuilder &parser);
+                             Builder &parser);
    void call_addAttribute(const Position &attrbegin, const Position &attrend,
                           const Position &valbegin, const Position &valend,
-                          size_t namepos, XMLBuilder &parser);
+                          size_t namepos, Builder &parser);
    void call_closeElementTag(const Position &begin, const Position &end,
-                             size_t namepos, XMLBuilder &parser);
+                             size_t namepos, Builder &parser);
 };
+
+} // namespace utf8
+} // namespace xml
+} // namespace strmod
 
 // $Log$
 // Revision 1.12  2003/01/10 02:28:37  hopper

@@ -5,9 +5,9 @@
  */
 
 #ifdef __GNUG__
-#  pragma implementation "XMLUTF8Builder.h"
+#  pragma implementation "Builder.h"
 #endif
 
-#include "XMLUTF8Builder.h"
+#include "xml/utf8/Builder.h"
 
 // $Log$
