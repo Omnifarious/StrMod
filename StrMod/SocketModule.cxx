@@ -49,9 +49,10 @@ static char _SocketModule_CC_rcsID[] =
 const STR_ClassIdent SocketModule::identifier(12UL);
 
 // MakeSocket sets makesock_errno.
-SocketModule::SocketModule(const SocketAddress &addr, UNIXpollManager &pollmgr,
+SocketModule::SocketModule(const SocketAddress &addr,
+                           UNIDispatcher &disp, UNIXpollManager &pollmgr,
 			   bool hangdelete, bool blockconnect)
-     : StreamFDModule(MakeSocket(*this, addr, blockconnect), pollmgr,
+     : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, pollmgr,
 		      StreamFDModule::CheckBoth,  hangdelete),
        peer(*(addr.Copy()))
 {
@@ -59,6 +60,7 @@ SocketModule::SocketModule(const SocketAddress &addr, UNIXpollManager &pollmgr,
    {
       setErrorIn(ErrFatal, makesock_errno);
    }
+   setMaxChunkSize(64U * 1024U);
 }
 
 SocketModule::~SocketModule()  // This might be changed later to add
@@ -66,11 +68,13 @@ SocketModule::~SocketModule()  // This might be changed later to add
    delete &peer;               // socket on the other side of the
 }                              // connection.
 
-SocketModule::SocketModule(int fd, SocketAddress *pr, UNIXpollManager &pollmgr)
-     : StreamFDModule(fd, pollmgr, StreamFDModule::CheckBoth, true),
+SocketModule::SocketModule(int fd, SocketAddress *pr,
+                           UNIDispatcher &disp, UNIXpollManager &pollmgr)
+     : StreamFDModule(fd, disp, pollmgr, StreamFDModule::CheckBoth, true),
        peer(*pr),
        makesock_errno(0)
 {
+   setMaxChunkSize(64U * 1024U);
 }
 
 bool SocketModule::writeEOF()
