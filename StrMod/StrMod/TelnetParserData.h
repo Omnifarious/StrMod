@@ -35,63 +35,59 @@
 
 #define _STR_TelnetParserData_H_
 
-//: This is just a base abstract class for all things recognized as telnet
-//: protocol messages.
+/** \class TelnetParser::TelnetData TelnetParserData.h StrMod/TelnetParserData.h
+ * This is just a base abstract class for all things recognized as telnet
+ * protocol messages.
+ */
 class TelnetParser::TelnetData : public StrChunk {
  public:
    static const STR_ClassIdent identifier;
 
+   //! Constructors for abstract base classes don't do much.
    TelnetData()                                         { }
+   //! Destructors for abstract base classes don't do much.
    virtual ~TelnetData()                                { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
+   // Redeclare this just to show we know what we're doing and it's still
+   // abstract.
    virtual unsigned int Length() const = 0;
-
-   virtual unsigned int NumSubGroups() const = 0;
-
-   virtual unsigned int NumSubGroups(const LinearExtent &extent) const = 0;
-
-   virtual void FillGroupVec(const LinearExtent &extent,
-			     GroupVector &vec, unsigned int &start_index) = 0;
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
 
-   //: No child will need to implement this.
-   virtual void i_DropUnused(const LinearExtent &usedextent,
-			     KeepDir keepdir)           { }
-
-   //! Accept a ChunkVisitor, and maybe lead it through your children.
+   // Redeclare this just to show we know what we're doing and it's still
+   // abstract.
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation) = 0;
 };
 
 //---
 
+/** \class TelnetParser::SingleChar TelnetParserData.h StrMod/TelnetParserData.h
+ * A single character telnet command.
+ */
 class TelnetParser::SingleChar : public TelnetParser::TelnetData {
  public:
+   //! The names and octet values of the various single character telnet commands.
    enum Specials { TEOF = 236, SUSP = 237, ABORT = 238, EOR = 239, NOP = 241,
 		   DM = 242, BRK = 243, IP = 244, AO = 245, AYT = 246,
 		   EC = 247, EL = 248, GA = 249 };
 
    static const STR_ClassIdent identifier;
 
+   //! Construct a SingleChar for a particular command.
    inline SingleChar(Specials opt);
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    virtual unsigned int Length() const                  { return(2); }
 
-   virtual unsigned int NumSubGroups() const            { return(1); }
-
-   virtual unsigned int NumSubGroups(const LinearExtent &extent) const;
-
-   virtual void FillGroupVec(const LinearExtent &extent,
-			     GroupVector &vec, unsigned int &start_index);
-
+   //! What kind of single character command am I?
    Specials getType() const                             { return(opt_); }
 
+   //! Is this octet a valid single character telnet command?
    inline static bool isSpecial(U1Byte c);
 
  protected:
@@ -108,11 +104,16 @@ class TelnetParser::SingleChar : public TelnetParser::TelnetData {
 
 //---
 
+/** \class TelnetParser::Suboption TelnetParserData.h StrMod/TelnetParserData.h
+ * A telnet suboption.
+ * This should never be seen for a particular option unless we've previously
+ * agreed to talk about this option in an OptionNegotiation.
+ */
 class TelnetParser::Suboption : public TelnetParser::TelnetData {
  public:
    static const STR_ClassIdent identifier;
 
-   //: Construct a telnet suboption request.
+   //! Construct a telnet suboption request.
    inline Suboption(U1Byte type,
 		    const StrChunkPtrT<BufferChunk> &cooked,
 		    const StrChunkPtr &raw);
@@ -121,16 +122,11 @@ class TelnetParser::Suboption : public TelnetParser::TelnetData {
 
    inline virtual unsigned int Length() const;
 
-   inline virtual unsigned int NumSubGroups() const;
-
-   virtual unsigned int NumSubGroups(const LinearExtent &extent) const;
-
-   virtual void FillGroupVec(const LinearExtent &extent,
-			     GroupVector &vec, unsigned int &start_index);
-
+   //! Which suboption is this data for?
    inline U1Byte getType() const                       { return(optstart_[2]); }
-
+   //! What's the suboption data with all the escapes processed?
    inline const StrChunkPtrT<BufferChunk> &getCooked() const;
+   //! What's the suboption data without any escape processing?
    inline const StrChunkPtr &getRaw() const            { return(raw_); }
 
  protected:
@@ -151,27 +147,30 @@ class TelnetParser::Suboption : public TelnetParser::TelnetData {
 
 //---
 
+/** \class TelnetParser::OptionNegotiation TelnetParserData.h StrMod/TelnetParserData.h
+ * A telnet suboption negotiation request.
+ */
 class TelnetParser::OptionNegotiation : public TelnetParser::TelnetData {
  public:
-   enum Requests { WILL = 251, WONT = 252, DO = 253, DONT = 254 };
+   //! The kind of negotiation being made.
+   enum Requests { WILL = 251,  //!< Other side will support option
+                   WONT = 252,  //!< Other side won't support option
+                   DO = 253,   //!< Requests the other side to use option
+                   DONT = 254  //!< Requests the other side to not use option
+   };
 
    static const STR_ClassIdent identifier;
 
+   //! Create a particular kind of option negotiation for a particular option.
    inline OptionNegotiation(Requests request, U1Byte type);
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    virtual unsigned int Length() const                  { return(3); }
 
-   virtual unsigned int NumSubGroups() const            { return(1); }
-
-   virtual unsigned int NumSubGroups(const LinearExtent &extent) const;
-
-   virtual void FillGroupVec(const LinearExtent &extent,
-			     GroupVector &vec, unsigned int &start_index);
-
+   //! What kind of negotiation is being made?
    Requests getRequest() const                          { return(request_); }
-
+   //! What option is being negotiated?
    U1Byte getType() const                               { return(buf_[2]); }
 
  protected:
@@ -215,6 +214,12 @@ inline bool TelnetParser::SingleChar::isSpecial(U1Byte c)
 
 //---
 
+/**
+ * \param type Which suboption is this for?
+ * \param cooked The suboption data that has had the escape characters
+ *               processed.
+ * \param raw The raw suboption data with no escape processing at all.
+ */
 inline
 TelnetParser::Suboption::
 Suboption(U1Byte type,
@@ -252,6 +257,10 @@ TelnetParser::Suboption::getCooked() const
 
 //---
 
+/**
+ * \param request The kind of negotiation
+ * \param type The option is being negotiated
+ */
 inline TelnetParser::OptionNegotiation::OptionNegotiation(Requests request,
 							  U1Byte type)
      : request_(request)
