@@ -5,6 +5,10 @@
 #endif
 
 // $Log$
+// Revision 1.4  1998/06/02 00:32:04  hopper
+// Removed GNU specific return value optimization stuff.  A good compiler
+// should do it automagically.
+//
 // Revision 1.3  1996/08/31 15:50:13  hopper
 // Changed to use StrChunkPtr::operator bool a little more explicity.  Used
 // to compare pointer values to 0.
@@ -83,21 +87,13 @@ EchoModule::~EchoModule()
    delete eplug;
 }
 
-#ifdef __GNUG__
-const StrChunkPtr EchoPlug::InternalRead() return temp;
-#else
 const StrChunkPtr EchoPlug::InternalRead()
-#endif
 {
    EchoModule *parent = ModuleFrom();
 
    if (CanRead()) {
       parent->rdngfrm = 1;
-#ifdef __GNUG__
-      temp = parent->buffedecho;
-#else
       StrChunkPtr temp = parent->buffedecho;
-#endif
 
       parent->buffedecho.ReleasePtr();
       if (!(parent->wrtngto)) {
@@ -108,12 +104,7 @@ const StrChunkPtr EchoPlug::InternalRead()
       return(temp);
    } else {
 //      cerr << "Returned " << "NULL" << " bytes from InternalRead()\n";
-#ifdef __GNUG__
-      temp = 0;
-      return(temp);
-#else
       return(0);
-#endif
    }
 }
 
