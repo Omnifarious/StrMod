@@ -1,4 +1,4 @@
-#ifndef _EH_StreamSplitter_H_
+#ifndef _EH_StreamSplitter_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #  pragma interface
@@ -7,8 +7,11 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/22 04:46:50  hopper
- // Initial revision
+ // Revision 1.2  1996/07/03 03:44:36  hopper
+ // Made some necessary changes to make this work with new StrChunk style.
+ //
+ // Revision 1.1.1.1  1995/07/22 04:46:50  hopper
+ // Imported sources
  //
  // -> Revision 0.13  1995/04/14  15:33:37  hopper
  // -> Combined revision 0.12, and 0.12.0.3
@@ -49,11 +52,11 @@ static char _EH_StreamSplitter_H_rcsID[] =
 
 // SplitterModule's work this way
 //
-//  Module----->--->-->--+
+//  Module>---->--->-->--+
 //                       |       (bi-directional)
 //            side 0->  Splitter===>==<==>==<==>==<===Module
 //                       |      ^
-//  Module-----<---<--<--+      |
+//  Module<----<---<--<--+      |
 //                              +--side 1
 //
 // The SplitterModule takes three i/o streams, one that does both input and
@@ -124,7 +127,7 @@ class SplitterPlug : public StrPlug {
    virtual SplitterModule::PlugTypes PlugType() const  { return(sp_plugtype); }
 
    virtual bool CanWrite() const;
-   virtual bool Write(StrChunk *);
+   virtual bool Write(const StrChunkPtr &);
 
    virtual bool CanRead() const;
 
@@ -138,14 +141,12 @@ class SplitterPlug : public StrPlug {
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   virtual StreamModule *ParentModule() const          { return(smod); }
-   virtual StrChunk *InternalRead();
+   virtual const StrChunkPtr InternalRead();
 
    virtual void ReadableNotify();
    virtual void WriteableNotify();
 
  private:
-   SplitterModule *smod;
    SplitterModule::PlugTypes sp_plugtype;
 };
 
@@ -207,7 +208,7 @@ inline int SplitterPlug::AreYouA(const ClassIdent &cid) const
 
 inline SplitterModule *SplitterPlug::ModuleFrom() const
 {
-   return((SplitterModule *)ParentModule());
+   return(static_cast<SplitterModule *>(StrPlug::ModuleFrom()));
 }
 
 inline int SplitterPlug::Side() const
@@ -217,7 +218,7 @@ inline int SplitterPlug::Side() const
 
 SplitterPlug::SplitterPlug(SplitterModule *parent,
 			   SplitterModule::PlugTypes ptype)
-  : smod(parent), sp_plugtype(ptype)
+     : StrPlug(parent), sp_plugtype(ptype)
 {
 }
 
