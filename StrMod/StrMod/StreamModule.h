@@ -212,7 +212,7 @@ class StreamModule::Plug : public Protocol {
    /**
     * \brief Plug this plug into another.  Can fail if already plugged in.
     */
-   inline bool plugInto(Plug &other);
+   bool plugInto(Plug &other);
    //! Unplug this plug from any plugs it may be connected to.
    inline void unPlug();
    //! \brief Which plug (if any) is this plug plugged into?  Returns NULL if
