@@ -14,6 +14,10 @@
 #ifndef _UNEVT_Timer_H_
 #  include <UniEvent/Timer.h>
 #endif
+#ifndef _UNEVT_TimerEventTracker_H_
+#  include <UniEvent/TimerEventTracker.h>
+#endif
+
 #include <LCore/Debugable.h>
 
 #define _UNEVT_UnixEventPoll_H_
@@ -29,7 +33,8 @@ namespace unievent {
  */
 class UnixEventPoll : virtual public UnixEventRegistry,
                       virtual public Debugable,
-                      virtual public Timer
+                      virtual public Timer,
+                      private TimerEventTracker
 {
  public:
    UnixEventPoll(Dispatcher *dispatcher);
@@ -50,9 +55,8 @@ class UnixEventPoll : virtual public UnixEventRegistry,
 
    virtual void clearSignal(int signo);
 
-   virtual void postAt(const absolute_t &t, const EventPtr &ev);
-
-   virtual void postIn(const interval_t &off, const EventPtr &ev);
+   using TimerEventTracker::postAt;
+   using TimerEventTracker::postIn;
 
    virtual void doPoll(bool wait = false);
 
@@ -67,6 +71,7 @@ class UnixEventPoll : virtual public UnixEventRegistry,
    void unHandleSignal(int signo);
    void sigOccurred(int signo);
    bool postSigEvents();
+   virtual absolute_t currentTime() const;
 };
 
 } // namespace unievent

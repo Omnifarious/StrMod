@@ -20,6 +20,7 @@
 #include <cerrno>
 #include <stdexcept>
 #include <sys/poll.h>
+#include <sys/time.h>
 #include <signal.h>
 #include <unistd.h>
 
@@ -213,16 +214,6 @@ void UnixEventPoll::clearSignal(int signo)
    }
 }
 
-void UnixEventPoll::postAt(const absolute_t &t, const EventPtr &ev)
-{
-   throw ::std::logic_error("UnixEventPoll::postAt unimplemented.");
-}
-
-void UnixEventPoll::postIn(const interval_t &off, const EventPtr &ev)
-{
-   throw ::std::logic_error("UnixEventPoll::postIn unimplemented.");
-}
-
 namespace {
 inline short condmask_to_pollmask(const FDCondSet &condset)
 {
@@ -305,9 +296,23 @@ void UnixEventPoll::doPoll(bool wait)
       {
          wait = false;
       }
-      pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
-                              wait ? -1 : 0);
-      myerrno = errno;
+      if (wait)
+      {
+         // 1073741 seconds is approximately 2^30 milliseconds
+         interval_t waittil = nextExpirationIn(currentTime(),
+                                               interval_t(1073741));
+         int polltimeout = (waittil.seconds * 1000U) +
+            (waittil.nanoseconds / 1000U);
+         pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
+                             polltimeout);
+         myerrno = errno;
+      }
+      else
+      {
+         pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(), 0);
+         myerrno = errno;
+      }
+      postExpired(currentTime(), dispatcher_);
       if (pollresult >= 0)
       {
          const PollList::iterator end = impl_.polllist_.end();
@@ -527,6 +532,13 @@ bool UnixEventPoll::postSigEvents()
       }
    }
    return caughtany;
+}
+
+Timer::absolute_t UnixEventPoll::currentTime() const
+{
+   struct ::timeval tv;
+   ::gettimeofday(&tv, 0);
+   return absolute_t(tv.tv_sec, 0, tv.tv_usec * 1000U);
 }
 
 } // namespace unievent
