@@ -1,3 +1,18 @@
+Mon May 12 19:58:59 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/EventPtr.h:
+	* UniEvent/EventPtrT.h:
+	* EventPtr.cxx: Added new EventPtr classes to maintain reference
+ 	count on UNIEvent classes.
+
+	* UniEvent/Event.h:
+	* UniEvent/Dispatcher.h:
+	* UniEvent/SimpleDispatcher.h:
+	* SimpleDispatcherImp.cxx:
+	* UNEVT_ClassIdent.cxx: Various changes to make UNIEvent a
+ 	reference counted class, and to add (and use) new Ptr types to
+ 	automatically maintain the reference count.
+
 Wed Apr 16 13:07:08 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/OSConditionManager.h:
