@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- Copyright 1999-2002 by Eric Hopper. -->
+<!-- You should've received a copy of the GNU Lesser General Public License -->
+<!-- along with this document; if not, write to the Free Software           -->
+<!-- Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.              -->
+<head>
+  <title>PortForwader: A Tutorial</title>
+  <meta name="AUTHOR" content="Eric Hopper" />
+  <meta name="description"
+  content="A Manual describing how to use a                             Dispatcher, and other, related classes."
+  />
+  <meta name="revision" content="$Revision$" />
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <style type="text/css">
+
+h1.title {text-align: center}
+p.centered {text-align: center}</style>
+</head>
+
+<body>
+<h1 class="title">Tutorial</h1>
+
+<p>For a tutorial, we're going to write a program I call a <em>port
+forwarder</em>. Our port forwarder will accept incoming connections on one
+TCP/IP port (port 1), or socket, and makes matching outgoing connections to a
+different port (port 2). It then sends any data sent to port 1 to port 2, and
+any data sent to port 2 to port 1. The net effect is a program that seems to
+make one resource (like www.microsoft.com port 80) to also appear at another
+place (like fred.omnifarious.org port 3000).</p>
+
+<p>I use the program we will write to make specific tunnels around firewalls.
+I also use it to send IRC connections through an encrypted IP tunnel to my
+computer at home, then forward them to their eventual destination.</p>
+
+<p>Here's a diagram of a typical running PortForward session:</p>
+<p class="centered"><img halign="center" src="PortForward-running.png" alt="A diagram"/></p>
+
+</body>
+</html>
