@@ -215,8 +215,17 @@ void StreamFDModule::plugWrite(const StrChunkPtr &ptr)
 {
    assert(!cur_write_);
    cur_write_ = ptr;
-   // cerr << fd_ << ": plugWrite\n";
-   doWriteFD();
+   if (cur_write_->AreYouA(EOFStrChunk::identifier))
+   {
+      // Try to get around some things that end up blocking when they close
+      // the 'write' half.
+      setWriteableFlagFor(&plug_, false);
+      maybeShouldWriteFD();
+   }
+   else
+   {
+      doWriteFD();
+   }
 }
 
 const StrChunkPtr StreamFDModule::plugRead()
@@ -336,7 +345,11 @@ void StreamFDModule::doWriteFD()
 {
    // cerr << fd_ << ": in doWriteFD()\n";
 #ifndef MAXIOVCNT  // UnixWare 7 has this undefined.  *sigh*
+#ifndef _SC_IOV_MAX  // Linux has this undefined.  *bigger sigh*
+   static const int MAXIOVCNT = 16;
+#else
    static const int MAXIOVCNT = sysconf(_SC_IOV_MAX);
+#endif
 #endif
 
    assert(cur_write_);
@@ -496,7 +509,7 @@ void StreamFDModule::maybeShouldReadFD()
 
 void StreamFDModule::maybeShouldWriteFD()
 {
-//      cerr << "In maybeShouldWriteFD\n";
+//     cerr << "In maybeShouldWriteFD\n";
    if (!flags_.checkingwr && (fd_ >= 0) && !hasErrorIn(ErrWrite)
        && !hasErrorIn(ErrOther) && !hasErrorIn(ErrFatal) && cur_write_)
    {
@@ -531,7 +544,7 @@ void StreamFDModule::eventRead(unsigned int condbits)
 
 void StreamFDModule::eventWrite(unsigned int condbits)
 {
-   // cerr << fd_ << ": In eventWrite(" << condbits << ")\n";
+//     cerr << fd_ << ": In eventWrite(" << condbits << ")\n";
    flags_.checkingwr = false;
    if (!(condbits & UNIXpollManager::FD_Writeable))
    {
@@ -541,12 +554,16 @@ void StreamFDModule::eventWrite(unsigned int condbits)
    {
       if (cur_write_)
       {
+//  	 cerr << fd_ << ": in eventWrite cur_write_\n";
 	 doWriteFD();
+//  	 cerr << fd_ << ": after doWriteFD\n";
       }
       else if (!hasErrorIn(ErrFatal) && !hasErrorIn(ErrWrite) && (fd_ >= 0))
       {
+//  	 cerr << fd_ << ": in eventWrite !cur_write_\n";
 	 setWriteableFlagFor(&plug_, true);
       }
+//        cerr << fd_ << ": after\n";
       maybeShouldWriteFD();
    }
 }
