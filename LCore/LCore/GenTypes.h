@@ -3,6 +3,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.4  1998/02/08 04:40:35  hopper
+// Untested efficiency improvements.
+//
 // Revision 1.3  1996/07/08 02:26:47  hopper
 // Added include of byteorder file on 386 architectures.
 // Added const in a lot of places that needed it.
@@ -192,15 +195,15 @@
 #else
       inline void hton(const U4Byte n, U1Byte *c)
       {
-	 c[0] = U1Byte((n & 0xff000000UL) >> 24);
-	 c[1] = U1Byte((n & 0x00ff0000UL) >> 16);
-	 c[2] = U1Byte((n & 0x0000ff00UL) >> 8);
-	 c[3] = U1Byte((n & 0x000000ffUL));
+	 *c++ = U1Byte((n >> 24) & 0xffU);
+	 *c++ = U1Byte((n >> 16) & 0xffU);
+	 *c++ = U1Byte((n >> 8) & 0xffU);
+	 *c = U1Byte(n & 0xffU);
       }
       inline void ntoh(const U1Byte *c, U4Byte &n)
       {
-	 n = (U4Byte(c[0]) << 24) | (U4Byte(c[1]) << 16) |
-	     (U4Byte(c[2]) << 8)  |  U4Byte(c[3]);
+	 n = (U4Byte(c[0] & 0xffU) << 24) | (U4Byte(c[1] & 0xffU) << 16) |
+	     (U4Byte(c[2] & 0xffU) << 8)  |  U4Byte(c[3] & 0xffU);
       }
 
       inline void hton(const S4Byte n, U1Byte *c)
@@ -208,18 +211,18 @@
 	 hton(U4Byte(n), c);  // Essentially the same operation...
       }
       inline void ntoh(const U1Byte *c, S4Byte &n)  {
-	 n = (U4Byte(c[0]) << 24) | (U4Byte(c[1]) << 16) |
-	     (U4Byte(c[2]) << 8)  |  U4Byte(c[3]);
+	 n = (U4Byte(c[0] & 0xffU) << 24) | (U4Byte(c[1] & 0xffU) << 16) |
+	     (U4Byte(c[2] & 0xffU) << 8)  |  U4Byte(c[3] & 0xffU);
       }
 
 
       inline void hton(const U2Byte n, U1Byte *c)
       {
-	 c[0] = (n & 0xff00U) >> 8;
-	 c[1] = (n & 0x00ffU);
+	 *c++ = U1Byte((n >> 8) & 0xffU);
+	 *c = (n & 0xffU);
       }
       inline void ntoh(const U1Byte *c, U2Byte &n)  {
-	 n = (U2Byte(c[0]) << 8) | U2Byte(c[1]);
+	 n = (U2Byte(c[0] & 0xffU) << 8) | U2Byte(c[1] & 0xffU);
       }
 
       inline void hton(const S2Byte n, U1Byte *c)
@@ -228,7 +231,7 @@
       }
       inline void ntoh(const U1Byte *c, S2Byte &n)
       {
-	 n = S2Byte((U2Byte(c[0]) << 8) | U2Byte(c[1]));
+	 n = S2Byte((U2Byte(c[0] & 0xffU) << 8) | U2Byte(c[1] & 0xffU));
       }
 #endif
 
