@@ -150,11 +150,11 @@ void UNIXpollManagerImp::doPoll(bool wait)
    int pollresult;
    if (wait)
    {
-      ::poll(poll_list_, used_entries_, -1);
+      pollresult = ::poll(poll_list_, used_entries_, -1);
    }
    else
    {
-      ::poll(poll_list_, used_entries_, 0);
+      pollresult = ::poll(poll_list_, used_entries_, 0);
    }
    int myerrno = errno;  // Save any error that might have happened.
 
