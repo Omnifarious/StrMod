@@ -90,6 +90,51 @@ bool operator <(const Timer::absolute_t &a, const Timer::absolute_t &b)
    }
 }
 
+const Timer::interval_t operator -(const Timer::absolute_t &a,
+                                   const Timer::absolute_t &b)
+{
+   typedef Timer::interval_t interval_t;
+   typedef Timer::absolute_t absolute_t;
+   double timetdiff = ::difftime(a.time, b.time);
+   const interval_t &ai = a;
+   const interval_t &bi = b;
+
+   if (timetdiff < 0)
+   {
+      timetdiff = -timetdiff;
+      interval_t tdiffint =
+         interval_t(floor(timetdiff),
+                    (timetdiff - floor(timetdiff)) * 1000000000U);
+
+      if (ai < tdiffint)
+      {
+         return interval_t(0, 0);
+      }
+      else
+      {
+         return (ai - tdiffint) - bi;
+      }
+   }
+   else if (timetdiff == 0)
+   {
+      return ai - bi;
+   }
+   else
+   {
+      interval_t tdiffint =
+         interval_t(floor(timetdiff),
+                    (timetdiff - floor(timetdiff)) * 1000000000U);
+      if (ai < bi)
+      {
+         return tdiffint - (bi - ai);
+      }
+      else
+      {
+         return tdiffint + (ai - bi);
+      }
+   }
+}
+
 bool operator ==(const Timer::absolute_t &a, const Timer::absolute_t &b)
 {
    double seconds = ::difftime(a.time, b.time);
