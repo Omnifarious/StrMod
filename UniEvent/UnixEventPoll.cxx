@@ -322,12 +322,12 @@ void UnixEventPoll::doPoll(bool wait)
             (waittil.nanoseconds / 1000000U);
          pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
                              polltimeout);
-         myerrno = errno;
+         myerrno = UNIXError::getErrno();
       }
       else
       {
          pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(), 0);
-         myerrno = errno;
+         myerrno = UNIXError::getErrno();
       }
       postExpired(currentTime(), dispatcher_);
       if (pollresult >= 0)
@@ -476,7 +476,8 @@ void UnixEventPoll::handleSignal(int signo)
    handled_by_S[signo] = this;
    if (::sigaction(signo, &act, 0) != 0)
    {
-      throw UNIXError("sigaction", errno,
+      const int myerrno = UNIXError::getErrno();
+      throw UNIXError("sigaction", myerrno,
                       lcore::LCoreError(LCORE_GET_COMPILERINFO()));
    }
    sigaddset(&impl_.handled_, signo);
