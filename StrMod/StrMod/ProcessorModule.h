@@ -47,6 +47,10 @@ namespace strmod {
 class StrChunkPtr;
 class StreamProcessor;
 
+/** \class ProcessorModule ProcessorModule.h StrMod/ProcessorModule.h
+ * This wraps two objects that follow the unidirectional StreamProcessor
+ * interface in a StreamModule interface.
+ */
 class ProcessorModule : public StreamModule
 {
    class PMPlug;
@@ -54,32 +58,46 @@ class ProcessorModule : public StreamModule
  public:
    static const STR_ClassIdent identifier;
 
-   enum PlugSide { OneSide, OtherSide };
+   //! Labels for the sides of this StreamModule implementation
+   enum PlugSide {
+      OneSide,  //!< Distinguishable name.
+      OtherSide //!< Another distinguishable name.
+   };
 
-   //: If <code>own</code> is <code>true</code> then this module assumes
-   //: memory management over the passed in processors.
-   // <P>If <code>own</code> is <code>false</code> then you have a
-   // responsibility to make sure the ProcessorModule goes away before the
-   // StreamProcessors do.  If you're building a derived class,
-   // ~ProccesorModule is guaranteed not to require the StreamProcessors to
-   // exist.</P>
+   /** Construct a ProcessorModule from the two given StreamProcessor objects.
+    *
+    * @param from_one The StreamProcessor that will process data going from
+    * OneSide to OtherSide.
+    *
+    * @param from_other The StreamProcessor that will process data going from
+    * OtherSide to OneSide.
+    *
+    * @param own Whether or not this module 'owns' or assumes the duty of
+    * deleting the two passed in StreamProcessor objects.
+    *
+    * \note If \c own is \c false, it's your responsibility to make sure the
+    * ProcessorModule goes away before the StreamProcessors do.  If you're
+    * building a derived class, ~ProccesorModule is guaranteed not to require
+    * the StreamProcessors to exist if \c own is \c false.
+    */
    inline ProcessorModule(StreamProcessor &from_one,
 			  StreamProcessor &from_other,
 			  bool own = true);
-   //: If created with <code>own</code> equal to <code>false</code>,
-   //: guaranteed not to require subsidiary StreamProcessors to exist.
+
+   /** Destruct a ProcessorModule, possibly deleting the associated
+    * StreamProcessor objects.
+    *
+    * If created with \c own equal to \c false, this function guaranteed not to
+    * require subsidiary StreamProcessors to exist.
+    */
    virtual ~ProcessorModule()                           { }
 
-   //: See base class.
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   //: See base class.
    inline virtual bool canCreate(int side) const;
 
-   //: See base class.
    inline virtual bool ownsPlug(const Plug *plug) const;
 
-   //: See base class.
    virtual bool deletePlug(Plug *plug);
 
  protected:
