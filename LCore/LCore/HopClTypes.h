@@ -82,7 +82,7 @@ class EH_ClassNum : public ClassNum {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    enum EH0_Libraries { Container = 0, Common, ETurboVis, Accounting,
-			FileIO, RecordID, StrMod, Net, LCore, Trashcan,
+			FileIO, RecordID, StrMod, Net, LCore, ADT,
 			Logger = 4083, MO_Entry, DriverFile, Journals, GMCs,
 			User0, User1, User2, User3,
 			User4, User5, User6, User7 = 4095};
