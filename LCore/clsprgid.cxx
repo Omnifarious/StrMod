@@ -49,5 +49,6 @@ LCore_ClassIdent	5UL
 EH_ClassIdent		6UL
 Protocol		7UL
 ReferenceCounting	8UL
+RefCountPtr		9UL
 
 ** End of class #'s */
