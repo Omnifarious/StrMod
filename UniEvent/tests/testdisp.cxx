@@ -2,11 +2,12 @@
 
 // See ChangeLog file for log
 
+#define _XOPEN_SOURCE
+#include <stdlib.h>
 #include "UniEvent/Dispatcher.h"
 #include "UniEvent/Event.h"
 #include "UniEvent/EventPtr.h"
 #include "testdisp.h"
-#include <stdlib.h>
 #include <iostream.h>
 
 class CountingEvent : public UNIEvent {
