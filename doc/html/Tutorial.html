@@ -451,9 +451,13 @@ variable, <code>lplug_</code> to be added to the Listener class.
 constructor. And finally, the code to scan through the listening modules and
 poll each of them is added to the dispatching loop. Here is the final
 code:</p>
-<p><ul>Note:
-<li><span class="new">green</span> is new code</li>
-<li><span class="changed">red</span> is changed code.</li></ul></p>
+
+<p><ul>
+  Note: 
+  <li><span class="new">green</span> is new code</li>
+  <li><span class="changed">red</span> is changed code.</li>
+</ul>
+</p>
 <pre class="codeblock">#include &lt;StrMod/SockListenModule.h&gt;
 <span class="new">#include &lt;StrMod/SocketModule.h&gt;</span>
 #include &lt;EHnet++/SocketAddress.h&gt;
@@ -578,8 +582,7 @@ int main()
 <span class="new">         listeners.push_front(listener);  // Reverse order so they get deleted</span>
       }<span class="new">                                   // in reverse order later.</span>
    } while (cin);
-<span class="new">
-   while (1)
+<span class="new">   while (1)
    {
       dispatcher.dispatchEvent();
       {
@@ -603,78 +606,103 @@ int main()
    }</span>
    return 0;
 }</pre>
-<p>Well, that's over with now.  On to picking it apart for what it doesn't
+
+<p>Well, that's over with now. On to picking it apart for what it doesn't
 do.</p>
 
-<p>This program now properly accepts connections.  And, as an added bonus, it
-also tries to resurrect dead listening sockets.  Sadly, every time it gets a
-connection, it just closes it down.  No outbound connections, no data
-forwarding.  It's rather sad, really.</p>
+<p>This program now properly accepts connections. And, as an added bonus, it
+also tries to resurrect dead listening sockets. Sadly, every time it gets a
+connection, it just closes it down. No outbound connections, no data
+forwarding. It's rather sad, really.</p>
 
 <p>Now, to more explicitly enumerate what the program doesn't do yet, and how
 those things might be accomplished.</p>
 
-<p>It does not make an outgoing connection in response to an incoming one.  It
+<p>It does not make an outgoing connection in response to an incoming one. It
 doesn't forward data back and forth between the incoming connection and the
-non-existent (so far) outgoing connection.  There is also one last thing it
+non-existent (so far) outgoing connection. There is also one last thing it
 should do, and that's closing down the incoming and outgoing connections when
 they are no longer needed.</p>
 
-<p>The first two are actually pretty trivial to solve.  Here is some code that
-can be added into the Listeners::doPoll function that will fix the problem:</p>
-
+<p>The first two are actually pretty trivial to solve. Here is some code that
+can be added into the Listeners::doPoll function that will fix the
+problem:</p>
 <pre class="codeblock">if (incoming)
 {
    SocketModule *outgoing = new SocketModule(*to_, disp_, pman_, false);
-   incoming->makePlug(0)->plugInto( *(outgoing->makePlug(0)) );
+   incoming-&gt;makePlug(0)-&gt;plugInto( *(outgoing-&gt;makePlug(0)) );
 }</pre>
 
-<p>The magic of the UNIXpollManager and the Dispatcher (which, as you noticed,
-are passed into the SocketModule constructor) keep the data moving between the
-two SocketModules after they've been connected through their plugs.  It is, of
-course, not magic, but a detailed explanation is beyond the scope of ths
-tutorial.</p>
+<p>The magic of the UNIXpollManager and the Dispatcher (which, as you
+noticed, are passed into the SocketModule constructor) keep the data moving
+between the two SocketModules after they've been connected through their
+plugs. It is, of course, not magic, but a detailed explanation is beyond the
+scope of ths tutorial.</p>
 
-<p>But, this code has some obvious, serious memory leaks.  Nobody manages the
-existence of incoming or outgoing.  And, there is no management of error
+<p>But, this code has some obvious, serious memory leaks. Nobody manages the
+existence of incoming or outgoing. And, there is no management of error
 conditions, or what happens when a connection is close somewhere.</p>
 
 <p>In order to make all this happen, we need another data structure that
-represents an active 'forwarding', essentially, an incoming/outgoing connection
-pair.  Since memory management of this entity is also closely tied to error
-handling, which are handled using events, we won't have to do external memory
-management.  In other words, the connection pair object can manage its own
-existence.</p>
+represents an active 'forwarding', essentially, an incoming/outgoing
+connection pair. Since memory management of this entity is also closely tied
+to error handling, which are handled using events, we won't have to do
+external memory management. In other words, the connection pair object can
+manage its own existence.</p>
 
 <p>Here's some preliminary code for <code>ForwardedConnection</code>:</p>
 <pre class="codebase">class ForwardedConnection {
  public:
-   ForwardedConnection(SocketModule &incoming, SocketModule &outgoing);
+   ForwardedConnection(SocketModule &amp;incoming, SocketModule &amp;outgoing);
    ~ForwardedConnection();
 
  private:
-   SocketModule &incoming_;
-   SocketModule &outgoing_;
+   SocketModule &amp;incoming_;
+   SocketModule &amp;outgoing_;
 };
 
-ForwardedConnection::ForwardedConnection(SocketModule &incoming,
-                                         SocketModule &outgoing)
+ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
+                                         SocketModule &amp;outgoing)
     : incoming_(incoming), outgoing_(outgoing)
 {
-   incoming_.makePlug(0)->plugInto( *(outgoing_.makePlug(0)) );
+   incoming_.makePlug(0)-&gt;plugInto( *(outgoing_.makePlug(0)) );
 }
 
 ForwardedConnection::~ForwardedConnection()
 {
-   delete &incoming_;
-   delete &outgoing_;
+   delete &amp;incoming_;
+   delete &amp;outgoing_;
 }</pre>
 
-<p>This doesn't do much to actually fix the problem, but it does now provide a
-nice bucket for the values we would like to save.  As stated previously, we
-will need to handle errors, and we will need to use events.  SocketModule is
-derived from StreamFDModule and has an interface for requesting that events be
-posted in certain situations.</p>
+<p>This doesn't do much to actually fix the problem, but it does now provide
+a nice bucket for the values we would like to save. As stated previously, we
+will need to handle errors, and we will need to use events. SocketModule is
+derived from StreamFDModule and has an interface for requesting that events
+be posted in certain situations. Here are the the StreamFDModule methods:</p>
+<pre class="line">void StreamFDModule::onErrorIn(ErrorType err, const unievent::EventPtr &amp;ev);</pre>
+
+<p>And, here's the declaration for <code>StreamFDModule::ErrorType</code>:</p>
+<pre class="line">enum ErrorType {
+   ErrRead,  //!&lt; Error while reading, might have read an EOF.  Must be lowest enum value.
+   ErrWrite, //!&lt; Error while writing, might have written an EOF.
+   ErrGeneral,  //!&lt; General error affecting both reading and writing.
+   ErrFatal  //!&lt; General, fatal error affecting both reading and writing.  Must be highest enum value.
+};</pre>
+
+<p>So, StreamFDModule lets us register an event to be posted when an error in a
+particular category occurs.  And, that error includes an EOF condition.  Since
+we want the forward to continue until the parties disconnect or there's some
+kind of error, this matches our needs perfectly.</p>
+
+<p>Notice, that the interface wants an EventPtr.  This means we need to create
+the event object ourselves, and that we need to dynamically allocate it.  Since
+we're passing in a reference counted pointer, we essentially have joint
+ownership after we register it.  That means we had best use our own reference
+counted pointer to keep track of it.  Lastly, the event will need to call on of
+our own functions when triggered, so we'll need to create our own event class
+that knows what thing it needs to call back.</p>
+
+
 
 </body>
 </html>
