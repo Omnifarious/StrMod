@@ -1,3 +1,65 @@
+2002-03-21  hopper  <hopper@dev-ehopper>
+
+	* UniEvent/TimerEventTracker.h: Additionally derive from
+	Debugable, and implement printState method.
+
+	* UniEvent/Timer.h, Timer.cxx: Added methods to print out
+	Timer::absolute_t and Timer::interval_t
+
+	* TimerEventTracker.cxx: Fixed stupid compare function bug.  Fixed
+	another stupid bug where I pull the wrong value out of the map
+	when determining the chronological next event.  Added a printState
+	method.
+
+	* UnixEventPoll.cxx: Removed debugging prints.  Added a call to
+	the TimerEventTracker::printState method in
+	UnixEventPoll::printState.
+
+	* UnixEventPoll.cxx: Added debugging prints.
+
+	* TimerEventTracker.cxx: Minor cleanups and a small bug fix
+	involving not returning maxtime sometimes.
+
+	* UniEvent/UnixEventPoll.h, UnixEventPoll.cxx: Added stuff to
+	implement the Timer functionality by tying into TimerEventTracker
+
+	* TimerEventTracker.cxx: Implemented last remaining method,
+	nextExpirationIn.
+
+	* Timer.cxx: Added the operator - that the interface promises, but
+	had not yet been provided.
+
+	* Makefile.in: Added TimerEventTracker.cxx
+
+	* UniEvent/UNIXTimer.h: Added forward declaration of Dispatcher
+	class.  Was relying on one in <UniEvent/Timer.h> before.
+
+	* TimerEventTracker.cxx, UniEvent/TimerEventTracker.h: Fleshed out
+	TimerEventTracker class, and implemented most methods.
+
+	* UniEvent/Timer.h: Added some class documentation.
+
+2002-03-19  hopper  <hopper@dev-ehopper>
+
+	* UniEvent/TimerEventTracker.h: Initial class for inhereting an
+	implementation from.
+
+2002-03-16  hopper  <hopper@dev-ehopper>
+
+	* UniEvent/UnixEventPoll.h, UnixEventPoll.cxx: Added all the code
+	needed to make signal handling work.  Maybe I'll split out the
+	signal handling code to a separate file (though not a separate
+	class) someday.
+
+2002-03-15  hopper  <hopper@dev-ehopper>
+
+	* UniEvent/UnixEventPoll.h, UnixEventPoll.cxx: Partway towards
+	functional signal handling.
+
+	* UniEvent/UnixEventRegistry.h, UnixEventRegistry.cxx: Added a
+	couple of common static member variables that all subclasses will
+	need to share.
+
 2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
 
 	* UnixEventPoll.cxx: Added inheritance from Timer interface
@@ -12,9 +74,10 @@
 
 	Moved dispatcher_ down here from parent class.
 
-	* UniEvent/UnixEventRegistry.h: I forgot the maxim: Push data down
-	the hierarchy as far as it'll go.  Fixed by moving dispatcher_ to
-	derived classes.
+	* UniEvent/UnixEventRegistry.h, UniEvent/Timer.h,
+	UniEvent/UNIXTimer.h, UNIXTimer.cxx: I forgot the maxim: Push data
+	down the hierarchy as far as it'll go.  Fixed by moving
+	dispatcher_ to derived classes.
 
 	* /home/hopper/src/cvs/C++/UniEvent/ChangeLog: Changes!
 
