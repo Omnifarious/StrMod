@@ -51,6 +51,8 @@ class InfiniteModule : public StreamModule {
       IPlug(InfiniteModule &parent) : Plug(parent)      { }
       ~IPlug()                                          { }
 
+      inline virtual int AreYouA(const ClassIdent &cid) const;
+
       inline InfiniteModule &getParent() const;
       virtual int side() const                          { return(0); }
 
@@ -89,6 +91,11 @@ inline bool InfiniteModule::ownsPlug(const Plug *plug) const
 }
 
 //--
+
+inline int InfiniteModule::IPlug::AreYouA(const ClassIdent &cid) const
+{
+   return((identifier == cid) || Plug::AreYouA(cid));
+}
 
 inline InfiniteModule &InfiniteModule::IPlug::getParent() const
 {
