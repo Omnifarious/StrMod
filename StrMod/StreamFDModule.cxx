@@ -394,13 +394,6 @@ void StreamFDModule::doWriteFD()
 void StreamFDModule::maybeShouldReadFD()
 {
 //     cerr << "In maybeShouldReadFD\n";
-//     cerr << "flags_.checkingrd == " << flags_.checkingrd << "\n";
-//     cerr << "fd_ == " << fd_ << "\n";
-//     cerr << "readEOF()_ == " << readEOF() << "\n";
-//     cerr << "hasErrorIn(ErrRead)_ == " << hasErrorIn(ErrRead) << "\n";
-//     cerr << "hasErrorIn(ErrOther)_ == " << hasErrorIn(ErrOther) << "\n";
-//     cerr << "hasErrorIn(ErrFatal)_ == " << hasErrorIn(ErrFatal) << "\n";
-//     cerr << "!buffed_read__== " << !buffed_read_ << "\n";
    if (!flags_.checkingrd && (fd_ >= 0) && !readEOF() && !hasErrorIn(ErrRead)
        && !hasErrorIn(ErrOther) && !hasErrorIn(ErrFatal) && !buffed_read_)
    {
@@ -409,15 +402,50 @@ void StreamFDModule::maybeShouldReadFD()
       pollmgr_.registerFDCond(fd_, condbits, readev_);
       flags_.checkingrd = true;
    }
+//     else
+//     {
+//        cerr << "fd: " << fd_ << " ";
+//        if (flags_.checkingrd)
+//        {
+//  	 cerr << "flags_.checkingrd ";
+//        }
+//        if (fd_ < 0)
+//        {
+//  	 cerr << "fd_ < 0 ";
+//        }
+//        if (readEOF())
+//        {
+//  	 cerr << "readEOF() ";
+//        }
+//        if (hasErrorIn(ErrRead))
+//        {
+//  	 cerr << "hasErrorIn(ErrRead) ";
+//        }
+//        if (hasErrorIn(ErrOther))
+//        {
+//  	 cerr << "hasErrorIn(ErrOther) ";
+//        }
+//        if (hasErrorIn(ErrFatal))
+//        {
+//  	 cerr << "hasErrorIn(ErrFatal) ";
+//        }
+//        if (buffed_read_)
+//        {
+//  	 cerr << "buffed_read_ ";
+//        }
+//        cerr << "\n";
+//     }
 }
 
 void StreamFDModule::maybeShouldWriteFD()
 {
+//      cerr << "In maybeShouldWriteFD\n";
    if (!flags_.checkingwr && (fd_ >= 0) && !hasErrorIn(ErrWrite)
        && !hasErrorIn(ErrOther) && !hasErrorIn(ErrFatal) && cur_write_)
    {
       static const unsigned int condbits = UNIXpollManager::FD_Writeable;
 
+//        cerr << "fd: " << fd_ << " registering for writing.\n";
       pollmgr_.registerFDCond(fd_, condbits, writeev_);
       flags_.checkingwr = true;
    }
@@ -437,6 +465,7 @@ void StreamFDModule::eventRead(unsigned int condbits)
       {
 	 doReadFD();
       }
+//        cerr << "Calling maybeShouldReadFD\n";
       maybeShouldReadFD();
    }
 }
@@ -465,6 +494,7 @@ void StreamFDModule::eventWrite(unsigned int condbits)
 
 void StreamFDModule::eventError(unsigned int condbits)
 {
+//      cerr << "In eventError\n";
    if (condbits & (UNIXpollManager::FD_Writeable
 		   | UNIXpollManager::FD_Readable
 		   | UNIXpollManager::FD_Invalid))
