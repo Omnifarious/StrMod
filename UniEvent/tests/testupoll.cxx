@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
 
 class StdinEvent : public strmod::unievent::Event
 {
@@ -45,6 +46,38 @@ void StdinEvent::triggerEvent(strmod::unievent::Dispatcher *dispatcher)
    ureg_->registerFDCond(fd_, tmp, this);
 }
 
+class SigEvent : public strmod::unievent::Event
+{
+ public:
+   SigEvent(strmod::unievent::UnixEventRegistry *ureg, int signo)
+        : ureg_(ureg), signo_(signo), countdown_(false), repsleft_(0) { }
+   SigEvent(strmod::unievent::UnixEventRegistry *ureg, int signo, unsigned int repct)
+        : ureg_(ureg), signo_(signo), countdown_(true), repsleft_(repct) { }
+   virtual void triggerEvent(strmod::unievent::Dispatcher *dispatcher = 0);
+
+ private:
+   strmod::unievent::UnixEventRegistry * const ureg_;
+   const int signo_;
+   const bool countdown_;
+   unsigned int repsleft_;
+};
+
+void SigEvent::triggerEvent(strmod::unievent::Dispatcher *dispatcher)
+{
+   using std::cout;
+   using strmod::unievent::UnixEventRegistry;
+   cout << "I got signal #" << signo_ << " at event address " << this << "!\n";
+   if (countdown_)
+   {
+      cout << "Repetitions left: " << --repsleft_ << "\n";
+      if (repsleft_ == 0)
+      {
+         ureg_->clearSignal(signo_, this);
+      }
+   }
+   cout.flush();
+}
+
 int main(int argc, const char *argv[])
 {
    strmod::unievent::SimpleDispatcher dispatcher;
@@ -65,6 +98,8 @@ int main(int argc, const char *argv[])
          upoll.registerFDCond(tempfd, rdcond, new StdinEvent(&upoll, tempfd));
       }
    }
+   upoll.onSignal(SIGINT, new SigEvent(&upoll, SIGINT));
+   upoll.onSignal(SIGINT, new SigEvent(&upoll, SIGINT, 5));
 //   upoll.printState(std::cerr);
    do {
       if (dispatcher.isQueueEmpty())
