@@ -6,19 +6,20 @@
 
 /* $Header$ */
 
-// $Log$
+// For a log, see ../Changelog
+//
 // Revision 1.1  1996/09/02 23:26:48  hopper
 // Added PassThrough class to use when you needed a StreamProcessor that
 // did nothing except buffer one Chunk worth of data.
 //
 
 #include <StrMod/StreamProcessor.h>
+#include <cassert>
 
 #define _STR_PassThrough_H_
 
 class PassThrough : public StreamProcessor {
  public:
-   typedef StreamProcessor parentclass;
    static const STR_ClassIdent identifier;
 
    PassThrough()                                       { }
@@ -29,7 +30,7 @@ class PassThrough : public StreamProcessor {
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   inline virtual void ProcessIncoming();
+   inline virtual void processIncoming();
 
  private:
    PassThrough(const PassThrough &b);
@@ -39,14 +40,15 @@ class PassThrough : public StreamProcessor {
 
 inline int PassThrough::AreYouA(const ClassIdent &cid) const
 {
-   return((identifier == cid) || parentclass::AreYouA(cid));
+   return((identifier == cid) || StreamProcessor::AreYouA(cid));
 }
 
-inline void PassThrough::ProcessIncoming()
+inline void PassThrough::processIncoming()
 {
-   m_outgoing = m_incoming;
-   m_outgoing_ready = true;
-   m_incoming.ReleasePtr();
+   assert(!outgoing_);
+   outgoing_ = incoming_;
+   outgoing_ready_ = true;
+   incoming_.ReleasePtr();
 }
 
 #endif

@@ -1,6 +1,7 @@
 /* $Header$ */
 
-// $Log$
+// For a log, see Changelog
+//
 // Revision 1.1  1996/09/02 23:26:41  hopper
 // Added PassThrough class to use when you needed a StreamProcessor that
 // did nothing except buffer one Chunk worth of data.
