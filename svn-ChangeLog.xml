@@ -1,0 +1,99 @@
+<?xml version="1.0" ?>
+<log><logentry revision="65">
+<author>hopper</author>
+<date>2003-01-28T11:08:24.069835Z</date>
+<paths><path action="D">/trunk/C++/libNet/ChangeLog</path><path action="A" copyfrom-path="/trunk/C++/libNet/ChangeLog" copyfrom-rev="60">/trunk/C++/libNet/ChangeLog.1</path><path action="D">/trunk/C++/libNet/EHnet++/ChangeLog</path><path action="A" copyfrom-path="/trunk/C++/libNet/EHnet++/ChangeLog" copyfrom-rev="60">/trunk/C++/libNet/EHnet++/ChangeLog.1</path><path action="D">/trunk/C++/libNet/LCore/ChangeLog</path><path action="A" copyfrom-path="/trunk/C++/libNet/LCore/ChangeLog" copyfrom-rev="60">/trunk/C++/libNet/LCore/ChangeLog.1</path><path action="D">/trunk/C++/libNet/StrMod/ChangeLog</path><path action="A" copyfrom-path="/trunk/C++/libNet/StrMod/ChangeLog" copyfrom-rev="60">/trunk/C++/libNet/StrMod/ChangeLog.1</path><path action="D">/trunk/C++/libNet/UniEvent/ChangeLog</path><path action="A" copyfrom-path="/trunk/C++/libNet/UniEvent/ChangeLog" copyfrom-rev="60">/trunk/C++/libNet/UniEvent/ChangeLog.1</path><path action="D">/trunk/C++/libNet/UniEvent/tests/ChangeLog</path><path action="A" copyfrom-path="/trunk/C++/libNet/UniEvent/tests/ChangeLog" copyfrom-rev="60">/trunk/C++/libNet/UniEvent/tests/ChangeLog.1</path><path action="D">/trunk/C++/libNet/tests-cppunit/ChangeLog</path><path action="A" copyfrom-path="/trunk/C++/libNet/tests-cppunit/ChangeLog" copyfrom-rev="60">/trunk/C++/libNet/tests-cppunit/ChangeLog.1</path></paths>
+<msg>Moved ChangeLog files around to prepare for new Subversion log style
+ChangeLogs that will be added in each release.</msg>
+</logentry><logentry revision="62">
+<author>hopper</author>
+<date>2003-01-28T10:53:43.845998Z</date>
+<paths><path action="M">/trunk/C++/libNet/Doxyfile</path></paths>
+<msg>New version number, 0.5.0</msg>
+</logentry><logentry revision="39">
+<author>hopper</author>
+<date>2003-01-13T03:50:51.014169Z</date>
+<paths><path action="M">/trunk/C++/libNet/Doxyfile</path><path action="M">/trunk/C++/libNet/xml/xml/utf8/Builder.h</path></paths>
+<msg>Arranged for the new xml directory to be properly docuemented.</msg>
+</logentry><logentry revision="37">
+<author>hopper</author>
+<date>2003-01-13T03:25:49.893295Z</date>
+<paths><path action="A" copyfrom-path="/trunk/C++/libNet/xml/XMLUTF8Parser.cpp" copyfrom-rev="36">/trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp</path><path action="D">/trunk/C++/libNet/xml/XMLUTF8Parser.cpp</path></paths>
+<msg>Moved the 'XMLUTF8Parser.cpp' file over to the tests-cppunit directory where
+it will be massaged into a test.</msg>
+</logentry><logentry revision="35">
+<author>hopper</author>
+<date>2003-01-13T03:20:43.555504Z</date>
+<paths><path action="M">/trunk/C++/libNet</path><path action="M">/trunk/C++/libNet/Makefile.in</path><path action="M">/trunk/C++/libNet/configure.in</path><path action="M">/trunk/C++/libNet/xml</path><path action="M">/trunk/C++/libNet/xml/Makefile.in</path></paths>
+<msg>Integrated xml stuff into the whole make package.
+Also, ignore a few more files.</msg>
+</logentry><logentry revision="34">
+<author>hopper</author>
+<date>2003-01-13T03:18:21.922513Z</date>
+<paths><path action="M">/trunk/C++/libNet/distbin/proclibsrc.pl.in</path></paths>
+<msg>Changed to handle .cpp files.</msg>
+</logentry><logentry revision="26">
+<author>hopper</author>
+<date>2003-01-11T18:44:42.502558Z</date>
+<paths><path action="M">/trunk/C++/libNet/Doxyfile</path><path action="D">/trunk/C++/libNet/scratch</path><path action="A" copyfrom-path="/trunk/C++/libNet/scratch" copyfrom-rev="24">/trunk/C++/libNet/xml</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/Makefile" copyfrom-rev="25">/trunk/C++/libNet/xml/Makefile</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Builder.cpp" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8Builder.cpp</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Builder.h" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8Builder.h</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Lexer.cpp" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8Lexer.cpp</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Lexer.h" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8Lexer.h</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8LexerSane.cpp" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8LexerSane.cpp</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Parser.cpp" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8Parser.cpp</path></paths>
+<msg>Move scratch directory to be named 'xml' and added it to the directories to
+be scanned for documentation.</msg>
+</logentry><logentry revision="25">
+<author>hopper</author>
+<date>2003-01-11T18:42:26.963335Z</date>
+<paths><path action="M">/trunk/C++/libNet/scratch/XMLUTF8Builder.h</path></paths>
+<msg>Improved the documentation, partly by adding a nice diagram.
+</msg>
+</logentry><logentry revision="24">
+<author>hopper</author>
+<date>2003-01-11T16:10:37.318819Z</date>
+<paths><path action="M">/trunk/C++/libNet/doc/html/PortForward-running.png</path></paths>
+<msg>Set as image/png</msg>
+</logentry><logentry revision="23">
+<author>hopper</author>
+<date>2003-01-11T16:03:31.905581Z</date>
+<paths><path action="M">/trunk/C++/libNet/scratch/XMLUTF8Builder.h</path></paths>
+<msg>Added a bunch of documentation.</msg>
+</logentry><logentry revision="22">
+<author>hopper</author>
+<date>2003-01-11T15:59:30.308433Z</date>
+<paths><path action="M">/trunk/C++/libNet/scratch/XMLUTF8Lexer.h</path></paths>
+<msg>Moved some private things after the public section because the public
+section no longer makes use of the declarations.
+</msg>
+</logentry><logentry revision="21">
+<author>hopper</author>
+<date>2003-01-11T14:44:02.789384Z</date>
+<paths><path action="M">/trunk/C++/libNet/scratch</path></paths>
+<msg>Ignore result of compilation.</msg>
+</logentry><logentry revision="20">
+<author>hopper</author>
+<date>2003-01-10T15:26:58.388871Z</date>
+<paths><path action="M">/trunk/C++/libNet/scratch/Makefile</path><path action="A" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Builder.cxx" copyfrom-rev="19">/trunk/C++/libNet/scratch/XMLUTF8Builder.cpp</path><path action="D">/trunk/C++/libNet/scratch/XMLUTF8Builder.cxx</path></paths>
+<msg>Started moving XMLBuilder interface to its own header.</msg>
+</logentry><logentry revision="19">
+<author>hopper</author>
+<date>2003-01-10T15:23:24.309192Z</date>
+<paths><path action="A">/trunk/C++/libNet/scratch/XMLUTF8Builder.cxx</path></paths>
+<msg>Started moving XMLBuilder interface to its own header.</msg>
+</logentry><logentry revision="18">
+<author>hopper</author>
+<date>2003-01-10T15:21:02.874927Z</date>
+<paths><path action="M">/trunk/C++/libNet/scratch/XMLUTF8Builder.h</path></paths>
+<msg>Set up keyword substitution.</msg>
+</logentry><logentry revision="17">
+<author>hopper</author>
+<date>2003-01-10T15:18:37.853505Z</date>
+<paths><path action="A">/trunk/C++/libNet/scratch/XMLUTF8Builder.h</path><path action="M">/trunk/C++/libNet/scratch/XMLUTF8Lexer.h</path></paths>
+<msg>Started moving XMLBuilder interface to its own header.</msg>
+</logentry><logentry revision="16">
+<author>hopper</author>
+<date>2003-01-10T15:15:17.023707Z</date>
+<paths><path action="M">/trunk/C++/libNet/scratch/Makefile</path><path action="M">/trunk/C++/libNet/scratch/XMLUTF8Lexer.cpp</path><path action="M">/trunk/C++/libNet/scratch/XMLUTF8Lexer.h</path><path action="M">/trunk/C++/libNet/scratch/XMLUTF8LexerSane.cpp</path><path action="M">/trunk/C++/libNet/scratch/XMLUTF8Parser.cpp</path></paths>
+<msg>Changed CVS tags to SVN ones.</msg>
+</logentry><logentry revision="14">
+<author>hopper</author>
+<date>2003-01-10T15:00:06.674237Z</date>
+<paths><path action="M">/trunk/C++/libNet</path><path action="D">/trunk/C++/libNet/.cvsignore</path><path action="M">/trunk/C++/libNet/EHnet++</path><path action="D">/trunk/C++/libNet/EHnet++/.cvsignore</path><path action="M">/trunk/C++/libNet/LCore</path><path action="D">/trunk/C++/libNet/LCore/.cvsignore</path><path action="M">/trunk/C++/libNet/StrMod</path><path action="D">/trunk/C++/libNet/StrMod/.cvsignore</path><path action="M">/trunk/C++/libNet/UniEvent</path><path action="D">/trunk/C++/libNet/UniEvent/.cvsignore</path><path action="M">/trunk/C++/libNet/distbin</path><path action="D">/trunk/C++/libNet/distbin/.cvsignore</path></paths>
+<msg>Setting up 'ignore' lists so svn will understand them.</msg>
+</logentry></log>

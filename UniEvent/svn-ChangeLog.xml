@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<log><logentry revision="65">
+<author>hopper</author>
+<date>2003-01-28T11:08:24.069835Z</date>
+<paths><path action="D">/trunk/C++/libNet/UniEvent/ChangeLog</path><path action="A" copyfrom-path="/trunk/C++/libNet/UniEvent/ChangeLog" copyfrom-rev="60">/trunk/C++/libNet/UniEvent/ChangeLog.1</path><path action="D">/trunk/C++/libNet/UniEvent/tests/ChangeLog</path><path action="A" copyfrom-path="/trunk/C++/libNet/UniEvent/tests/ChangeLog" copyfrom-rev="60">/trunk/C++/libNet/UniEvent/tests/ChangeLog.1</path></paths>
+<msg>Moved ChangeLog files around to prepare for new Subversion log style
+ChangeLogs that will be added in each release.</msg>
+</logentry><logentry revision="14">
+<author>hopper</author>
+<date>2003-01-10T15:00:06.674237Z</date>
+<paths><path action="M">/trunk/C++/libNet/UniEvent</path><path action="D">/trunk/C++/libNet/UniEvent/.cvsignore</path></paths>
+<msg>Setting up 'ignore' lists so svn will understand them.</msg>
+</logentry></log>

@@ -1,0 +1,161 @@
+------------------------------------------------------------------------
+rev 65: 	hopper | 2003-01-28 11:08:24
+Changed paths:
+   D /trunk/C++/libNet/ChangeLog
+   A /trunk/C++/libNet/ChangeLog.1 (from /trunk/C++/libNet/ChangeLog:60)
+   D /trunk/C++/libNet/EHnet++/ChangeLog
+   A /trunk/C++/libNet/EHnet++/ChangeLog.1 (from /trunk/C++/libNet/EHnet++/ChangeLog:60)
+   D /trunk/C++/libNet/LCore/ChangeLog
+   A /trunk/C++/libNet/LCore/ChangeLog.1 (from /trunk/C++/libNet/LCore/ChangeLog:60)
+   D /trunk/C++/libNet/StrMod/ChangeLog
+   A /trunk/C++/libNet/StrMod/ChangeLog.1 (from /trunk/C++/libNet/StrMod/ChangeLog:60)
+   D /trunk/C++/libNet/UniEvent/ChangeLog
+   A /trunk/C++/libNet/UniEvent/ChangeLog.1 (from /trunk/C++/libNet/UniEvent/ChangeLog:60)
+   D /trunk/C++/libNet/UniEvent/tests/ChangeLog
+   A /trunk/C++/libNet/UniEvent/tests/ChangeLog.1 (from /trunk/C++/libNet/UniEvent/tests/ChangeLog:60)
+   D /trunk/C++/libNet/tests-cppunit/ChangeLog
+   A /trunk/C++/libNet/tests-cppunit/ChangeLog.1 (from /trunk/C++/libNet/tests-cppunit/ChangeLog:60)
+
+Moved ChangeLog files around to prepare for new Subversion log style
+ChangeLogs that will be added in each release.
+------------------------------------------------------------------------
+rev 62: 	hopper | 2003-01-28 10:53:43
+Changed paths:
+   M /trunk/C++/libNet/Doxyfile
+
+New version number, 0.5.0
+------------------------------------------------------------------------
+rev 39: 	hopper | 2003-01-13 03:50:51
+Changed paths:
+   M /trunk/C++/libNet/Doxyfile
+   M /trunk/C++/libNet/xml/xml/utf8/Builder.h
+
+Arranged for the new xml directory to be properly docuemented.
+------------------------------------------------------------------------
+rev 37: 	hopper | 2003-01-13 03:25:49
+Changed paths:
+   A /trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp (from /trunk/C++/libNet/xml/XMLUTF8Parser.cpp:36)
+   D /trunk/C++/libNet/xml/XMLUTF8Parser.cpp
+
+Moved the 'XMLUTF8Parser.cpp' file over to the tests-cppunit directory where
+it will be massaged into a test.
+------------------------------------------------------------------------
+rev 35: 	hopper | 2003-01-13 03:20:43
+Changed paths:
+   M /trunk/C++/libNet
+   M /trunk/C++/libNet/Makefile.in
+   M /trunk/C++/libNet/configure.in
+   M /trunk/C++/libNet/xml
+   M /trunk/C++/libNet/xml/Makefile.in
+
+Integrated xml stuff into the whole make package.
+Also, ignore a few more files.
+------------------------------------------------------------------------
+rev 34: 	hopper | 2003-01-13 03:18:21
+Changed paths:
+   M /trunk/C++/libNet/distbin/proclibsrc.pl.in
+
+Changed to handle .cpp files.
+------------------------------------------------------------------------
+rev 26: 	hopper | 2003-01-11 18:44:42
+Changed paths:
+   M /trunk/C++/libNet/Doxyfile
+   D /trunk/C++/libNet/scratch
+   A /trunk/C++/libNet/xml (from /trunk/C++/libNet/scratch:24)
+   R /trunk/C++/libNet/xml/Makefile (from /trunk/C++/libNet/scratch/Makefile:25)
+   R /trunk/C++/libNet/xml/XMLUTF8Builder.cpp (from /trunk/C++/libNet/scratch/XMLUTF8Builder.cpp:25)
+   R /trunk/C++/libNet/xml/XMLUTF8Builder.h (from /trunk/C++/libNet/scratch/XMLUTF8Builder.h:25)
+   R /trunk/C++/libNet/xml/XMLUTF8Lexer.cpp (from /trunk/C++/libNet/scratch/XMLUTF8Lexer.cpp:25)
+   R /trunk/C++/libNet/xml/XMLUTF8Lexer.h (from /trunk/C++/libNet/scratch/XMLUTF8Lexer.h:25)
+   R /trunk/C++/libNet/xml/XMLUTF8LexerSane.cpp (from /trunk/C++/libNet/scratch/XMLUTF8LexerSane.cpp:25)
+   R /trunk/C++/libNet/xml/XMLUTF8Parser.cpp (from /trunk/C++/libNet/scratch/XMLUTF8Parser.cpp:25)
+
+Move scratch directory to be named 'xml' and added it to the directories to
+be scanned for documentation.
+------------------------------------------------------------------------
+rev 25: 	hopper | 2003-01-11 18:42:26
+Changed paths:
+   M /trunk/C++/libNet/scratch/XMLUTF8Builder.h
+
+Improved the documentation, partly by adding a nice diagram.
+
+------------------------------------------------------------------------
+rev 24: 	hopper | 2003-01-11 16:10:37
+Changed paths:
+   M /trunk/C++/libNet/doc/html/PortForward-running.png
+
+Set as image/png
+------------------------------------------------------------------------
+rev 23: 	hopper | 2003-01-11 16:03:31
+Changed paths:
+   M /trunk/C++/libNet/scratch/XMLUTF8Builder.h
+
+Added a bunch of documentation.
+------------------------------------------------------------------------
+rev 22: 	hopper | 2003-01-11 15:59:30
+Changed paths:
+   M /trunk/C++/libNet/scratch/XMLUTF8Lexer.h
+
+Moved some private things after the public section because the public
+section no longer makes use of the declarations.
+
+------------------------------------------------------------------------
+rev 21: 	hopper | 2003-01-11 14:44:02
+Changed paths:
+   M /trunk/C++/libNet/scratch
+
+Ignore result of compilation.
+------------------------------------------------------------------------
+rev 20: 	hopper | 2003-01-10 15:26:58
+Changed paths:
+   M /trunk/C++/libNet/scratch/Makefile
+   A /trunk/C++/libNet/scratch/XMLUTF8Builder.cpp (from /trunk/C++/libNet/scratch/XMLUTF8Builder.cxx:19)
+   D /trunk/C++/libNet/scratch/XMLUTF8Builder.cxx
+
+Started moving XMLBuilder interface to its own header.
+------------------------------------------------------------------------
+rev 19: 	hopper | 2003-01-10 15:23:24
+Changed paths:
+   A /trunk/C++/libNet/scratch/XMLUTF8Builder.cxx
+
+Started moving XMLBuilder interface to its own header.
+------------------------------------------------------------------------
+rev 18: 	hopper | 2003-01-10 15:21:02
+Changed paths:
+   M /trunk/C++/libNet/scratch/XMLUTF8Builder.h
+
+Set up keyword substitution.
+------------------------------------------------------------------------
+rev 17: 	hopper | 2003-01-10 15:18:37
+Changed paths:
+   A /trunk/C++/libNet/scratch/XMLUTF8Builder.h
+   M /trunk/C++/libNet/scratch/XMLUTF8Lexer.h
+
+Started moving XMLBuilder interface to its own header.
+------------------------------------------------------------------------
+rev 16: 	hopper | 2003-01-10 15:15:17
+Changed paths:
+   M /trunk/C++/libNet/scratch/Makefile
+   M /trunk/C++/libNet/scratch/XMLUTF8Lexer.cpp
+   M /trunk/C++/libNet/scratch/XMLUTF8Lexer.h
+   M /trunk/C++/libNet/scratch/XMLUTF8LexerSane.cpp
+   M /trunk/C++/libNet/scratch/XMLUTF8Parser.cpp
+
+Changed CVS tags to SVN ones.
+------------------------------------------------------------------------
+rev 14: 	hopper | 2003-01-10 15:00:06
+Changed paths:
+   M /trunk/C++/libNet
+   D /trunk/C++/libNet/.cvsignore
+   M /trunk/C++/libNet/EHnet++
+   D /trunk/C++/libNet/EHnet++/.cvsignore
+   M /trunk/C++/libNet/LCore
+   D /trunk/C++/libNet/LCore/.cvsignore
+   M /trunk/C++/libNet/StrMod
+   D /trunk/C++/libNet/StrMod/.cvsignore
+   M /trunk/C++/libNet/UniEvent
+   D /trunk/C++/libNet/UniEvent/.cvsignore
+   M /trunk/C++/libNet/distbin
+   D /trunk/C++/libNet/distbin/.cvsignore
+
+Setting up 'ignore' lists so svn will understand them.

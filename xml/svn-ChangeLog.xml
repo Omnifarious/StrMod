@@ -1,0 +1,79 @@
+<?xml version="1.0" ?>
+<log><logentry revision="48">
+<author>hopper</author>
+<date>2003-01-16T22:21:54.779515Z</date>
+<paths><path action="M">/trunk/C++/libNet/xml/xml/utf8/Builder.h</path></paths>
+<msg>Arranged formatting so things fit in 80 columns.
+</msg>
+</logentry><logentry revision="39">
+<author>hopper</author>
+<date>2003-01-13T03:50:51.014169Z</date>
+<paths><path action="M">/trunk/C++/libNet/xml/xml/utf8/Builder.h</path></paths>
+<msg>Arranged for the new xml directory to be properly docuemented.</msg>
+</logentry><logentry revision="38">
+<author>hopper</author>
+<date>2003-01-13T03:49:40.816807Z</date>
+<paths><path action="M">/trunk/C++/libNet/xml/xml/utf8/Lexer.h</path></paths>
+<msg>Changes to document Lexer and make the docuementation a little better.
+</msg>
+</logentry><logentry revision="37">
+<author>hopper</author>
+<date>2003-01-13T03:25:49.893295Z</date>
+<paths><path action="D">/trunk/C++/libNet/xml/XMLUTF8Parser.cpp</path></paths>
+<msg>Moved the 'XMLUTF8Parser.cpp' file over to the tests-cppunit directory where
+it will be massaged into a test.</msg>
+</logentry><logentry revision="36">
+<author>hopper</author>
+<date>2003-01-13T03:22:31.704843Z</date>
+<paths><path action="M">/trunk/C++/libNet/xml/Makefile.in</path></paths>
+<msg>Set svn:keywords property.</msg>
+</logentry><logentry revision="35">
+<author>hopper</author>
+<date>2003-01-13T03:20:43.555504Z</date>
+<paths><path action="M">/trunk/C++/libNet/xml</path><path action="M">/trunk/C++/libNet/xml/Makefile.in</path></paths>
+<msg>Integrated xml stuff into the whole make package.
+Also, ignore a few more files.</msg>
+</logentry><logentry revision="33">
+<author>hopper</author>
+<date>2003-01-13T01:49:22.612305Z</date>
+<paths><path action="D">/trunk/C++/libNet/xml/Makefile</path><path action="A">/trunk/C++/libNet/xml/Makefile.in</path><path action="A" copyfrom-path="/trunk/C++/libNet/xml/Makefile" copyfrom-rev="32">/trunk/C++/libNet/xml/makefile.sav</path></paths>
+<msg>Converting over to new make process and saving 'super-optimizaion' options.</msg>
+</logentry><logentry revision="32">
+<author>hopper</author>
+<date>2003-01-13T00:10:50.318225Z</date>
+<paths><path action="M">/trunk/C++/libNet/xml/Makefile</path><path action="D">/trunk/C++/libNet/xml/XMLUTF8Builder.cpp</path><path action="D">/trunk/C++/libNet/xml/XMLUTF8Builder.h</path><path action="D">/trunk/C++/libNet/xml/XMLUTF8Lexer.cpp</path><path action="D">/trunk/C++/libNet/xml/XMLUTF8Lexer.h</path><path action="D">/trunk/C++/libNet/xml/XMLUTF8LexerSane.cpp</path><path action="M">/trunk/C++/libNet/xml/XMLUTF8Parser.cpp</path><path action="A" copyfrom-path="/trunk/C++/libNet/xml/XMLUTF8Builder.cpp" copyfrom-rev="31">/trunk/C++/libNet/xml/utf8_Builder.cpp</path><path action="A" copyfrom-path="/trunk/C++/libNet/xml/XMLUTF8Lexer.cpp" copyfrom-rev="31">/trunk/C++/libNet/xml/utf8_Lexer.cpp</path><path action="A" copyfrom-path="/trunk/C++/libNet/xml/XMLUTF8LexerSane.cpp" copyfrom-rev="31">/trunk/C++/libNet/xml/utf8_LexerSane.cpp</path><path action="A" copyfrom-path="/trunk/C++/libNet/xml/XMLUTF8Builder.h" copyfrom-rev="31">/trunk/C++/libNet/xml/xml/utf8/Builder.h</path><path action="A" copyfrom-path="/trunk/C++/libNet/xml/XMLUTF8Lexer.h" copyfrom-rev="31">/trunk/C++/libNet/xml/xml/utf8/Lexer.h</path></paths>
+<msg>Moved and changed names of files to conform to libNet naming standards.
+Also, altered everything to use the new names.</msg>
+</logentry><logentry revision="31">
+<author>hopper</author>
+<date>2003-01-12T22:05:58.324890Z</date>
+<paths><path action="D">/trunk/C++/libNet/xml/xml/fred</path></paths>
+<msg>Removed silly test.</msg>
+</logentry><logentry revision="30">
+<author>hopper</author>
+<date>2003-01-12T22:05:07.202840Z</date>
+<paths><path action="A">/trunk/C++/libNet/xml/xml/utf8</path></paths>
+<msg>Added utf8 directory.</msg>
+</logentry><logentry revision="29">
+<author>hopper</author>
+<date>2003-01-12T22:04:07.814518Z</date>
+<paths><path action="A">/trunk/C++/libNet/xml/xml/fred</path></paths>
+<msg>A test.</msg>
+</logentry><logentry revision="28">
+<author>hopper</author>
+<date>2003-01-12T21:51:19.830622Z</date>
+<paths><path action="M">/trunk/C++/libNet/xml/XMLUTF8Builder.h</path></paths>
+<msg>Moved into UTF-8 namespace.
+</msg>
+</logentry><logentry revision="27">
+<author>hopper</author>
+<date>2003-01-12T21:49:55.844902Z</date>
+<paths><path action="A">/trunk/C++/libNet/xml/xml</path></paths>
+<msg>Added 'xml' directory for header files.</msg>
+</logentry><logentry revision="26">
+<author>hopper</author>
+<date>2003-01-11T18:44:42.502558Z</date>
+<paths><path action="A" copyfrom-path="/trunk/C++/libNet/scratch" copyfrom-rev="24">/trunk/C++/libNet/xml</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/Makefile" copyfrom-rev="25">/trunk/C++/libNet/xml/Makefile</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Builder.cpp" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8Builder.cpp</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Builder.h" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8Builder.h</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Lexer.cpp" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8Lexer.cpp</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Lexer.h" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8Lexer.h</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8LexerSane.cpp" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8LexerSane.cpp</path><path action="R" copyfrom-path="/trunk/C++/libNet/scratch/XMLUTF8Parser.cpp" copyfrom-rev="25">/trunk/C++/libNet/xml/XMLUTF8Parser.cpp</path></paths>
+<msg>Move scratch directory to be named 'xml' and added it to the directories to
+be scanned for documentation.</msg>
+</logentry></log>
