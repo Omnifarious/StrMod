@@ -1,5 +1,8 @@
 2001-03-05  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* StreamFDModule.cxx (BufferList): Fixed several likely stupid
+	errors in BufferList code.
+
 	* StrMod/RouterModule.h, RouterModule.cxx: A new abstract module
 	for reading chunks in and passing them out to an arbitrary set of
 	connected plugs.
