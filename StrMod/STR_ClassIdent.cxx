@@ -77,4 +77,5 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   46UL	StaticBuffer
   47UL	UseTrackingVisitor
   48UL	GraphVizVisitor
+  49UL	TelnetChunkBuilder
 */
