@@ -87,16 +87,16 @@ class InetAddress : public SocketAddress {
    virtual struct sockaddr *SockAddr(){ return((struct sockaddr *)(&inaddr)); }
    InetAddress *Copy() const          { return((InetAddress *)MakeCopy()); }
    virtual int AddressSize() const    { return(sizeof(sockaddr_in)); }
-   virtual string AsString();
+   virtual std::string AsString();
 
-   string GetHostname() const         { return(hostname); }
-   string GetHostname(bool forcelookup);
+   std::string GetHostname() const         { return(hostname); }
+   std::string GetHostname(bool forcelookup);
    U2Byte GetPort() const             { return(port); }
 
    const InetAddress &operator =(const InetAddress &b);
    const InetAddress &operator =(const sockaddr_in &iadr);
 
-   InetAddress(const string &h_name, U2Byte prt);
+   InetAddress(const std::string &h_name, U2Byte prt);
    InetAddress(U2Byte port);
    InetAddress(const InetAddress &b);
    InetAddress(const sockaddr_in &iadr);
@@ -110,16 +110,16 @@ class InetAddress : public SocketAddress {
    void InvalidateAddress();
    static bool ParseNumeric(const char *numeric_addr, U4Byte &num);
    static bool NameToIaddr(const char *name_addr, U4Byte &num);
-   static string IaddrToName(const sockaddr_in &inaddr);
+   static std::string IaddrToName(const sockaddr_in &inaddr);
 
  private:
-   string hostname;
+   std::string hostname;
    U2Byte port;
    sockaddr_in inaddr;
 
    static bool AsciiToQInum(const char *s, int &i,
 			    unsigned long &num, bool endsindot);
-   static string ToDec(U2Byte num);
+   static std::string ToDec(U2Byte num);
 };
 
 //--------------------------------inline functions-----------------------------

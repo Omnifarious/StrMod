@@ -42,11 +42,9 @@
 // First functional revision
 //
 
-#define _STR_LinearExtent_H_
+#include <iosfwd>  // For ostream
 
-namespace std {
-class ostream;
-};
+#define _STR_LinearExtent_H_
 
 namespace strmod {
 namespace strmod {

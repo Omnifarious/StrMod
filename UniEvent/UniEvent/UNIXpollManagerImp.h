@@ -98,14 +98,14 @@ class UNIXpollManagerImp : public UNIXpollManager {
       inline EVEntry(unsigned int condmask,
 		     bool isPoll, const EventPtr &ev);
    };
-   typedef list<EVEntry> EVList;
+   typedef std::list<EVEntry> EVList;
    struct FDInfo {
       unsigned int condmask_;
       EVList evlist_;
 
       inline FDInfo();
    };
-   typedef map<int, FDInfo> FDMap;
+   typedef std::map<int, FDInfo> FDMap;
    class DoPollEvent;
    friend class DoPollEvent;
 
