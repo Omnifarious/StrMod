@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/09/11 23:18:08  hopper
+// Changed StreamProcessor::CanAddIncoming to use StrChunkPtr operator !
+// instead of comparison to 0.
+//
 // Revision 1.1  1996/09/02 23:33:54  hopper
 // Created abstract class (class StreamProcessor) for handling simple
 // dataflows where one grabbed incoming data, did stuff to it, and sent
@@ -63,7 +67,7 @@ inline int StreamProcessor::AreYouA(const ClassIdent &cid) const
 
 inline bool StreamProcessor::CanAddIncoming()
 {
-   return(m_incoming == 0);
+   return(!m_incoming);
 }
 
 inline void StreamProcessor::AddIncoming(const StrChunkPtr &chnk)
