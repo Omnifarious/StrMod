@@ -50,6 +50,23 @@ SocketModule::SocketModule(int fd, SocketAddress *pr, UNIXpollManager &pollmgr)
 {
 }
 
+bool SocketModule::writeEOF()
+{
+   if (getFD() >= 0)
+   {
+      if (readEOF())
+      {
+	 return(StreamFDModule::writeEOF());
+      }
+      else
+      {
+	 shutdown(getFD(), SHUT_WR);
+	 setErrorIn(ErrWrite, EBADF);
+      }
+   }
+   return(false);
+}
+
 static inline int setNonBlock(int fd, int &errval)
 {
    int temp = 0;
