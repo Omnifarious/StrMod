@@ -106,13 +106,19 @@ class StrChunk::__iterator::ExtVisitor : public UseTrackingVisitor {
               shared::rawdata *&dataexts, unsigned int &numexts)
    {
       extvec_.clear();
-      startVisit(root);
-      numexts = extvec_.size();
-      if (numexts > 0)
-      {
-         dataexts = new shared::rawdata[numexts];
-         copy(extvec_.begin(), extvec_.end(), dataexts);
+      try {
+         startVisit(root);
+         numexts = extvec_.size();
+         if (numexts > 0)
+         {
+            dataexts = new shared::rawdata[numexts];
+            copy(extvec_.begin(), extvec_.end(), dataexts);
+         }
+      } catch (...) {
+         extvec_.clear();
+         throw;
       }
+      extvec_.clear();
    }
 
  protected:
