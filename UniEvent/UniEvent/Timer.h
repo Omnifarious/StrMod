@@ -92,11 +92,9 @@ class Timer : public Protocol {
    };
    static const UNEVT_ClassIdent identifier;
 
-   /** Construct a Timer given a dispatcher
-    * @param dispatcher A reference to the Dispatcher this Timer should post its
-    * events to.
+   /** Construct a Timer
     */
-   Timer(Dispatcher &dispatcher) : dispatcher_(dispatcher)       { }
+   Timer()                                                       { }
    /** \brief Destroy a Timer.
     * All events and the times they were supposed to happen are forgotten.
     */
@@ -111,12 +109,6 @@ class Timer : public Protocol {
 
  protected:
    inline virtual const ClassIdent *i_GetIdent() const   { return &identifier; }
-
-   //! Return the dispatcher that every Timer has to own one of.
-   Dispatcher &getDispatcher() const                     { return dispatcher_; }
-
- private:
-   Dispatcher &dispatcher_;
 };
 
 //-----------------------------inline functions--------------------------------

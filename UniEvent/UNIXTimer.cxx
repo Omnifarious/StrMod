@@ -92,7 +92,7 @@ struct UNIXTimer::Imp
 };
 
 UNIXTimer::UNIXTimer(Dispatcher &dispatcher, UNIXSignalHandler &handler)
-     : Timer(dispatcher), sighand_(handler), imp_(*(new Imp))
+     : dispatcher_(dispatcher), sighand_(handler), imp_(*(new Imp))
 {
    ::gettimeofday(&imp_.bot_, 0);
    imp_.alarmev_ = new TimerEvent(*this);
@@ -192,7 +192,7 @@ void UNIXTimer::i_checkAlarms(bool resetalarm)
          }
          else
          {
-            getDispatcher().addEvent(first->second);
+            dispatcher_.addEvent(first->second);
             imp_.alarms_.erase(first);
          }
       }

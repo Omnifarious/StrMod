@@ -42,6 +42,7 @@ class UNIXTimer : public Timer
 
  private:
    class Imp;
+   Dispatcher &dispatcher_;
    UNIXSignalHandler &sighand_;
    Timer::interval_t next_;  //!< Interval from bot_ to next event
    Imp &imp_;
