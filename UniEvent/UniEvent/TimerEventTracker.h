@@ -24,8 +24,13 @@ class Dispatcher;
    class TimerEventTracker : virtual public Timer, virtual public Debugable
 {
  public:
+   /** \brief Construct using the ANSI C time function to provide an initial
+    * base.
+    */
    TimerEventTracker();
+   //! Construct using \c now as an initial base.
    explicit TimerEventTracker(const absolute_t &now);
+   //! Nothing special or unexpected
    virtual ~TimerEventTracker();
 
    virtual void postAt(const absolute_t &t, const EventPtr &ev);
