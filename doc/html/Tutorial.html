@@ -248,11 +248,11 @@ Listener::~Listener()
 <code>from.Copy()</code> and <code>to.Copy()</code> bits in the
 constructor.</p>
 
-<p>As I've said before, a SocketAddress is an abstract base class, so you can't
-actually have a SocketAddress. Also, the SocketAddress objects we are being
-passed are not 'owned' by the Listener, so it needs copies that it owns so it
-can control their lifetime. This also means that they need to be destroyed in
-the destructor.</p>
+<p>As I've said before, a SocketAddress is an abstract base class, so you
+can't actually have a SocketAddress. Also, the SocketAddress objects we are
+being passed are not 'owned' by the Listener, so it needs copies that it owns
+so it can control their lifetime. This also means that they need to be
+destroyed in the destructor.</p>
 
 <p>Hence, the <code>Copy()</code> method. That method is defined as a virtual
 function on SocketAddress, and its intent is to return a full copy of the
@@ -689,21 +689,20 @@ be posted in certain situations. Here are the the StreamFDModule methods:</p>
    ErrFatal  //!&lt; General, fatal error affecting both reading and writing.  Must be highest enum value.
 };</pre>
 
-<p>So, StreamFDModule lets us register an event to be posted when an error in a
-particular category occurs.  And, that error includes an EOF condition.  Since
-we want the forward to continue until the parties disconnect or there's some
-kind of error, this matches our needs perfectly.</p>
+<p>So, StreamFDModule lets us register an event to be posted when an error in
+a particular category occurs. And, that error includes an EOF condition.
+Since we want the forward to continue until the parties disconnect or there's
+some kind of error, this matches our needs perfectly.</p>
 
-<p>Notice, that the interface wants an EventPtr.  This means we need to create
-the event object ourselves, and that we need to dynamically allocate it.  Since
-we're passing in a reference counted pointer, we essentially have joint
-ownership after we register it.  That means we had best use our own reference
-counted pointer to keep track of it.  Lastly, the event will need to call on of
-our own functions when triggered, so we'll need to create our own event class
-that knows what thing it needs to call back.</p>
+<p>Notice, that the interface wants an EventPtr. This means we need to create
+the event object ourselves, and that we need to dynamically allocate it.
+Since we're passing in a reference counted pointer, we essentially have joint
+ownership after we register it. That means we had best use our own reference
+counted pointer to keep track of it. Lastly, the event will need to call on
+of our own functions when triggered, so we'll need to create our own event
+class that knows what thing it needs to call back.</p>
 
 <p>Here's a preliminary sketch of what the event class would look like:</p>
-
 <pre class="codeblock">class EerrorEvent : public strmod::unievent::Event {
  public:
    ErrorEvent(ForwardedConnection &amp;parent)
@@ -727,20 +726,19 @@ that knows what thing it needs to call back.</p>
 };</pre>
 
 <p>As you notice, the ErrorEvent object will need a pointer the the
-ForwardedConnection object it's associated with.  Also, the ForwardedConnection
-will have to add an errorOccured method.  Lastly, the ForwardConnection will
-have to call parentGone() when it disappears so the event won't do anything
-wrong if it is fired after the parent disappears.</p>
+ForwardedConnection object it's associated with. Also, the
+ForwardedConnection will have to add an errorOccured method. Lastly, the
+ForwardConnection will have to call parentGone() when it disappears so the
+event won't do anything wrong if it is fired after the parent disappears.</p>
 
 <p>Also, ErrorEvent is largely a vaguely named class that has an intimate
-relationship with ForwardedConnection.  It's a utility class.  I like to make
-those into nested classes because their names shouldn't be around polluting the
-namespace, and often, the class isn't even needed outside the class that uses
-it.</p>
+relationship with ForwardedConnection. It's a utility class. I like to make
+those into nested classes because their names shouldn't be around polluting
+the namespace, and often, the class isn't even needed outside the class that
+uses it.</p>
 
 <p>So, with these ideas in mind, here's a re-done ForwardedConnection and
 ErrorEvent:</p>
-
 <pre class="codeblock">class ForwardedConnection {
  public:
    ForwardedConnection(SocketModule &amp;incoming, SocketModule &amp;outgoing);
@@ -772,7 +770,7 @@ ErrorEvent:</p>
 
    SocketModule &amp;incoming_;
    SocketModule &amp;outgoing_;
-   strmod::unievent::EventPtrT&lt;ErrorEvent> errev_;
+   strmod::unievent::EventPtrT&lt;ErrorEvent&gt; errev_;
 
    void errorOccurred();
 };
@@ -781,35 +779,34 @@ ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
                                          SocketModule &amp;outgoing)
      : incoming_(incoming), outgoing_(outgoing), errev_(new ErrorEvent(*this))
 {
-   incoming_.makePlug(0)->plugInto( *(outgoing_.makePlug(0)) );
+   incoming_.makePlug(0)-&gt;plugInto( *(outgoing_.makePlug(0)) );
 }
 
 ForwardedConnection::~ForwardedConnection()
 {
-   errev_->parentGone();
+   errev_-&gt;parentGone();
    delete &amp;incoming_;
    delete &amp;outgoing_;
 }</pre>
 
-<p>There, now the ErrorEvent will properly connect back to the parent, and all
-the naming is OK and everything.  Sadly, the parent doesn't yet have an
+<p>There, now the ErrorEvent will properly connect back to the parent, and
+all the naming is OK and everything. Sadly, the parent doesn't yet have an
 <code>errorOccured()</code> method, nor does it arrange for the SocketModules
 to post the error event when something happens.</p>
 
-<p>The StreamFDModule (which SocketModule is derived from) method that lets us
-register to have events posted is <code>void onErrorIn(ErrorType err, const
-unievent::EventPtr &amp;ev)</code>.  As you can see, it has several error types
-or categories you can register for errors in.  I want to register for errors in
-all of those categories because they are all relevant.  Here is a rewrite of
-the ForwardedConnection constructor that accomplishes this:</p>
-
+<p>The StreamFDModule (which SocketModule is derived from) method that lets
+us register to have events posted is <code>void onErrorIn(ErrorType err,
+const unievent::EventPtr &amp;ev)</code>. As you can see, it has several
+error types or categories you can register for errors in. I want to register
+for errors in all of those categories because they are all relevant. Here is
+a rewrite of the ForwardedConnection constructor that accomplishes this:</p>
 <pre class="codeblock">ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
                                          SocketModule &amp;outgoing)
      : incoming_(incoming), outgoing_(outgoing), errev_(new ErrorEvent(*this))
 {
    using strmod::strmod::StreamFDModule;
 
-   incoming_.makePlug(0)->plugInto( *(outgoing_.makePlug(0)) );
+   incoming_.makePlug(0)-&gt;plugInto( *(outgoing_.makePlug(0)) );
 
    incoming_.onErrorIn(StreamFDModule::ErrRead, errev_);
    incoming_.onErrorIn(StreamFDModule::ErrWrite, errev_);
@@ -822,38 +819,38 @@ the ForwardedConnection constructor that accomplishes this:</p>
    outgoing_.onErrorIn(StreamFDModule::ErrFatal, errev_);
 }</pre>
 
-<p>Yes, it <strong>is</strong> a lot of repetive code.  You are not mistaken.
+<p>Yes, it <strong>is</strong> a lot of repetive code. You are not mistaken.
 Now, all that's left is implementing
-<code>ForwardedConnect::errorOccurred()</code>.  This can be a bit tricky if we
-want to do it 'correctly'.  Doing it correctly is not strictly necessary for a
-functioning system.  In this case, correctly means that connections are not
-closed until they should be.</p>
+<code>ForwardedConnect::errorOccurred()</code>. This can be a bit tricky if
+we want to do it 'correctly'. Doing it correctly is not strictly necessary
+for a functioning system. In this case, correctly means that connections are
+not closed until they should be.</p>
 
-<p>The main issue is 'half-open' connections.  Since TCP connections are
-bi-directional, it is possible for a connection to be in a half-open state, so
-only one direction has data flowing.  If you immediately close both connections
-on error, this state cannot exist on connections going through the forwarder.
-Some programs and protocols do require half-open connections to function, but
-most do not.</p>
+<p>The main issue is 'half-open' connections. Since TCP connections are
+bi-directional, it is possible for a connection to be in a half-open state,
+so only one direction has data flowing. If you immediately close both
+connections on error, this state cannot exist on connections going through
+the forwarder. Some programs and protocols do require half-open connections
+to function, but most do not.</p>
 
-<p>Here is an implementation of <code>ForwardedConnect::errorOccurred()</code>
-that does not hand half-open connections properly:</p>
-
+<p>Here is an implementation of
+<code>ForwardedConnect::errorOccurred()</code> that does not hand half-open
+connections properly:</p>
 <pre class="codeblock">void ForwardedConnect::errorOccurred()
 {
    delete this;
 }</pre>
 
-<p>As you see, the ForwardedConnection uses events to manage its own existence,
-and that's why it doesn't need to be put into a data structure that will manage
-its existence like the Listener objects need.</p>
+<p>As you see, the ForwardedConnection uses events to manage its own
+existence, and that's why it doesn't need to be put into a data structure
+that will manage its existence like the Listener objects need.</p>
 
-<p>If you look at the ForwardedConnection destructor, you can see that it just
-deletes the SocketModules it's keeping track of, and tell its event that it's
-going away.  Deleting the SocketModules has the effect of closing them.</p>
+<p>If you look at the ForwardedConnection destructor, you can see that it
+just deletes the SocketModules it's keeping track of, and tell its event that
+it's going away. Deleting the SocketModules has the effect of closing
+them.</p>
 
-<p>If you put all this together now, you should have a largely functional port
-forwarder.</p>
-
+<p>If you put all this together now, you should have a largely functional
+port forwarder.</p>
 </body>
 </html>
