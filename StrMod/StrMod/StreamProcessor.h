@@ -6,7 +6,8 @@
 
 /* $Header$ */
 
-// $Log$
+// For log, see ../ChangeLog
+//
 // Revision 1.2  1996/09/11 23:18:08  hopper
 // Changed StreamProcessor::CanAddIncoming to use StrChunkPtr operator !
 // instead of comparison to 0.
@@ -21,10 +22,21 @@
 #include <StrMod/STR_ClassIdent.h>
 #include <LCore/Protocol.h>
 #include <StrMod/StrChunkPtr.h>
-#include <assert.h>
+#include <cassert>
 
 #define _STR_StreamProcessor_H_
 
+//: Describes a simple non-active processor of a unidirectional data stream
+//: that has one input and one output.
+// <P>This class is intended to be used with a ProcessorModule to create
+// modules that do some sort of processing on every chunk that passes
+// through.</P>
+// <P>A prime example of this sort of thing are streams that re-chunk the data
+// passing through them according to some criteria.  Another example is a
+// stream which simply prepends a header of some sort to every chunk coming
+// through.</P>
+// <P>Non-active means that this things readable or writeable status can't
+// change unless it's a result of being read or written to.</P>
 class StreamProcessor : virtual public Protocol {
  public:
    static const STR_ClassIdent identifier;
@@ -34,21 +46,38 @@ class StreamProcessor : virtual public Protocol {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline bool CanAddIncoming();
-   inline void AddIncoming(const StrChunkPtr &chnk);
-   inline bool CanPullOutgoing();
-   inline const StrChunkPtr PullOutgoing();
+   //: Can you put data into this thing?
+   // <P>Note that this is !incoming_.  This means that if you need more data
+   // to complete your processing, your must clear incoming_ and store the
+   // partially processed data someplace else, like outgoing_.</P>
+   inline bool canWriteTo() const;
+   //: Shove in some data.  Must not be called when !canWriteTo().
+   inline void writeTo(const StrChunkPtr &chnk);
+   //: Can you get any data from this thing?
+   // <P>Note that this is outgoing_ready_.  It's a gross error for !outgoing_
+   // && outgoing_ready_.  Set outgoing_ready_ when the data in outgoing_ is
+   // ready to go.</P>
+   inline bool canReadFrom() const;
+   //: Pull out some data.  Must not be called when !canReadFrom().
+   inline const StrChunkPtr readFrom();
 
  protected:
-   StrChunkPtr m_outgoing;
-   bool m_outgoing_ready;
-   StrChunkPtr m_incoming;
+   StrChunkPtr incoming_;
+   StrChunkPtr outgoing_;
+   bool outgoing_ready_;
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   virtual void ProcessIncoming() = 0;
+   //: Do something with your m_incoming data.
+   // <P><CODE>(incoming_ && !outoing_ready_)</CODE> will
+   // <strong>always</strong> be true when entering this function, meaning
+   // that incoming_ points at a valid chunk.</P>
+   // <P>A post condition of this function is <CODE>(!incoming_ ||
+   // (outgoing_ready_ && outgoing_))</CODE>.</P>
+   virtual void processIncoming() = 0;
 
  private:
+   // Inhibit accidental copying.
    StreamProcessor(const StreamProcessor &b);
    void operator =(const StreamProcessor &b);
 };  
@@ -56,7 +85,7 @@ class StreamProcessor : virtual public Protocol {
 //-----------------------------inline functions--------------------------------
 
 inline StreamProcessor::StreamProcessor()
-     : m_incoming(0), m_outgoing(0), m_outgoing_ready(false)
+     : outgoing_ready_(false)
 {
 }
 
@@ -65,36 +94,39 @@ inline int StreamProcessor::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
 
-inline bool StreamProcessor::CanAddIncoming()
+inline bool StreamProcessor::canWriteTo() const
 {
-   return(!m_incoming);
+   return(!incoming_);
 }
 
-inline void StreamProcessor::AddIncoming(const StrChunkPtr &chnk)
+inline void StreamProcessor::writeTo(const StrChunkPtr &chnk)
 {
-   assert(CanAddIncoming());
-   m_incoming = chnk;
-   if (!CanPullOutgoing()) {
-      ProcessIncoming();
+   assert(canWriteTo());
+   incoming_ = chnk;
+   if (!outgoing_ready_) {
+      processIncoming();
+      assert(!incoming_ || (outgoing_ready_ && outgoing_));
    }
 }
 
-inline bool StreamProcessor::CanPullOutgoing()
+inline bool StreamProcessor::canReadFrom() const
 {
-   return(m_outgoing_ready);
+   return(outgoing_ready_);
 }
 
-inline const StrChunkPtr StreamProcessor::PullOutgoing()
+inline const StrChunkPtr StreamProcessor::readFrom()
 {
-   assert(CanPullOutgoing());
+   assert(outgoing_ready_);
 
    StrChunkPtr tmp;
 
-   tmp = m_outgoing;
-   m_outgoing = 0;
-   m_outgoing_ready = false;
-   if (m_incoming) {
-      ProcessIncoming();
+   tmp = outgoing_;
+   outgoing_.ReleasePtr();
+   outgoing_ready_ = false;
+   if (incoming_)
+   {
+      processIncoming();
+      assert(!incoming_ || (outgoing_ready_ && outgoing_));
    }
    return(tmp);
 }
