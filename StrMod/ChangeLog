@@ -1,3 +1,24 @@
+1998-08-23  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/EchoModule.h (class EchoModule): 
+	* StrMod/StreamModule.h (class StreamModule): Changed interface of
+	ownsPlug to be more const correct.
+
+	* GroupVector.cxx (GroupVector): Changed order of members in
+	initialization list to correspond to actual initialization order.
+	Changed type of index to be correct.
+
+	* GroupChunk.cxx (AccumulateRange): Added initializations for two
+	local variables to prevent possible bugs.
+
+	* LinearExtentStrmOp.cxx (operator <<): Changed to return the
+	value it's supposed to return.
+
+	* InSerializer.cxx (Impl constructor): Changed order of members in
+	initialization list to correspond to actual initialization order.
+
+	* StrMod/StrChunk.h: Removed RCS id thingy from header file.
+
 1998-06-29  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/EchoModule.h: 
