@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.5  1996/09/02 23:15:47  hopper
+// Added new classes to class id comment list.
+//
 // Revision 1.4  1996/08/24 12:59:53  hopper
 // Added comments for new SimplePlug, and SimpleMultiplexer classes.
 //
@@ -61,4 +64,10 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   22UL	SimpleMultiplexer::MultiPlug
   23UL	SimpleMultiplexer::SinglePlug
   24UL  SimplePlug
+  25UL	StreamProcessor
+  26UL	CharChopper
+  27UL	NewlineChopper
+  28UL	PassThrough
+  29UL	ProcessorModule
+  30UL	ProcessorModule::Plug
 */
