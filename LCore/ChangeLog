@@ -1,3 +1,11 @@
+2001-06-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in (LIBCXX): Added source files for new LCoreError
+	class.
+
+	* LCore/LCoreError.h, lcerror.cxx: New class for holding error
+	conditions in exception and other situations.
+
 2001-03-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* libNet-0.2.2 is released.
