@@ -30,8 +30,8 @@
 
 #include <string>
 
-#include <UniEvent/EventPtrT.h>
-#include <UniEvent/UNIXpollManager.h>
+#include <UniEvent/EventPtr.h>
+#include <UniEvent/UnixEventRegistry.h>
 #include <UniEvent/UNIXError.h>
 
 #ifndef _STR_StreamModule_H_
@@ -139,7 +139,7 @@ class SockListenModule : public StreamModule {
     */
    SockListenModule(const SocketAddress &bind_addr,
                     unievent::Dispatcher &disp,
-                    unievent::UNIXpollManager &pmgr,
+                    unievent::UnixEventRegistry &ureg,
 		    int qlen = 1);
    //! Closes the socket being listened to.
    virtual ~SockListenModule();
@@ -204,7 +204,7 @@ class SockListenModule : public StreamModule {
     */
    inline SocketModule *makeSocketModule(int fd, SocketAddress *peer,
 					 unievent::Dispatcher &disp,
-                                         unievent::UNIXpollManager &pmgr);
+                                         unievent::UnixEventRegistry &ureg);
 
    //! Set an error so that hasError and getError return something.
    inline void setError(const unievent::UNIXError &err) throw();
@@ -214,7 +214,7 @@ class SockListenModule : public StreamModule {
 
  private:
    typedef unievent::Dispatcher Dispatcher;
-   typedef unievent::UNIXpollManager UNIXpollManager;
+   typedef unievent::UnixEventRegistry UnixEventRegistry;
 
    int sockfd_;
    unsigned char errorstore_[sizeof(unievent::UNIXError)];
@@ -225,14 +225,14 @@ class SockListenModule : public StreamModule {
    SocketModule *newmodule_;
    SocketAddress &myaddr_;
    Dispatcher &disp_;
-   UNIXpollManager &pmgr_;
+   UnixEventRegistry &ureg_;
    FDPollEv *readevptr_;
-   unievent::EventPtrT<UNIXpollManager::PollEvent> readev_;
+   unievent::EventPtr readev_;
    FDPollEv *errorevptr_;
-   unievent::EventPtrT<UNIXpollManager::PollEvent> errorev_;
+   unievent::EventPtr errorev_;
 
-   void eventRead(unsigned int condbits);
-   void eventError(unsigned int condbits);
+   void eventRead();
+   void eventError();
    void doAccept();
 };
 
@@ -301,10 +301,10 @@ inline StreamModule::Plug *SockListenModule::i_MakePlug(int side)
 inline SocketModule *
 SockListenModule::makeSocketModule(int fd, SocketAddress *peer,
                                    unievent::Dispatcher &disp,
-                                   unievent::UNIXpollManager &pmgr)
+                                   unievent::UnixEventRegistry &ureg)
 {
    // Ownership of peer is passed here.
-   return(new SocketModule(fd, peer, disp, pmgr));
+   return(new SocketModule(fd, peer, disp, ureg));
 }
 
 //----------------------ListeningPlug inline functions-------------------------

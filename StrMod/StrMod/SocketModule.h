@@ -48,7 +48,7 @@ class SocketModule : public StreamFDModule {
    //! Create a SocketModule connected to the given address.
    SocketModule(const SocketAddress &addr,
                 unievent::Dispatcher &disp,
-                unievent::UNIXpollManager &pollmgr,
+                unievent::UnixEventRegistry &ureg,
 		bool blockconnect = true) throw(unievent::UNIXError);
    virtual ~SocketModule();
 
@@ -65,7 +65,7 @@ class SocketModule : public StreamFDModule {
     */
    SocketModule(int fd, SocketAddress *peer,
                 unievent::Dispatcher &disp,
-                unievent::UNIXpollManager &pollmgr);
+                unievent::UnixEventRegistry &ureg);
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 

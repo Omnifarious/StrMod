@@ -33,7 +33,7 @@
 
 #include <UniEvent/EventPtr.h>
 #include <UniEvent/EventPtrT.h>
-#include <UniEvent/UNIXpollManager.h>
+#include <UniEvent/UnixEventRegistry.h>
 #include <UniEvent/UNIXError.h>
 
 #ifndef _STR_StreamModule_H_
@@ -140,7 +140,7 @@ class StreamFDModule : public StreamModule {
     */
    StreamFDModule(int fd,
                   unievent::Dispatcher &disp,
-                  unievent::UNIXpollManager &pollmgr,
+                  unievent::UnixEventRegistry &ureg,
 		  IOCheckFlags checkmask = CheckBoth);
    //! Closes the associated file descriptor.
    virtual ~StreamFDModule();
@@ -274,11 +274,11 @@ class StreamFDModule : public StreamModule {
       throw();
 
    //! Called by readev_ and resumeread_'s triggerEvent.
-   void eventRead(unsigned int condbits);
+   void eventRead();
    //! Called by writeev_ and resumewrite_'s triggerEvent.
-   void eventWrite(unsigned int condbits);
+   void eventWrite();
    //! Called by errorev_'s triggerEvent.
-   void eventError(unsigned int condbits);
+   void eventError();
    //! Called by resumeread_'s triggerEvent
    void eventResumeRead();
    //! Called by resumewrite_'s triggerEvent
@@ -311,15 +311,15 @@ class StreamFDModule : public StreamModule {
    EvMixin *parenttrackers_[5];
    // The following 5 members are duplicates of the pointers held in the
    // previous array.  They are reference counted.
-   typedef unievent::EventPtrT<unievent::UNIXpollManager::PollEvent> PollEvPtr;
-   PollEvPtr readev_;
-   PollEvPtr writeev_;
-   PollEvPtr errorev_;
+   typedef unievent::EventPtr EventPtr;
+   EventPtr readev_;
+   EventPtr writeev_;
+   EventPtr errorev_;
    unievent::EventPtr resumeread_;
    unievent::EventPtr resumewrite_;
    ErrorInfo &errorinfo_;
    unievent::Dispatcher &disp_;
-   unievent::UNIXpollManager &pollmgr_;
+   unievent::UnixEventRegistry &ureg_;
 };
 
 //-----------------inline functions for class StreamFDModule-------------------

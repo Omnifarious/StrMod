@@ -3,6 +3,7 @@
 #include <UniEvent/UnixEventPoll.h>
 #include <UniEvent/Event.h>
 #include <UniEvent/EventPtr.h>
+#include <UniEvent/RegistryDispatcherGlue.h>
 #include <iostream>
 #include <exception>
 #include <stdexcept>
@@ -147,6 +148,7 @@ int main(int argc, const char *argv[])
    try {
       strmod::unievent::SimpleDispatcher dispatcher;
       strmod::unievent::UnixEventPoll upoll(&dispatcher);
+      strmod::unievent::RegistryDispatcherGlue glue(&dispatcher, &upoll);
 
       using strmod::unievent::UnixEventRegistry;
       upoll.printState(cerr);
@@ -171,21 +173,11 @@ int main(int argc, const char *argv[])
                                   strmod::unievent::Timer::interval_t(3, 125000000U)));
       upoll.printState(cerr);
       cerr << "\n";
-      do {
-         if (dispatcher.isQueueEmpty())
-         {
-            upoll.printState(cerr);
-            cerr << "\n";
-            upoll.doPoll(true);
-//         upoll.printState(std::cerr);
-         }
-         else
-         {
-//         upoll.printState(std::cerr);
-            dispatcher.dispatchUntilEmpty();
-//         upoll.printState(std::cerr);
-         }
-      } while (true);
+      while (true)
+      {
+         cerr << "Dispatching!\n";
+         dispatcher.dispatchUntilEmpty();
+      }
    }
    catch (::std::range_error re)
    {

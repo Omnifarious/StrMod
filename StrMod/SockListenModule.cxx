@@ -58,7 +58,8 @@ const STR_ClassIdent SocketModuleChunk::identifier(15UL);
 // <p>The sub event classes don't do anything except call parent class
 // protected functions.  The only reason they exist is to avoid having
 // a switch statement in the parent.</p>
-class SockListenModule::FDPollEv : public unievent::UNIXpollManager::PollEvent {
+class SockListenModule::FDPollEv : public unievent::Event
+{
  public:
    inline FDPollEv(SockListenModule &parent);
    virtual ~FDPollEv()                                 { }
@@ -86,9 +87,7 @@ inline void SockListenModule::FDPollEv::triggerRead()
    // cerr << "In triggerRead\n";
    if (hasparent_)
    {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      parent_.eventRead(condbits);
+      parent_.eventRead();
    }
 }
 
@@ -97,38 +96,37 @@ inline void SockListenModule::FDPollEv::triggerError()
    // cerr << "In triggerError\n";
    if (hasparent_)
    {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      parent_.eventError(condbits);
+      parent_.eventError();
    }
 }
 
 //: This is one of the three helper classes for SockListenModule::FDPollEv
-class SockListenModule::FDPollRdEv : public SockListenModule::FDPollEv {
+class SockListenModule::FDPollRdEv : public SockListenModule::FDPollEv
+{
  public:
    inline FDPollRdEv(SockListenModule &parent) : FDPollEv(parent)   { }
-   virtual ~FDPollRdEv()                                          { }
+   virtual ~FDPollRdEv()                                            { }
 
-   virtual void triggerEvent(Dispatcher *dispatcher = 0)  { triggerRead(); }
+   virtual void triggerEvent(Dispatcher *dispatcher = 0)     { triggerRead(); }
 };
 
 //: This is one of the three helper classes for SockListenModule::FDPollEv
 class SockListenModule::FDPollErEv : public SockListenModule::FDPollEv {
  public:
    inline FDPollErEv(SockListenModule &parent) : FDPollEv(parent)   { }
-   virtual ~FDPollErEv()                                          { }
+   virtual ~FDPollErEv()                                            { }
 
-   virtual void triggerEvent(Dispatcher *dispatcher = 0)  { triggerError(); }
+   virtual void triggerEvent(Dispatcher *dispatcher = 0)     { triggerError(); }
 };
 
 SockListenModule::SockListenModule(const SocketAddress &bind_addr,
                                    unievent::Dispatcher &disp,
-				   unievent::UNIXpollManager &pmgr,
+				   unievent::UnixEventRegistry &ureg,
 				   int qlen)
       : sockfd_(-1), has_error_(false), lplug_(*this),
         plug_pulled_(false), checking_read_(false), newmodule_(0),
 	myaddr_(*(bind_addr.Copy())),
-	disp_(disp), pmgr_(pmgr), readevptr_(0), errorevptr_(0)
+	disp_(disp), ureg_(ureg), readevptr_(0), errorevptr_(0)
 {
    using unievent::UNIXError;
    sockfd_ = socket(myaddr_.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC);
@@ -186,12 +184,16 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
    std::cerr << "errorevptr_ == " << errorevptr_ << "\n";
    errorev_ = errorevptr_;
    checking_read_ = true;
-   pmgr_.registerFDCond(sockfd_,
-			UNIXpollManager::FD_Error
-			| UNIXpollManager::FD_Closed
-			| UNIXpollManager::FD_Invalid,
-			errorev_);
-   pmgr_.registerFDCond(sockfd_, UNIXpollManager::FD_Readable, readev_);
+   {
+      static const UnixEventRegistry::FDCondSet
+         errorconds(UnixEventRegistry::FD_Error,
+                    UnixEventRegistry::FD_Closed,
+                    UnixEventRegistry::FD_Invalid);
+      static const UnixEventRegistry::FDCondSet
+         readcond(UnixEventRegistry::FD_Readable);
+      ureg_.registerFDCond(sockfd_, errorconds, errorev_);
+      ureg_.registerFDCond(sockfd_, readcond, readev_);
+   }
 }
 
 SockListenModule::~SockListenModule()
@@ -199,7 +201,7 @@ SockListenModule::~SockListenModule()
    if (sockfd_ >= 0)
    {
       close(sockfd_);
-      pmgr_.freeFD(sockfd_);
+      ureg_.freeFD(sockfd_);
    }
    delete &myaddr_;
    if (readevptr_)
@@ -212,23 +214,17 @@ SockListenModule::~SockListenModule()
    }
 }
 
-void SockListenModule::eventRead(unsigned int condbits)
+void SockListenModule::eventRead()
 {
    using unievent::UNIXError;
    checking_read_ = false;
-   if (!(condbits & UNIXpollManager::FD_Readable))
-   {
-      setError(UNIXError("<none>", 0,
-                         LCoreError("Got fd condition other than readable",
-                                    LCORE_GET_COMPILERINFO())));
-   }
-   else if (newmodule_ == 0)
+   if (newmodule_ == 0)
    {
       doAccept();
    }
 }
 
-void SockListenModule::eventError(unsigned int condbits)
+void SockListenModule::eventError()
 {
    using unievent::UNIXError;
    setError(UNIXError("<none>", 0,
@@ -268,9 +264,9 @@ void SockListenModule::doAccept()
       }
       else if (!checking_read_)
       {
-	 pmgr_.registerFDCond(sockfd_,
-			      UNIXpollManager::FD_Readable,
-			      readev_);
+         static const UnixEventRegistry::FDCondSet
+            readcond(UnixEventRegistry::FD_Readable);
+	 ureg_.registerFDCond(sockfd_, readcond, readev_);
 	 checking_read_ = true;
       }
    }
@@ -317,7 +313,7 @@ void SockListenModule::doAccept()
 	       = reinterpret_cast<struct sockaddr_in *>(saddr);
 	    InetAddress *addr = new InetAddress(*sinad);
 
-	    newmodule_ = makeSocketModule(tempfd, addr, disp_, pmgr_);
+	    newmodule_ = makeSocketModule(tempfd, addr, disp_, ureg_);
 	 }
       }
    }

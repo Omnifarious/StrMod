@@ -51,10 +51,10 @@ const STR_ClassIdent SocketModule::identifier(12UL);
 // MakeSocket sets makesock_errno_.
 SocketModule::SocketModule(const SocketAddress &addr,
                            unievent::Dispatcher &disp,
-                           unievent::UNIXpollManager &pollmgr,
+                           unievent::UnixEventRegistry &ureg,
                            bool blockconnect)
    throw(UNIXError)
-     : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, pollmgr,
+     : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, ureg,
 		      StreamFDModule::CheckBoth),
        peer_(*(addr.Copy()))
 {
@@ -68,8 +68,8 @@ SocketModule::~SocketModule()  // This might be changed later to add
 
 SocketModule::SocketModule(int fd, SocketAddress *pr,
                            unievent::Dispatcher &disp,
-                           unievent::UNIXpollManager &pollmgr)
-     : StreamFDModule(fd, disp, pollmgr, StreamFDModule::CheckBoth),
+                           unievent::UnixEventRegistry &ureg)
+     : StreamFDModule(fd, disp, ureg, StreamFDModule::CheckBoth),
        peer_(*pr)
 {
    setMaxChunkSize(64U * 1024U);

@@ -37,6 +37,7 @@
 
 #include <UniEvent/UNIXError.h>
 #include <UniEvent/EventPtr.h>
+#include <UniEvent/Event.h>
 #include <UniEvent/Dispatcher.h>
 
 #include <LCore/enum_set.h>
@@ -59,7 +60,7 @@ namespace strmod {
 
 typedef struct stat statbuf_t;
 using unievent::Dispatcher;
-using unievent::UNIXpollManager;
+using unievent::UnixEventRegistry;
 using unievent::UNIXError;
 
 const STR_ClassIdent StreamFDModule::identifier(8UL);
@@ -86,11 +87,11 @@ class StreamFDModule::EvMixin {
 
  protected:
    //! Call the right StreamFDModule function for the event.
-   inline void triggerRead(unsigned int condbits);
+   inline void triggerRead();
    //! Call the right StreamFDModule function for the event.
-   inline void triggerWrite(unsigned int condbits);
+   inline void triggerWrite();
    //! Call the right StreamFDModule function for the event.
-   inline void triggerError(unsigned int condbits);
+   inline void triggerError();
    //! Call the right StreamFDModule function for the event.
    inline void triggerResumeRead();
    //! Call the right StreamFDModule function for the event.
@@ -101,30 +102,30 @@ class StreamFDModule::EvMixin {
    StreamFDModule &parent_;
 };
 
-inline void StreamFDModule::EvMixin::triggerRead(unsigned int condbits)
+inline void StreamFDModule::EvMixin::triggerRead()
 {
    // cerr << "In triggerRead\n";
    if (hasparent_)
    {
-      parent_.eventRead(condbits);
+      parent_.eventRead();
    }
 }
 
-inline void StreamFDModule::EvMixin::triggerWrite(unsigned int condbits)
+inline void StreamFDModule::EvMixin::triggerWrite()
 {
    // cerr << "In triggerWrite\n";
    if (hasparent_)
    {
-      parent_.eventWrite(condbits);
+      parent_.eventWrite();
    }
 }
 
-inline void StreamFDModule::EvMixin::triggerError(unsigned int condbits)
+inline void StreamFDModule::EvMixin::triggerError()
 {
    // cerr << "In triggerError\n";
    if (hasparent_)
    {
-      parent_.eventError(condbits);
+      parent_.eventError();
    }
 }
 
@@ -146,46 +147,40 @@ inline void StreamFDModule::EvMixin::triggerResumeWrite()
 
 //: This is one of the three helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollRdEv
-   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    inline FDPollRdEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollRdEv()                                        { }
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0) {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      triggerRead(condbits);
+      triggerRead();
    }
 };
 
 //: This is one of the three helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollWrEv
-   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    inline FDPollWrEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollWrEv()                                        { }
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0) {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      triggerWrite(condbits);
+      triggerWrite();
    }
 };
 
 //: This is one of the three helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollErEv
-   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    inline FDPollErEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollErEv()                                        { }
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0) {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      triggerError(condbits);
+      triggerError();
    }
 };
 
@@ -400,9 +395,9 @@ void StreamFDModule::resetErrorIn(ErrorType err) throw ()
             {
                if (!buffed_read_)
                {
-                  pollmgr_.registerFDCond(fd_,
-                                          UNIXpollManager::FD_Readable,
-                                          readev_);
+                  static const UnixEventRegistry::FDCondSet
+                     readset(UnixEventRegistry::FD_Readable);
+                  ureg_.registerFDCond(fd_, readset, readev_);
                   flags_.checkingrd = true;
                }
                else
@@ -422,9 +417,9 @@ void StreamFDModule::resetErrorIn(ErrorType err) throw ()
             {
                if (cur_write_)
                {
-                  pollmgr_.registerFDCond(fd_,
-                                          UNIXpollManager::FD_Writeable,
-                                          writeev_);
+                  static const UnixEventRegistry::FDCondSet
+                     writeset(UnixEventRegistry::FD_Writeable);
+                  ureg_.registerFDCond(fd_, writeset, writeev_);
                   flags_.checkingwr = true;
                }
                else
@@ -517,28 +512,18 @@ const StrChunkPtr StreamFDModule::plugRead()
    return(retval);
 }
 
-void StreamFDModule::eventRead(unsigned int condbits)
+void StreamFDModule::eventRead()
 {
    assert(!buffed_read_);
    flags_.checkingrd = false;
-   if (!(condbits & UNIXpollManager::FD_Readable))
+   read_since_read_posted_ = 0;
+   if (!buffed_read_)
    {
-      setErrorIn(ErrFatal,
-                 UNIXError("<none>", 0,
-                           LCoreError("eventRead got event without FD_Readable "
-                                      "bit set.", LCORE_GET_COMPILERINFO())));
+      doReadFD();
    }
-   else
+   if (buffed_read_)
    {
-      read_since_read_posted_ = 0;
-      if (!buffed_read_)
-      {
-	 doReadFD();
-      }
-      if (buffed_read_)
-      {
-         setReadableFlagFor(&plug_, true);
-      }
+      setReadableFlagFor(&plug_, true);
    }
 }
 
@@ -569,33 +554,22 @@ void StreamFDModule::plugWrite(const StrChunkPtr &ptr)
    }
 }
 
-void StreamFDModule::eventWrite(unsigned int condbits)
+void StreamFDModule::eventWrite()
 {
    assert(cur_write_);
    flags_.checkingwr = false;
-   if (!(condbits & UNIXpollManager::FD_Writeable))
+   written_since_write_posted_ = 0;
+   if (cur_write_)
    {
-      setErrorIn(ErrFatal,
-                 UNIXError("<none>", 0,
-                           LCoreError("eventWrite called without condbits "
-                                      "having FD_Writeable flag set",
-                                      LCORE_GET_COMPILERINFO())));
+      doWriteFD();
    }
-   else
+   if (! (hasErrorIn(ErrWrite) ||
+          hasErrorIn(ErrGeneral) ||
+          hasErrorIn(ErrFatal)))
    {
-      written_since_write_posted_ = 0;
-      if (cur_write_)
+      if ((fd_ >= 0) && !cur_write_)
       {
-	 doWriteFD();
-      }
-      if (! (hasErrorIn(ErrWrite) ||
-             hasErrorIn(ErrGeneral) ||
-             hasErrorIn(ErrFatal)))
-      {
-         if ((fd_ >= 0) && !cur_write_)
-         {
-            setWriteableFlagFor(&plug_, true);
-         }
+         setWriteableFlagFor(&plug_, true);
       }
    }
 }
@@ -609,31 +583,11 @@ void StreamFDModule::eventResumeWrite()
    }
 }
 
-void StreamFDModule::eventError(unsigned int condbits)
+void StreamFDModule::eventError()
 {
-   if (condbits & (UNIXpollManager::FD_Writeable
-		   | UNIXpollManager::FD_Readable
-		   | UNIXpollManager::FD_Invalid))
-   {
-      if (condbits & UNIXpollManager::FD_Invalid)
-      {
-         setErrorIn(ErrFatal, UNIXError("<none>", EBADF,
-                                        LCoreError("Bad FD",
-                                                   LCORE_GET_COMPILERINFO())));
-      }
-      else
-      {
-         setErrorIn(ErrFatal, UNIXError("<none>", 0,
-                                        LCoreError("Bad FD",
-                                                   LCORE_GET_COMPILERINFO())));
-      }
-   }
-   else
-   {
-         setErrorIn(ErrGeneral, UNIXError("<none>", 0,
-                                          LCoreError("Bad FD",
-                                                     LCORE_GET_COMPILERINFO())));
-   }
+   setErrorIn(ErrFatal, UNIXError("<none>", EBADF,
+                                  LCoreError("Bad FD",
+                                             LCORE_GET_COMPILERINFO())));
 }
 
 void StreamFDModule::doReadFD()
@@ -702,8 +656,9 @@ void StreamFDModule::doReadFD()
          {
             if (!flags_.checkingrd && (fd_ >= 0))
             {
-               pollmgr_.registerFDCond(fd_,
-                                       UNIXpollManager::FD_Readable, readev_);
+               static const UnixEventRegistry::FDCondSet
+                  readset(UnixEventRegistry::FD_Readable);
+               ureg_.registerFDCond(fd_, readset, readev_);
                flags_.checkingrd = true;
             }
          }
@@ -788,8 +743,9 @@ void StreamFDModule::doWriteFD()
 	 {
             if (!flags_.checkingwr && (fd_ >= 0))
             {
-               pollmgr_.registerFDCond(fd_,
-                                       UNIXpollManager::FD_Writeable, writeev_);
+               static const UnixEventRegistry::FDCondSet
+                  writeset(UnixEventRegistry::FD_Writeable);
+               ureg_.registerFDCond(fd_, writeset, writeev_);
                flags_.checkingwr = true;
             }
          }
@@ -821,7 +777,7 @@ void StreamFDModule::writeEOF()
    if (fd_ >= 0)
    {
       ::close(fd_);
-      pollmgr_.freeFD(fd_);
+      ureg_.freeFD(fd_);
       fd_ = -1;
       setErrorIn(ErrWrite,
                  UNIXError("write", LCoreError(LCORE_GET_COMPILERINFO()),
@@ -839,7 +795,7 @@ void StreamFDModule::writeEOF()
 }
 
 StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
-                               UNIXpollManager &pollmgr,
+                               UnixEventRegistry &ureg,
 			       IOCheckFlags checkmask)
      : fd_(fd),
        plug_(*this),
@@ -849,7 +805,7 @@ StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
        written_since_write_posted_(0),
        errorinfo_(*(new ErrorInfo)),
        disp_(disp),
-       pollmgr_(pollmgr)
+       ureg_(ureg)
 {
    for (unsigned int i = 0;
         i < (sizeof(parenttrackers_) / sizeof(parenttrackers_[0]));
@@ -887,12 +843,14 @@ StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
       parenttrackers_[3] = rread;
       parenttrackers_[4] = rwrite;
    }
-   
-   pollmgr_.registerFDCond(fd_,
-			   UNIXpollManager::FD_Error
-			   | UNIXpollManager::FD_Closed
-			   | UNIXpollManager::FD_Invalid,
-			   errorev_);
+
+   {
+      UnixEventRegistry::FDCondSet
+         allerrors(UnixEventRegistry::FD_Error,
+                   UnixEventRegistry::FD_Closed,
+                   UnixEventRegistry::FD_Invalid);
+      ureg_.registerFDCond(fd_, allerrors, errorev_);
+   }
    if (fd_ >= 0)
    {
       if ((checkmask == CheckBoth) || (checkmask == CheckRead))
@@ -927,7 +885,7 @@ StreamFDModule::~StreamFDModule()
    if (fd_ >= 0)
    {
       ::close(fd_);
-      pollmgr_.freeFD(fd_);
+      ureg_.freeFD(fd_);
       fd_ = -1;
    }
    for (int i = ErrRead; i <= ErrFatal; ++i)
