@@ -1,3 +1,14 @@
+2002-08-30  Eric Hopper  <hopper@omnifarious.org>
+
+	* StreamFDModule.cxx, SocketModule.cxx: Lots of small changes to
+	work with slightly different way of handling errno style errors
+	with the UNIXError class.
+
+	* SockListenModule.cxx: Changed so error message for 'bind' really
+	said 'bind'.  Also, lots of small changes to work with slightly
+	different way of handling errno style errors with the UNIXError
+	class.
+
 2002-03-26  Eric M. Hopper  <hopper@omnifarious.org>
 
 	* StrMod/tests/echoserv.cxx:
