@@ -19,13 +19,13 @@
 h1.title {text-align: center}
 p.centered {text-align: center}
 pre.codeblock {font-size: 10pt;
-               border-width: thin;
-               border-color: green;
                border-left: solid;
                border-right: solid;
                border-top: solid;
-               border-bottom: solid}
-pre.line { font-size: 12pt;
+               border-bottom: solid;
+               border-width: 1px;
+               border-color: green}
+pre.line { font-size: 11pt;
            color: green }</style>
 </head>
 
@@ -114,8 +114,6 @@ need.</p>
 <p>The SockListenModuleModule constructor looks like this:</p>
 <pre class="line">SockListenModule(const SocketAddress &amp;bind_addr, unievent::Dispatcher &amp;disp,
                  unievent::UNIXpollManager &amp;pmgr, int qlen = 1);</pre>
-<br />
-
 
 <p>It takes some mysterious arguments. The first, <code>SocketAddress
 &amp;bind_addr</code>, is the address to listen on, the address the listening
@@ -162,8 +160,6 @@ it's the kind of address we need.</p>
 <p>InetAddress has several constructors. We will pick the one that best
 represents that data we have, the port to listen on:</p>
 <pre class="line">InetAddress(U2Byte port);</pre>
-<br />
-
 
 <p>For Dispatcher, we will use <code>SimpleDispatcher</code> because we don't
 need any more complicated facilities that may be provided by a more
@@ -172,8 +168,6 @@ dispatcher written yet.</p>
 
 <p>SimpleDispatcher only has one constructor, and that takes no arguments:</p>
 <pre class="line">SimpleDispatcher();</pre>
-<br />
-
 
 <p>For UNIXpollManager, there is also only the UNIXpollManagerImp derived
 class. This class may actually disappear later, and there will only be a
@@ -183,8 +177,6 @@ UNIXpollManager concrete class, but for now, UNIXpollManagerImp it is.</p>
 Dispatcher as an argument, meaning that the Dispatcher will have to be
 created before the UNIXpollManagerImp:</p>
 <pre class="line">UNIXpollManagerImp(Dispatcher *disp);</pre>
-<br />
-
 
 <p>Putting this all together yields a code that looks something like this:</p>
 <pre class="codeblock">SimpleDispatcher dispatcher;
