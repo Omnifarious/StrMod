@@ -1,4 +1,4 @@
-#ifndef _STR_SockListenModule_H_
+#ifndef _STR_SockListenModule_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #  pragma interface
@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/07/05 18:32:36  hopper
+// Changed to use new StrChunkPtr style interface.  Also changed to use new
+// parent module handling.
+//
 // Revision 1.2  1996/02/12 05:49:34  hopper
 // Changed to use new ANSI string class instead of RWCString.
 //
@@ -57,6 +61,10 @@ static char _SockListenModule_H_rcsID[] =
 #  include <StrMod/StrChunk.h>
 #endif
 
+#ifndef _STR_StrChunkPtrT_H_
+#  include <StrMod/StrChunkPtrT.h>
+#endif
+
 #include <string>
 
 #define _STR_SockListenModule_H_
@@ -65,6 +73,46 @@ class ListeningPlug;
 class SocketModuleChunk;
 class SocketAddress;
 
+// This class is sort of a fake class to shove the listening socket into the
+// standard StreamModule framework. The SockListenModule mints SocketModule's,
+// but all the plug definitions require that StrChunk's be passed between the
+// plugs. This class wraps a SocketModule in a StrChunk. SocketModule's really
+// can't be passed to anywhere outside the process, so all the methods for this
+// class are going to act like this SockModuleChunk is empty.
+
+class SocketModuleChunk : public StrChunk {
+ public:
+   static const STR_ClassIdent identifier;
+
+   SocketModuleChunk(SocketModule *mod) : module(mod)  { }
+   inline virtual ~SocketModuleChunk();
+
+   inline virtual int AreYouA(const ClassIdent &cid) const;
+
+   virtual unsigned int Length() const                 { return(0); }
+   virtual unsigned int NumSubGroups() const           { return(0); }
+   inline virtual unsigned int NumSubGroups(const LinearExtent &extent) const;
+   inline virtual void FillGroupVec(GroupVector &vec,
+				    unsigned int &start_index);
+   inline virtual void FillGroupVec(const LinearExtent &extent,
+				    GroupVector &vec,
+				    unsigned int &start_index);
+
+   SocketModule *GetModule() const                     { return(module); }
+   void ReleaseModule()                                { module = 0; }
+
+ protected:
+   SocketModule *module;
+
+   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   inline virtual void i_DropUnused(const LinearExtent &usedextent,
+				    KeepDir keepdir);
+};
+
+typedef StrChunkPtrT<SocketModuleChunk> SocketModuleChunkPtr;
+
+//--------------------------SockListenModule class-----------------------------
+   
 class SockListenModule : public StreamModule {
    friend class ListeningPlug;
 
@@ -112,10 +160,10 @@ class ListeningPlug : public StrPlug, public IOHandler {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    virtual bool CanWrite() const                       { return(false); }
-   virtual bool Write(StrChunk *);  // Calling this will cause unpredictable
-                                    // things to happen.
+   virtual bool Write(const StrChunkPtr &); // Calling this will cause
+                                            // unpredictable things to happen.
    inline virtual bool CanRead() const;
-   inline SocketModuleChunk *Read();
+   inline const SocketModuleChunkPtr Read();
 
    inline SockListenModule *ModuleFrom() const;
    virtual int Side() const                            { return(1); }
@@ -124,14 +172,11 @@ class ListeningPlug : public StrPlug, public IOHandler {
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
  private:
-   SockListenModule *parent;
-
-   virtual StreamModule *ParentModule() const          { return(parent); }
-   virtual StrChunk *InternalRead();
+   inline virtual const StrChunkPtr InternalRead();
+   const SocketModuleChunkPtr my_InternalRead();
 
    virtual void WriteableNotify();
-// virtual void ReadableNotify(); // Don't care if the other plug can be read
-                                  // because I can't be written to.
+   virtual void ReadableNotify()                       { }
 
    virtual int inputReady(int fd);
 // virtual int outputReady(int fd);      // We will really only care about the
@@ -140,44 +185,6 @@ class ListeningPlug : public StrPlug, public IOHandler {
                                          // trust the default implementation to
 };                                       // do the right thing.
 
-//--------------------------SocketModuleChunk class----------------------------
-
-// This class is sort of a fake class to shove the listening socket into the
-// standard StreamModule framework. The SockListenModule mints SocketModule's,
-// but all the plug definitions require that StrChunk's be passed between the
-// plugs. This class wraps a SocketModule in a StrChunk. SocketModule's really
-// can't be passed to anywhere outside the process, so all the methods for this
-// class are going to act like this SockModuleChunk is empty.
-
-class SocketModuleChunk : public StrChunk {
-   static int junk;   // Something for GetCVoidP() to return a pointer to.
-
- public:
-   static const STR_ClassIdent identifier;
-
-   SocketModuleChunk(SocketModule *mod) : module(mod)  { }
-   inline virtual ~SocketModuleChunk();
-
-   inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   virtual unsigned int Length() const                 { return(0); }
-
-   virtual const void *GetCVoidP()                     { return(&junk); }
-
-   SocketModule *GetModule() const                     { return(module); }
-   void ReleaseModule()                                { module = 0; }
-
- protected:
-   SocketModule *module;
-
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-
-   inline virtual int i_FillFromFd(int fd, int start,
-				   int maxsize, int issocket, int flags);
-   inline virtual int i_PutIntoFd(int fd, int start,
-				  int maxsize, int issocket, int flags);
-};
-   
 
 // ---------------------SockListenModule inline functions----------------------
 
@@ -240,14 +247,19 @@ inline bool ListeningPlug::CanRead() const
    return(parent->plug_pulled && (parent->newmodule != 0));
 }
 
-inline SocketModuleChunk *ListeningPlug::Read()
+inline const SocketModuleChunkPtr ListeningPlug::Read()
 {
-   return((SocketModuleChunk *)InternalRead());
+   return(my_InternalRead());
 }
 
 inline SockListenModule *ListeningPlug::ModuleFrom() const
 {
-   return((SockListenModule *)ParentModule());
+   return(static_cast<SockListenModule *>(StrPlug::ModuleFrom()));
+}
+
+inline const StrChunkPtr ListeningPlug::InternalRead()
+{
+   return(my_InternalRead());
 }
 
 //--------------------SocketModuleChunk inline functions-----------------------
@@ -263,18 +275,23 @@ inline int SocketModuleChunk::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }
 
-inline int SocketModuleChunk::i_FillFromFd(int fd, int start,
-					    int maxsize, int issocket,
-					    int flags)
+inline unsigned int
+SocketModuleChunk::NumSubGroups(const LinearExtent &) const
 {
    return(0);
 }
 
-inline int SocketModuleChunk::i_PutIntoFd(int fd, int start,
-					  int maxsize, int issocket,
-					  int flags)
+inline void SocketModuleChunk::FillGroupVec(GroupVector &, unsigned int &)
 {
-   return(0);
+}
+
+inline void SocketModuleChunk::FillGroupVec(const LinearExtent &,
+					    GroupVector &, unsigned int &)
+{
+}
+
+inline void SocketModuleChunk::i_DropUnused(const LinearExtent &, KeepDir)
+{
 }
 
 #endif

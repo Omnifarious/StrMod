@@ -50,15 +50,15 @@ string SockListenModule::ErrorString() const
       return("unknown error");
 }
 
-SockListenModule::SockListenModule(const SocketAddress &bind_addr, int qlen) :
-      sockfd(-1), last_error(0), lplug(0), plug_pulled(false), newmodule(0),
-      myaddr(0)
+SockListenModule::SockListenModule(const SocketAddress &bind_addr, int qlen)
+     : sockfd(-1), last_error(0), lplug(0),
+       plug_pulled(false), newmodule(0), myaddr(0)
 {
    int temp;
 
    myaddr = bind_addr.Copy();
-   if ((sockfd =
-	   socket(myaddr->SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC)) < 0) {
+   sockfd = socket(myaddr->SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC);
+   if (sockfd < 0) {
       last_error = errno;
       return;
    }
@@ -97,10 +97,10 @@ SockListenModule::~SockListenModule()
       close(sockfd);
 }
 
-StrChunk *ListeningPlug::InternalRead()
+const SocketModuleChunkPtr ListeningPlug::my_InternalRead()
 {
    SockListenModule *parent = ModuleFrom();
-   StrChunk *temp;
+   SocketModuleChunk *temp;
 
    if (!CanRead()) {
       Dispatcher tempd;
@@ -128,7 +128,8 @@ int ListeningPlug::inputReady(int fd)
    SockListenModule *parent = ModuleFrom();
    int newfd;
    unsigned int length;
-   static unsigned char buf[1024];
+   const size_t buflen = 256;
+   unsigned char buf[buflen];
    sockaddr *saddr;
 
    if (fd != parent->sockfd || parent->newmodule != 0 ||
@@ -137,7 +138,7 @@ int ListeningPlug::inputReady(int fd)
       return(0);
    }
 
-   length = 1024;
+   length = buflen;
    saddr = static_cast<sockaddr *>(buf);
    if ((newfd = accept(parent->sockfd, saddr, &length)) < 0) {
       parent->last_error = errno;
@@ -145,9 +146,9 @@ int ListeningPlug::inputReady(int fd)
    }
 
    if (saddr->sa_family != AF_INET) {
-      cerr << "Aigh! ListeningPlug::inputReady(int) accepted a connection ";
-      cerr << "from a non-Internet\naddress. I don't know how to handle ";
-      cerr << "that.\n";
+      cerr << "Aigh! ListeningPlug::inputReady(int) accepted a connection "
+	 "from a non-Internet\naddress. I don't know how to handle "
+	 "that.\n";
       close(newfd);
       return(0);
    } else {
@@ -171,13 +172,12 @@ int ListeningPlug::inputReady(int fd)
    }
 }
 
-bool ListeningPlug::Write(StrChunk *w)
+bool ListeningPlug::Write(const StrChunkPtr &)
 {
-   delete w;
    return(true);
 }
 
-ListeningPlug::ListeningPlug(SockListenModule *p) : parent(p)
+ListeningPlug::ListeningPlug(SockListenModule *p) : StrPlug(p)
 {
    if (p->sockfd >= 0)
       Dispatcher::instance().link(p->sockfd, Dispatcher::ReadMask, this);
@@ -191,8 +191,6 @@ ListeningPlug::~ListeningPlug()
       delete parent->newmodule;
    Dispatcher::instance().unlink(parent->sockfd);
 }
-
-int SocketModuleChunk::junk = 0;
 
 // Started using cvs, and ChangeLog.  Look there for a revision history.
 //
