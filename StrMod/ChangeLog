@@ -1,5 +1,8 @@
 Sat Aug 24 07:37:48 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* tests/testmulti.cc: Added new test program for SimpleMultiplexer
+	class.
+
 	* StrMod/SimpleMulti.h:
 	* SimpleMulti.cc: Added new SimpleMultiplexer class, and related
  	plug classes.  This implements a simple multiplexer that
