@@ -35,8 +35,9 @@
 #   include "StrMod/UseTrackingVisitor.h"
 #endif
 
-#include <UniEvent/Dispatcher.h>
 #include <UniEvent/UNIXError.h>
+#include <UniEvent/EventPtr.h>
+#include <UniEvent/Dispatcher.h>
 
 #include <LCore/enum_set.h>
 
@@ -351,6 +352,7 @@ inline void StreamFDModule::BufferList::advanceBy(size_t numbytes)
 //---
 
 struct StreamFDModule::ErrorInfo {
+   UNIEventPtr events_[(ErrFatal - ErrRead) + 1];
    unsigned char errdata_[(ErrFatal - ErrRead) + 1][sizeof(UNIXError)];
    ErrorSet used_;
 };
@@ -367,6 +369,11 @@ bool StreamFDModule::hasErrorIn(const ErrorSet &set) const throw ()
    ErrorSet tmp = errorinfo_.used_;
    tmp &= set;
    return tmp.any();
+}
+
+void StreamFDModule::onErrorIn(ErrorType err, const UNIEventPtr &ev) throw()
+{
+   errorinfo_.events_[err] = ev;
 }
 
 void StreamFDModule::resetErrorIn(ErrorType err) throw ()
@@ -402,6 +409,11 @@ void StreamFDModule::setErrorIn(ErrorType err, const UNIXError &errval) throw ()
       errorinfo_.used_.set(err);
    }
    new(rawmem) UNIXError(errval);
+   if (errorinfo_.events_[err])
+   {
+      disp_.addEvent(errorinfo_.events_[err]);
+      errorinfo_.events_[err].ReleasePtr();
+   }
 }
 
 size_t StreamFDModule::getBestChunkSize() const

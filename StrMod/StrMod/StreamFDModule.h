@@ -144,10 +144,12 @@ class StreamFDModule : public StreamModule {
    bool hasErrorIn(ErrorType err) const throw ();
    //! Check for an error in one of the categories given by the set.
    bool hasErrorIn(const ErrorSet &set) const throw ();
-   //! Ask to post an event when the given error type happens.
-   void onErrorIn(ErrorType err, UNIEventPtr &ev) throw();
-   //! Ask to post an event when one of the error types from the set happens.
-   void onErrorIn(const ErrorSet &set, UNIEventPtr &ev) throw();
+   /** Ask to post an event when the given error type happens.
+    * Currently only one event per error type is allowed.  If there is already
+    * an event for a particular error type, that event will be forgotten about
+    * and not posted.
+    */
+   void onErrorIn(ErrorType err, const UNIEventPtr &ev) throw();
    /** Reset the error value for a particular category.
     * This does not work for the ErrFatal category.
     */
