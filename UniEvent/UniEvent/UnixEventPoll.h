@@ -37,7 +37,9 @@ class UnixEventPoll : virtual public UnixEventRegistry,
                       private TimerEventTracker
 {
  public:
+   //! Construct to use \c dispatcher to post events to. 
    UnixEventPoll(Dispatcher *dispatcher);
+   //! Currently doesn't clean signal handlers.
    virtual ~UnixEventPoll();
 
    virtual bool invariant() const;
@@ -58,6 +60,9 @@ class UnixEventPoll : virtual public UnixEventRegistry,
    using TimerEventTracker::postAt;
    using TimerEventTracker::postIn;
 
+   //! Uses the POSIX gettimeofday call.
+   virtual absolute_t currentTime() const;
+
    virtual void doPoll(bool wait = false);
 
  private:
@@ -71,7 +76,6 @@ class UnixEventPoll : virtual public UnixEventRegistry,
    void unHandleSignal(int signo);
    void sigOccurred(int signo);
    bool postSigEvents();
-   virtual absolute_t currentTime() const;
 };
 
 } // namespace unievent
