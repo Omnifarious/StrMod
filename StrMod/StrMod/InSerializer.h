@@ -42,29 +42,55 @@
 
 class StrChunkPtr;
 
+/** \class InSerializer InSerializer.h StrMod/InSerializer.h
+ * Provides a simple way to 'deserialize' a StrChunk.
+ *
+ * This converts from a stream of bytes into more structured data.
+ *
+ * See class OutSerializer for a more detailed explanation.
+ */
 class InSerializer {
  public:
+   //! Construct an InSerializer that reads bytes from \c ptr.
+   // \param ptr A pointer to a StrChunk to convert from.
    InSerializer(const StrChunkPtr &ptr);
+   //! Construct an InSerializer that reads bytes directly from a memory area.
+   // \param buf The beginning of the memory region to convert from.
+   // \param len The number of bytes in the memory region to convert from.
    InSerializer(const void *buf, size_t len);
+   //! It destroys things.  :-)
    virtual ~InSerializer();
 
+   //! Get a signed 1 octet value (2's complement) and move forward 1 octet.
    S1Byte GetS1Byte();
+   //! Get an unsigned 1 octet value and move forward 1 octet.
    U1Byte GetU1Byte();
 
+   //! Get a signed 2 octet value (2's complement) and move forward 2 octets.
    S2Byte GetS2Byte();
+   //! Get an unsigned 2 octet value and move forward 2 octets.
    U2Byte GetU2Byte();
 
+   //! Get a signed 4 octet value (2's complement) and move forward 2 octets.
    S4Byte GetS4Byte();
+   //! Get an unsigned 4 octet value and move forward 2 octets.
    U4Byte GetU4Byte();
 
+   //! Get a bool value and move forward 1 octet.
    inline bool GetBool()                               { return(GetU1Byte()); }
 
+   //! Get a string value.  See OutSerializer for more on format.
    const string GetString();
 
+   //! Get a \c len bytes and dump them in \c destbuf.
+   // \param destbuf A memory area to copy bytes into.
+   // \param len The number of bytes to copy.
    void GetRaw(void *destbuf, size_t len);
 
+   //! How many bytes are there left to read?
    size_t BytesLeft();
    // Someday, I'll be able to use exceptions instead.
+   //! Is the serializer in an error state.
    bool HadError() const                               { return(had_error_); }
 
  private:
