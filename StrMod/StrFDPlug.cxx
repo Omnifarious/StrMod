@@ -1,6 +1,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.4  1996/07/05 18:47:13  hopper
+ // Changed to use new StrChunkPtr stuff.
+ //
  // Revision 1.3  1996/02/19 03:54:15  hopper
  // Minor cleanup changes made while debugging.
  //
@@ -67,15 +70,23 @@ static char _StrFDPlug_CC_rcsID[] = "$Id$";
 #include "StrMod/StreamFDModule.h"
 #include <Dispatch/dispatcher.h>
 #include "StrMod/StrChunk.h"
+#include "StrMod/DBStrChunk.h"
+#include "StrMod/GroupVector.h"
 #include <string.h>
 #include <unistd.h>
 #include <iostream.h>
 #include <errno.h>
 
-StrChunk *StrFDPlug::InternalRead()
+#ifdef __GNUG__
+const StrChunkPtr StrFDPlug::InternalRead() return temp;
+#else
+const StrChunkPtr StrFDPlug::InternalRead()
+#endif
 {
+#ifndef __GNUG__
+   StrChunkPtr temp;
+#endif
    StreamFDModule *parent = ModuleFrom();
-   StrChunk *temp;
 
    if (parent->fd < 0)
       return(0);
@@ -89,12 +100,13 @@ StrChunk *StrFDPlug::InternalRead()
       if (!CanRead()) {
 	 cerr << "Returning 0 from InternalRead() after a blocking read\n";
 	 rdngfrm = 0;
-	 return(0);
+	 // temp, having not been set, should be NULL here.
+	 return(temp);
       }
       rdngfrm = 0;
    }
    temp = parent->buffed_read;
-   parent->buffed_read = 0;
+   parent->buffed_read.ReleasePtr();
    if (parent->flags.checkread)
       Dispatcher::instance().link(parent->fd, Dispatcher::ReadMask, this);
 
@@ -112,32 +124,42 @@ StrChunk *StrFDPlug::InternalRead()
 
 void StrFDPlug::ReadableNotify()
 {
-   if (PluggedInto() && CanWrite())
+   if (PluggedInto() && PluggedInto()->CanRead() && CanWrite())
       Write(PluggedInto()->Read());
 }
 
 void StrFDPlug::WriteableNotify()
 {
-   if (PluggedInto() && CanRead())
+   if (PluggedInto() && PluggedInto()->CanWrite() && CanRead())
       PluggedInto()->Write(Read());
 }
 
 int StrFDPlug::inputReady(int fd)
 {
    StreamFDModule *parent = ModuleFrom();
-   int size;
 
 //** If it isn't for me, I'm already buffering, or I have an uncleared
 //** error, disconnect me.
-   if (fd != parent->fd || parent->buffed_read != 0 ||
+   if (fd != parent->fd || parent->buffed_read ||
        parent->last_error != 0) {
       Dispatcher::instance().unlink(fd, Dispatcher::ReadMask);
       return(0);
    }
 
-   parent->buffed_read = new DataBlockStrChunk();
-   size = parent->buffed_read->FillFromFd(parent->fd, 0,
-					  parent->max_block_size);
+   int size;
+
+   {
+      DataBlockStrChunk *dbchunk =
+	 new DataBlockStrChunk(parent->max_block_size);
+      parent->buffed_read = dbchunk;
+
+      errno = 0;
+      size = read(parent->fd, dbchunk->GetVoidP(), parent->max_block_size);
+      if (size > 0) {
+	 dbchunk->Resize(size);
+      }
+   }
+
 /*
    cerr << "Reading: \"";
    parent->buffed_read->PutIntoFd(2);
@@ -147,21 +169,18 @@ int StrFDPlug::inputReady(int fd)
 */
 
    if (size <= 0) {
-      if (size == 0 && parent->buffed_read->GetLastErrno() == EWOULDBLOCK) {
-	 delete parent->buffed_read;
-	 parent->buffed_read = 0;
+      if (size < 0 && errno == EWOULDBLOCK) {
+	 parent->buffed_read.ReleasePtr();
 	 return(0);
       } else {
-	 if (parent->buffed_read->GetLastErrno() != 0)
-	    parent->last_error = parent->buffed_read->GetLastErrno();
+	 if (errno != 0)
+	    parent->last_error = errno;
 	 else if (size == 0)
 	    parent->last_error = -1;   // EOF encountered in read.
 	 else {
-	    assert(parent->buffed_read->GetLastErrno() != 0 ||
-		   size == 0);
+	    assert(errno != 0 || size == 0);
 	 }
-	 delete parent->buffed_read;
-	 parent->buffed_read = 0;
+	 parent->buffed_read.ReleasePtr();
 	 Dispatcher::instance().unlink(fd, Dispatcher::ReadMask);
 	 return(0);
       }
@@ -177,31 +196,39 @@ int StrFDPlug::outputReady(int fd)
 
 //** If it isn't for me, I've been sucked dry, or I have an uncleared error,
 //** then disconnect me.
-   if (fd != parent->fd || parent->cur_write == 0 || parent->last_error != 0) {
+   if (fd != parent->fd || !parent->cur_write || parent->last_error != 0) {
       Dispatcher::instance().unlink(fd, Dispatcher::WriteMask);
       return(0);
    }
 
-   if (parent->write_pos < parent->cur_write->Length()) {
-      int written, length;
+   unsigned int length = parent->cur_write->Length();
 
-      length = parent->cur_write->Length();
-      written = parent->cur_write->PutIntoFd(parent->fd, parent->write_pos,
-					     parent->max_block_size);
+   if (parent->write_pos < length) {
+      int written;
+      bool result;
+      GroupVector::IOVecDesc ioveclst;
+
+      assert(parent->write_vec != 0);
+
+      result = parent->write_vec->FillIOVecDesc(parent->write_pos, ioveclst);
+      assert(result);
+      errno = 0;
+      written = writev(parent->fd, ioveclst.iov, ioveclst.iovcnt);
 /*
       cerr << "Wrote: \"";
       parent->cur_write->PutIntoFd(2, parent->write_pos, written);
       cerr << "\"\n";
 */
       if (written < 0) {
-	 parent->last_error = parent->cur_write->GetLastErrno();
+	 parent->last_error = errno;
 	 Dispatcher::instance().unlink(fd, Dispatcher::WriteMask);
 	 return(0);
       } else {
 	 parent->write_pos += written;
 	 if (parent->write_pos >= length) {
-	    delete parent->cur_write;
-	    parent->cur_write = 0;
+	    delete parent->write_vec;
+	    parent->write_vec = 0;
+	    parent->cur_write.ReleasePtr();
 	    parent->write_pos = 0;
 	    if (!wrtngto)
 	       DoWriteableNotify();
@@ -209,8 +236,11 @@ int StrFDPlug::outputReady(int fd)
 	 return(0);
       }
    } else {
-      delete parent->cur_write;
-      parent->cur_write = 0;
+      if (parent->write_vec) {
+	 delete parent->write_vec;
+	 parent->write_vec = 0;
+      }
+      parent->cur_write.ReleasePtr();
       parent->write_pos = 0;
       if (!wrtngto)
 	 DoWriteableNotify();
@@ -233,7 +263,7 @@ void StrFDPlug::timerExpired(long sec, long usec)
         << "messages, Aigh!\n";
 }
 
-bool StrFDPlug::Write(StrChunk *outc)
+bool StrFDPlug::Write(const StrChunkPtr &outc)
 {
    StreamFDModule *parent = ModuleFrom();
 
@@ -256,6 +286,8 @@ bool StrFDPlug::Write(StrChunk *outc)
    }
    parent->cur_write = outc;
    parent->write_pos = 0;
+   parent->write_vec = new GroupVector(outc->NumSubGroups());
+   outc->SimpleFillGroupVec(*(parent->write_vec));
 /*
    cerr << "Set parent->cur_write to \"";
    parent->cur_write->PutIntoFd(2);
@@ -267,7 +299,7 @@ bool StrFDPlug::Write(StrChunk *outc)
 }
 
 StrFDPlug::StrFDPlug(StreamFDModule *parent)
-  : smod(parent), rdngfrm(0), wrtngto(0)
+     : StrPlug(parent), rdngfrm(0), wrtngto(0)
 {
    if (parent->fd >= 0) {
       if (parent->flags.checkwrite) {
@@ -283,10 +315,13 @@ StrFDPlug::~StrFDPlug()
 {
    StreamFDModule *parent = ModuleFrom();
 
-   if (parent->cur_write)
-      delete parent->cur_write;
-   if (parent->buffed_read)
-      delete parent->buffed_read;
+   UnPlug();
+   parent->cur_write.ReleasePtr();
+   if (parent->write_vec) {
+      delete parent->write_vec;
+      parent->write_vec = 0;
+   }
+   parent->buffed_read.ReleasePtr();
    if (parent->fd >= 0)
       Dispatcher::instance().unlink(parent->fd);
 }

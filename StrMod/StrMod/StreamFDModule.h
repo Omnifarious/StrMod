@@ -1,4 +1,4 @@
-#ifndef _STR_StreamFDModule_H_
+#ifndef _STR_StreamFDModule_H_  //-*-c++-*-
 
 #ifdef __GNUG__
 #  pragma interface
@@ -7,6 +7,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.3  1996/07/05 18:47:04  hopper
+ // Changed to use new StrChunkPtr stuff.
+ //
  // Revision 1.2  1996/02/12 05:49:35  hopper
  // Changed to use new ANSI string class instead of RWCString.
  //
@@ -63,16 +66,18 @@ static char _StreamFDModule_H_rcsID[] =
 #ifndef _STR_StreamModule_H_
 #   include <StrMod/StreamModule.h>
 #endif
-
-#ifndef dp_iohandler_h
-#   include <Dispatch/iohandler.h>
+#ifndef _STR_StrChunkPtr_H_
+#   include <StrMod/StrChunkPtr.h>
 #endif
+
+#include <Dispatch/iohandler.h>
 
 #include <string>
 
 #define _STR_StreamFDModule_H_
 
 class StrFDPlug;
+class GroupVector;
 
 //---------------------------class StreamFDModule------------------------------
 
@@ -113,8 +118,9 @@ class StreamFDModule : public StreamModule {
       unsigned int checkwrite : 1;
    } flags;
    StrFDPlug *plug;
-   StrChunk *cur_write, *buffed_read;
+   StrChunkPtr cur_write, buffed_read;
    int write_pos;
+   GroupVector *write_vec;
    unsigned int max_block_size;
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
@@ -133,7 +139,7 @@ friend class StreamFDModule;
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    inline virtual bool CanWrite() const;
-   virtual bool Write(StrChunk *);
+   virtual bool Write(const StrChunkPtr &);
 
    inline virtual bool CanRead() const;
 
@@ -141,7 +147,6 @@ friend class StreamFDModule;
    inline virtual int Side() const                     { return(0); }
 
  protected:
-   StreamFDModule *smod;
    int rdngfrm, wrtngto;
 
    StrFDPlug(StreamFDModule *parent);
@@ -149,8 +154,7 @@ friend class StreamFDModule;
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   virtual StreamModule *ParentModule() const          { return(smod); }
-   virtual StrChunk *InternalRead();
+   virtual const StrChunkPtr InternalRead();
 
    virtual void ReadableNotify();
    virtual void WriteableNotify();
@@ -209,17 +213,17 @@ inline int StrFDPlug::AreYouA(const ClassIdent &cid) const
 
 inline bool StrFDPlug::CanWrite() const
 {
-   return(ModuleFrom()->cur_write == 0);
+   return(!ModuleFrom()->cur_write);
 }
 
 inline bool StrFDPlug::CanRead() const
 {
-   return(ModuleFrom()->buffed_read != 0);
+   return(ModuleFrom()->buffed_read);
 }
 
 inline StreamFDModule *StrFDPlug::ModuleFrom() const
 {
-   return((StreamFDModule *)ParentModule());
+   return(static_cast<StreamFDModule *>(StrPlug::ModuleFrom()));
 }
 
 #endif

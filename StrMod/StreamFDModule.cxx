@@ -1,6 +1,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.4  1996/07/05 18:47:14  hopper
+ // Changed to use new StrChunkPtr stuff.
+ //
  // Revision 1.3  1996/02/12 05:49:23  hopper
  // Changed to use new ANSI string class instead of RWCString.
  //
@@ -56,8 +59,8 @@
 #endif
 
 #include "StrMod/StreamFDModule.h"
-#ifndef _STR_StrChunk_H_
-#   include "StrMod/StrChunk.h"
+#ifndef _STR_DBStrChunk_H_
+#   include "StrMod/DBStrChunk.h"
 #endif
 
 extern "C" int sys_nerr;
@@ -123,16 +126,15 @@ int StreamFDModule::BestChunkSize()
 }
 
 StreamFDModule::StreamFDModule(int fdes, IOCheckFlags flgs, bool hangdel)
+     : fd(fdes), plug(0), last_error(0),
+       write_pos(0), write_vec(0), max_block_size(0)
 {
-   fd = fdes;
    if (fd < 0)
       last_error = errno;
-   else
-      last_error = 0;
-   max_block_size = 0;
    flags.hangdelete = (hangdel ? 1 : 0);
    flags.plugmade = 0;
    switch (flgs) {
+    default:
     case CheckNone:
       flags.checkread = 0;
       flags.checkwrite = 0;
@@ -151,8 +153,6 @@ StreamFDModule::StreamFDModule(int fdes, IOCheckFlags flgs, bool hangdel)
       break;
    }
    plug = new StrFDPlug(this);
-   cur_write = buffed_read = 0;
-   write_pos = 0;
 }
 
 StreamFDModule::~StreamFDModule()
