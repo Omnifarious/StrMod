@@ -1,3 +1,9 @@
+Fri Apr 11 12:42:30 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* OutSerializer.cxx:
+	* StrMod/OutSerializer.h: Added OutSerializer class for simple
+	serialization of basic data types.
+
 Mon Dec  9 19:52:10 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* GroupVector.cxx (FillIOVecDesc): Fixed an error involving a
