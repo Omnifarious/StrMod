@@ -1,4 +1,4 @@
-#ifndef _UNEVT_UnixEventGenerator_H_  // -*-c++-*-
+#ifndef _UNEVT_UnixEventRegistry_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #  pragma interface
@@ -10,16 +10,16 @@
 
 #include <LCore/enum_set.h>
 
-#define _UNEVT_UnixEventGenerator_H_
+#define _UNEVT_UnixEventRegistry_H_
 
 namespace strmod {
 namespace unievent {
 
-/** \class UnixEventGenerator UnixEventGenerator.h UniEvent/UnixEventGenerator.h
+/** \class UnixEventRegistry UnixEventRegistry.h UniEvent/UnixEventRegistry.h
  * \brief Manages events associated with various file descriptors and/or
  * signals.
  */
-class UnixEventGenerator {
+class UnixEventRegistry {
  public:
    //! These enums are intended to be used with the enum_set, FDCondSet.
    enum FDConditions { FD_Readable, FD_Writeable,
@@ -29,26 +29,39 @@ class UnixEventGenerator {
 /*   enum SIGConds { SIG_Async = 0x01, SIG_Sync = 0x02 }; */
    static const FDCondSet all_fdconds;
 
-   inline UnixEventGenerator(Dispatcher *dispatcher);
-   inline virtual ~UnixEventGenerator();
+   inline UnixEventRegistry(Dispatcher *dispatcher);
+   inline virtual ~UnixEventRegistry();
 
    //! Register the event '*ev' to be fired on file descriptor condition true.
    virtual bool registerFDCond(int fd,
                                const FDCondSet &condbits,
                                const EventPtr &ev) = 0;
-   /** Register '*ev' to be fired when file descriptor condition true.
-    * This function promises to fill in the poll event with information about
-    * the conditions causing the event to be triggered.
-    */
-   virtual bool registerFDCond(int fd,
-			       const FDCondSet &condbits,
-			       const EventPtrT<PollEvent> &ev) = 0;
-/*   // Register the event '*ev' to be fired when a signal happens.
-   bool_val registerSIGCond(int sig, unsigned int condbits, const EventPtr &ev);
-*/
 
    //! Removes all entries associated with a particular file descriptor.
    virtual void freeFD(int fd) = 0;
+
+   /** On the given signal, post the given event.
+    * @param signo The number of the signal to post an event for.
+    * @param ev The event to post.
+    * @param oneshot Whether or not the event is removed after it is
+    * posted (defualts to true).
+    */
+   virtual void onSignal(int signo, const EventPtr &e, bool oneshot = true) = 0;
+
+   /** Stop posting the given event for the given signal.
+    * @param signo The signal to stop posting the event for.
+    * @param ev The event to stop posting.
+    */
+   virtual void clearSignal(int signo, const EventPtr &e) = 0;
+
+   /** Stop posting any events for the given signal.
+    * @param signo The signal to stop posting events for.
+    *
+    * This function should be avoided as you may interfere unkowingly with other
+    * parts of the program that are still depending on their events being posted
+    * when the signal happening.
+    */
+   virtual void clearSignal(int signo, const EventPtr &e) = 0;
 
    //! Actually call the UNIX poll system call, and dispatch resulting events.
    virtual void doPoll(bool wait = true) = 0;
@@ -62,17 +75,12 @@ class UnixEventGenerator {
 
 //-----------------------------inline functions--------------------------------
 
-inline UnixEventGenerator::PollEvent::PollEvent()
-     : bits_(0)
-{
-}
-
-inline UnixEventGenerator::UnixEventGenerator(Dispatcher *dispatcher)
+inline UnixEventRegistry::UnixEventRegistry(Dispatcher *dispatcher)
    : disp_(dispatcher)
 {
 }
 
-inline UnixEventGenerator::~UnixEventGenerator()
+inline UnixEventRegistry::~UnixEventRegistry()
 {
 }
 
