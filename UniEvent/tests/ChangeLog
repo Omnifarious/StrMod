@@ -1,8 +1,8 @@
 Mon May 12 20:04:21 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
-	* munchdisptest.pl: Changed to print out more standard failure
- 	messages, and the check to new construction and destruction
- 	counts.
+	* munchdisptest.pl: Changed to print out more standard success and
+ 	failure messages, and to check the new construction and
+ 	destruction counts.
 
 	* testdisp.cxx: Changed test to use new EventPtr classes, and also
  	do construction and destruction counting to make sure reference
