@@ -14,7 +14,7 @@ h1.title {text-align: center}</style>
 <h1 class="title">What the heck is a StrChunk?</h1>
 
 <p>A StrChunk is an abstraction for an immutable byte string. One might think
-such an abstraction wouldn't be very complicated or deserving of a detiled
+such an abstraction wouldn't be very complicated or deserving of a detailed
 explanation, but StrChunk's are a bit different.</p>
 
 <p>One of the chief problems in moving data around is the time it takes to
@@ -24,14 +24,14 @@ especially in programs who's main job it is to move data around. These copies
 happen because protocols often have sections of messages that contain random
 data that's not of direct concern to a particular protocol layer. The common
 strategy is to copy the data that's of concern to the next layer out of the
-message, and throw the original data away. StrChunk's provide a better
-way.</p>
+message, and throw the original data and layer wrappings away. StrChunks
+provide a better way.</p>
 
 <p>A StrChunk is an abstraction for an immutable byte string. Ths means that
 the underlying implementation need not actually be a byte string. In fact,
 two common kinds of StrChunks (StrSubChunks and GroupChunks) use StrChunks
 for their implementation. This sounds pretty simple, but has some interesting
-and complex implications.</p>
+implications.</p>
 
 <p>Another concept that needs introduction is the idea of a LinearExtent. A
 LinearExtent is actually rather simple, and perhaps a better name could be
@@ -41,11 +41,15 @@ used to refer to portions of a StrChunk.</p>
 <h2>StrSubChunks and LinearExtents</h2>
 
 <p>A StrSubChunk is a StrChunk that uses another StrChunk to actually
-implement the byte string. It also contains a LinearExtent that describes
-which portion of the child StrChunk the StrSubChunk consists of. This sounds
-kind of confusing, but the idea is simple.</p>
+implement the byte string. It uses a LinearExtent to describe which portion
+of the child StrChunk the StrSubChunk consists of. This sounds kind of
+confusing, but the idea is simple.</p>
 
-<p>Suppose you have a StrChunk that contains this sequence of bytes:</p>
+<p>Suppose you create a StrChunk like this:<br />
+<pre>BufferChunk *pab1 = new PreAllocBuffer&lt;23&gt;; // Using a BufferChunk * because we need getVoidP()
+memcpy(pab1-&gt;getVoidP(), "George Orwell has fleas", 23); // from BufferChunk to finish the StrChunk.</pre>
+<br />
+<code>*pab1</code> now contains this sequence of bytes:</p>
 
 <table border="1">
   <tbody>
@@ -103,10 +107,15 @@ kind of confusing, but the idea is simple.</p>
     </tr>
   </tbody>
 </table>
+<br />
+
 
 <p>If you created a StrSubChunk that had a LinearExtent of (offset: 7,
-length: 10) and used the previous StrChunk to hold the bytes, this
-StrSubChunk (which is also itself a StrChunk) looks like this:</p>
+length: 10) like this:<br />
+<pre>StrChunk *subc = new StrSubChunk(pab1, LinearExtent(7, 10));</pre>
+<br />
+and used <code>*pab1</code> to hold the bytes, this StrSubChunk (which is
+also itself a StrChunk) would look like this:</p>
 
 <table border="1">
   <tbody>
@@ -138,15 +147,24 @@ StrSubChunk (which is also itself a StrChunk) looks like this:</p>
     </tr>
   </tbody>
 </table>
+<br />
 
-<p>As you can see, a new StrChunk has been created that cotains parts of
-another StrChunk without having to have made a copy of those parts.</p>
+
+<p>As you can see, a new StrChunk has been created that contains part of
+another StrChunk without having to have made a copy of that part.</p>
 
 <h2>GroupChunks</h2>
 
 <p>A GroupChunk is a kind of StrChunk that can contain several other
 StrChunks. A GroupChunk appears as the concatenation of all the StrChunks it
-contains. Suppose you have to StrChunks, the first contains:</p>
+contains. Suppose you have two StrChunks:<br/>
+<pre>
+BufferChunk *bc1 = new PreAllocBuffer&lt;10>;
+memcpy(pa1->getVoidP(), "What hath ", 10);
+BufferChunk *bc2 = new PreAllocBuffer&lt;12>;
+memcpy(pa1->getVoidP(), "God wrought?", 12);
+</pre><br/>
+<code>*bc1</code> contains:
 
 <table border="1">
   <tbody>
@@ -179,7 +197,7 @@ contains. Suppose you have to StrChunks, the first contains:</p>
   </tbody>
 </table>
 
-<p>and the second contains:</p>
+and <code>*bc2</code> contains:
 
 <table border="1">
   <tbody>
@@ -215,6 +233,7 @@ contains. Suppose you have to StrChunks, the first contains:</p>
     </tr>
   </tbody>
 </table>
+</p>
 
 <p>Then, suppose you create a new GroupChunk and add these two StrChunks to
 it. A GroupChunk is a StrChunk, so, from a StrChunk perspective, the new

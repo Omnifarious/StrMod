@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <title>The StreamModule Subsystem</title>
+  <meta name="Author" content="Eric Hopper" />
+  <meta name="Revision" content="$Revision$" />
+  <style type="text/css">
+
+h1.title {text-align: center}</style>
+</head>
+
+<body>
+<h1 class="title">The StreamModule Subsystem</h1>
+
+<p>StreamModule's provide a facility For building a program out of small
+components that are connected by a bidirectional streams of data. There are
+many programs that fit this model, or have large pieces that fit this model.
+One example is the <em>tokenizer -&gt; preprocessor -&gt; compiler -&gt;
+optimizer -&gt; assembler</em> chain for traditional compilation of a C
+program. Another is the <em>wire &lt;-&gt; ethernet &lt;-&gt; IP &lt;-&gt;
+TCP &lt;-&gt; socket &lt;-&gt; apache</em> chain for an http connnection to a
+webserver.</p>
+
+<p>Though the StreamModule system is designed such that many of its
+individual pieces can be used independently, the StreamModule subsystem is
+its heart. The other pieces are mainly designed to provide a supporting
+framework for this piece.</p>
+</body>
+</html>
