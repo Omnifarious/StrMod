@@ -1,0 +1,10 @@
+1999-01-17  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* InetAddrNetDB.cxx (NameToIaddr): Fixed to be more compatible
+	with what the hostent structure actually contains.
+
+	* InetAddrNetDB.cxx:
+	* EHnet++/InetAddress.h:
+	* InetAddress.cxx: Changed some method signatures to use unsigned
+	int & instead of unsigned long &.  This is because now that
+	architectures are 32/64 bit, int is more likely to be 32 bits.
