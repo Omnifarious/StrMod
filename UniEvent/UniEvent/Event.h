@@ -37,25 +37,30 @@
 class UNIDispatcher;
 class UNIEventPtr;
 
-//: An event to be queued up in a UNIDispatcher.
+/** \class UNIEvent Event.h UniEvent/Event.h
+ * \brief An event to be queued up in a UNIDispatcher.
+ */
 class UNIEvent : virtual public Protocol, public ReferenceCounting {
  public:
    static const UNEVT_ClassIdent identifier;
 
+   //! Nothing exciting here.
    UNIEvent() : ReferenceCounting(0)                   { }
+   //! This is an interface class, of course it has a virtual destructor.
    virtual ~UNIEvent()                                 { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   //: Perform the action associated with the event.
-   // If the event was triggered by a dispatcher, the dispatcher that
-   // triggered it is expected to be passed in.  Otherwise NULL (aka 0) can be
-   // passed in.  A dispatcher will only call ONE triggerEvent method at a
-   // time.
+   /** Perform the action associated with the event.
+    * If the event was triggered by a dispatcher, the dispatcher that triggered
+    * it is expected to be passed in.  Otherwise NULL (aka 0) can be passed in.
+    * A dispatcher will only call ONE triggerEvent method at a time.
+    */
    virtual void triggerEvent(UNIDispatcher *dispatcher = 0) = 0;
 
-   //: Alternate form of TriggerEvent
+   //! Alternate form of TriggerEvent
    inline void operator ()(UNIDispatcher *dispatcher);
+   //! Alternate form of TriggerEvent
    inline void operator ()()                           { (*this)(0); }
 
  protected:
