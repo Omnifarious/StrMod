@@ -1,3 +1,8 @@
+2001-06-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/UNIXError.h, UNIXError.cxx: Changed to derive from the
+	LCoreError class and be fully multithread safe.
+
 2001-04-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/UNIXpollManagerImp.h, UNIXpollManagerImp.cxx: Changed
