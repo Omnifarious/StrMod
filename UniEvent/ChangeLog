@@ -1,3 +1,42 @@
+2002-03-26  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* tests/testUPoll.cxx:
+	Remove obsolete test for UNIXpollManager, which is gone now.
+
+	* tests/testtimer.cxx:
+	Fixed up testtimer to use the new event system.
+
+	* Makefile.in, UniEvent/UNIXpollManager.h,
+	UniEvent/UNIXpollManagerImp.h, UniEvent/UNIXSignalHandler.h,
+	UniEvent/UNIXTimer.h, UNIXpollManager.cxx, UNIXpollManagerImp.cxx,
+	UNIXSignalHandler.cxx, UNIXTimer.cxx:
+
+	Removed obsolete Unix event system.
+
+	* UniEvent/TimerEventTracker.h, UniEvent/Timer.h:
+
+	Hoisted currentTime up the hierarchy because it makes sense.
+
+	* Makefile.in:
+
+	Added RegisterDispatcherGlue.cxx to main library.
+
+	* RegistryDispatcherGlue.cxx, UniEvent/RegistryDispatcherGlue.h:
+
+	Finished version of RegistryDispatcherGlue.
+
+2002-03-22  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/RegistryDispatcherGlue.h:
+	Added a destructor.
+
+	* RegistryDispatcherGlue.cxx:
+	Fleshed out the class a bit.
+
+	* RegistryDispatcherGlue.cxx, UniEvent/RegistryDispatcherGlue.h:
+	Preliminary, uninished cut of event glue between a Dispatcher
+	and a UnixEventRegistry.
+
 2002-03-21  hopper  <hopper@dev-ehopper>
 
 	* UniEvent/TimerEventTracker.h: Additionally derive from
@@ -78,8 +117,6 @@
 	UniEvent/UNIXTimer.h, UNIXTimer.cxx: I forgot the maxim: Push data
 	down the hierarchy as far as it'll go.  Fixed by moving
 	dispatcher_ to derived classes.
-
-	* /home/hopper/src/cvs/C++/UniEvent/ChangeLog: Changes!
 
 2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
 
@@ -195,7 +232,7 @@
 
 2002-02-05  Eric M. Hopper  <hopper@omnifarious.org>
 
-	* /home/hopper/src/cvs/C++/UniEvent/ChangeLog, /home/hopper/src/cvs/C++/UniEvent/UNIXSignalHandler.cxx:
+	* UNIXSignalHandler.cxx:
 	Fixed up things to work with new C++ standard library that insists on
 	the std:: namespace.  Removed RCS id string because it isn't
 	consistently included and of dubious value.

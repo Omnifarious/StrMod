@@ -1,3 +1,33 @@
+2002-03-26  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* testUPoll.cxx:
+
+	Remove obsolete test for UNIXpollManager, which is gone now.
+
+	* testtimer.cxx:
+
+	Fixed up testtimer to use the new event system.
+
+	* testupoll.cxx:
+
+	Added a version control header.
+
+	* testupoll.cxx:
+
+	Various changes to start using UnixEventRegistry instead of
+	UNIXpollManager.
+
+2002-03-22  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* .cvsignore:
+
+	Ignore yet another executable.
+
+	* testupoll.cxx:
+
+	Moved using std::cerr outside of try block so catch statements can
+	use it.  Mistake not caught by gcc-2.96
+
 2002-03-21  hopper  <hopper@dev-ehopper>
 
 	* testupoll.cxx: Changed TimerEvent to use Timer interface instead
