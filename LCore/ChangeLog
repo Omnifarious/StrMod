@@ -1,5 +1,8 @@
 1999-10-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* GNUmakefile.in: Fixed to include stuff the GNUmakefile now
+	includes.
+
 	* LCore/RefCountPtr.h: Changed so that a preprocessor flag that
 	should disappear after the file is done does disappear.
 
