@@ -35,9 +35,12 @@ DEPDB = @DEPDB@
 
 MYMAKE := $(MAKE)
 
-CCNAMES = InetAddress.cc  SocketAddress.cc  InetAddrNetDB.cc  tests/morejunk.cc
+CCNAMES = InetAddress.cc  SocketAddress.cc  InetAddrNetDB.cc \
+          NET_ClassIdent.cc  tests/morejunk.cc  SocketAddressDef.cc \
+          InetAddrDef.cc
 
-LIBCCS = InetAddress.cc  SocketAddress.cc  InetAddrNetDB.cc
+LIBCCS = InetAddress.cc  SocketAddress.cc  InetAddrNetDB.cc  NET_ClassIdent.cc\
+         SocketAddressDef.cc  InetAddrDef.cc
 
 DEPSUB = $(patsubst %.c,%.o,$(?:.cc=.o))
 DEPSUBDD = $(patsubst %.c,%.c.d,$(?:.cc=.cc.d))

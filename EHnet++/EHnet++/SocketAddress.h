@@ -7,6 +7,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.3  1996/02/12 03:01:55  hopper
+ // Added links to my ClassIdent system.
+ //
  // Revision 1.2  1996/02/12 00:32:57  hopper
  // Fixed to use the new C++ standard library string class instead of all the
  // 'NetString' silliness.
@@ -35,17 +38,25 @@
  // $Revision$
 
 #include <string>
+#include <LCore/Protocol.h>
+#include <EHnet++/NET_ClassIdent.h>
 
 #define _EHNET_SocketAddress_H_
 
 struct sockaddr;
 class ostream;
 
-class SocketAddress {
- protected:
-   virtual SocketAddress *MakeCopy() const = 0;
-
+class SocketAddress : virtual public Protocol {
  public:
+   static const NET_ClassIdent identifier;
+
+   SocketAddress()                              { }
+   virtual ~SocketAddress()                     { }
+
+   virtual int AreYouA(const ClassIdent &cid) const {
+      return((identifier == cid) || Protocol::AreYouA(cid));
+   }
+
    virtual void PrintOn(ostream &);
 
    virtual struct sockaddr *SockAddr() = 0;
@@ -53,8 +64,17 @@ class SocketAddress {
    virtual int AddressSize() const = 0;
    virtual string AsString() = 0;
 
-   SocketAddress()                              { }
-   virtual ~SocketAddress()                     { }
+ protected:
+   inline virtual const ClassIdent *i_GetIdent() const;
+
+   virtual SocketAddress *MakeCopy() const = 0;
 };
+
+//-----------------------------inline functions--------------------------------
+
+inline const ClassIdent *SocketAddress::i_GetIdent() const
+{
+   return(&identifier);
+}
 
 #endif

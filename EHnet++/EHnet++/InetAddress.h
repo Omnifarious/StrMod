@@ -7,6 +7,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.3  1996/02/12 03:01:53  hopper
+ // Added links to my ClassIdent system.
+ //
  // Revision 1.2  1996/02/12 00:32:55  hopper
  // Fixed to use the new C++ standard library string class instead of all the
  // 'NetString' silliness.
@@ -55,6 +58,12 @@ typedef unsigned short U2Byte;
 
 class InetAddress : public SocketAddress {
  public:
+   static const NET_ClassIdent identifier;
+
+   virtual int AreYouA(const ClassIdent &cid) const {
+      return((identifier == cid) || SocketAddress::AreYouA(cid));
+   }
+
    virtual struct sockaddr *SockAddr(){ return((struct sockaddr *)(&inaddr)); }
    InetAddress *Copy() const          { return((InetAddress *)MakeCopy()); }
    virtual int AddressSize() const    { return(sizeof(sockaddr_in)); }
@@ -74,6 +83,8 @@ class InetAddress : public SocketAddress {
    virtual ~InetAddress()             { }
 
  protected:
+   inline virtual const ClassIdent *i_GetIdent() const;
+
    inline virtual SocketAddress *MakeCopy() const;
 
    void InvalidateAddress();
@@ -92,6 +103,11 @@ class InetAddress : public SocketAddress {
 };
 
 //--------------------------------inline functions-----------------------------
+
+inline const ClassIdent *InetAddress::i_GetIdent() const
+{
+   return(&identifier);
+}
 
 inline SocketAddress *InetAddress::MakeCopy() const
 {
