@@ -218,6 +218,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
       iovec data = {const_cast<void *>(start), len};
 
       iovecs_.push_back(data);
+      totalbytes_ += len;
    }
 
  private:
@@ -227,6 +228,10 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    size_t curbyte_;
    iovecvec::iterator curvec_;
    iovecvec iovecs_;
+
+   // Private and left undefined on purpose.
+   BufferList(const BufferList &b);
+   void operator =(const BufferList &b);
 };
 
 inline void StreamFDModule::BufferList::advanceBy(size_t numbytes)
@@ -499,9 +504,8 @@ void StreamFDModule::doWriteFD()
    assert(!hasErrorIn(ErrWrite));
    assert(!hasErrorIn(ErrFatal));
    assert(fd_ >= 0);
-   BufferList mybuflist = curbuflist_;
 
-   if (mybuflist.bytesLeft() <= 0)
+   if (curbuflist_.bytesLeft() <= 0)
    {
       if (cur_write_->AreYouA(EOFStrChunk::identifier))
       {
@@ -522,22 +526,22 @@ void StreamFDModule::doWriteFD()
       }
    }
 
-   assert(mybuflist.bytesLeft() > 0);
+   assert(curbuflist_.bytesLeft() > 0);
 
    // Tell the compiler how I intend to use this value.
-   size_t length = mybuflist.bytesLeft();
+   size_t length = curbuflist_.bytesLeft();
 
    // This loop is also broken out of when there's an error writing.
    while (length > 0)
    {
       int written;
       bool result;
-      size_t numvecs = mybuflist.numVecs();
+      size_t numvecs = curbuflist_.numVecs();
       if (numvecs > MAXIOVCNT)
       {
 	 numvecs = MAXIOVCNT;
       }
-      written = ::writev(fd_, mybuflist.getIOVec(), numvecs);
+      written = ::writev(fd_, curbuflist_.getIOVec(), numvecs);
       // cerr << fd_ << ": just wrote: <";
       // cerr.write(ioveclst.iov[0].iov_base, ioveclst.iov[0].iov_len);
       // cerr << ">\n";
@@ -554,12 +558,12 @@ void StreamFDModule::doWriteFD()
       }
       else
       {
-         mybuflist.advanceBy(written);
-         length = mybuflist.bytesLeft();
+         curbuflist_.advanceBy(written);
+         length = curbuflist_.bytesLeft();
       }
    }
 
-   if (mybuflist.bytesLeft() <= 0)
+   if (curbuflist_.bytesLeft() <= 0)
    {
       cur_write_.ReleasePtr();
    }
