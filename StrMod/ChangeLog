@@ -1,5 +1,7 @@
 1999-10-14  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* GNUmakefile.in: Added items for the new telnet stuff.
+
 	* tests/TelnetToAscii.h: 
 	* tests/TelnetToAscii.cxx (class TelnetToAscii): Added an option
 	to the constructors to alllow you to specify that you want it to
