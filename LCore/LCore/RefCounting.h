@@ -1,7 +1,7 @@
-#ifndef _EH_0_RefCounting_H_
+#ifndef _EH_0_RefCounting_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -58,25 +58,54 @@
 namespace strmod {
 namespace lcore {
 
-class ReferenceCounting : virtual public Protocol {
+/** \class ReferenceCounting RefCounting.h LCore/RefCounting.h
+ * A base mixin class for reference counted things.
+ *
+ * There are many ways to handle reference counting as a general garbage
+ * collection technique in C++.  This helps implement one of the more efficient,
+ * but also somewhat invasive ones.  This one has the reference count stored
+ * inside the class itself.  This means the class holds data that really doesn't
+ * have much to do with the class, but some classes are designed to be used in
+ * ways where you know reference counting will be needed and useful as a garbage
+ * collection technique.
+ *
+ * This class has an associated smart pointer class, RefCountPtr, that can be
+ * used to point at instances of this class.  The smart pointer class will track
+ * references for you.  But, there is no requirement to use it if you want to do
+ * your reference counting in some other way.
+*/
+class ReferenceCounting : virtual public Protocol
+{
  public:
    static const LCore_ClassIdent identifier;
 
+   //! Initialize with a reference count
    ReferenceCounting(U4Byte refs) : refcounter(refs)        {}
+   //! Not much to do on destruction
    virtual ~ReferenceCounting()                             {}
 
    virtual int AreYouA(const ClassIdent &cid) const {
       return((identifier == cid) || Protocol::AreYouA(cid));
    }
 
+   //! Add a reference to the count.
    void AddReference()                      { refcounter++; }
+   /** Remove a reference from the count and stop the counter from rolling over backwards
+    *
+    * Note that this class does not consider it it's job to actually delete
+    * itself when the reference count goes to 0.  That job is more properly left
+    * to the smart pointer class.
+    */
    void DelReference()                      { if (refcounter) refcounter--; }
+   //! How many references?
    U4Byte NumReferences() const             { return(refcounter); }
 
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
 
+   //! Add more than 1 reference
    void AddReferences(U4Byte num)           { refcounter += num; }
+   //! Remove more than 1 reference, again with protection from rolling over backwards.
    inline void DelReferences(U4Byte num);
 
  private:

@@ -50,34 +50,96 @@ namespace lcore {
 
 class ReferenceCounting;
 
-class RefCountPtr : virtual public Protocol {
+/** \class RefCountPtr RefCountPtr.h LCore/RefCountPtr.h
+ * A smart pointer class that points to objects of type ReferenceCounting and
+ * maintains their reference counts.
+ *
+ * There's not much more to this than the brief description says.
+*/
+class RefCountPtr : virtual public Protocol
+{
  public:
    typedef ReferenceCounting RC;
    static const LCore_ClassIdent identifier;
 
+   //! Contruct a null pointer
    inline RefCountPtr();
+   //! Construct a pointer pointing at rfptr and increment its reference count
    inline RefCountPtr(RC *rfptr);
+   //! Copy a RefCountPtr and incremement the reference count of the thing pointed to
    inline RefCountPtr(const RefCountPtr &b);
+   /** Destroy the pointer and decrement the reference count of the thing pointed to.
+    *
+    * If the reference count of the thing pointed to goes to 0, its destructor
+    * will be called.
+    */
    inline virtual ~RefCountPtr();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
+   //! Smart pointer operator, if _LCORE_RefCountPtr_H_DEBUG is set, asserts non-null
    inline RC &operator *() const;
+   //! Smart pointer operator, if _LCORE_RefCountPtr_H_DEBUG is set, asserts non-null
    inline RC *operator ->() const;
 
+   //! What am I pointing at?
    inline RC *GetPtr() const                           { return(ptr_); }
+   /** Set me to point at null, decrement the reference count of previous pointer destination
+    *
+    * If the reference count of the thing previously pointed to goes to 0, its
+    * destructor will be called.
+    */
    inline void ReleasePtr(bool deleteref = true);
 
+   //! Am I non-null?
    inline operator bool() const;
+   //! Am I null?
    inline bool operator !() const;
 
+   /** Copy a reference counted pointer, handling reference counts appropriately
+    *
+    * This handles *this = *this, and *this = ReferenceCounting(*this) properly.
+    * It decrements the reference count of, and possibly destroys what's
+    * currently being pointed at, and increments the reference count of what
+    * will be pointed to.
+    *
+    * This also uses the i_CheckType() function to do some type checking of the
+    * pointer being pointed to.  This is so new pointer classes with type
+    * constraints can be derived from this class.
+    */
    inline const RefCountPtr &operator =(const RefCountPtr &b);
+   /** Copy from a regular pointer, handling reference counts appropriately
+    *
+    * This handles *this = this->GetPtr() properly.  It decrements the reference
+    * count of, and possibly destroys what's currently being pointed at, and
+    * increments the reference count of what will be pointed to.
+    *
+    * This also uses the i_CheckType() function to do some type checking of the
+    * pointer being pointed to.  This is so new pointer classes with type
+    * constraints can be derived from this class.
+    */
    inline const RefCountPtr &operator =(RC *b);
 
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
+   /** Do some type checking of a ReferenceCounting pointer to make sure it points at the right type.
+    *
+    * @param p The pointer who's type needs to be checked.
+    * @return null if the pointer is the wrong type, the value of p if it is of the right type.
+    */
    virtual RC *i_CheckType(RC *p) const                { return(p); }
+   /** Change what this RefCountPtr points to, maybe modifying reference counts
+    *
+    * This will properly handle i_SetPtr(GetPtr()). Normally, it will increment
+    * the reference count of the new value of the pointer, then decrement the
+    * reference count of the old value, possibly deleting the pointed to object
+    * if the reference count goes to 0.  If deleteref is false, the decrement
+    * won't happen.
+    *
+    * @param p The new value of the pointer.
+    * @param deleteref Should the old value's reference count be decremented?
+    */
    void i_SetPtr(ReferenceCounting *p, bool deleteref = true);
 
  private:
