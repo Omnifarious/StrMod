@@ -40,10 +40,10 @@ LinearExtent is actually rather simple, and perhaps a better name could be
 thought of. It consists of a starting point or offset, and a length. It is
 used to refer to portions of a StrChunk.</p>
 
-<h2>StrSubChunks and <a
-href="../doxygen/classstrmod_1_1strmod_1_1LinearExtent.html">LinearExtent</a>s</h2>
+<dl><dt><h2>StrSubChunks and <a
+href="../doxygen/classstrmod_1_1strmod_1_1LinearExtent.html">LinearExtent</a>s</h2></dt>
 
-<p>A StrSubChunk is a StrChunk that uses another StrChunk to actually
+<dd><p>A StrSubChunk is a StrChunk that uses another StrChunk to actually
 implement the byte string. It uses a LinearExtent to describe which portion
 of the child StrChunk the StrSubChunk consists of. This sounds kind of
 confusing, but the idea is simple.</p>
@@ -155,10 +155,11 @@ also itself a StrChunk) would look like this:</p>
 
 <p>As you can see, a new StrChunk has been created that contains part of
 another StrChunk without having to have made a copy of that part.</p>
+</dd>
 
-<h2>GroupChunks</h2>
+<dt><h2>GroupChunks</h2></dt>
 
-<p>A GroupChunk is a kind of StrChunk that can contain several other
+<dd><p>A GroupChunk is a kind of StrChunk that can contain several other
 StrChunks. A GroupChunk appears as the concatenation of all the StrChunks it
 contains. Suppose you have two StrChunks:<br/>
 <pre>
@@ -305,5 +306,6 @@ would with C character arrays and pointers without having to actually move
 any of your data bytes around. Better yet, these entities are reference
 counted, immutable after creation, don't treat <code>'\0'</code> differently,
 and are resistant to buffer overflows.</p>
+</dd>
 </body>
 </html>

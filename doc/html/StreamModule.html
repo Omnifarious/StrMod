@@ -13,9 +13,9 @@ h1.title {text-align: center}</style>
 <body>
 <h1 class="title">The StreamModule Subsystem</h1>
 
-<h2>General Description</h2>
+<dl><dt><h2>General Description</h2></dt>
 
-<p>StreamModule's provide a facility For building a program out of small
+<dd><p>StreamModule's provide a facility For building a program out of small
 components that are connected by a bidirectional streams of data. There are
 many programs that fit this model, or have large pieces that fit this model.
 One example is the <em>tokenizer -&gt; preprocessor -&gt; compiler -&gt;
@@ -27,20 +27,20 @@ webserver.</p>
 <p>Though the entire StreamModule system is designed such that many of its
 individual pieces can be used independently, the StreamModule subsystem is
 its heart. The other pieces are mainly designed to provide a supporting
-framework for this piece.</p>
+framework for this piece.</p></dd>
 
-<h2>Overview</h2>
+<dt><h2>Overview</h2></dt>
 
-<h3>StreamModules and StreamModule::Plugs</h3>
+<dd><dl><dt><h3>StreamModules and StreamModule::Plugs</h3></dt>
 
-<p>StreamModule's are connected by StreamModule::Plug objects. These objects
+<dd><p>StreamModule's are connected by StreamModule::Plug objects. These objects
 are created by a StreamModule, and are owned by that module. They can be
 plugged into other plugs from other modules. Each plug is created on a 'side'
-of the StreamModule.</p>
+of the StreamModule.</p></dd>
 
-<h3>Sides</h3>
+<dt><h3>Sides</h3></dt>
 
-<p>A side is always identified by an integer. Usually only a small range of
+<dd><p>A side is always identified by an integer. Usually only a small range of
 integer values are valued, and a StreamModule class will usually have an enum
 inside it detailing all the valid values side may take.</p>
 
@@ -73,18 +73,21 @@ pipeline, here are a few examples from the Unix world: <dl>
       its output to multiple places) and the error side on which tee write
       error messages.</dd>
 </dl>
-</p>
+</p></dd>
 
-<h3>Moving data between StreamModules</h3>
+<dt><h3>Moving data between StreamModules</h3></dt>
 
-<p>StreamModule::Plugs move <a href="StrChunk.html">StrChunk</a>s around using
+<dd><p>StreamModule::Plugs move <a href="StrChunk.html">StrChunk</a>s around using
  eachothers <a
  href="../doxygen/classstrmod_1_1strmod_1_1StreamModule_1_1Plug.html#b11">i_Read</a>
  and <a
  href="../doxygen/classstrmod_1_1strmod_1_1StreamModule_1_1Plug.html#b12">i_Write</a>
  methods to pull data from, and push data into another StreamModule.  These
  methods are protected.  StreamModule::Plugs use their internal 'readable' and
- 'writeable' state to determine when these methods are called.</p>
+ 'writeable' state to determine when these methods are called.</p></dd>
+</dl>
+</dd>
+</dl>
 
 </body>
 </html>
