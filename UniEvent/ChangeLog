@@ -1,3 +1,11 @@
+2001-07-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/UNIXError.h, UNIXError.cxx: Added new constant,
+	UNIXError::S_noerror to represent no error.
+	Removed constructors that used LCORE_GET_COMPILERINFO because I
+	had stupidly forgotten why I had the macro in the first place.
+
+
 2001-06-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/UNIXError.h, UNIXError.cxx: Changed to derive from the
