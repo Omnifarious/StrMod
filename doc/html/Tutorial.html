@@ -726,5 +726,69 @@ that knows what thing it needs to call back.</p>
    bool parentgood_;
 };</pre>
 
+<p>As you notice, the ErrorEvent object will need a pointer the the
+ForwardedConnection object it's associated with.  Also, the ForwardedConnection
+will have to add an errorOccured method.  Lastly, the ForwardConnection will
+have to call parentGone() when it disappears so the event won't do anything
+wrong if it is fired after the parent disappears.</p>
+
+<p>Also, ErrorEvent is largely a vaguely named class that has an intimate
+relationship with ForwardedConnection.  It's a utility class.  I like to make
+those into nested classes because their names shouldn't be around polluting the
+namespace, and often, the class isn't even needed outside the class that uses
+it.</p>
+
+<p>So, with these ideas in mind, here's a re-done ForwardedConnection and
+ErrorEvent:</p>
+
+<pre class="codeblock">class ForwardedConnection {
+ public:
+   ForwardedConnection(SocketModule &amp;incoming, SocketModule &amp;outgoing);
+   ~ForwardedConnection();
+
+ private:
+   class EerrorEvent : public strmod::unievent::Event {
+    public:
+      ErrorEvent(ForwardedConnection &amp;parent)
+           : parent_(parent), parentgood_(true)
+      {
+      }
+      virtual ~ErrorEvent() {}
+
+      virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+         if (parentgood_)
+         {
+            parent_.errorOccurred();
+         }
+      }
+
+      void parentGone() { parentgood_ = false; }
+
+    private:
+      ForwardedConnection &amp;parent_;
+      bool parentgood_;
+   };
+   friend class ErrorEvent;
+
+   SocketModule &amp;incoming_;
+   SocketModule &amp;outgoing_;
+   strmod::unievent::EventPtrT&lt;ErrorEvent> errev_;
+
+   void errorOccured();
+};
+
+ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
+                                         SocketModule &amp;outgoing)
+     : incoming_(incoming), outgoing_(outgoing), errev_(new ErrorEvent(*this))
+{
+   incoming_.makePlug(0)->plugInto( *(outgoing_.makePlug(0)) );
+}
+
+ForwardedConnection::~ForwardedConnection()
+{
+   delete &amp;incoming_;
+   delete &amp;outgoing_;
+}</pre>
+
 </body>
 </html>
