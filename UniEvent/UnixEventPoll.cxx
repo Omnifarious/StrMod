@@ -14,7 +14,14 @@ namespace {
 
 typedef UnixEventPoll::FDCondSet FDCondSet;
 
-typedef ::pollfd pollstruct;
+struct pollstruct : public ::pollfd
+{
+   pollstruct(int cfd, short cevents, short crevents) {
+      fd = cfd;
+      events = cevents;
+      revents = crevents;
+   }
+};
 struct FDEvent {
    EventPtr ev_;
    FDCondSet condset_;
@@ -66,6 +73,33 @@ void UnixEventPoll::clearSignal(int signo)
 {
 }
 
+inline short condmask_to_pollmask(const FDCondSet &condset)
+{
+   short pollmask = 0;
+
+   if (condset.test(UnixEventRegistry::FD_Readable))
+   {
+      pollmask |= POLLIN;
+   }
+   if (condset.test(UnixEventRegistry::FD_Writeable))
+   {
+      pollmask |= POLLOUT;
+   }
+   if (condset.test(UnixEventRegistry::FD_Error))
+   {
+      pollmask |= POLLERR;
+   }
+   if (condset.test(UnixEventRegistry::FD_Closed))
+   {
+      pollmask |= POLLHUP;
+   }
+   if (condset.test(UnixEventRegistry::FD_Invalid))
+   {
+      pollmask |= POLLNVAL;
+   }
+   return pollmask;
+}
+
 void UnixEventPoll::doPoll(bool wait)
 {
    impl_.polllist_.clear();
@@ -79,6 +113,27 @@ void UnixEventPoll::doPoll(bool wait)
          {
             FDEvent &fdev = i->second;
             condset |= fdev.condset_;
+         }
+         impl_.polllist_.push_back(pollstruct(curfd,
+                                              condmask_to_pollmask(condset),
+                                              0));
+      }
+   }
+   const int pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
+                                 wait ? -1 : 0);
+   const int myerrno = errno;
+   if (pollresult >= 0)
+   {
+      const PollList::iterator end = impl_.polllist_.end();
+      for (PollList::iterator i = impl_.polllist_.begin();
+           (pollresult > 0) && (i != end);
+           ++i)
+      {
+         const pollstruct &pollval = *i;
+         if (pollval.revents)
+         {
+            const FDCondSet condset = pollmask_to_condmask(pollval.revents);
+            --pollresult;
          }
       }
    }
