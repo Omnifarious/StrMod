@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/time.h>
 
 class StdinEvent : public strmod::unievent::Event
 {
@@ -100,6 +101,15 @@ int main(int argc, const char *argv[])
    }
    upoll.onSignal(SIGINT, new SigEvent(&upoll, SIGINT));
    upoll.onSignal(SIGINT, new SigEvent(&upoll, SIGINT, 5));
+   upoll.onSignal(SIGALRM, new SigEvent(&upoll, SIGALRM));
+   {
+      struct ::itimerval intval;
+      intval.it_interval.tv_sec = 2;
+      intval.it_interval.tv_usec = 500000;
+      intval.it_value.tv_sec = intval.it_interval.tv_sec;
+      intval.it_value.tv_usec = intval.it_interval.tv_usec;
+      ::setitimer(ITIMER_REAL, &intval, 0);
+   }
 //   upoll.printState(std::cerr);
    do {
       if (dispatcher.isQueueEmpty())
