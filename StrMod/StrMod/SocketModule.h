@@ -34,6 +34,7 @@
 
 class SocketAddress;
 class SockListenModule;
+class UNIDispatcher;
 
 class SocketModule : public StreamFDModule {
    friend class SockListenModule;  // This is so SockListenModule's can access
@@ -42,7 +43,8 @@ class SocketModule : public StreamFDModule {
    static const STR_ClassIdent identifier;
 
    //: Create a SocketModule connected to the given address.
-   SocketModule(const SocketAddress &addr, UNIXpollManager &pollmgr,
+   SocketModule(const SocketAddress &addr,
+                UNIDispatcher &disp, UNIXpollManager &pollmgr,
 		bool hangdelete = true, bool blockconnect = true);
    virtual ~SocketModule();
 
@@ -61,7 +63,8 @@ class SocketModule : public StreamFDModule {
 
    //: Create a SocketModule using the given fd
    // Note that ownership of pr is being passed.
-   SocketModule(int fd, SocketAddress *pr, UNIXpollManager &pollmgr);
+   SocketModule(int fd, SocketAddress *pr,
+                UNIDispatcher &disp, UNIXpollManager &pollmgr);
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
