@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1998/06/02 01:08:15  hopper
+// Changed a static_cast to a more correct reinterpret_cast.
+//
 // Revision 1.1  1996/02/12 00:32:35  hopper
 // Fixed to use the new C++ standard library string class instead of all the
 // 'NetString' silliness.
@@ -44,7 +47,7 @@ string InetAddress::IaddrToName(const sockaddr_in &inaddr)
 
       /* Do messy casting to type gethostbyaddr likes. */
       cast_addr = const_cast<char *>(
-	 static_cast<const char *>(&inaddr.sin_addr));
+	 reinterpret_cast<const char *>(&inaddr.sin_addr));
       /* Look up the name for the given address.*/
       hostinfo = gethostbyaddr(cast_addr, sizeof(inaddr.sin_addr), AF_INET);
 
