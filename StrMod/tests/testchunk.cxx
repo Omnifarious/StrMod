@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
       cerr << "error: " << sys_errlist[terror] << endl;
       exit(2);
    }
-   fcntl(fd1, F_SETFL, fcntl(fd1, F_GETFL, 0) | FNDELAY);
-   fcntl(fd2, F_SETFL, fcntl(fd1, F_GETFL, 0) | FNDELAY);
+   fcntl(fd1, F_SETFL, fcntl(fd1, F_GETFL, 0) | O_NDELAY);
+   fcntl(fd2, F_SETFL, fcntl(fd1, F_GETFL, 0) | O_NDELAY);
    buf1 = new DataBlockStrChunk();
    result = buf1->FillFromFd(fd1);
    while (result > 0 || buf1->GetLastErrno() == EWOULDBLOCK) {
