@@ -35,12 +35,19 @@ DEPDB = @DEPDB@
 MYMAKE := $(MAKE)
 
 #  StreambufModule.cxx  HL7Module.cxx
-LIBCCS = UNEVT_ClassIdent.cxx  Dispatcher.cxx  Event.cxx
+LIBCCS = UNEVT_ClassIdent.cxx  Dispatcher.cxx  Event.cxx \
+         SimpleDispatcher.cxx  SimpleDispatcherImp.cxx
 
-CCNAMES = $(LIBCCS)
+TESTCCS = tests/testdisp.cxx  tests/testsimple.cxx
+
+CCNAMES = $(LIBCCS) $(TESTCCS)
+
+TESTEXECS = tests/testsimple
 
 DEPSUB = $(patsubst %.c,%.o,$(?:.cxx=.o))
 DEPSUBDD = $(patsubst %.c,%.c.d,$(?:.cxx=.cxx.d))
+
+.PHONY : tests clean
 
 $(libdir)/libUniEvent.a : $(LIBCCS)
 	$(MAKE) $(DEPSUB)
@@ -52,6 +59,16 @@ $(EXTLIBTAG) : $(LIBCCS)
 	touch $(EXTLIBTAG)
 	ar rv $(EXTLIB) $(DEPSUB)
 	rm -f $(DEPSUB)
+
+tests : $(TESTEXECS)
+
+clean :
+	rm -f *.o tests/*.o $(EXTLIBTAG) $(libdir)/libUniEvent.a depend.stamp
+
+tests/testsimple : tests/testdisp.o tests/testsimple.o $(libdir)/libUniEvent.a
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -L$(libdir) \
+             tests/testdisp.o tests/testsimple.o -lUniEvent -lLCore \
+             -o tests/testsimple
 
 GNUmakefile : depend.stamp
 	$(DEPDB) list --makefiles GNUmakefile GNUmakefile.new
