@@ -1,66 +1,6 @@
 /* $Header$ */
 
- // $Log$
- // Revision 1.6  1996/09/02 23:05:05  hopper
- // Changed to try to handle systems that don't set st_blksize for sockets.
- // Used 4096 as a default block size.
- //
- // Revision 1.5  1996/07/07 20:55:41  hopper
- // Changed things so that max_block_size is initialized correctly.  Used
- // to rely on StrChunkio crud for a solution.
- //
- // Revision 1.4  1996/07/05 18:47:14  hopper
- // Changed to use new StrChunkPtr stuff.
- //
- // Revision 1.3  1996/02/12 05:49:23  hopper
- // Changed to use new ANSI string class instead of RWCString.
- //
- // Revision 1.2  1995/07/23 04:00:34  hopper
- // Added #include <string.h> in various places to avoid triggering a bug
- // in libg++ 2.7.0
- //
- // Revision 1.1.1.1  1995/07/22 04:46:48  hopper
- // Imported sources
- //
- // -> Revision 0.17  1995/04/14  16:32:33  hopper
- // -> Combined versions 0.16 and 0.16.0.4
- // ->
- // -> Revision 0.16.0.4  1995/04/14  16:31:42  hopper
- // -> Changed things for integration into the rest of my libraries.
- // ->
- // -> Revision 0.16.0.3  1994/07/18  03:44:40  hopper
- // -> Added #pragma implementation thing so this would work better with gcc 2.6.0
- // ->
- // -> Revision 0.16.0.2  1994/05/17  06:09:43  hopper
- // -> Added declaration for strerror that g++ seems to want.
- // ->
- // -> Revision 0.16.0.1  1994/05/16  06:08:10  hopper
- // -> Changed to RWCString instead of my String class.
- // ->
- // -> Revision 0.16  1994/05/16  06:06:17  hopper
- // -> Changed to use ANSI error string lookup stuff.
- // ->
- // -> Revision 0.15  1994/05/07  03:24:53  hopper
- // -> Changed header files stuff around to be aprroximately right with
- // -> new libraries, and new names & stuff.
- // ->
- // -> Revision 0.14  1992/05/31  21:51:53  hopper
- // -> Made couple of modifications to get it to work on an SGI.
- // ->
- // -> Revision 0.13  1992/05/14  21:10:17  hopper
- // -> Forgot to initialize max_block_size in
- // -> StreamFDModule::StreamFDModule(int, unsigned int, unsigned int, unsigned int
- // ->                                unsigned int)
- // ->
- // -> Revision 0.12  1992/05/02  01:02:34  hopper
- // -> Added check for errno if fd passed in constructor is < 0
- // ->
- // -> Revision 0.11  1992/04/24  00:25:41  hopper
- // -> Added support for a special error (EOF) which has # -1
- // ->
- // -> Revision 0.10  1992/04/15  02:33:28  hopper
- // -> Gensis!
- // ->
+// For a log, see ChangeLog
 
 #ifdef __GNUG__
 #  pragma implementation "StreamFDModule.h"
@@ -70,105 +10,520 @@
 #ifndef _STR_DBStrChunk_H_
 #   include "StrMod/DBStrChunk.h"
 #endif
-
-extern "C" int sys_nerr;
-extern "C" int errno;
-extern "C" int close(int);
-
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <string>
-#include <iostream.h>
-
-#ifndef NO_RcsID
-static char StreamFDModule_CC_rcsID[] =
-    "$Id$";
+#ifndef _STR_GroupVector_H_
+#   include "StrMod/GroupVector.h"
 #endif
 
-extern "C" char *strerror(int);
+#include <unistd.h>  // read  (and maybe sysconf)
+#include <sys/types.h>  // writev and struct iovec
+#include <sys/uio.h>    // writev and struct iovec
+#include <sys/stat.h>
+#include <assert.h>
+#include <stddef.h>  // NULL
+#include <errno.h> // ESUCCESS
+#ifndef ESUCCESS
+#  define ESUCCESS 0
+#endif
+
+typedef struct stat statbuf_t;
 
 const STR_ClassIdent StreamFDModule::identifier(8UL);
-const STR_ClassIdent StrFDPlug::identifier(9UL);
+const STR_ClassIdent StreamFDModule::FPlug::identifier(9UL);
 
-string StreamFDModule::ErrorString() const
+//: A parent class for the three sub event classes.
+// <p>The sub event classes don't do anything except call parent class
+// protected functions.  The only reason they exist is to avoid having
+// a switch statement in the parent.</p>
+class StreamFDModule::FDPollEv : public UNIXpollManager::PollEvent {
+ public:
+   inline FDPollEv(StreamFDModule &parent);
+   virtual ~FDPollEv()                                 { }
+
+   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0) = 0;
+
+   inline void parentGone()                            { hasparent_ = false; }
+
+ protected:
+   inline void triggerRead();
+   inline void triggerWrite();
+   inline void triggerError();
+
+ private:
+   bool_val hasparent_;
+   StreamFDModule &parent_;
+};
+
+inline StreamFDModule::FDPollEv::FDPollEv(StreamFDModule &parent)
+     : hasparent_(true), parent_(parent)
 {
-   int errn = ErrorNum();
-
-   if (errn == 0)
-      return("no error at all, nothing happened, nope :-)");
-   else if (errn > 0) {
-      char *err = strerror(errn);
-
-      if (err)
-	 return(err);
-      else
-	 return("unknown error");
-   } else if (errn == -1)
-      return("end of file encountered");
-   else
-      return("unknown error");
 }
 
-unsigned int StreamFDModule::BestChunkSize()
+inline void StreamFDModule::FDPollEv::triggerRead()
 {
-   if (fd >= 0) {
-      struct stat sbuf;
-
-      if (fstat(fd, &sbuf) < 0) {
-	 last_error = errno;
-	 if (errno == EBADF) {
-	    fd = -1;
-	    return(0);
-	 } else {
-	    return(4096);   // Nice default size. BUFSIZ in stdio.h on Sun's is
-         }                  // too small.
-      } else if (sbuf.st_blksize > 0) {
-	 return(sbuf.st_blksize);
-      } else {
-	 return(4096);
-      }
-   } else {
-      return(0);
+   // cerr << "In triggerRead\n";
+   if (hasparent_)
+   {
+      unsigned int condbits = getCondBits();
+      setCondBits(0);
+      parent_.eventRead(condbits);
    }
 }
 
-StreamFDModule::StreamFDModule(int fdes, IOCheckFlags flgs, bool hangdel)
-     : fd(fdes), plug(0), last_error(0),
-       write_pos(0), write_vec(0), max_block_size(8192)
+inline void StreamFDModule::FDPollEv::triggerWrite()
 {
-   if (fd < 0)
-      last_error = errno;
-   flags.hangdelete = (hangdel ? 1 : 0);
-   flags.plugmade = 0;
-   switch (flgs) {
+   // cerr << "In triggerWrite\n";
+   if (hasparent_)
+   {
+      unsigned int condbits = getCondBits();
+      setCondBits(0);
+      parent_.eventWrite(condbits);
+   }
+}
+
+inline void StreamFDModule::FDPollEv::triggerError()
+{
+   // cerr << "In triggerError\n";
+   if (hasparent_)
+   {
+      unsigned int condbits = getCondBits();
+      setCondBits(0);
+      parent_.eventError(condbits);
+   }
+}
+
+//: This is one of the three helper classes for StreamFDModule::FDPollEv
+class StreamFDModule::FDPollRdEv : public StreamFDModule::FDPollEv {
+ public:
+   inline FDPollRdEv(StreamFDModule &parent) : FDPollEv(parent)   { }
+   virtual ~FDPollRdEv()                                          { }
+
+   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0)  { triggerRead(); }
+};
+
+//: This is one of the three helper classes for StreamFDModule::FDPollEv
+class StreamFDModule::FDPollWrEv : public StreamFDModule::FDPollEv {
+ public:
+   inline FDPollWrEv(StreamFDModule &parent) : FDPollEv(parent)   { }
+   virtual ~FDPollWrEv()                                          { }
+
+   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0)  { triggerWrite(); }
+};
+
+//: This is one of the three helper classes for StreamFDModule::FDPollEv
+class StreamFDModule::FDPollErEv : public StreamFDModule::FDPollEv {
+ public:
+   inline FDPollErEv(StreamFDModule &parent) : FDPollEv(parent)   { }
+   virtual ~FDPollErEv()                                          { }
+
+   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0)  { triggerError(); }
+};
+
+void StreamFDModule::setErrorIn(ErrCategory ecat, int err)
+{
+   if (err == ESUCCESS)
+   {
+      resetErrorIn(ecat);
+   }
+   errvals[ErrRead] = err;
+}
+
+bool_val StreamFDModule::resetErrorIn(ErrCategory ecat)
+{
+   if (ecat == ErrFatal)
+   {
+      return(false);
+   }
+   if (!hasErrorIn(ecat))
+   {
+      return(false);
+   }
+
+   bool_val retval = false;
+
+   switch (ecat)
+   {
+    case ErrRead:
+      errvals[ErrRead] = ESUCCESS;
+      maybeShouldReadFD();
+      retval = true;
+      break;
+    case ErrWrite:
+      errvals[ErrWrite] = ESUCCESS;
+      maybeShouldWriteFD();
+      retval = true;
+      break;
+    case ErrOther:
+      errvals[ErrOther] = ESUCCESS;
+      maybeShouldReadFD();
+      maybeShouldWriteFD();
+      retval = true;
+      break;
     default:
-    case CheckNone:
-      flags.checkread = 0;
-      flags.checkwrite = 0;
-      break;
-    case CheckRead:
-      flags.checkread = 1;
-      flags.checkwrite = 0;
-      break;
-    case CheckWrite:
-      flags.checkread = 0;
-      flags.checkwrite = 1;
-      break;
-    case CheckBoth:
-      flags.checkread = 1;
-      flags.checkwrite = 1;
       break;
    }
-   SetMaxToOptimal();
-   plug = new StrFDPlug(this);
+   return(retval);
+}
+
+void StreamFDModule::setReadEOF(bool newval)
+{
+   flags_.readeof = newval;
+   maybeShouldReadFD();
+}
+
+void StreamFDModule::resetReadEOF()
+{
+   if (flags_.readeof)
+   {
+      flags_.readeof = 0;
+      maybeShouldReadFD();
+   }
+}
+
+size_t StreamFDModule::getBestChunkSize() const
+{
+   static const size_t default_size = 4096U;
+   static const size_t smallest = 64U;
+   static const size_t largest = (128U * 1024U);
+
+   size_t retval = default_size;
+   statbuf_t sbuf;
+
+   if ((fstat(fd_, &sbuf) == 0) && (sbuf.st_blksize > 0))
+   {
+      size_t blksize = sbuf.st_blksize;  // Known positive
+
+      if (blksize < smallest)
+      {
+	 retval = smallest;
+      }
+      else if (blksize > largest)
+      {
+	 retval = largest;
+      }
+      else
+      {
+	 retval = blksize;
+      }
+   }
+   return(retval);
+}
+
+void StreamFDModule::plugWrite(const StrChunkPtr &ptr)
+{
+   assert(!cur_write_);
+   cur_write_ = ptr;
+   doWriteFD();
+}
+
+const StrChunkPtr StreamFDModule::plugRead()
+{
+   assert(buffed_read_);
+
+   StrChunkPtr retval = buffed_read_;
+   buffed_read_.ReleasePtr();
+   doReadFD();
+   return(retval);
+}
+
+void StreamFDModule::doReadFD()
+{
+   // cerr << "In doReadFD\n";
+   assert(!buffed_read);
+   assert(!hasErrorIn(ErrRead));
+   assert(!hasErrorIn(ErrFatal));
+   assert(!readEOF());
+   assert(fd_ >= 0);
+
+   ssize_t size = -1;
+   int myerrno = ESUCCESS;
+
+   {
+      // A normal pointer offers a speed advantage, and we don't know whether
+      // we want to set buffed_read until the read succeeds.
+      size_t maxsize = getMaxChunkSize();
+      DataBlockStrChunk *dbchunk = new DataBlockStrChunk(maxsize);
+
+      errno = 0;
+      // cerr << "Reading...\n";
+      size = ::read(fd_, dbchunk->GetVoidP(), maxsize);
+      // I may have an error, capture errno to make sure nothing happens to it.
+      myerrno = errno;
+      // cerr << "Read " << size << " bytes.\n";
+
+      if (size > 0) {
+	 dbchunk->Resize(size);
+	 buffed_read_ = dbchunk;
+	 dbchunk = 0;
+      } else {
+	 delete dbchunk;
+	 dbchunk = 0;
+      }
+
+      assert(dbchunk == 0);
+   }
+
+   if (size <= 0)
+   {
+      // cerr << "Handling read error.\n";
+      assert(!buffed_read);
+
+      if (size == 0)
+      {
+	 setReadEOF(true);  // We've read the EOF marker.
+      }
+      else  // size MUST be < 0, and so errno must also be set.
+      {
+	 // myerrno was set up there right after the read call.
+	 if (myerrno != EAGAIN)
+	 {
+	    // EAGAIN just means I need to read later, so it's OK, but anything
+	    // else isn't.
+	    // cerr << "Handling non-EAGAIN error.\n";
+	    setErrorIn(ErrRead, myerrno);
+	 }
+      }
+   }
+   else  // size > 0
+   {
+      assert(buffed_read_);
+   }
+   if (!buffed_read_)
+   {
+      // cerr << "We're not readable now.\n";
+      setReadableFlagFor(&plug_, false);
+      maybeShouldReadFD();
+   }
+   else
+   {
+      // cerr << "We're readable now!\n";
+      // cerr << "Currently plug ";
+//        if (plug_.isReadable())
+//        {
+//  	 // cerr << "is readable ";
+//        }
+//        if (plug_.isWriteable())
+//        {
+//  	 // cerr << "is writeable ";
+//        }
+//        cerr << "\n";
+      setReadableFlagFor(&plug_, true);
+   }
+}
+
+void StreamFDModule::doWriteFD()
+{
+#ifndef MAXIOVCNT  // UnixWare 7 has this undefined.  *sigh*
+   static const int MAXIOVCNT = sysconf(_SC_IOV_MAX);
+#endif
+
+   assert(cur_write_);
+   assert(!hasErrorIn(ErrWrite));
+   assert(!hasErrorIn(ErrFatal));
+   assert(fd_ >= 0);
+
+   if (write_vec_ == NULL)
+   {
+      write_vec_ = new GroupVector(cur_write_->NumSubGroups());
+      cur_write_->SimpleFillGroupVec(*write_vec_);
+      write_pos_ = 0;
+      write_length_ = write_vec_->TotalLength();
+   }
+
+   assert(write_vec_ != NULL);
+
+   // Tell the compiler how I intend to use this value.
+   const size_t length = write_length_;
+
+   // This loop is also broken out of when there's an error writing.
+   while (write_pos_ < length)
+   {
+      int written;
+      bool_val result;
+      GroupVector::IOVecDesc ioveclst;
+
+      result = write_vec_->FillIOVecDesc(write_pos_, ioveclst);
+      assert(result == true);
+      assert(ioveclst.iovcnt > 0);
+      if (ioveclst.iovcnt > MAXIOVCNT)
+      {
+	 ioveclst.iovcnt = MAXIOVCNT;
+      }
+      written = ::writev(fd_, ioveclst.iov, ioveclst.iovcnt);
+      // Save errno for later to make sure it isn't clobbered.
+      int myerrno = errno;
+
+      if (written < 0)
+      {
+	 if (myerrno != EAGAIN)
+	 {
+	    setErrorIn(ErrWrite, myerrno);
+	 }
+	 break;
+      }
+      else
+      {
+	 write_pos_ += written;
+      }
+   }
+
+   assert(write_pos_ <= length);
+
+   // i.e. == length, with an attempt to recover from a 'broken axle'
+   if (write_pos_ >= length)
+   {
+      if (write_vec_ != NULL)
+      {
+	 delete write_vec_;
+	 write_vec_ = NULL;
+      }
+      cur_write_.ReleasePtr();
+      write_pos_ = 0;
+   }
+
+   if (!cur_write_ && !(hasErrorIn(ErrWrite) || hasErrorIn(ErrOther)))
+   {
+      setWriteableFlagFor(&plug_, true);
+   }
+   else
+   {
+      setWriteableFlagFor(&plug_, false);
+      maybeShouldWriteFD();
+   }
+}
+
+void StreamFDModule::maybeShouldReadFD()
+{
+//     cerr << "In maybeShouldReadFD\n";
+//     cerr << "flags_.checkingrd == " << flags_.checkingrd << "\n";
+//     cerr << "fd_ == " << fd_ << "\n";
+//     cerr << "readEOF()_ == " << readEOF() << "\n";
+//     cerr << "hasErrorIn(ErrRead)_ == " << hasErrorIn(ErrRead) << "\n";
+//     cerr << "hasErrorIn(ErrOther)_ == " << hasErrorIn(ErrOther) << "\n";
+//     cerr << "hasErrorIn(ErrFatal)_ == " << hasErrorIn(ErrFatal) << "\n";
+//     cerr << "!buffed_read__== " << !buffed_read_ << "\n";
+   if (!flags_.checkingrd && (fd_ >= 0) && !readEOF() && !hasErrorIn(ErrRead)
+       && !hasErrorIn(ErrOther) && !hasErrorIn(ErrFatal) && !buffed_read_)
+   {
+      static const unsigned int condbits = UNIXpollManager::FD_Readable;
+
+      pollmgr_.registerFDCond(fd_, condbits, readev_);
+      flags_.checkingrd = true;
+   }
+}
+
+void StreamFDModule::maybeShouldWriteFD()
+{
+   if (!flags_.checkingwr && (fd_ >= 0) && !hasErrorIn(ErrWrite)
+       && !hasErrorIn(ErrOther) && !hasErrorIn(ErrFatal) && cur_write_)
+   {
+      static const unsigned int condbits = UNIXpollManager::FD_Writeable;
+
+      pollmgr_.registerFDCond(fd_, condbits, writeev_);
+      flags_.checkingwr = true;
+   }
+}
+
+void StreamFDModule::eventRead(unsigned int condbits)
+{
+//     cerr << "eventRead...  condbits == " << condbits << "\n";
+   flags_.checkingrd = false;
+   if (!(condbits & UNIXpollManager::FD_Readable))
+   {
+      setErrorIn(ErrFatal, -1);
+   }
+   else
+   {
+      if (!buffed_read_)
+      {
+	 doReadFD();
+      }
+      maybeShouldReadFD();
+   }
+}
+
+void StreamFDModule::eventWrite(unsigned int condbits)
+{
+//     cerr << "In eventWrite\n";
+   flags_.checkingwr = false;
+   if (!(condbits & UNIXpollManager::FD_Writeable))
+   {
+      setErrorIn(ErrFatal, -1);
+   }
+   else
+   {
+      if (cur_write_)
+      {
+	 doWriteFD();
+      }
+      else if (!hasErrorIn(ErrFatal) && !hasErrorIn(ErrWrite))
+      {
+	 setWriteableFlagFor(&plug_, true);
+      }
+      maybeShouldWriteFD();
+   }
+}
+
+void StreamFDModule::eventError(unsigned int condbits)
+{
+   if (condbits & (UNIXpollManager::FD_Writeable
+		   | UNIXpollManager::FD_Readable
+		   | UNIXpollManager::FD_Invalid))
+   {
+      setErrorIn(ErrFatal, -1);
+   }
+   else
+   {
+      setErrorIn(ErrOther, -1);
+   }
+}
+
+StreamFDModule::StreamFDModule(int fd, UNIXpollManager &pollmgr,
+			       IOCheckFlags f, bool_val hangdelete = true)
+     : fd_(fd),
+       plug_(*this),
+       write_pos_(0),
+       write_length_(0),
+       write_vec_(NULL),
+       max_block_size_(4096),
+       readevptr_(NULL),
+       writeevptr_(NULL),
+       errorevptr_(NULL),
+       pollmgr_(pollmgr)
+{
+   errvals[ErrRead] = errvals[ErrWrite]
+      = errvals[ErrOther] = errvals[ErrFatal] = ESUCCESS;
+   setMaxToBest();
+   flags_.hangdelete = hangdelete;
+   flags_.plugmade = flags_.hangdelete = flags_.readeof = false;
+   // This seems a bit odd, but if you claim to be checking read and
+   // write when you really aren't, then the class will never get
+   // around to doing it.
+   flags_.checkingrd = flags_.checkingwr = true;
+   readev_ = readevptr_ = new FDPollRdEv(*this);
+   writeev_ = writeevptr_ = new FDPollWrEv(*this);
+   errorev_ = errorevptr_ = new FDPollErEv(*this);
+   pollmgr_.registerFDCond(fd_,
+			   UNIXpollManager::FD_Error
+			   | UNIXpollManager::FD_Closed
+			   | UNIXpollManager::FD_Invalid,
+			   errorev_);
+   if ((f == CheckBoth) || (f == CheckRead))
+   {
+//        cerr << "Registering for reads.\n";
+      pollmgr_.registerFDCond(fd_, UNIXpollManager::FD_Readable, readev_);
+   }
+   if ((f == CheckBoth) || (f == CheckWrite))
+   {
+//        cerr << "Registering for writes.\n";
+      pollmgr_.registerFDCond(fd_, UNIXpollManager::FD_Writeable, writeev_);
+   }
 }
 
 StreamFDModule::~StreamFDModule()
 {
-   if (flags.hangdelete && !plug->CanWrite())
-      plug->Write(new DataBlockStrChunk());  // Flush the buffer by writing 0
-   delete plug;                              // length output buffer.
-   close(fd);
+   readevptr_->parentGone();
+   writeevptr_->parentGone();
+   errorevptr_->parentGone();
+   ::close(fd_);
+   fd_ = -1;
 }

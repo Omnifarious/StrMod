@@ -6,75 +6,10 @@
 
 /* $Header$ */
 
- // $Log$
- // Revision 1.6  1996/10/23 10:14:23  hopper
- // Cosmetic change to make operator precedence more obvious.
- //
- // Revision 1.5  1996/09/21 20:01:44  hopper
- // Moved the guts of the file I/O (the stuff that actually reads on writes to
- // the file descriptor) out of StrFDPlug, and put it into
- // StreamFDModule::DoWriteFD, and StreamFDModule::DoReadFD.  This makes
- // StreamFDModule a little easier to inherit from.
- //
- // Revision 1.4  1996/07/07 20:55:34  hopper
- // Changed things so that max_block_size is initialized correctly.  Used
- // to rely on StrChunkio crud for a solution.
- //
- // Revision 1.3  1996/07/05 18:47:04  hopper
- // Changed to use new StrChunkPtr stuff.
- //
- // Revision 1.2  1996/02/12 05:49:35  hopper
- // Changed to use new ANSI string class instead of RWCString.
- //
- // Revision 1.1.1.1  1995/07/22 04:46:50  hopper
- // Imported sources
- //
- // -> Revision 0.15  1995/04/14  15:39:49  hopper
- // -> Combined revision 0.14, and 0.14.0.4
- // ->
- // -> Revision 0.14.0.4  1995/04/05  04:53:01  hopper
- // -> Changed things for integration into the rest of my libraries.
- // ->
- // -> Revision 0.14.0.3  1994/06/16  02:18:44  hopper
- // -> Added #pragma interface declaration.
- // ->
- // -> Revision 0.14.0.2  1994/06/12  04:40:57  hopper
- // -> 	Made a change so that some methods in StrFDPlug could be conformant
- // -> with guidelines in Principles document.
- // ->
- // -> Revision 0.14.0.1  1994/05/16  04:26:26  hopper
- // -> Made some changes so this would use the Rogue Wave libraries instead
- // -> of mine. Also made a new revision branch for the WinterFire-OS/2
- // -> project.
- // ->
- // -> Revision 0.14  1994/05/07  03:40:55  hopper
- // -> Move enclosing #ifndef ... #define bits around. Changed names of some
- // -> non-multiple include constants. Changed directories for certain
- // -> type of include files.
- // ->
- // -> Revision 0.13  1992/04/26  01:28:41  hopper
- // -> Added support for blocks of a maximum size. Currently both
- // -> reads and writes use the same maximum, this may change though.
- // ->
- // -> Revision 0.12  1992/04/24  00:16:32  hopper
- // -> Added some stuff so I could specify whether I wanted a
- // -> StreamFDModule to be interrupted if the fd it's associated with becomes
- // -> readable or writeable. Before this was always on, and cause problems
- // -> when you wanted to only be worried about one or the other.
- // ->
- // -> Revision 0.11  1992/04/21  19:28:48  hopper
- // -> This is the real genesis, heh. This file has just about everything
- // -> added from the previous version.
- // ->
- // -> Revision 0.10  1992/03/23  02:37:37  hopper
- // -> Genesis! (It's really only partly completed. I just put
- // -> this in to shut up the RCS mode error messages.)
- // ->
+// See ../ChangLog for log.
+// $Revision$
 
-#ifndef NO_RcsID
-static char _StreamFDModule_H_rcsID[] =
-      "$Id$";
-#endif
+//! author="Eric Hopper" lib=StrMod
 
 #ifndef _STR_StreamModule_H_
 #   include <StrMod/StreamModule.h>
@@ -83,181 +18,292 @@ static char _StreamFDModule_H_rcsID[] =
 #   include <StrMod/StrChunkPtr.h>
 #endif
 
-#include <Dispatch/iohandler.h>
+#include <UniEvent/EventPtrT.h>
+#include <UniEvent/UNIXpollManager.h>
+#include <UniEvent/UNIXError.h>
 
-#include <string>
+#include <bool.h> // bool_val
+#include <stddef.h>  // size_t
 
 #define _STR_StreamFDModule_H_
 
-class StrFDPlug;
 class GroupVector;
+class UNIXError;
 
-//---------------------------class StreamFDModule------------------------------
-
+//: This module is for communicating outside your program via UNIX IO.
+// <p>One side of this module is a UNIX file descriptor, and the other side is
+// the plug.  Everything written to the plug is written to the file
+// descriptor, and everything read from the file descriptor is read from the
+// plug.</p>
+// <p>There are (or will be) ways of asking for events to be posted when stuff
+// happens that the StreamFDModule can't deal with directly, such has EOF,
+// read or write errors, or unexpected file descriptor closings.</p>
+// <p>See StreamModule (the parent class) for descriptions of any member
+// functions not described here.</p>
 class StreamFDModule : public StreamModule {
-   friend class StrFDPlug;
+   class FPlug;
+   friend class FPlug;
+   class FDPollEv;
+   friend class FDPollEv;
+   class FDPollRdEv;
+   class FDPollWrEv;
+   class FDPollErEv;
 
  public:
+   //: What directions is IO checked in?
+   // <p>This is used for file descriptors that are open for only reading, or
+   // only writing.</p>
    enum IOCheckFlags { CheckNone, CheckRead, CheckWrite, CheckBoth };
+   //: What categories of errors can we have?
+   // <p>ErrFatal MUST be the last category for later array declarations to
+   // work.</p>
+   enum ErrCategory { ErrRead = 0, ErrWrite, ErrOther, ErrFatal };
 
    static const STR_ClassIdent identifier;
 
-   StreamFDModule(int fd,
-		  IOCheckFlags f = CheckBoth, bool hangdelete = true);
+   //: Constructor
+   // <code>fd</code> is the file descriptor to attach to.<br>
+   // <code>pollmgr</code> is the poll manager to use.  A reference to the
+   // poll manager is kept until object destruction.  I don't consider myself
+   // to own the poll manager.<br>
+   // <code>f</code> talks about the kinds of IO that can be done (and
+   // therefore, should be checked for) on <code>fd</code>.<br>
+   // <code>hangdelete</code> is whether the last bit of data should be
+   // written before close, and whether or not the close should block.<br>
+   StreamFDModule(int fd, UNIXpollManager &pollmgr,
+		  IOCheckFlags f = CheckBoth, bool_val hangdelete = true);
    virtual ~StreamFDModule();
 
+   //: See base class Protocol
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline virtual bool CanCreate(int side) const;
-   inline StrFDPlug *MakePlug(int side);
-   inline virtual bool OwnsPlug(StrPlug *p) const;
-   inline virtual bool DeletePlug(StrPlug *p);
+   //: See base class StreamModule
+   inline virtual bool_val canCreate(int side) const;
+   //: See base class StreamModule
+   inline virtual bool_val ownsPlug(const Plug *p) const;
+   //: See base class StreamModule
+   inline virtual bool_val deletePlug(Plug *p);
 
-   bool HasError() const                           { return(last_error != 0); }
-   int ErrorNum() const                            { return(last_error); }
-   void ClearError()                               { last_error = 0; }
-   string ErrorString() const;
-   unsigned int BestChunkSize();
-   inline void SetMaxBlockSize(unsigned int mbs);
-   inline void SetMaxToOptimal();
-   unsigned int GetMaxBlockSize() const            { return(max_block_size); }
+   //: Is this category in an error state?
+   inline bool_val hasErrorIn(ErrCategory ecat);
+   //: Gets the error that this category has.
+   inline const UNIXError getErrorIn(ErrCategory ecat);
+   //: Sets this category to a non-error state.
+   // Doesn't work on the ErrFatal category.
+   bool_val resetErrorIn(ErrCategory ecat);
+
+   //: Have I read the EOF marker?
+   bool_val readEOF() const                         { return(flags_.readeof); }
+   //: Reset the EOF marker so I'll attempt to read more.
+   void resetReadEOF();
+
+   //: This returns the optimal IO blocksize for this descriptor
+   // <p>This returns the st_blksize member of the stat structure returned by
+   // fstat'ing the file descriptor.  If the stat cannot be performed, or
+   // st_blksize is 0, a default value (most likely 4096) is returned.</p>
+   // <p>In a certain special case, if st_blksize is > 0, but &lt; 64, 64 is
+   // returned.</p>
+   size_t getBestChunkSize() const;
+
+   //: Sets the maximum block size to be read in a single read operation.
+   inline void setMaxChunkSize(size_t mbs);
+
+   //: Mostly equivalent to setMaxChunkSize(BestChunkSize())
+   // <p>If the value returned by BestChunkSize is an 'unreasonable' value
+   // such as less than 1024 (1k) bytes, or more than 65536 (64k) bytes, the
+   // value is set to the closest 'reasonable' value.</p>
+   inline void setMaxToBest();
+
+   //: Returns the maximum block size to be read in a single read operation.
+   size_t getMaxChunkSize() const                   { return(max_block_size_); }
 
  protected:
-   int fd, last_error;
+   class MyPollEvent;
+   friend class MyPollEvent;
+   //: This plug is the rather simplistic plug for a StreamFDModule.
+   class FPlug : public Plug {
+      friend class StreamFDModule;
+    public:
+      static const STR_ClassIdent identifier;
+
+      //: Note that this can ONLY be constructed using a StreamFDModule.
+      FPlug(StreamFDModule &parent) : Plug(parent)      { }
+      virtual ~FPlug()                                  { }
+
+      //: See base class.
+      inline virtual int AreYouA(const ClassIdent &cid) const;
+
+      //: Grab Plug::getParent, and cast it to the real type of the parent.
+      inline StreamFDModule &getParent() const;
+
+      //: This plug is always on side 0.
+      virtual int side() const                          { return(0); }
+
+    protected:
+      //: See base class.
+      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+
+      //: Forwards to getParent()->plugRead()
+      inline virtual const StrChunkPtr i_Read();
+      //: Forwards to getParent()->plugWrite()
+      inline virtual void i_Write(const StrChunkPtr &ptr);
+   };
+
+   //: See base class.
+   virtual const ClassIdent *i_GetIdent() const    { return(&identifier); }
+
+   //: See base class.  Only makes plugs for side 0.
+   inline virtual Plug *i_MakePlug(int side);
+
+   //: Called by FPlug::i_Write.
+   virtual void plugWrite(const StrChunkPtr &ptr);
+   //: Called by FPlug::i_Read.
+   virtual const StrChunkPtr plugRead();
+
+   //: Read from fd into buffed_read_
+   // <p>Assumes that buffed_read is empty, and various other important
+   // things.  UTSL (Use The Source (StrFDPlug.cc) Luke)</p>
+   virtual void doReadFD();
+   //: Write to fd from cur_write_, using the info in write_vec_.
+   // <p>Assumes that cur_write isn't empty, and various other important
+   // things.  UTSL (Use The Source (StrFDPlug.cc) Luke)</p>
+   virtual void doWriteFD();
+
+   //: Set an error flag to <code>errnum</code> in the category
+   //:<code>ecat</code>.
+   void setErrorIn(ErrCategory ecat, int errnum);
+
+   //: Set the flag that says we've read the EOF market to <code>newval</code>.
+   void setReadEOF(bool newval);
+
+   //: Check if my UNIXpollManager should tell me if fd_ is readable.
+   // <p>Check several different flags and conditions, and if things are
+   // alright, ask my UNIXpollManager to post my event when fd_ is writeable.
+   // Also set flags_.checkingrd if this is done.</p>
+   void maybeShouldReadFD();
+   //: Check if my UNIXpollManager should tell me if fd_ is writeable.
+   // <p>Check several different flags and conditions, and if things are
+   // alright, ask my UNIXpollManager to post an even when fd_ is writeable.
+   // Also set flags_.checkingwr if this is done. </p>
+   void maybeShouldWriteFD();
+
+   //: Called by readev_'s TriggerEvent.
+   void eventRead(unsigned int condbits);
+   //: Called by writeev_'s TriggerEvent.
+   void eventWrite(unsigned int condbits);
+   //: Called by errorev_'s TriggerEvent.
+   void eventError(unsigned int condbits);
+
+ private:
+   int fd_;
    struct {
       unsigned int plugmade   : 1;
       unsigned int hangdelete : 1;
-      unsigned int checkread  : 1;
-      unsigned int checkwrite : 1;
-   } flags;
-   StrFDPlug *plug;
-   StrChunkPtr cur_write, buffed_read;
-   int write_pos;
-   GroupVector *write_vec;
-   unsigned int max_block_size;
-
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-
-   inline virtual StrPlug *CreatePlug(int side);
-
-   // Assumes that buffed_read is empty, and various other important things.
-   // UTSL (Use The Source (StrFDPlug.cc) Luke)
-   virtual void DoReadFD();
-   // Assumes that cur_write isn't empty, and various other important things.
-   // UTSL (Use The Source (StrFDPlug.cc) Luke)
-   virtual void DoWriteFD();
+      unsigned int checkingrd : 1;
+      unsigned int checkingwr : 1;
+      unsigned int readeof    : 1;
+   } flags_;
+   int errvals[ErrFatal + 1];
+   FPlug plug_;
+   StrChunkPtr buffed_read_;
+   StrChunkPtr cur_write_;
+   size_t write_pos_;
+   size_t write_length_;
+   GroupVector *write_vec_;
+   unsigned int max_block_size_;
+   FDPollEv *readevptr_;
+   UNIEventPtrT<UNIXpollManager::PollEvent> readev_;
+   FDPollEv *writeevptr_;
+   UNIEventPtrT<UNIXpollManager::PollEvent> writeev_;
+   FDPollEv *errorevptr_;
+   UNIEventPtrT<UNIXpollManager::PollEvent> errorev_;
+   UNIXpollManager &pollmgr_;
 };
 
-//------------------------------class StrFDPlug--------------------------------
-
-class StrFDPlug : public StrPlug, protected IOHandler {
-friend class StreamFDModule;
-
- public:
-   static const STR_ClassIdent identifier;
-
-   inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   inline virtual bool CanWrite() const;
-   virtual bool Write(const StrChunkPtr &);
-
-   inline virtual bool CanRead() const;
-
-   inline StreamFDModule *ModuleFrom() const;
-   inline virtual int Side() const                     { return(0); }
-
- protected:
-   int rdngfrm, wrtngto;
-
-   StrFDPlug(StreamFDModule *parent);
-   virtual ~StrFDPlug();
-
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-
-   virtual const StrChunkPtr InternalRead();
-
-   virtual void ReadableNotify();
-   virtual void WriteableNotify();
-
-   virtual int inputReady(int fd);
-   virtual int outputReady(int fd);
-   virtual int exceptionRaised(int fd);
-   virtual void timerExpired(long sec, long usec);
-};
-//-----------------inline functions for class StreamFDModule-------------------
+//-----------------inline functions for class StreamFDModule-------------------
 
 inline int StreamFDModule::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
 
-inline bool StreamFDModule::CanCreate(int side) const
+inline bool_val StreamFDModule::canCreate(int side) const
 {
-   return (side == 0 && !flags.plugmade);
+   return (side == 0 && !flags_.plugmade);
 }
 
-inline StrFDPlug *StreamFDModule::MakePlug(int side)
+inline bool_val StreamFDModule::ownsPlug(const Plug *p) const
 {
-   return((StrFDPlug *)(CreatePlug(side)));
+   return(flags_.plugmade && (p == &plug_));
 }
 
-inline bool StreamFDModule::OwnsPlug(StrPlug *p) const
+inline bool_val StreamFDModule::deletePlug(Plug *p)
 {
-   return(flags.plugmade && p == plug);
-}
-
-inline bool StreamFDModule::DeletePlug(StrPlug *p)
-{
-   if (OwnsPlug(p)) {
-      flags.plugmade = 0;
+   if (ownsPlug(p)) {
+      flags_.plugmade = 0;
       return(true);
    } else
       return(false);
 }
 
-inline void StreamFDModule::SetMaxBlockSize(unsigned int mbs)
+inline bool_val StreamFDModule::hasErrorIn(ErrCategory ecat)
+{
+   return(errvals[ecat] != 0);
+}
+
+inline const UNIXError StreamFDModule::getErrorIn(ErrCategory ecat)
+{
+   return(UNIXError(ecat));
+}
+
+inline void StreamFDModule::setMaxChunkSize(size_t mbs)
 {
    assert(mbs > 0);
 
-   if (mbs > 0) {
-      max_block_size = mbs;
+   if (mbs > 0)
+   {
+      max_block_size_ = mbs;
    }
 }
 
-inline void StreamFDModule::SetMaxToOptimal()
+inline void StreamFDModule::setMaxToBest()
 {
-   SetMaxBlockSize(BestChunkSize());
+   setMaxChunkSize(getBestChunkSize());
 }
 
-inline StrPlug *StreamFDModule::CreatePlug(int side)
+inline StreamModule::Plug *StreamFDModule::i_MakePlug(int side)
 {
-   if (CanCreate(side)) {
-      flags.plugmade = 1;
-      return(plug);
-   } else
+   if (canCreate(side))
+   {
+      flags_.plugmade = 1;
+      return(&plug_);
+   }
+   else
+   {
       return(0);
+   }
 }
 
-//-------------------inline functions for class StrFDPlug----------------------
+//-------------inline functions for class StreamFDModule::FPlug----------------
 
-inline int StrFDPlug::AreYouA(const ClassIdent &cid) const
+inline int StreamFDModule::FPlug::AreYouA(const ClassIdent &cid) const
 {
-   return((identifier == cid) || StrPlug::AreYouA(cid));
+   return((identifier == cid) || Plug::AreYouA(cid));
 }
 
-inline bool StrFDPlug::CanWrite() const
+inline StreamFDModule &StreamFDModule::FPlug::getParent() const
 {
-   return(!(ModuleFrom()->cur_write));
+   return(static_cast<StreamFDModule &>(Plug::getParent()));
 }
 
-inline bool StrFDPlug::CanRead() const
+inline const StrChunkPtr StreamFDModule::FPlug::i_Read()
 {
-   return(ModuleFrom()->buffed_read);
+   return(getParent().plugRead());
 }
 
-inline StreamFDModule *StrFDPlug::ModuleFrom() const
+inline void StreamFDModule::FPlug::i_Write(const StrChunkPtr &ptr)
 {
-   return(static_cast<StreamFDModule *>(StrPlug::ModuleFrom()));
+   getParent().plugWrite(ptr);
 }
 
 #endif
