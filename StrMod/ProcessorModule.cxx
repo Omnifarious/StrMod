@@ -1,6 +1,7 @@
 /* $Header$ */
 
-// $Log$
+// For a log, see ChangeLog
+//
 // Revision 1.2  1996/09/03 01:58:25  hopper
 // Commented out all kinds of debugging stuff.
 //
@@ -13,121 +14,55 @@
 #  pragma implementation "ProcessorModule.h"
 #endif
 
-#include <StrMod/ProcessorModule.h>
+#include "StrMod/ProcessorModule.h"
+#include "StrMod/StreamProcessor.h"
+#include "StrMod/StrChunkPtr.h"
+#include <cassert>
 // #include <iostream.h>
 
 const STR_ClassIdent ProcessorModule::identifier(29UL);
-const STR_ClassIdent ProcessorModule::Plug::identifier(30UL);
+const STR_ClassIdent ProcessorModule::PMPlug::identifier(30UL);
 
-ProcessorModule::ProcessorModule(StreamProcessor *one, StreamProcessor *other)
-     : side_(this, otherside_, OneSide, one, other),
-       otherside_(this, side_, OtherSide, other, one)
+bool ProcessorModule::deletePlug(Plug *plug)
 {
-   pulled_.side = false;
-   pulled_.otherside = false;
-}
-
-ProcessorModule::~ProcessorModule()
-{
-   if (side_.PluggedInto()) {
-      side_.UnPlug();
-   }
-   if (otherside_.PluggedInto()) {
-      otherside_.UnPlug();
-   }
-}
-
-bool ProcessorModule::DeletePlug(StrPlug *plug)
-{
-   const StrPlug * const sidep = &side_;
-   const StrPlug * const othersidep = &otherside_;
-
-   if (plug == sidep && pulled_.side) {
-      side_.UnPlug();
+   if ((plug == &side_) && pulled_.side)
+   {
+      side_.unPlug();
       pulled_.side = false;
       return(true);
-   } else if (plug == othersidep && pulled_.otherside) {
-      otherside_.UnPlug();
+   }
+   else if (plug == &otherside_ && pulled_.otherside)
+   {
+      otherside_.unPlug();
       pulled_.otherside = false;
       return(true);
    }
    return(false);
 }
 
-StrPlug *ProcessorModule::CreatePlug(int side)
+ProcessorModule::PMPlug::~PMPlug()
 {
-   assert((side == OneSide) || (side == OtherSide));
-
-   PlugSide rside = static_cast<PlugSide>(side);
-
-   switch (rside) {
-    case OneSide:
-      if (!pulled_.side) {
-	 return(&side_);
-      }
-      break;
-    case OtherSide:
-      if (!pulled_.otherside) {
-	 return(&otherside_);
-      }
-      break;
-   }
-   return(0);
-}
-
-bool ProcessorModule::CanCreate(int side) const
-{
-   switch (side) {
-    case OneSide:
-      return(!pulled_.side);
-      break;
-    case OtherSide:
-      return(!pulled_.otherside);
-      break;
-   }
-   return(false);
-}
-
-bool ProcessorModule::Plug::i_Write(const StrChunkPtr &chnk)
-{
-   assert(chnk);
-//   cerr << "ProcessorModule::Plug::i_Write called ("
-//	<< (Side() == OneSide ? "OneSide" :
-//	    (Side() == OtherSide ? "OtherSide" : "Unknown")) << ")\n";
-
-   bool oldoutgoing = inproc_->CanPullOutgoing();
-   inproc_->AddIncoming(chnk);
-   if (!oldoutgoing && inproc_->CanPullOutgoing()) {
-      otherplug_.CheckNotify();
-   }
-
-   return(true);
-}
-
-const StrChunkPtr ProcessorModule::Plug::i_InternalRead()
-{
-//   cerr << "ProcessorModule::Plug::i_InternalRead called!\n";
-
-   bool oldincoming = outproc_->CanAddIncoming();
-   StrChunkPtr chnk = outproc_->PullOutgoing();
-
-   if (!oldincoming && outproc_->CanAddIncoming()) {
-      otherplug_.CheckNotify();
-   }
-
-   return(chnk);
-}
-
-void ProcessorModule::Plug::CheckNotify()
-{
-//   cerr << "ProcessorModule::Plug::CheckNotify called!\n";
-   if (CanWrite()) {
-//      cerr << "ProcessorModule::Plug::DoWriteableNotify called!\n";
-      DoWriteableNotify();
-   }
-   if (CanRead()) {
-//      cerr << "ProcessorModule::Plug::DoReadableNotify called!\n";
-      DoReadableNotify();
+   if (getParent().pulled_.owns)
+   {
+      delete &readproc_;
    }
 }
 
+const StrChunkPtr ProcessorModule::PMPlug::i_Read()
+{
+   assert(getFlagsFrom(*this).canread_);
+   assert(readproc_.canReadFrom());
+   StrChunkPtr tmp = readproc_.readFrom();
+   getParent().setWriteableFlagFor(&sibling_, readproc_.canWriteTo());
+   setReadable(readproc_.canReadFrom());
+   return(tmp);
+}
+
+void ProcessorModule::PMPlug::i_Write(const StrChunkPtr &chnk)
+{
+   assert(getFlagsFrom(*this).canrite_);
+   assert(writeproc_.canWriteTo());
+   writeproc_.writeTo(chnk);
+   getParent().setReadableFlagFor(&sibling_, writeproc_.canReadFrom());
+   setWriteable(writeproc_.canWriteTo());
+}
