@@ -382,6 +382,50 @@ void StreamFDModule::resetErrorIn(ErrorType err) throw ()
    {
       reinterpret_cast<UNIXError *>(errorinfo_.errdata_[err])->~UNIXError();
       errorinfo_.used_.reset(err);
+      if ((err == ErrGeneral) || (err == ErrRead))
+      {
+         if (! (errorinfo_.used_.test(ErrGeneral) ||
+                errorinfo_.used_.test(ErrRead) ||
+                errorinfo_.used_.test(ErrFatal)))
+         {
+            if ((fd_ >= 0) && !flags_.checkingrd)
+            {
+               if (!buffed_read_)
+               {
+                  pollmgr_.registerFDCond(fd_,
+                                          UNIXpollManager::FD_Readable,
+                                          readev_);
+                  flags_.checkingrd = true;
+               }
+               else
+               {
+                  disp_.addEvent(resumeread_);
+               }
+            }
+         }
+      }
+      if ((err == ErrGeneral) || (err == ErrWrite))
+      {
+         if (! (errorinfo_.used_.test(ErrGeneral) ||
+                errorinfo_.used_.test(ErrWrite) ||
+                errorinfo_.used_.test(ErrFatal)))
+         {
+            if ((fd_ >= 0) && !flags_.checkingwr)
+            {
+               if (cur_write_)
+               {
+                  pollmgr_.registerFDCond(fd_,
+                                          UNIXpollManager::FD_Writeable,
+                                          writeev_);
+                  flags_.checkingwr = true;
+               }
+               else
+               {
+                  disp_.addEvent(resumewrite_);
+               }
+            }
+         }
+      }
    }
 }
 
@@ -471,7 +515,10 @@ void StreamFDModule::eventRead(unsigned int condbits)
    flags_.checkingrd = false;
    if (!(condbits & UNIXpollManager::FD_Readable))
    {
-      // ERROR_HANDLING!  Complain about some kind of fatal error here
+      setErrorIn(ErrFatal,
+                 UNIXError("<none>", 0,
+                           LCoreError("eventRead got event without FD_Readable "
+                                      "bit set.", LCORE_GET_COMPILERINFO())));
    }
    else
    {
@@ -520,7 +567,11 @@ void StreamFDModule::eventWrite(unsigned int condbits)
    flags_.checkingwr = false;
    if (!(condbits & UNIXpollManager::FD_Writeable))
    {
-      // ERROR_HANDLING!  Complain about some kind of fatal error here
+      setErrorIn(ErrFatal,
+                 UNIXError("<none>", 0,
+                           LCoreError("eventWrite called without condbits "
+                                      "having FD_Writeable flag set",
+                                      LCORE_GET_COMPILERINFO())));
    }
    else
    {
@@ -529,10 +580,14 @@ void StreamFDModule::eventWrite(unsigned int condbits)
       {
 	 doWriteFD();
       }
-      // ERROR_HANDLING!  Check for errors before declaring ourselves writeable
-      if ((fd_ >= 0) && !cur_write_)
+      if (! (hasErrorIn(ErrWrite) ||
+             hasErrorIn(ErrGeneral) ||
+             hasErrorIn(ErrFatal)))
       {
-	 setWriteableFlagFor(&plug_, true);
+         if ((fd_ >= 0) && !cur_write_)
+         {
+            setWriteableFlagFor(&plug_, true);
+         }
       }
    }
 }
@@ -552,11 +607,24 @@ void StreamFDModule::eventError(unsigned int condbits)
 		   | UNIXpollManager::FD_Readable
 		   | UNIXpollManager::FD_Invalid))
    {
-      // ERROR_HANDLING!  Complain about some kind of fatal error here
+      if (condbits & UNIXpollManager::FD_Invalid)
+      {
+         setErrorIn(ErrFatal, UNIXError("<none>", EBADF,
+                                        LCoreError("Bad FD",
+                                                   LCORE_GET_COMPILERINFO())));
+      }
+      else
+      {
+         setErrorIn(ErrFatal, UNIXError("<none>", 0,
+                                        LCoreError("Bad FD",
+                                                   LCORE_GET_COMPILERINFO())));
+      }
    }
    else
    {
-      // ERROR_HANDLING!  Complain about some kind of fatal error here
+         setErrorIn(ErrGeneral, UNIXError("<none>", 0,
+                                          LCoreError("Bad FD",
+                                                     LCORE_GET_COMPILERINFO())));
    }
 }
 
@@ -565,7 +633,8 @@ void StreamFDModule::doReadFD()
    // cerr << fd_ << ": In doReadFD\n";
    assert(!buffed_read_);
 
-   if (fd_ < 0)
+   if ((fd_ < 0) ||
+       hasErrorIn(ErrRead) || hasErrorIn(ErrFatal) || hasErrorIn(ErrGeneral))
    {
       return;
    }
@@ -608,7 +677,9 @@ void StreamFDModule::doReadFD()
 
       if (size == 0)
       {
-         // ERROR_HANDLING!  Something needs to be done about getting an EOF.
+         setErrorIn(ErrRead,
+                    UNIXError("read", LCoreError(LCORE_GET_COMPILERINFO()),
+                              true));
 	 // cerr << fd_ << ": read EOF\n";
 	 if (flags_.chunkeof)
 	 {
@@ -634,7 +705,9 @@ void StreamFDModule::doReadFD()
 	    // else isn't.
 	    // cerr << "Handling non-EAGAIN error.\n";
 	    // cerr << fd_ << ": setting ErrRead to " << myerrno << "\n";
-            // ERROR_HANDLING!  Something needs to be done about read errors
+            setErrorIn(ErrRead,
+                       UNIXError("read", myerrno,
+                                 LCoreError(LCORE_GET_COMPILERINFO())));
 	 }
       }
    }
@@ -669,7 +742,6 @@ void StreamFDModule::doWriteFD()
          if (!flags_.eofwritten)
          {
             writeEOF();
-            // ERROR_HANDLING!  Something needs to be done about having written
             // an EOF besides this flag.
             flags_.eofwritten = 1;
          }
@@ -715,14 +787,16 @@ void StreamFDModule::doWriteFD()
          }
          else
          {
-             // ERROR_HANDLING!  Something needs to be done about write errors.
+            setErrorIn(ErrWrite,
+                       UNIXError("write", myerrno,
+                                 LCoreError(LCORE_GET_COMPILERINFO())));
 	 }
 	 break;
       }
       else
       {
          curbuflist_.advanceBy(written);
-         length = curbuflist_.bytesLeft();
+         length -= written;
       }
    }
 
@@ -741,6 +815,14 @@ void StreamFDModule::writeEOF()
       ::close(fd_);
       pollmgr_.freeFD(fd_);
       fd_ = -1;
+      setErrorIn(ErrWrite,
+                 UNIXError("write", LCoreError(LCORE_GET_COMPILERINFO()),
+                           true));
+      {
+         UNIXError tmp("write", EBADF, LCoreError(LCORE_GET_COMPILERINFO()));
+         setErrorIn(ErrFatal, tmp);
+         setErrorIn(ErrRead, tmp);
+      }
    }
 //   cerr << fd_ << ": setting ErrRead to " << EBADF << "\n";
 //     setErrorIn(ErrRead, EBADF);
