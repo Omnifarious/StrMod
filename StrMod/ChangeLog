@@ -1,3 +1,36 @@
+Sat Sep 21 13:35:04 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in: Changed .cc to .cxx to reflect new naming
+ 	scheme.  This should probably be done retroactively, but that
+ 	would be a BIG pain.
+
+	* StrMod/GV_Iterator.h (GroupVector::Iterator::operator +=): Fixed
+ 	stupid bug that caused advances of only one character, no matter
+ 	what skip said.
+
+	* utils/writelots.c: Used memset instead of for loop to set
+	block.  Used more appropriate looping construct.
+
+	* StrMod/StreamFDModule.h: 
+	* StrFDPlug.cxx: Moved the guts of the file I/O (the stuff that
+	actually reads on writes to the file descriptor) out of StrFDPlug,
+	and put it into StreamFDModule::DoWriteFD, and
+	StreamFDModule::DoReadFD.  This makes StreamFDModule a little
+	easier to inherit from.
+
+	* StrMod/LinearExtent.h: 
+	* LinearExtent.cxx (LinearExtent::SubExtent_eq): Changed to return
+ 	const LinearExtent & to be more like x= operators.
+
+Wed Sep 11 18:07:12 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamProcessor.h (CanAddIncoming): Changed to use
+	StrChunkPtr operator ! instead of comparison to 0.
+
+	* StrMod/GroupVector.h: 
+	* GroupVector.cxx: Changed class GroupVector to be a little more
+	STL like.  Added SafeToDelete method.
+
 Mon Sep  2 18:04:03 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* ProcessorModule.cc (i_Write): Commented out all kinds of
