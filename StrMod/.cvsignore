@@ -6,7 +6,6 @@ lib*.stamp
 depend.stamp
 dependdb.gdbm
 libStrMod.a
-configure
 config.status
 config.log
 config.cache
