@@ -1,3 +1,15 @@
+1999-09-22  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Removed reference to DataBlockStrChunk from
+	comments.  Added entries for InfiniteModule and its plug.
+
+	* StrMod/InfiniteModule.h:
+	* InfiniteModule.cxx: Added the InfiniteModule class.  This acts a
+	lot like /dev/zero
+
+	* StrMod/SimpleMulti.h (SinglePlug::~SingePlug): Removed bad call
+	to unPlug.
+
 1999-09-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/TelnetParserData.h:
