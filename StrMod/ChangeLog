@@ -1,4 +1,81 @@
+Fri Jul  5 13:19:20 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrChunkPtr.cc (StrChunkPtr::i_SetPtr): Removed unused addref
+	parameter,
+
+	* StrMod/StrChunkPtr.h (class StrChunkPtr): Changed i_SetPtr to be
+ 	non-virtual.  Removed unused addref parameter.  Added i_CheckType
+	so implementing StrChunkPtrT would be easier and result in more
+	efficient code.
+	(StrChunkPtr::operator =): Added call to i_CheckType to make
+	StrCunkPtr's typesafe.  Changed call to internal i_GetPtr to
+	external GetPtr.  Added missing returns.
+
+	* SockListenModule.cc (SockListenModule): Formatting changes so it
+	looks prettier.
+	(my_InternalRead): Adapted from old InternalRead.  Changed to use
+	new StrChunkPtr stuff.
+	(inputReady): Changed the way the address buffer was handled in an
+	attempt to reduce executable size, and make re-entrant.
+	(inputReady): Changed to used ANSI C string concatenation instead
+	of multiple cerr << statements to reduce code size.
+	(ListeningPlug): Changed to use new parent module handling.
+	(ListeningPlug::Write): Changed to use new StrChunkPtr style
+	interface.
+	(SocketModule::junk): Removed, no longer needed for StrChunkPtr
+	style StrChunk handling.
+
+	* StrMod/SockListenModule.h (class SocketModuleChunk): Moved
+	declaration so I could have StrChunkPtrT<SocketModuleChunk>. Also
+	changed interface for new StrChunk stuff.
+	Added typedef SocketModuleChunkPtr StrChunkPtrT<SocketModuleChunk>
+	(class ListeningPlug): Changed interface to use new StrChunkPtr
+	stuff.  And new parent module handling from StrPlug.
+
 Sat Jun 29 01:26:16 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamModule.h (class StrPlug): Moved data members to
+	private section.  Made copy constructor and assignment private to
+	prevent accidental use.
+
+	* StreamSplitter.cc (InternalRead): Changed to use StrChunkPtr
+	instead of StrChunk *
+	(Write): Changed to use StrChunkPtr instead of StrChunk *
+
+	* StrMod/StreamSplitter.h (class SplitterPlug): Changed to use
+	StrChunkPtr instead of StrChunk *
+
+	* StrFDPlug.cc (InternalRead): Changed to used StrChunkPtr instead
+ 	of StrChunk *
+	(inputReady):
+	(outputReady): Changed to use new StrChunk style.
+	(ReadableNotify):
+	(WriteableNotify): Changed to be close to safer 'standard'
+ 	implementation.
+	(Write): Changed to use StrChunkPtr instead of StrChunk *
+
+	* StreamFDModule.cc: Changed include for StrChunk.h to
+	DBStrChunk.h now that DataBlockStrChunk has been split out.
+	(StreamFDModule): Changed constructor to initialize new members,
+	and to use an initialization list.
+
+	* StrMod/StreamModule.h (class StrPlug): Changed interfaces to use
+ 	const StrChunkPtr & instead of StrChunk *, and also changed things
+ 	so StrPlug now has a parent_ member, and a good default
+ 	implementation of ReadableNotify, and WriteableNotify.
+
+	Removed old obsolete chunk identification stuff.
+	* StrMod/ChunkType.h: 
+	* ChunType.cc: 
+
+	StrChunk_done tag
+
+	* GNUmakefile.in (LIBCCS): Arranged to be more rational.
+	(CCNAMES): Arranged to be more rational.
+	(CNAMES): Arranged to be more rational.
+	(tests/testchunk): Updated target to avoid linking library.
+	(tests/testextent): New target.  Test class LinearExtent.
+	(tests/testGV): New target.  Test lots, especially GroupVector.
 
 	* tests/testextent.cc: Attempt to extensively test LinearExtent
 	class, both in terms of performance and functionality.
