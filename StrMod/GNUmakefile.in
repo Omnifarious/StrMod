@@ -35,20 +35,19 @@ DEPDB = @DEPDB@
 MYMAKE := $(MAKE)
 
 #  StreambufModule.cc  HL7Module.cc
-CCNAMES = ChunkType.cc  StrChunkid.cc  EchoModule.cc  StrChunkio.cc \
-          StrFDPlug.cc  STR_ClassIdent.cc  StreamFDModule.cc \
-          SockListenModule.cc  StreamModule.cc  SocketModule.cc \
-          StreamSplitter.cc  StrChunk.cc \
-          tests/testchunk.cc  tests/server.cc  tests/testdist.cc \
-          tests/testecho.cc  tests/teststr.cc  tests/echoserv.cc  
-
-CNAMES = utils/cechoserv.c  utils/audiodiv.c  utils/writelots.c
-
-#  StreambufModule.cc  HL7Module.cc
 LIBCCS = ChunkType.cc  StrChunkid.cc  EchoModule.cc  StrChunkio.cc \
          StrFDPlug.cc  STR_ClassIdent.cc  StreamFDModule.cc \
          SockListenModule.cc  StreamModule.cc  SocketModule.cc \
-         StreamSplitter.cc  StrChunk.cc
+         StreamSplitter.cc  StrChunk.cc  StrChunkPtr.cc  LinearExtent.cc \
+         GroupVector.cc  GV_Iterator.cc  StrSubChunk.cc  DBStrChunk.cc \
+         GroupChunk.cc  LinearExtentStrmOp.cc
+
+CCNAMES = $(LIBCCS) \
+          tests/testchunk.cc  tests/server.cc  tests/testdist.cc \
+          tests/testecho.cc  tests/teststr.cc  tests/echoserv.cc \
+          tests/testextent.cc  tests/testGV.cc
+
+CNAMES = utils/cechoserv.c  utils/audiodiv.c  utils/writelots.c
 
 DEPSUB = $(patsubst %.c,%.o,$(?:.cc=.o))
 DEPSUBDD = $(patsubst %.c,%.c.d,$(?:.cc=.cc.d))
@@ -76,11 +75,20 @@ tests/testdist : tests/testdist.o
 tests/teststr : tests/teststr.o
 	$(CXX) tests/teststr.o $(LDFLAGS) $(LIBS) -o tests/teststr
 
-tests/testchunk : tests/testchunk.o
+tests/testchunk : tests/testchunk.o DBStrChunk.o StrChunk.o GroupVector.o \
+                  LinearExtent.o  STR_ClassIdent.o
 	$(CXX) tests/testchunk.o $(LDFLAGS) $(LIBS) -o tests/testchunk
 
 tests/testecho : tests/testecho.o
 	$(CXX) tests/testecho.o $(LDFLAGS) $(LIBS) -o tests/testecho 2>&1 | c++filt
+
+tests/testextent : tests/testextent.o LinearExtent.o
+	$(CXX) $^ -o $@ 2>&1 | c++filt
+
+tests/testGV : tests/testGV.o GroupVector.o GV_Iterator.o StrChunk.o \
+               GroupChunk.o DBStrChunk.o StrChunkPtr.o LinearExtent.o \
+               StrSubChunk.o LinearExtentStrmOp.o
+	$(CXX) $^ -o $@ -L/home/hopper/lib $(LIBS) 2>&1 | c++filt
 
 GNUmakefile : depend.stamp
 	$(DEPDB) list --makefiles GNUmakefile GNUmakefile.new
