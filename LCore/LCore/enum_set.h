@@ -192,7 +192,7 @@ inline enum_set<enum_t, first, last>::enum_set(enum_t val1, enum_t val2,
 }
 
 template <class enum_t, enum_t first, enum_t last>
-inline enum_set<enum_t, first, last>::enum_set(const self_t &other)
+inline enum_set<enum_t, first, last>::enum_set(const enum_set<enum_t, first, last> &other)
      : parent_t(*this)
 {
    ::std::cerr << "Copying(2) an enum_set: this == " << this << " && &other == " << &other << "\n";

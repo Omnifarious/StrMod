@@ -43,7 +43,10 @@ int main()
    upoll.printState(std::cerr);
    UnixEventRegistry::FDCondSet tmp(UnixEventRegistry::FD_Readable);
    ::std::cerr << "tmp == " << tmp.to_string() << "\n";
-   upoll.registerFDCond(0, tmp, new StdinEvent(&upoll));
+   UnixEventRegistry::FDCondSet tmp2;
+   tmp2 = tmp;
+   ::std::cerr << "tmp2 == " << tmp2.to_string() << "\n";
+   upoll.registerFDCond(0, tmp2, new StdinEvent(&upoll));
    upoll.printState(std::cerr);
    do {
       if (dispatcher.isQueueEmpty())

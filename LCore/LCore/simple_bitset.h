@@ -98,7 +98,9 @@ template <size_t Tsize> class simple_bitset : private priv::_base_simple_bitset
    static const size_t numbits_ = Tsize;
    static const size_t bitslen_ = Tsize / bits_t_bits + ((Tsize % bits_t_bits != 0) ? 1 : 0);
    static const bits_t topmask_ = (Tsize % bits_t_bits == 0) ? allones_ : ((1 << Tsize % bits_t_bits) - 1);
+   char pad1[12];
    bits_t bits_[bitslen_];
+   char pad2[12];
 };
 
 //-----------------------------inline functions--------------------------------
@@ -114,7 +116,7 @@ inline simple_bitset<Tsize>::simple_bitset(bool initial_value)
 }
 
 template <size_t Tsize>
-inline simple_bitset<Tsize>::simple_bitset(const simple_bitset &rhs)
+inline simple_bitset<Tsize>::simple_bitset(const simple_bitset<Tsize> &rhs)
 {
    using ::std::cerr;
 
@@ -133,6 +135,7 @@ simple_bitset<Tsize>::operator =(const simple_bitset<Tsize> &rhs)
    {
       bits_[i] = rhs.bits_[i];
    }
+   return *this;
 }
 
 template <size_t Tsize> inline simple_bitset<Tsize> &
@@ -278,6 +281,6 @@ simple_bitset<Tsize>::to_string() const
    return _base_simple_bitset::to_string(bits_, bitslen_, topmask_);
 }
 
-#include <LCore/simple_bitset_optim.h>
+// #include <LCore/simple_bitset_optim.h>
 
 #endif
