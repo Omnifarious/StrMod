@@ -8,6 +8,9 @@
 
 
 // $Log$
+// Revision 1.5  1996/10/23 10:16:34  hopper
+// Made a number of cosmetic readability improvements.
+//
 // Revision 1.4  1996/07/06 01:24:47  hopper
 // Added assert for error checking.
 //
@@ -126,18 +129,18 @@ class StreamModule : public Object {
  public:
    static const STR_ClassIdent identifier;
 
-   StreamModule()                        { }
-   virtual ~StreamModule()               { }
+   StreamModule()                                 { }
+   virtual ~StreamModule()                        { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    virtual bool CanCreate(int side) const = 0;
-   StrPlug *MakePlug(int side)           { return(CreatePlug(side)); }
+   StrPlug *MakePlug(int side)                    { return(CreatePlug(side)); }
    virtual bool OwnsPlug(StrPlug *plug) const = 0;
    virtual bool DeletePlug(StrPlug *plug) = 0;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const ClassIdent *i_GetIdent() const   { return(&identifier); }
 
    virtual StrPlug *CreatePlug(int side) = 0;
 };
@@ -221,8 +224,9 @@ inline void StrPlug::NotifyOnWriteable()
 {
    if (PluggedInto()) {
       notify_flags |= NotifyingOnWriteable;
-      if (CanWrite())
+      if (CanWrite()) {
 	 DoWriteableNotify();
+      }
    }
 }
 
@@ -230,8 +234,9 @@ inline void StrPlug::NotifyOnReadable()
 {
    if (PluggedInto()) {
       notify_flags |= NotifyingOnReadable;
-      if (CanRead())
+      if (CanRead()) {
 	 DoReadableNotify();
+      }
    }
 }
 
