@@ -39,10 +39,19 @@
 namespace strmod {
 namespace strmod {
 
-class PassThrough : public StreamProcessor {
+/** \class PassThrough PassThrough.h StrMod/PassThrough.h
+ * This is a StreamProcessor that does nothing.
+ *
+ * Oftentimes, when using a ProcessorModule, you will want no processing to be
+ * done in one direction or the other.  That's what PassThrough StreamProcessor
+ * is for.
+ */
+class PassThrough : public StreamProcessor
+{
  public:
    static const STR_ClassIdent identifier;
 
+   //! Doesn't do anything, so doesn't need much in its constructor.
    PassThrough()                                       { }
    // Derived class destructor doesn't do anything base class one doesn't do.
 
