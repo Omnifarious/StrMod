@@ -277,7 +277,7 @@ inline bool_val StreamFDModule::hasErrorIn(ErrCategory ecat) const
 
 inline const UNIXError StreamFDModule::getErrorIn(ErrCategory ecat) const
 {
-   return(UNIXError(ecat));
+   return(UNIXError(errvals[ecat]));
 }
 
 inline bool StreamFDModule::hasError() const

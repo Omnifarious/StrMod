@@ -127,7 +127,7 @@ void StreamFDModule::setErrorIn(ErrCategory ecat, int err)
    {
       resetErrorIn(ecat);
    }
-   errvals[ErrRead] = err;
+   errvals[ecat] = err;
 }
 
 bool_val StreamFDModule::resetErrorIn(ErrCategory ecat)
@@ -239,7 +239,7 @@ const StrChunkPtr StreamFDModule::plugRead()
 
 void StreamFDModule::doReadFD()
 {
-   // cerr << "In doReadFD\n";
+   // cerr << fd_ << ": In doReadFD\n";
    assert(!buffed_read_);
    assert(!hasErrorIn(ErrRead));
    assert(!hasErrorIn(ErrFatal));
@@ -300,6 +300,7 @@ void StreamFDModule::doReadFD()
 	    // EAGAIN just means I need to read later, so it's OK, but anything
 	    // else isn't.
 	    // cerr << "Handling non-EAGAIN error.\n";
+	    // cerr << fd_ << ": setting ErrRead to " << myerrno << "\n";
 	    setErrorIn(ErrRead, myerrno);
 	 }
       }
@@ -439,6 +440,7 @@ bool StreamFDModule::writeEOF()
       pollmgr_.freeFD(fd_);
       fd_ = -1;
    }
+//   cerr << fd_ << ": setting ErrRead to " << EBADF << "\n";
    setErrorIn(ErrRead, EBADF);
    setErrorIn(ErrWrite, EBADF);
    setErrorIn(ErrFatal, EBADF);
@@ -515,6 +517,8 @@ void StreamFDModule::eventRead(unsigned int condbits)
    }
    else
    {
+//      if (!hasErrorIn(ErrRead) && !hasErrorIn(ErrFatal)
+//	  && !readEOF() && (fd_ >= 0) && !buffed_read_)
       if (!buffed_read_)
       {
 	 doReadFD();
@@ -538,7 +542,7 @@ void StreamFDModule::eventWrite(unsigned int condbits)
       {
 	 doWriteFD();
       }
-      else if (!hasErrorIn(ErrFatal) && !hasErrorIn(ErrWrite))
+      else if (!hasErrorIn(ErrFatal) && !hasErrorIn(ErrWrite) && (fd_ >= 0))
       {
 	 setWriteableFlagFor(&plug_, true);
       }
