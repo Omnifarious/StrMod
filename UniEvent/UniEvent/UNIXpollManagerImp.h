@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1999/07/20 05:36:33  hopper
+// Added a #define of __USE_XOPEN to ensure that Linux defines the full set
+// of poll flags.
+//
 // Revision 1.2  1998/05/01 11:54:52  hopper
 // Made various changes so that the UNIXpollManager could automatically
 // register itself to be run when the event queue was empty.
@@ -29,7 +33,9 @@
 #include <map>
 #include <list>
 #include <stropts.h>
+#define __USE_XOPEN
 #include <poll.h>
+#undef __USE_XOPEN
 
 #define _UNEVT_UNIXpollManagerImp_H_
 
