@@ -1,3 +1,77 @@
+1999-09-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testchunk.cxx: Changed to use DynamicBuffer instead of
+	DataBlockStrChunk.
+
+	* tests/testGV.cxx: Changed to use DynamicBuffer instead of
+	DataBlockStrChunk.
+
+	* StrMod/PreAllocBuffer.h (class PreAllocBufferBase): Added proper
+	capitalization on resize function.
+	(class PreAllocBuffer): Removed 'identifier' because having it
+	private was causing a lot of problems with templates.
+
+	* StreamFDModule.cxx (doReadFD): Changed to use DynamicBuffer
+	instead of DataBlockStrChunk.
+
+	* StrMod/DynamicBuffer.h:
+	* DynamicBuffer.cxx: Added a couple of convenience constructors to
+	make transition from DataBlockStrChunk easier.
+
+	* StrMod/CharChopper.h:
+	* CharChopper.cxx: Various changes to stop using DataBlockStrChunk
+	and start using BufferChunks.
+
+	* StrMod/DBStrChunk.h:
+	* DBStrChunk.cxx: Removed file implementing obsolete class.
+
+1999-09-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/dlmalloc.c: Imported Doug Lea's malloc to use in certain
+	tests for its debugging features.
+
+	* StrMod/BufferChunkFactory.h:
+	* BufferChunkFactory.cxx: Created an interface for things that
+	create BufferChunks.
+
+	* tests/testPreAlloc.cxx: Added a test for the various kinds of
+	BufferChunk I've implemented.  Using dlmalloc, a good, debugging
+	malloc.
+
+	* tests/testserial.cxx: Changed to use BufferChunk and the
+	debugging malloc.
+
+	* StrMod/LinearExtent.h (intersection): Added this function to
+	help write the telnet code.
+
+	* STR_ClassIdent.cxx: Added all of the new classes.
+
+	* StrMod/OutSerializer.h: 
+	* OutSerializer.cxx: Changed to conform to new coding standards.
+	
+	Changed to use BufferChunk instead of old DataBlockStrChunk.
+	
+	Changed to allow the internal state to be stored externally so the
+	instance could be destructed, and then reconstructed in its old
+	state.
+
+	* StrMod/PreAllocBuffer.h:
+	* PreAllocBuffer.cxx: Added a template class, derived from
+	BufferChunk, to represent a bag of bytes allocated on the stack if
+	possible.
+
+	* StrMod/DynamicBuffer.h:
+	* DynamicBuffer.cxx: Added a class, derived from BufferChunk, to
+	represent a bag of bytes that's always allocated from the heap.
+
+	* StrMod/BufferChunk.h:
+	* BufferChunk.cxx: Added an abstract base class for types
+	representing an indexable bag of bytes.
+
+1999-07-24  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Blank an entry that wasn't used anymore.
+
 1999-07-25  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* tests/testmulti.cxx: Changed to accomodate the fact that
