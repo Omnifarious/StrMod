@@ -35,11 +35,6 @@ class UNIDispatcher : virtual public Protocol {
    virtual void StopDispatching() = 0;
    virtual bool_val IsQueueEmpty() const = 0;
 
-   // Used to enforce a 1->0,1 relationship between dispatchers and
-   // condition managers.  Having more than one condition manager per
-   // dispatcher is a bad thing since they'll step on eachother's toes.
-   virtual OSConditionManager *GetConditionManager()   { return(0); }
-
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
