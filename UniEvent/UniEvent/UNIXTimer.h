@@ -16,6 +16,7 @@ namespace strmod {
 namespace unievent {
 
 class UNIXSignalHandler;
+class Dispatcher;
 
 class UNIXTimer : public Timer
 {
