@@ -1,12 +1,46 @@
-Sun Jul 23 08:46:32 1995  Eric M. Hopper  <hopper@omnifarious.mn.org>
+Sat Jun 29 01:26:16 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
-	* GNUmakefile.in (LIBCCS): Removed two .cc files that were
-	specific to a particular application.
-	Fixed a number of targets to be in tests, not test.
+	* tests/testextent.cc: Attempt to extensively test LinearExtent
+	class, both in terms of performance and functionality.
 
-	* SockListenModule.cc (SockListenModule): Fixed an unnecessary
-	cast to caddr_t.
-	(inputReady): Made length unsigned, and fixed the way the address
- 	buffer for accept was handled.
-	Moved revision history around, and set it up so it was no longer
-	updated.
+	* tests/testGV.cc: New test to work the GroupVector, and some of
+	the other components of the new StrChunk style.
+
+	* tests/testchunk.cc: Changed to use new StrChunk style.
+
+	New class StrSubChunk used to make a part of an existing chunk
+	look like a full chunk to the outside world.
+	* StrMod/StrSubChunk.h:
+	* StrSubChunk.cc:
+
+	New class StrChunkPtr that acts as a reference counted pointer to
+	StrChunk
+	* StrMod/StrChunkPtr.h:
+	* StrChunkPtr.cc: 
+
+	* LinearExtentStrmOp.cc: New file for implementation of stream
+	operator for class LinearExtent.
+
+	New class GroupChunk to hold a group of chunks and make them
+	appear to be one chunk.
+	* StrMod/GroupChunk.h:
+	* GroupChunk.cc:
+
+	* STR_ClassIdent.cc: Changed comment style to be more rational and
+	added comments for new classes.
+
+	* LinearExtent.cc (SubExtent): Added const qualifier.
+	(SubExtent_eq): New function, in place SubExtent calc.
+
+	Added totallength_ field to class GroupVector.
+	* StrMod/GroupVector.h: Update totallength_ field when needed.
+	* GroupVector.cc: Added initialization for totallength_
+
+	Moved from StrChunk.h and StrChunk.cc along with re-working for
+	new StrChunk handling.
+	* StrMod/DBStrChunk.h:
+	* DBStrChunk.cc: 
+
+ 	Completely re-worked for new StrChunk handling.
+	* StrMod/StrChunk.h:
+	* StrChunk.cc:
