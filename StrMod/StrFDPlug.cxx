@@ -1,6 +1,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.3  1996/02/19 03:54:15  hopper
+ // Minor cleanup changes made while debugging.
+ //
  // Revision 1.2  1995/07/23 04:00:33  hopper
  // Added #include <string.h> in various places to avoid triggering a bug
  // in libg++ 2.7.0
@@ -267,10 +270,12 @@ StrFDPlug::StrFDPlug(StreamFDModule *parent)
   : smod(parent), rdngfrm(0), wrtngto(0)
 {
    if (parent->fd >= 0) {
-      if (parent->flags.checkwrite)
+      if (parent->flags.checkwrite) {
 	 Dispatcher::instance().link(parent->fd, Dispatcher::WriteMask, this);
-      if (parent->flags.checkread)
+      }
+      if (parent->flags.checkread) {
 	 Dispatcher::instance().link(parent->fd, Dispatcher::ReadMask, this);
+      }
    }
 }
 

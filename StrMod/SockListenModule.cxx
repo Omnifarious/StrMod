@@ -143,6 +143,7 @@ int ListeningPlug::inputReady(int fd)
       parent->last_error = errno;
       return(0);
    }
+
    if (saddr->sa_family != AF_INET) {
       cerr << "Aigh! ListeningPlug::inputReady(int) accepted a connection ";
       cerr << "from a non-Internet\naddress. I don't know how to handle ";
@@ -150,7 +151,7 @@ int ListeningPlug::inputReady(int fd)
       close(newfd);
       return(0);
    } else {
-      SocketAddress *peer = new InetAddress(*((sockaddr_in *)buf));
+      InetAddress peer(*((sockaddr_in *)buf));
       int temp;
 
       if ((temp = fcntl(newfd, F_GETFL, 0)) < 0) {
@@ -164,7 +165,7 @@ int ListeningPlug::inputReady(int fd)
 	 close(newfd);
 	 return(0);
       }
-      parent->newmodule = parent->MakeSocketModule(newfd, peer);
+      parent->newmodule = parent->MakeSocketModule(newfd, peer.Copy());
       DoReadableNotify();
       return(0);
    }
