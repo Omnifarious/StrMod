@@ -333,6 +333,12 @@ void SockListenModule::clearError() throw()
    }
 }
 
+const UNIXError &SockListenModule::getError() const throw()
+{
+   const void *raw = errorstore_;
+   return *reinterpret_cast<const UNIXError *>(raw);
+}
+
 void SockListenModule::setError(const UNIXError &err) throw()
 {
    void *raw = errorstore_;

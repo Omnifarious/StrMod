@@ -85,10 +85,20 @@ class SocketModuleChunk : public StrChunk {
 
    virtual unsigned int Length() const                 { return 0; }
 
-   //! Returns the wrapped SocketModule
-   SocketModule *GetModule() const                     { return module_; }
-   //! Tells the SocketModuleChunk it is no longer responsible for the module it wraps.
-   void ReleaseModule()                                { module_ = 0; }
+   /** Returns the wrapped SocketModule, and possibly forget about its existence.
+    * @param release If this parameter is true, the SocketModuleChunk forgets
+    * the wrapped SocketModule and you become responsible for managing its
+    * existence (ie you must delete it at the proper time).
+    */
+   SocketModule *getModule(bool release = true)
+   {
+      SocketModule *ret = module_;
+      if (release)
+      {
+         module_ = 0;
+      }
+      return ret;
+   }
 
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
