@@ -55,17 +55,28 @@ const StrChunkPtr GraphVizVisitor::visit(const StrChunkPtr &root, ostream &out)
       rootpos_ = 0;
       edges_.clear();
       out_ = &out;
-      out << "digraph " << (name++) << " {\n";
-      startVisit(root);
-      {
-         const void *rootptr = root.GetPtr();
-         const void *dataptr = data_->getVoidP();
-         out << "n_" << root.GetPtr() << " -> d_" << dataptr << ";\n";
-         printData(data_->getVoidP(), data_->Length());
-         out.flush();
-         assert(data_->Length() == rootpos_);
+      try {
+          out << "digraph " << (name++) << " {\n";
+          startVisit(root);
+          {
+              const void *rootptr = root.GetPtr();
+              const void *dataptr = data_->getVoidP();
+              out << "n_" << root.GetPtr() << " -> d_" << dataptr << ";\n";
+              printData(data_->getVoidP(), data_->Length());
+              out.flush();
+              assert(data_->Length() == rootpos_);
+          }
+          out << "}\n";
       }
-      out << "}\n";
+      catch (...) {
+          // Clean ourselves up if an exception happens.
+          out_ = NULL;
+          rootpos_ = 0;
+          delete data_;
+          data_ = 0;
+          edges_.clear();
+          throw;
+      }
       out_ = NULL;
       rootpos_ = 0;
       retval = data_;
