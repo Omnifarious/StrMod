@@ -1,3 +1,17 @@
+1998-06-29  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/EchoModule.h: 
+	* EchoModule.cxx: A complete retooling as part of my StreamModule
+	makeover.  Not tested yet.
+
+	* StrMod/StreamModule.h: 
+	* StreamModule.cxx: Began my total StreamModule framework
+	makeover.  The purpose of this is to make writing new modules
+	simpler and less pitfall laden.  I also want to make use of the
+	new UniEvent framework, and make the modules that talk to the
+	outside world use the new mechanism built into the UniEvent
+	framework.  Not tested yet.
+
 Mon Apr 14 18:55:24 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* GNUmakefile.in: Added new .cxx files to library.  Added
