@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/07/05 19:46:25  hopper
+// Various changed to make implementing StrChunkPtrT template easier and
+// more efficient.
+//
 // Revision 1.1  1996/06/29 06:55:50  hopper
 // New class StrChunkPtr that acts as a reference counted pointer to
 // StrChunk
@@ -60,8 +64,8 @@ class StrChunkPtr : public Object {
 
    StrChunk *i_GetPtr() const                          { return(ptr); }
    inline void i_ReleasePtr(bool deleteref);
-   virtual void i_SetPtr(StrChunk *p,
-			 bool deleteref = true, bool addref = true);
+   virtual StrChunk *i_CheckType(StrChunk *p) const    { return(0); }
+   void i_SetPtr(StrChunk *p, bool deleteref = true);
 
  private:
    StrChunk *ptr;
@@ -129,13 +133,16 @@ inline const StrChunkPtr &StrChunkPtr::operator =(const StrChunkPtr &b)
 
       operator =(p);
    }
+   return(*this);
 }
 
 inline const StrChunkPtr &StrChunkPtr::operator =(StrChunk *b)
 {
-   if (i_GetPtr() != b) {
+   b = i_CheckType(b);
+   if (GetPtr() != b) {
       i_SetPtr(b);
    }
+   return(*this);
 }
 
 inline void StrChunkPtr::i_ReleasePtr(bool deleteref)
