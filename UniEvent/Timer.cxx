@@ -8,6 +8,8 @@
 
 #include "UniEvent/Timer.h"
 #include <cmath>
+#include <iostream>
+#include <ctime>
 
 namespace strmod {
 namespace unievent {
@@ -223,6 +225,23 @@ operator -(const Timer::interval_t &a, const Timer::interval_t &b)
                                   an.nanoseconds);
       }
    }
+}
+
+::std::ostream &operator <<(::std::ostream &os, const Timer::absolute_t &time)
+{
+   char buf[32];
+   ::ctime_r(&(time.time), buf);
+   buf[24] = '\0';
+   os << "(" << buf << " + "
+      << Timer::interval_t(time.seconds, time.nanoseconds) << ")";
+   return os;
+}
+
+::std::ostream &operator <<(::std::ostream &os, const Timer::interval_t &intval)
+{
+   double seconds = intval.seconds + double(intval.nanoseconds) / 1000000000U;
+   os << "(" <<  seconds << " seconds)";
+   return os;
 }
 
 };  // namespace unievent

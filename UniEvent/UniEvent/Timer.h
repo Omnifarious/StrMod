@@ -11,6 +11,7 @@
 // $Tag$
 
 #include <ctime>
+#include <iosfwd>
 #include <LCore/GenTypes.h>
 #include <LCore/Protocol.h>
 #include <UniEvent/UNEVT_ClassIdent.h>
@@ -213,6 +214,10 @@ operator +(const Timer::absolute_t &a, const Timer::interval_t &b)
    Timer::absolute_t retval(a.time, aint + b);
    return retval;
 }
+
+::std::ostream &operator <<(::std::ostream &os, const Timer::absolute_t &time);
+
+::std::ostream &operator <<(::std::ostream &os, const Timer::interval_t &time);
 
 };  // namespace unievent
 };  // namespace strmod
