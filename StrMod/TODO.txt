@@ -1,0 +1,3 @@
+1. Change the StrChunk system to use visitors for going through all the
+   chunks for things like collecting lists of data chunks to write, or
+   collapsing deep containment hierarchies.
