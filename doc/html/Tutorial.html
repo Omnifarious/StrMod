@@ -646,5 +646,35 @@ handling, which are handled using events, we won't have to do external memory
 management.  In other words, the connection pair object can manage its own
 existence.</p>
 
+<p>Here's some preliminary code for <code>ForwardedConnection</code>:</p>
+<pre class="codebase">class ForwardedConnection {
+ public:
+   ForwardedConnection(SocketModule &incoming, SocketModule &outgoing);
+   ~ForwardedConnection();
+
+ private:
+   SocketModule &incoming_;
+   SocketModule &outgoing_;
+};
+
+ForwardedConnection::ForwardedConnection(SocketModule &incoming,
+                                         SocketModule &outgoing)
+    : incoming_(incoming), outgoing_(outgoing)
+{
+   incoming_.makePlug(0)->plugInto( *(outgoing_.makePlug(0)) );
+}
+
+ForwardedConnection::~ForwardedConnection()
+{
+   delete &incoming_;
+   delete &outgoing_;
+}</pre>
+
+<p>This doesn't do much to actually fix the problem, but it does now provide a
+nice bucket for the values we would like to save.  As stated previously, we
+will need to handle errors, and we will need to use events.  SocketModule is
+derived from StreamFDModule and has an interface for requesting that events be
+posted in certain situations.</p>
+
 </body>
 </html>
