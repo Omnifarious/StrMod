@@ -1,6 +1,10 @@
 1999-01-17  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
-	* InetAddrNetDB.cxx (NameToIaddr): Fixed to be more compatible
+	* EHnet++/InetAddress.h:
+	* InetAddress.cxx:
+	* InetAddrNetDB.cxx: More changes to make things more type correct.
+
+	* InedtAddrNetDB.cxx (NameToIaddr): Fixed to be more compatible
 	with what the hostent structure actually contains.
 
 	* InetAddrNetDB.cxx:
