@@ -42,7 +42,7 @@ namespace strmod {
 class FDUtil {
  public:
    /** Set a file descriptor to POSIX non-blocking.
-    * This will turn off \code O_NDELAY and turn on \code O_NONBLOCK.
+    * This will turn off \c O_NDELAY and turn on \c O_NONBLOCK.
     *
     * Returns true on success, false on failure.  If there's a failure, myerrno
     * will be set to the errno result that precipitated the failure, otherwise,
@@ -54,7 +54,7 @@ class FDUtil {
    static bool setNonBlock(int fd, int &myerrno);
 
    /** Set a file descriptor to blocking.
-    * Removes \code O_NDELAY and \code O_NONBLOCK.
+    * Removes \c O_NDELAY and \c O_NONBLOCK.
     *
     * Returns true on success, false on failure.  If there's a failure, myerrno
     * will be set to the errno result that precipitated the failure, otherwise,

@@ -263,15 +263,8 @@ class StreamFDModule : public StreamModule {
     */
    virtual void writeEOF();
 
-//     //! Set an error flag to <code>errnum</code> in the category <code>ecat</code>.
-//     void setErrorIn(ErrCategory ecat, int errnum);
-
-//     //! Set the flag that says we've read the EOF market to <code>newval</code>.
-//     void setReadEOF(bool newval);
-
    //! Set an error in a particular category.
-   void setErrorIn(ErrorType err, const unievent::UNIXError &errval)
-      throw();
+   void setErrorIn(ErrorType err, const unievent::UNIXError &errval);
 
    //! Called by readev_ and resumeread_'s triggerEvent.
    void eventRead();
