@@ -90,8 +90,6 @@ class EH_ClassIdent : public ClassIdent {
 
    const EH_ClassNum GetClass() const     { return(ClassIdent::GetClass()); }
 
-   inline bool_val operator ==(const ClassIdent &b) const;
-
    inline EH_ClassIdent(EH_ClassNum cnum);
 };
 
@@ -105,8 +103,6 @@ class LCore_ClassIdent : public EH_ClassIdent {
    static const LCore_ClassIdent identifier;
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   inline bool_val operator ==(const ClassIdent &b) const;
 
    inline LCore_ClassIdent(U4Byte cnum);
 };
@@ -154,11 +150,6 @@ inline int EH_ClassIdent::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || ClassIdent::AreYouA(cid));
 }
 
-inline bool_val EH_ClassIdent::operator ==(const ClassIdent &b) const
-{
-   return(ClassIdent::operator ==(b));
-}
-
 inline EH_ClassIdent::EH_ClassIdent(EH_ClassNum cnum) :
    ClassIdent(EricMHopper_0, cnum)
 {
@@ -174,11 +165,6 @@ inline const ClassIdent *LCore_ClassIdent::i_GetIdent() const
 inline int LCore_ClassIdent::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
-}
-
-inline bool_val LCore_ClassIdent::operator ==(const ClassIdent &b) const
-{
-   return(EH_ClassIdent::operator ==(b));
 }
 
 inline LCore_ClassIdent::LCore_ClassIdent(U4Byte cnum) :
