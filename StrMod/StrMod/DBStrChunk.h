@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.5  1999/01/22 15:02:20  hopper
+// Fixed an incredibly stupid error in the 'make DataBlockStrChunk from
+// memory block' constructor.
+//
 // Revision 1.4  1999/01/12 04:17:44  hopper
 // All kinds of changes to make the code more portable and compile
 // properly with the DEC compiler.
@@ -102,7 +106,7 @@ inline DataBlockStrChunk::DataBlockStrChunk(const void *mem,
 					    size_t length)
      : buf_(0), buflen_(0)
 {
-   if (buflen_ > 0) {
+   if (length > 0) {
       Resize(length);
       memcpy(buf_, mem, buflen_);
    }
