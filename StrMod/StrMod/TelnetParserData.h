@@ -244,13 +244,6 @@ inline unsigned int TelnetParser::Suboption::Length() const
    return(5 + rawlen_);
 }
 
-inline unsigned int TelnetParser::Suboption::NumSubGroups() const
-{
-   assert(raw_->NumSubGroups() == 1);
-   // I know that BufferChunk s only have 1 subgroup.
-   return(3);
-}
-
 inline const StrChunkPtrT<BufferChunk> &
 TelnetParser::Suboption::getCooked() const
 {
