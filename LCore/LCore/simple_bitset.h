@@ -11,7 +11,6 @@
 #include <cstddef>
 #include <climits>
 #include <string>
-#include <iostream>
 
 #define _LCORE_simple_bitset_H_
 
@@ -100,12 +99,8 @@ inline simple_bitset<Tsize>::simple_bitset(bool initial_value)
 template <size_t Tsize>
 inline simple_bitset<Tsize>::simple_bitset(const simple_bitset<Tsize> &rhs)
 {
-   using ::std::cerr;
-
    for (size_t i = 0; i < bitslen_; ++i)
    {
-      cerr << "bits_[" << i << "] == " << bits_[i]
-           << " && rhs.bits_[" << i << "] == " << rhs.bits_[i] << '\n';
       bits_[i] = rhs.bits_[i];
    }
 }
