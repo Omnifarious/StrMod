@@ -1,4 +1,4 @@
-/* $Header$ */
+# $Header$
 
 CXX = g++ -pipe -march=athlon-xp
 CXXFLAGS = -Wall -O2
@@ -34,8 +34,10 @@ XMLUTF8LexerSane.o : XMLUTF8Lexer.h
 
 XMLUTF8Parser.o : XMLUTF8Lexer.h
 
-// $Log$
-// Revision 1.1  2002/12/10 13:19:16  hopper
-// Some XML parsing classes I'm playing with until I get something that's
-// suitable for public consumption.
-//
+# $Log$
+# Revision 1.2  2002/12/10 13:20:18  hopper
+# Put comments in Makefile comment format instead of C++.  Oops.
+#
+# Revision 1.1  2002/12/10 13:19:16  hopper
+# Some XML parsing classes I'm playing with until I get something that's
+# suitable for public consumption.
