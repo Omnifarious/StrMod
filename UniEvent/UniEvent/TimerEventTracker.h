@@ -9,6 +9,7 @@
 // For a log, see ../ChangeLog
 
 #include <UniEvent/Timer.h>
+#include <LCore/Debugable.h>
 
 #define _UNEVT_TimerEventTracker_H_
 
@@ -20,7 +21,7 @@ class Dispatcher;
 /** \class TimerEventTracker TimerEventTracker.h UniEvent/TimerEventTracker.h
  * \brief Tracks Timer events, can be used to implement Timer
  */
-class TimerEventTracker : virtual public Timer
+   class TimerEventTracker : virtual public Timer, virtual public Debugable
 {
  public:
    TimerEventTracker();
@@ -56,6 +57,9 @@ class TimerEventTracker : virtual public Timer
                                const interval_t &maxtime) const;
 
    virtual absolute_t currentTime() const = 0;
+
+   virtual bool invariant() const                               { return true; }
+   virtual void printState(::std::ostream &os) const;
 
  private:
    class Imp;
