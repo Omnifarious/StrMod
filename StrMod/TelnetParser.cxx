@@ -336,7 +336,7 @@ void TelnetParser::reset(TelnetChunkBuilder &builder)
          builder.addSuboption(subopt_type_, regionbegin_, regionend_, tmp);
       }
       cooked_ = 0;
-      regionbegin_ = curpos_;
    }
+   regionbegin_ = curpos_;
    state_ = PS_Normal;
 }
