@@ -1,8 +1,11 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:47  hopper
-// Initial revision
+// Revision 1.2  1996/06/29 06:44:30  hopper
+// Completely re-worked for new StrChunk handling.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:47  hopper
+// Imported sources
 //
 // -> Revision 0.19  1995/04/14  17:05:27  hopper
 // -> Combined version 0.18 and 0.18.0.5
@@ -65,99 +68,16 @@
 #endif
 
 #include "StrMod/StrChunk.h"
-#include <iostream.h>
+#include "StrMod/LinearExtent.h"
 
-/*****************************************************************************
- * I don't want to use malloc, free, and realloc, but C++ lacks a            *
- * re-allocation operator, and C can sometimes be VERY efficient with        *
- * realloc. The best I could hope to do with C++ 'new' was match the worst   *
- * case for realloc. Someday I'll add some really spectacular memory         *
- * handling stuff into here, but not now, I need to get this finished. :-)   *
- *****************************************************************************/
+const STR_ClassIdent StrChunk::identifier(6UL);
 
-static char *StrChunk_CC_rcsID = "$Id$";
-
-const STR_ClassIdent StrChunkBuffer::identifier(5UL);
-
-void StrChunkBuffer::Resize(unsigned int size)
+unsigned int StrChunk::NumSubGroups() const
 {
-   if (size == length)
-      return;
-   if (size == 0) {
-      free(data);
-      data = 0;
-      length = 0;
-   } else {
-      if (data == 0)
-	 data = malloc(size);
-      else
-	 data = realloc(data, size);
-      if (data == 0) {
-	 cerr << "Help! Out of memory in 'void StrChunkBuffer::";
-	 cerr << "Resize(unsigned int size)'\n";
-	 length = 0;
-      } else
-	 length = size;
-   }
+   return(NumSubGroups(LinearExtent::full_extent));
 }
 
-const StrChunkBuffer &StrChunkBuffer::operator =(const StrChunkBuffer &b)
+void StrChunk::FillGroupVec(GroupVector &vec, unsigned int &start_index)
 {
-   if (this != &b) {
-      Resize(b.length);
-      if (length != 0)
-	 memcpy(data, b.data, length);
-   }
-   return(*this);
-}
-
-StrChunkBuffer::StrChunkBuffer(const void *dta, unsigned int size)
-  : ReferenceCounting(0)
-{
-   length = size;
-   if (length <= 0)
-      data = 0;
-   else {
-      data = malloc(length);
-      if (data == 0) {
-	 cerr << "Help! Out of memory in:\n";
-	 cerr << " 'StrChunkBuffer::StrChunkBuffer";
-	 cerr << "(const void *dta, unsigned int size)'\n";
-	 length = 0;
-      } else
-	 memcpy(data, dta, length);
-   }
-}
-
-StrChunkBuffer::StrChunkBuffer(const StrChunkBuffer &b)
-  : ReferenceCounting(0)
-{
-   length = b.length;
-   if (length <= 0)
-      data = 0;
-   else {
-      data = malloc(length);
-      if (data == 0) {
-	 cerr << "Help! Out of memory in: 'StrChunkBuffer::";
-	 cerr << "StrChunkBuffer(const StrChunkBuffer &b)'\n";
-	 length = 0;
-      } else
-	 memcpy(data, b.data, length);
-   }
-}
-
-StrChunkBuffer::StrChunkBuffer(unsigned int size)
-  : ReferenceCounting(0)
-{
-   length = size;
-   if (length <= 0)
-      data = 0;
-   else {
-      data = malloc(length);
-      if (data == 0) {
-	 cerr << "Help! Out of memory in 'StrChunkBuffer::";
-	 cerr << "StrChunkBuffer(unsigned int size)'\n";
-	 length = 0;
-      }
-   }
+   FillGroupVec(LinearExtent::full_extent, vec, start_index);
 }
