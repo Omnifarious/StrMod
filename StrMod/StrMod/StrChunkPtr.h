@@ -7,6 +7,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.5  1998/11/03 00:27:06  hopper
+// Changed operator bool to the more proper (with my bool.h) bool_cst.
+//
 // Revision 1.4  1996/08/24 13:01:39  hopper
 // Added new operator ! method as a counterpart to the operator bool
 // conversion.
@@ -61,7 +64,7 @@ class StrChunkPtr : public Object {
    inline StrChunk *GetPtr() const;
    inline void ReleasePtr(bool deleteref = true);
 
-   inline operator bool() const;
+   inline operator bool_cst() const;
    inline bool operator !() const;
 
    inline const StrChunkPtr &operator =(const StrChunkPtr &b);
