@@ -20,7 +20,9 @@ h1.title {text-align: center}
 div.centered {text-align: center}
 pre.codeblock {margin-left: 1cm;
                background: #c0c0c0}
-pre.line {margin-left: 1cm }</style>
+pre.line {margin-left: 1cm }
+span.new {color: green }
+span.changed {color: red }</style>
 </head>
 
 <body bgcolor="#d0d0d0" text="black">
@@ -426,12 +428,12 @@ time to tackle that problem.</p>
 <p>Sadly, this is probably the most complicated part of the program, and
 where you actually have to do polling.</p>
 
-<p>The basic mechanism by which acceped connections are retrieved from the
-SockListenModule is through its 'plug'. The plug has to be asked if there's a
-connection to read, and then the connection has to be read from it. Also, the
-only way to check for errors that may have occured on the listening socket is
-to ask the SockListenModule if any errors have occured. It has no way of
-signalling error conditions through events.</p>
+<p>The basic way you retrieve acceped connections is through the
+SockListenModule's `plug´. The plug has to be asked if there's a connection
+to read, and then the connection has to be read from it. Also, the only way
+to check for errors that may have occured on the listening socket is to ask
+the SockListenModule if any errors have occured. It has no way of signalling
+error conditions through events.</p>
 
 <p>Both of these things require various parts of the SockListenModule to be
 polled periodically. This will have to happen in the dispatching loop. There
@@ -449,6 +451,157 @@ variable, <code>lplug_</code> to be added to the Listener class.
 constructor. And finally, the code to scan through the listening modules and
 poll each of them is added to the dispatching loop. Here is the final
 code:</p>
-<pre class="codeblock"></pre>
+<p><ul>Note:
+<li><span class="new">green</span> is new code</li>
+<li><span class="changed">red</span> is changed code.</li></ul></p>
+<pre class="codeblock">#include &lt;StrMod/SockListenModule.h&gt;
+<span class="new">#include &lt;StrMod/SocketModule.h&gt;</span>
+#include &lt;EHnet++/SocketAddress.h&gt;
+#include &lt;EHnet++/InetAddress.h&gt;
+#include &lt;UniEvent/Dispatcher.h&gt;
+#include &lt;UniEvent/SimpleDispatcher.h&gt;
+#include &lt;UniEvent/UNIXpollManager.h&gt;
+#include &lt;UniEvent/UNIXpollManagerImp.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+<span class="new">#include &lt;list&gt;</span>
+
+using strmod::strmod::SockListenModule;
+<span class="new">using strmod::strmod::SocketModule;</span>
+using strmod::unievent::Dispatcher;
+using strmod::unievent::UNIXpollManager;
+
+// The EHnet++ library has not yet been converted to use namespaces.
+
+class Listener {
+ public:
+   Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+            Dispatcher &amp;disp, UNIXpollManager &amp;pman);
+   ~Listener();
+
+<span class="new">   //! Called once a loop from the event dispatching loop.
+   void doPoll();
+</span>
+ private:
+   SockListenModule *listener_;
+<span class="new">   SockListenModule::SLPlug *lplug_;</span>
+   SocketAddress * const from_;
+   SocketAddress * const to_;
+<span class="new">   Dispatcher &amp;disp_;
+   UNIXpollManager &amp;pman_;</span>
+};
+
+Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+                   Dispatcher &amp;disp, UNIXpollManager &amp;pman)
+<span class="changed">     : listener_(NULL), lplug_(NULL), from_(from.Copy()), to_(to.Copy()),
+       disp_(disp), pman_(pman)</span>
+{
+   listener_ = new SockListenModule(*from_, disp, pman, 2);
+<span class="new">   lplug_ = listener_-&gt;makePlug();</span>
+}
+
+Listener::~Listener()
+{
+<span class="new">   if (lplug_)
+   {
+      listener_-&gt;deletePlug(lplug_);
+      lplug_ = NULL;
+   }</span>
+   delete listener_;
+   delete from_;
+   delete to_;
+}
+
+<span class="new">void Listener::doPoll()
+{
+   if (listener_ &amp;&amp; listener_-&gt;hasError())
+   {
+      // If the listener has an error, print the error.
+      {
+         using std::cerr;
+         char errbuf[256];  // Magic number!
+         listener_-&gt;getError().getErrorString(errbuf, sizeof(errbuf) - 1);
+         cerr &lt;&lt; "Listening socket has this error: ("
+              &lt;&lt; listener_-&gt;getError().getSyscallName()
+              &lt;&lt; ") " &lt;&lt; errbuf &lt;&lt; "\n";
+      }
+
+      // Then tear down the listening socket and try to rebuild it.
+      if (lplug_)
+      {
+         listener_-&gt;deletePlug(lplug_);
+         lplug_ = NULL;
+      }
+      delete listener_;
+      listener_ = NULL;
+   }
+   if (!listener_)
+   {
+      listener_ = new SockListenModule(*from_, disp_, pman_, 2);
+      lplug_ = listener_-&gt;makePlug();
+   }
+   if (lplug_ &amp;&amp; lplug_-&gt;isReadable())
+   {
+      strmod::strmod::SocketModuleChunkPtr smcp = lplug_-&gt;getConnection();
+      SocketModule *incoming = smcp-&gt;getModule();
+      delete incoming;
+   }
+}
+
+typedef std::list&lt;Listener *&gt; ListenerList;
+</span>
+int main()
+{
+   strmod::unievent::SimpleDispatcher dispatcher;
+   strmod::unievent::UNIXpollManagerImp pollmanager(&amp;dispatcher);
+<span class="new">   ListenerList listeners;</span>
+   using std::cin;
+   using std::cout;
+   using std::string;
+
+   do
+   {
+      U2Byte inport = 0;
+      string outaddr;
+      unsigned int outport = 0;
+
+      cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
+      if (cin)
+      {
+         InetAddress listenaddr(inport);
+         InetAddress destaddr(outaddr, outport);
+         Listener *listener = new Listener(listenaddr, destaddr,
+                                          dispatcher, pollmanager);
+         cout &lt;&lt; "Accepting connections on port " &lt;&lt; inport
+              &lt;&lt; " and redirecting data to a connection to "
+              &lt;&lt; outaddr &lt;&lt; " port " &lt;&lt; outport &lt;&lt; "\n";
+<span class="new">         listeners.push_front(listener);  // Reverse order so they get deleted</span>
+      }<span class="new">                                   // in reverse order later.</span>
+   } while (cin);
+<span class="new">
+   while (1)
+   {
+      dispatcher.dispatchEvent();
+      {
+         // This is a technique for lowering the cost of the i != end statement
+         const ListenerList::iterator end = listeners.end();
+         for (ListenerList::iterator i = listeners.begin(); i != end; ++i)
+         {
+            (*i)-&gt;doPoll();
+         }
+      }
+   }
+
+   {
+      // This is a technique for lowering the cost of the i != end statement
+      const ListenerList::iterator end = listeners.end();
+      for (ListenerList::iterator i = listeners.begin(); i != end; ++i)
+      {
+         delete *i;
+         *i = NULL;
+      }
+   }</span>
+   return 0;
+}</pre>
 </body>
 </html>
