@@ -28,7 +28,6 @@
 
 #include <LCore/simple_bitset.h>
 #include <string>
-#include <iostream>
 
 #define _LCORE_enum_set_H_
 
@@ -124,15 +123,7 @@ class enum_set : private simple_bitset<last - first + 1>
 template <class enum_t, enum_t first, enum_t last>
 inline enum_set<enum_t, first, last>::enum_set()
 {
-   ::std::cerr << "Creating an empty enum_set: this == " << this << "\n";
 }
-
-//  template <class enum_t, enum_t first, enum_t last> inline
-//  enum_set<enum_t, first, last>::enum_set(const enum_set<enum_t, first, last> &b)
-//       : parent_t(*this)
-//  {
-//     ::std::cerr << "Copying(1) an enum_set: this == " << this << " && &other == " << &b << "\n";
-//  }
 
 template <class enum_t, enum_t first, enum_t last>
 inline enum_set<enum_t, first, last>::enum_set(enum_t val)
@@ -193,10 +184,8 @@ inline enum_set<enum_t, first, last>::enum_set(enum_t val1, enum_t val2,
 
 template <class enum_t, enum_t first, enum_t last>
 inline enum_set<enum_t, first, last>::enum_set(const enum_set<enum_t, first, last> &other)
-     : parent_t(*this)
+     : parent_t(other)
 {
-   ::std::cerr << "Copying(2) an enum_set: this == " << this << " && &other == " << &other << "\n";
-   ::std::cerr << "*this == " << to_string() << " && other == " << other.to_string() << "\n";
 }
 
 template <class enum_t, enum_t first, enum_t last>
@@ -280,7 +269,6 @@ template <class enum_t, enum_t first, enum_t last>
 inline const enum_set<enum_t, first, last> &
 enum_set<enum_t, first, last>::operator =(const enum_set<enum_t, first, last> &b)
 {
-   ::std::cerr << "Copying(3) an enum_set: this == " << this << " && &b == " << &b << "\n";
    parent_t::operator =(b);
    return *this;
 }
