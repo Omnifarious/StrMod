@@ -51,6 +51,8 @@ namespace unievent {
  *   9UL  UNIXpollManagerImp
  *  10UL  <nothing, was UNIXError>
  *  11UL  UNIXSignalHandler
+ *  12UL  Timer
+ *  13UL  UNIXTimer
  * </pre>
  */
 
