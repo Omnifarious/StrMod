@@ -63,7 +63,8 @@ INPUT                  = include/LCore \
                          LCore \
                          UniEvent \
                          EHnet++ \
-                         StrMod
+                         StrMod \
+                         xml
 FILE_PATTERNS          = *.h \
                          *.cxx
 RECURSIVE              = NO
