@@ -29,7 +29,8 @@ class Dispatcher;
    virtual ~TimerEventTracker();
 
    virtual void postAt(const absolute_t &t, const EventPtr &ev);
-   virtual inline void postIn(const interval_t &off, const EventPtr &ev);
+   // Leave the implementation of postIn as it is in Timer.
+   virtual absolute_t currentTime() const = 0;
 
    /** Post all expired timer events.
     * @param now What you want the current time to be for the purposes of expiration
@@ -56,8 +57,6 @@ class Dispatcher;
    interval_t nextExpirationIn(const absolute_t &now,
                                const interval_t &maxtime) const;
 
-   virtual absolute_t currentTime() const = 0;
-
    virtual bool invariant() const                               { return true; }
    virtual void printState(::std::ostream &os) const;
 
@@ -71,12 +70,6 @@ class Dispatcher;
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline void
-TimerEventTracker::postIn(const interval_t &off, const EventPtr &ev)
-{
-   postAt(currentTime() + off, ev);
-}
 
 } // namespace unievent
 } // namespace strmod

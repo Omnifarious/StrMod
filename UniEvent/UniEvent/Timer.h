@@ -107,7 +107,9 @@ class Timer : public Protocol {
    //! Post an event at a particular time
    virtual void postAt(const absolute_t &t, const EventPtr &ev) = 0;
    //! Post an event after a certain amount of time has expired.
-   virtual void postIn(const interval_t &off, const EventPtr &ev) = 0;
+   virtual void postIn(const interval_t &off, const EventPtr &ev);
+   //! What time is it now?!
+   virtual absolute_t currentTime() const = 0;
 
  protected:
    inline virtual const ClassIdent *i_GetIdent() const   { return &identifier; }
@@ -218,6 +220,14 @@ operator +(const Timer::absolute_t &a, const Timer::interval_t &b)
 ::std::ostream &operator <<(::std::ostream &os, const Timer::absolute_t &time);
 
 ::std::ostream &operator <<(::std::ostream &os, const Timer::interval_t &time);
+
+//--
+
+inline void
+Timer::postIn(const interval_t &off, const EventPtr &ev)
+{
+   postAt(currentTime() + off, ev);
+}
 
 };  // namespace unievent
 };  // namespace strmod
