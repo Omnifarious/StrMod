@@ -1,3 +1,9 @@
+2002-08-28  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* Timer.cxx (operator -): Fixed a couple of warnings about
+	implicit, information losing casts from double to unsigned
+	integral types.
+
 2002-03-26  Eric M. Hopper  <hopper@omnifarious.org>
 
 	* tests/testUPoll.cxx:

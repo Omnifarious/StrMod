@@ -1,3 +1,8 @@
+2002-08-28  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* LCore/simple_bitset.h (operator &): Added some non-member binary
+	operators that should've been there in the first place.
+
 2002-03-13  hopper  <hopper@omnifarious.org>
 
 	* LCore/simple_bitset.h: Include optimizing specializations.

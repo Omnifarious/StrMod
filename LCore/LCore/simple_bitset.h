@@ -264,6 +264,30 @@ simple_bitset<Tsize>::to_string() const
 
 #include <LCore/simple_bitset_optim.h>
 
+template <size_t Tsize> inline const simple_bitset<Tsize>
+operator &(const simple_bitset<Tsize> &a, const simple_bitset<Tsize> &b)
+{
+   simple_bitset<Tsize> res = a;
+   res &= b;
+   return res;
+}
+
+template <size_t Tsize> inline const simple_bitset<Tsize>
+operator |(const simple_bitset<Tsize> &a, const simple_bitset<Tsize> &b)
+{
+   simple_bitset<Tsize> res = a;
+   res |= b;
+   return res;
+}
+
+template <size_t Tsize> inline const simple_bitset<Tsize>
+operator ^(const simple_bitset<Tsize> &a, const simple_bitset<Tsize> &b)
+{
+   simple_bitset<Tsize> res = a;
+   res ^= b;
+   return res;
+}
+
 } // namespace lcore
 } // namespace strmod
 
