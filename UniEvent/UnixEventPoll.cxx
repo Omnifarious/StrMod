@@ -302,13 +302,17 @@ void UnixEventPoll::doPoll(bool wait)
          interval_t waittil = nextExpirationIn(currentTime(),
                                                interval_t(1073741));
          int polltimeout = (waittil.seconds * 1000U) +
-            (waittil.nanoseconds / 1000U);
+            (waittil.nanoseconds / 1000000U);
+         ::std::cerr << "polltimeout == " << double(polltimeout) / 1000U << " seconds.\n";
+         ::std::cerr.flush();
          pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
                              polltimeout);
          myerrno = errno;
       }
       else
       {
+         ::std::cerr << "Got a signal!\n";
+         ::std::cerr.flush();
          pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(), 0);
          myerrno = errno;
       }
