@@ -36,7 +36,6 @@ OBJDIR = $(MYOUTDIR)/obj
 LIBDIR = $(MYOUTDIR)/lib
 LIBSRC = $(MYOUTDIR)/lib_src
 
-# TelnetParser.cxx  SimpleTelnetClient.cxx
 LIBCXX = EchoModule.cxx  STR_ClassIdent.cxx  StreamModule.cxx  \
          StrChunk.cxx  StrChunkPtr.cxx  LinearExtent.cxx \
          StrSubChunk.cxx  GroupChunk.cxx  StreamFDModule.cxx \
@@ -46,9 +45,11 @@ LIBCXX = EchoModule.cxx  STR_ClassIdent.cxx  StreamModule.cxx  \
          SimpleMulti.cxx  StreamProcessor.cxx  ProcessorModule.cxx \
          CharChopper.cxx  PassThrough.cxx  NewlineChopper.cxx  BufferChunk.cxx \
          PreAllocBuffer.cxx  DynamicBuffer.cxx  BufferChunkFactory.cxx \
-         InfiniteModule.cxx  \
+         InfiniteModule.cxx  TelnetParser.cxx  TelnetChunker.cxx \
+         TelnetChars.cxx  TelnetChunkBuilder.cxx  LocalCopy.cxx \
          ChunkVisitor.cxx  UseTrackingVisitor.cxx  GraphVizVisitor.cxx \
-         ChunkIterator.cxx  StaticBuffer.cxx  ApplyVisitor.cxx
+         ChunkIterator.cxx  StaticBuffer.cxx  ApplyVisitor.cxx \
+         SimpleTelnetClient.cxx
 
 TESTCCS = tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx  \
           tests/testecho.cxx   tests/testsock.cxx tests/echoserv.cxx  \
@@ -123,22 +124,24 @@ tests/testPreAlloc : tests/testPreAlloc.o PreAllocBuffer.o StrChunk.o BufferChun
 	$(CXX) $^ $(LDFLAGS) $(LIBS) -o $@ 2>&1 | c++filt
 
 tests/tstelnet : tests/tstelnet.o tests/TelnetToAscii.o SimpleTelnetClient.o \
-                 StreamModule.o SimpleMulti.o \
-                 ProcessorModule.o PassThrough.o StreamProcessor.o \
-                 DynamicBuffer.o BufferChunk.o PreAllocBuffer.o \
-                 StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o \
-                 GroupVector.o LinearExtent.o SocketModule.o \
-                 StreamSplitter.o EOFStrChunk.o FDUtil.o TelnetParser.o \
-                 GroupChunk.o GV_Iterator.o StrSubChunk.o
+                StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o \
+                LinearExtent.o SocketModule.o TelnetChunker.o \
+                StreamSplitter.o EOFStrChunk.o FDUtil.o TelnetParser.o \
+                StreamProcessor.o PassThrough.o ProcessorModule.o \
+                GroupChunk.o StrSubChunk.o DynamicBuffer.o \
+                BufferChunk.o PreAllocBuffer.o UseTrackingVisitor.o \
+                ChunkVisitor.o TelnetChunkBuilder.o ApplyVisitor.o \
+                StreamModule.o TelnetChars.o SimpleMulti.o
 	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/tstelnet 2>&1 | c++filt
 
 tests/ttelnet : tests/ttelnet.o tests/TelnetToAscii.o StreamModule.o \
                 StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o \
-                GroupVector.o LinearExtent.o SocketModule.o \
+                LinearExtent.o SocketModule.o TelnetChunker.o \
                 StreamSplitter.o EOFStrChunk.o FDUtil.o TelnetParser.o \
                 StreamProcessor.o PassThrough.o ProcessorModule.o \
-                GroupChunk.o GV_Iterator.o StrSubChunk.o DynamicBuffer.o \
-                BufferChunk.o PreAllocBuffer.o
+                GroupChunk.o StrSubChunk.o DynamicBuffer.o \
+                BufferChunk.o PreAllocBuffer.o UseTrackingVisitor.o \
+                ChunkVisitor.o TelnetChunkBuilder.o ApplyVisitor.o TelnetChars.o
 	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/ttelnet 2>&1 | c++filt
 
 tests/testchunk : tests/testchunk.o StrChunk.o GroupVector.o DynamicBuffer.o \
