@@ -1,5 +1,18 @@
 1999-09-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* StrMod/TelnetParserData.h:
+	* StrMod/TelnetParser.h:
+	* TelnetParser.cxx: Added the new TelnetParser class and nested
+	classes.  This class is designed to transform a raw data stream
+	containing telnet protocol messages into a data stream in which
+	the telnet protocol messages are discreet chunks that can be
+	easily identified by other stream modules using a simple type
+	test.
+
+	* tests/TelnetToAscii.h: 
+	* tests/TelnetToAscii.cxx: 
+	* tests/ttelnet.cxx: Added to test the new TelnetParser class.
+
 	* tests/testchunk.cxx: Changed to use DynamicBuffer instead of
 	DataBlockStrChunk.
 
