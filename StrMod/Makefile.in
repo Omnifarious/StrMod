@@ -46,7 +46,8 @@ LIBCXX = EchoModule.cxx  STR_ClassIdent.cxx  StreamModule.cxx  \
          CharChopper.cxx  PassThrough.cxx  NewlineChopper.cxx  BufferChunk.cxx \
          PreAllocBuffer.cxx  DynamicBuffer.cxx  BufferChunkFactory.cxx \
          InfiniteModule.cxx  TelnetParser.cxx  SimpleTelnetClient.cxx \
-         ChunkVisitor.cxx  UseTrackingVisitor.cxx  GraphVizVisitor.cxx
+         ChunkVisitor.cxx  UseTrackingVisitor.cxx  GraphVizVisitor.cxx \
+         ChunkIterator.cxx
 
 TESTCCS = tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx  \
           tests/testecho.cxx   tests/testsock.cxx tests/echoserv.cxx  \

@@ -1,8 +1,22 @@
+2000-09-25  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* BufferChunk.cxx, ChangeLog GroupChunk.cxx Makefile.in,
+	ProcessorModule.cxx STR_ClassIdent.cxx StrChunk.cxx,
+	StrSubChunk.cxx, ChunkVisitor.cxx GraphVizVisitor.cxx
+	StackSwapper.cxx, UseTrackingVisitor.cxx, StrMod/BufferChunk.h,
+	StrMod/EOFStrChunk.h, StrMod/GroupChunk.h, StrMod/LinearExtent.h,
+	StrMod/SockListenModule.h, StrMod/StrChunk.h,
+	StrMod/StrSubChunk.h, StrMod/TelnetParserData.h,
+	StrMod/ChunkIterator.h, StrMod/ChunkVisitor.h,
+	StrMod/GraphVizVisitor.h, StrMod/StackSwapper.h,
+	StrMod/UseTrackingVisitor.h, tests/testvisitor.cxx: Merged in new
+	Visitor code.  Not done yet because the other traversal mechanisms
+	haven't been totally replaced with Visitors.
+
 2000-09-08  Eric Mathew Hopper  <hopper@omnifarious.mn.org>
 
-	* StrMod/BufferChunk.h: 
-	* BufferChunk.cxx (acceptVisitor): Added new method to allow
-	BufferChunks to be visited by the ChunkVisitor.
+	* StrMod/BufferChunk.h, BufferChunk.cxx (acceptVisitor): Added new
+	method to allow BufferChunks to be visited by the ChunkVisitor.
 
 	* StrMod/ChunkVisitor.h: Fixed interface for visitDataBlock
 	because void * + length is enough information.  No LinearExtent is

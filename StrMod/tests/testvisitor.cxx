@@ -9,7 +9,10 @@
 #include "StrMod/StrSubChunk.h"
 #include "StrMod/EOFStrChunk.h"
 #include "StrMod/StrChunkPtrT.h"
+#include "StrMod/ChunkIterator.h"
 #include <iostream>
+#include <fstream>
+#include <cstdlib>
 
 static const char phrase0[] = "George Orwell has maggots.";
 static const char phrase1[] = "George Orwell doesn't have fleas.";
@@ -39,22 +42,93 @@ void initPre()
 //   cerr << "phrases[2]->getVoidP() == " << phrases[2]->getVoidP() << "\n";
 }
 
+static void iteratorTest(const StrChunkPtr &chnk, const StrChunkPtr &data)
+{
+   assert(data->AreYouA(BufferChunk::identifier));
+   StrChunkPtrT<BufferChunk> bdata;
+   bdata = static_cast<BufferChunk *>(data.GetPtr());
+   unsigned char *chdata = bdata->getCharP();
+   StrChunk::const_iterator begin = chnk->begin();
+   StrChunk::const_iterator end = chnk->end();
+
+   {
+      StrChunk::const_iterator i = begin;
+      int o = 0;
+      for (; i != end; ++i, ++o)
+      {
+         assert(o < bdata->Length());
+         assert(o == (i - begin));
+         assert(*i == chdata[o]);
+      }
+      assert(o == bdata->Length());
+      assert(o == chnk->Length());
+   }
+
+   {
+      StrChunk::const_iterator i = begin;
+      int o = 0;
+      const unsigned int length = data->Length();
+      const unsigned int iters = length * 10U;
+
+      for (unsigned int p = 0; p < iters; ++p)
+      {
+         unsigned int r = random() % iters;
+         if (r < p)
+         {
+//            cerr << 'D';
+            --i;
+            if (o > 0)
+            {
+               --o;
+            }
+         }
+         else
+         {
+            ++i;
+            if (o < length)
+            {
+               ++o;
+            }
+//            cerr << 'U';
+         }
+         assert((i - begin) == o);
+         if (i != end)
+         {
+            assert(o < length);
+            assert(*i == chdata[o]);
+         }
+         else
+         {
+            assert(o == length);
+         }
+//         cerr << o << ' ';
+      }
+   }
+//   cerr << '\n';
+}
+
+static void nonIteratorTest(const StrChunkPtr &chnk)
+{
+}
+
 int main()
 {
+   srandom(1);
+   ofstream graphout("chunkgraph.dot");
    initPre();
    GraphVizVisitor visitor;
-   visitor.visit(phrases[0], cout);
+   visitor.visit(phrases[0], graphout);
    StrChunkPtrT<GroupChunk> group = new GroupChunk;
    group->push_back(phrases[0]);
    group->push_back(phrases[1]);
    group->push_back(phrases[2]);
-   visitor.visit(group, cout);
+   iteratorTest(group, visitor.visit(group, graphout));
    group = new GroupChunk;
    group->push_back(new StrSubChunk(phrases[0], LinearExtent(0, 18)));
    group->push_back(new StrSubChunk(phrases[1], LinearExtent(27,  5)));
    group->push_back(new StrSubChunk(phrases[2], LinearExtent(29, 43)));
    group->push_back(new StrSubChunk(phrases[0], LinearExtent(18, 8)));
-   visitor.visit(group, cout);
+   iteratorTest(group, visitor.visit(group, graphout));
    {
       GroupChunk *uber = new GroupChunk;
       {
@@ -80,7 +154,7 @@ int main()
       }
       group = uber;
    }
-   visitor.visit(group, cout);
+   iteratorTest(group, visitor.visit(group, graphout));
    group = new GroupChunk;
    {
       StrChunkPtr eof = new EOFStrChunk();
@@ -92,6 +166,6 @@ int main()
       group->push_back(new StrSubChunk(phrases[0], LinearExtent(25, 1)));
       group->push_back(eof);
    }
-   visitor.visit(group, cout);
+   iteratorTest(group, visitor.visit(group, graphout));
    return(0);
 }

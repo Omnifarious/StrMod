@@ -17,8 +17,9 @@
 
 const STR_ClassIdent GraphVizVisitor::identifier(48UL);
 
-void GraphVizVisitor::visit(const StrChunkPtr &root, ostream &out)
+const StrChunkPtr GraphVizVisitor::visit(const StrChunkPtr &root, ostream &out)
 {
+   StrChunkPtr retval;
    static char name = 'A';
    if (root)
    {
@@ -40,10 +41,11 @@ void GraphVizVisitor::visit(const StrChunkPtr &root, ostream &out)
       out << "}\n";
       out_ = NULL;
       rootpos_ = 0;
-      delete data_;
+      retval = data_;
       data_ = 0;
       edges_.clear();
    }
+   return(retval);
 }
 
 void GraphVizVisitor::use_visitStrChunk(const StrChunkPtr &chunk,

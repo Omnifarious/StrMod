@@ -17,8 +17,8 @@
 class ostream;
 class BufferChunk;
 
-//: Generates output suitable for AT&T's Open Source GraphViz program.
-// http://www.research.att.com/sw/tools/graphviz/
+//! Generates output suitable for AT&T's Open Source GraphViz program.
+//! http://www.research.att.com/sw/tools/graphviz/
 class GraphVizVisitor : public UseTrackingVisitor {
  public:
    static const STR_ClassIdent identifier;
@@ -26,7 +26,10 @@ class GraphVizVisitor : public UseTrackingVisitor {
    GraphVizVisitor() : out_(0)      { }
    virtual ~GraphVizVisitor()       { }
 
-   void visit(const StrChunkPtr &root, ostream &out);
+    //! Visits the chunk DAG rooted at 'root' printout out a GraphViz parsable
+    //! graph description on out.  Returns a StrChunk containing the data for
+    //! the chunk DAG.
+   const StrChunkPtr visit(const StrChunkPtr &root, ostream &out);
 
  protected:
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,

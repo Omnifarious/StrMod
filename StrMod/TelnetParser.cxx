@@ -445,6 +445,12 @@ void TelnetParser::SingleChar::FillGroupVec(const LinearExtent &extent,
    }
 }
 
+void TelnetParser::SingleChar::acceptVisitor(ChunkVisitor &visitor)
+   throw(ChunkVisitor::halt_visitation)
+{
+   call_visitDataBlock(visitor, buf_, 2);
+}
+
 unsigned int
 TelnetParser::Suboption::NumSubGroups(const LinearExtent &extent) const
 {
@@ -506,6 +512,14 @@ void TelnetParser::Suboption::FillGroupVec(const LinearExtent &extent,
    }
 }
 
+void TelnetParser::Suboption::acceptVisitor(ChunkVisitor &visitor)
+   throw(ChunkVisitor::halt_visitation)
+{
+   call_visitDataBlock(visitor, optstart_, 3);
+   call_visitStrChunk(visitor, raw_);
+   call_visitDataBlock(visitor, optend_, 2);
+}
+
 unsigned int
 TelnetParser::OptionNegotiation::NumSubGroups(const LinearExtent &extent) const
 {
@@ -523,4 +537,10 @@ void TelnetParser::OptionNegotiation::FillGroupVec(const LinearExtent &extent,
    {
       vec.SetVec(start_index++, buf_ + me.Offset(), me.Length());
    }
+}
+
+void TelnetParser::OptionNegotiation::acceptVisitor(ChunkVisitor &visitor)
+   throw(ChunkVisitor::halt_visitation)
+{
+   call_visitDataBlock(visitor, buf_, 3);
 }

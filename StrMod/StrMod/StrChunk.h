@@ -62,10 +62,13 @@ class StrChunk : public Object, public ReferenceCounting {
    // <dt>KeepNone</dt> <dd>Drop both leading and trailing 0 length
    // chunks.</dd></dl>
    enum KeepDir { KeepLeft, KeepRight, KeepNone };
+   class __iterator;
+   friend class __iterator;
+   typedef __iterator const_iterator;
    static const STR_ClassIdent identifier;
 
-   StrChunk() : ReferenceCounting(0)         { }
-   virtual ~StrChunk()                       { }
+   StrChunk() : ReferenceCounting(0), iter_storage(0)  { }
+   virtual ~StrChunk()                                 { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
@@ -96,6 +99,10 @@ class StrChunk : public Object, public ReferenceCounting {
    inline void DropUnused(const LinearExtent &usedextent,
 			  KeepDir keepdir = KeepLeft);
 
+   //! Get an STL style const bidirectional iterator.
+   __iterator begin();
+   __iterator end();
+
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
@@ -121,6 +128,9 @@ class StrChunk : public Object, public ReferenceCounting {
    inline void call_visitDataBlock(ChunkVisitor &visitor,
                                    void *start, size_t len)
       throw(ChunkVisitor::halt_visitation);
+
+ private:
+   void *iter_storage;
 };
 
 //------------------------inline functions for StrChunk------------------------
