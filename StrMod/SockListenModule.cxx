@@ -1,5 +1,9 @@
 /* $Header$ */
 
+// For a log, see ./ChangeLog
+
+// $Revision$
+
 #ifndef NO_RcsID
 static char _SockListenModule_CC_rcsID[] =
       "$Id$";
@@ -17,206 +21,285 @@ static char _SockListenModule_CC_rcsID[] =
 
 #include <EHnet++/SocketAddress.h>
 #include <EHnet++/InetAddress.h>
-#include <Dispatch/dispatcher.h>
 
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <errno.h>
-#include <string>
-#include <iostream.h>
 #include <unistd.h>
+#include <netinet/in.h>
+#include <assert.h>
 #include "config.h"
 #include "sockdecl.h"
 
 const STR_ClassIdent SockListenModule::identifier(13UL);
-const STR_ClassIdent ListeningPlug::identifier(14UL);
+const STR_ClassIdent SockListenModule::SLPlug::identifier(14UL);
 const STR_ClassIdent SocketModuleChunk::identifier(15UL);
 
-string SockListenModule::ErrorString() const
+//: A parent class for the three sub event classes.
+// <p>The sub event classes don't do anything except call parent class
+// protected functions.  The only reason they exist is to avoid having
+// a switch statement in the parent.</p>
+class SockListenModule::FDPollEv : public UNIXpollManager::PollEvent {
+ public:
+   inline FDPollEv(SockListenModule &parent);
+   virtual ~FDPollEv()                                 { }
+
+   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0) = 0;
+
+   inline void parentGone()                            { hasparent_ = false; }
+
+ protected:
+   inline void triggerRead();
+   inline void triggerError();
+
+ private:
+   bool_val hasparent_;
+   SockListenModule &parent_;
+};
+
+inline SockListenModule::FDPollEv::FDPollEv(SockListenModule &parent)
+     : hasparent_(true), parent_(parent)
 {
-   int errn = ErrorNum();
-
-   if (errn == 0)
-      return("no error at all, nothing happened, nope :-)");
-   else if (errn > 0) {
-      char *err = strerror(errn);
-
-      if (err)
-	 return(err);
-      else
-	 return("unkown error");
-   } else if (errn == -1)
-      return("end of file encountered");
-   else
-      return("unknown error");
 }
 
-SockListenModule::SockListenModule(const SocketAddress &bind_addr, int qlen)
-     : sockfd(-1), last_error(0), lplug(0),
-       plug_pulled(false), newmodule(0), myaddr(0)
+inline void SockListenModule::FDPollEv::triggerRead()
 {
-   int temp;
+   // cerr << "In triggerRead\n";
+   if (hasparent_)
+   {
+      unsigned int condbits = getCondBits();
+      setCondBits(0);
+      parent_.eventRead(condbits);
+   }
+}
 
-   myaddr = bind_addr.Copy();
-   sockfd = socket(myaddr->SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC);
-   if (sockfd < 0) {
-      last_error = errno;
+inline void SockListenModule::FDPollEv::triggerError()
+{
+   // cerr << "In triggerError\n";
+   if (hasparent_)
+   {
+      unsigned int condbits = getCondBits();
+      setCondBits(0);
+      parent_.eventError(condbits);
+   }
+}
+
+//: This is one of the three helper classes for SockListenModule::FDPollEv
+class SockListenModule::FDPollRdEv : public SockListenModule::FDPollEv {
+ public:
+   inline FDPollRdEv(SockListenModule &parent) : FDPollEv(parent)   { }
+   virtual ~FDPollRdEv()                                          { }
+
+   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0)  { triggerRead(); }
+};
+
+//: This is one of the three helper classes for SockListenModule::FDPollEv
+class SockListenModule::FDPollErEv : public SockListenModule::FDPollEv {
+ public:
+   inline FDPollErEv(SockListenModule &parent) : FDPollEv(parent)   { }
+   virtual ~FDPollErEv()                                          { }
+
+   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0)  { triggerError(); }
+};
+
+SockListenModule::SockListenModule(const SocketAddress &bind_addr,
+				   UNIXpollManager &pmgr,
+				   int qlen)
+      : sockfd_(-1), last_err_(0), lplug_(*this),
+        plug_pulled_(false), checking_read_(false), newmodule_(0),
+	myaddr_(*(bind_addr.Copy())),
+	pmgr_(pmgr), readevptr_(0), errorevptr_(0)
+{
+   sockfd_ = socket(myaddr_.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC);
+   if (sockfd_ < 0)
+   {
+      last_err_ = errno;
       return;
    }
-   if ((temp = fcntl(sockfd, F_GETFL, 0)) < 0) {
-      last_error = errno;
-      close(sockfd);
-      sockfd = -1;
+   {
+      int temp = fcntl(sockfd_, F_GETFL, 0);
+
+      if (temp < 0)
+      {
+	 last_err_ = errno;
+	 close(sockfd_);
+	 sockfd_ = -1;
+	 return;
+      }
+      temp &= O_NDELAY;
+      if (fcntl(sockfd_, F_SETFL, temp | O_NONBLOCK) < 0)
+      {
+	 last_err_ = errno;
+	 close(sockfd_);
+	 sockfd_ = -1;
+	 return;
+      }
+   }
+   if (bind(sockfd_, myaddr_.SockAddr(), myaddr_.AddressSize()) < 0) {
+      last_err_ = errno;
+      close(sockfd_);
+      sockfd_ = -1;
       return;
    }
-   temp &= O_NDELAY;
-   if (fcntl(sockfd, F_SETFL, temp | O_NONBLOCK) < 0) {
-      last_error = errno;
-      close(sockfd);
-      sockfd = -1;
+   if (listen(sockfd_, qlen) < 0)
+   {
+      last_err_ = errno;
+      close(sockfd_);
+      sockfd_ = -1;
       return;
    }
-   if (bind(sockfd, myaddr->SockAddr(), myaddr->AddressSize()) < 0) {
-      last_error = errno;
-      close(sockfd);
-      sockfd = -1;
-      return;
-   }
-   if (listen(sockfd, qlen) < 0) {
-      last_error = errno;
-      close(sockfd);
-      sockfd = -1;
-      return;
-   }
-   lplug = new ListeningPlug(this);
+   readev_ = readevptr_ = new FDPollRdEv(*this);
+   errorev_ = errorevptr_ = new FDPollErEv(*this);
+   checking_read_ = true;
+   pmgr_.registerFDCond(sockfd_,
+			UNIXpollManager::FD_Error
+			| UNIXpollManager::FD_Closed
+			| UNIXpollManager::FD_Invalid,
+			errorev_);
+   pmgr_.registerFDCond(sockfd_, UNIXpollManager::FD_Readable, readev_);
 }
 
 SockListenModule::~SockListenModule()
 {
-   delete lplug;
-   if (sockfd >= 0)
-      close(sockfd);
+   if (sockfd_ >= 0)
+   {
+      close(sockfd_);
+      pmgr_.freeFD(sockfd_);
+   }
+   delete &myaddr_;
+   if (readevptr_)
+   {
+      readevptr_->parentGone();
+   }
+   if (errorevptr_)
+   {
+      errorevptr_->parentGone();
+   }
 }
 
-const SocketModuleChunkPtr ListeningPlug::my_InternalRead()
+void SockListenModule::eventRead(unsigned int condbits)
 {
-   SockListenModule *parent = ModuleFrom();
-   SocketModuleChunk *temp;
-
-   if (!CanRead()) {
-      Dispatcher tempd;
-
-      tempd.link(parent->sockfd, Dispatcher::ReadMask, this);
-      while (parent->sockfd >= 0 && parent->last_error == 0 && !CanRead())
-	 tempd.dispatch();
-      if (!CanRead())
-	 return(0);
+   checking_read_ = false;
+   if (!(condbits & UNIXpollManager::FD_Readable))
+   {
+      last_err_ = -1;
    }
-   temp = new SocketModuleChunk(parent->newmodule);
-   parent->newmodule = 0;
-   Dispatcher::instance().link(parent->sockfd, Dispatcher::ReadMask, this);
-   return(temp);
+   else if (newmodule_ == 0)
+   {
+      doAccept();
+   }
 }
 
-void ListeningPlug::WriteableNotify()
+void SockListenModule::eventError(unsigned int condbits)
 {
-   if (PluggedInto() && CanRead())
-      PluggedInto()->Write(Read());
+   last_err_ = -1;
 }
 
-int ListeningPlug::inputReady(int fd)
+void SockListenModule::doAccept()
 {
-   SockListenModule *parent = ModuleFrom();
-   int newfd;
-   unsigned int length;
-   const size_t buflen = 256;
-   unsigned char buf[buflen];
-   sockaddr *saddr;
+   assert(newmodule_ == 0);
 
-   if (fd != parent->sockfd || parent->newmodule != 0 ||
-       parent->last_error != 0) {
-      Dispatcher::instance().unlink(fd, Dispatcher::ReadMask);
-      return(0);
+   if (newmodule_ != 0)
+   {
+      setReadableFlagFor(&lplug_, true);
+      return;
    }
 
-   length = buflen;
-   saddr = reinterpret_cast<sockaddr *>(buf);
-   if ((newfd = accept(parent->sockfd, saddr, &length)) < 0) {
-      parent->last_error = errno;
-      return(0);
-   }
+   unsigned char addrbuf[8192];
+   struct sockaddr *saddr = reinterpret_cast<struct sockaddr *>(addrbuf);
+   size_t length = sizeof(addrbuf);
+   int tempfd = accept(sockfd_, saddr, &length);
 
-   if (saddr->sa_family != AF_INET) {
-      cerr << "Aigh! ListeningPlug::inputReady(int) accepted a connection "
-	 "from a non-Internet\naddress. I don't know how to handle "
-	 "that.\n";
-      close(newfd);
-      return(0);
-   } else {
-      InetAddress peer(*((sockaddr_in *)buf));
-      int temp;
-
-      if ((temp = fcntl(newfd, F_GETFL, 0)) < 0) {
-	 parent->last_error = errno;
-	 close(newfd);
-	 return(0);
+   if (tempfd < 0)
+   {
+      if (errno != EAGAIN)
+      {
+	 last_err_ = errno;
       }
-      temp &= ~O_NDELAY;
-      if (fcntl(newfd, F_SETFL, temp | O_NONBLOCK) < 0) {
-	 parent->last_error = errno;
-	 close(newfd);
-	 return(0);
+      else if (!checking_read_)
+      {
+	 pmgr_.registerFDCond(sockfd_,
+			      UNIXpollManager::FD_Readable,
+			      readev_);
+	 checking_read_ = true;
       }
-      parent->newmodule = parent->MakeSocketModule(newfd, peer.Copy());
-      DoReadableNotify();
-      return(0);
+   }
+   else
+   {
+      if (saddr->sa_family != AF_INET)
+      {
+	 close(tempfd);
+	 last_err_ = -1;
+      }
+      else
+      {
+	 {
+	    int temp = fcntl(tempfd, F_GETFL, 0);
+
+	    if (temp < 0)
+	    {
+	       last_err_ = errno;
+	       close(tempfd);
+	       tempfd = -1;
+	    }
+	    else
+	    {
+	       temp &= O_NDELAY;
+	       if (fcntl(tempfd, F_SETFL, temp | O_NONBLOCK) < 0)
+	       {
+		  last_err_ = errno;
+		  close(tempfd);
+		  tempfd = -1;
+		  return;
+	       }
+	    }
+	 }
+
+	 if (tempfd >= 0)
+	 {
+	    sockaddr_in *sinad
+	       = reinterpret_cast<struct sockaddr_in *>(saddr);
+	    InetAddress *addr = new InetAddress(*sinad);
+
+	    newmodule_ = makeSocketModule(tempfd, addr, pmgr_);
+	 }
+      }
+   }
+   if (newmodule_ != 0)
+   {
+      setReadableFlagFor(&lplug_, true);
+   }
+   else
+   {
+      setReadableFlagFor(&lplug_, false);
    }
 }
 
-bool ListeningPlug::Write(const StrChunkPtr &)
+
+SocketModule *SockListenModule::getNewModule()
 {
-   return(true);
+   SocketModule *retval = newmodule_;
+
+   if (newmodule_ != 0)
+   {
+      newmodule_ = 0;
+      doAccept();
+   }
+   return(retval);
 }
 
-ListeningPlug::ListeningPlug(SockListenModule *p) : StrPlug(p)
+const SocketModuleChunkPtr SockListenModule::SLPlug::getConnection()
 {
-   if (p->sockfd >= 0)
-      Dispatcher::instance().link(p->sockfd, Dispatcher::ReadMask, this);
+   return(new SocketModuleChunk(getParent().getNewModule()));
 }
 
-ListeningPlug::~ListeningPlug()
+const StrChunkPtr SockListenModule::SLPlug::i_Read()
 {
-   SockListenModule *parent = ModuleFrom();
-
-   if (parent->newmodule)
-      delete parent->newmodule;
-   Dispatcher::instance().unlink(parent->sockfd);
+   return(getConnection());
 }
 
-// Started using cvs, and ChangeLog.  Look there for a revision history.
-//
-// Revision 0.13  1995/04/18  03:36:46  hopper
-// Merged revisions 0.12 and 0.12.0.3
-//
-// Revision 0.12.0.3  1994/07/18  03:44:00  hopper
-// Added #pragma implementation thing so this would work better with gcc 2.6.0
-//
-// Revision 0.12.0.2  1994/05/17  06:07:19  hopper
-// Added delcaration for strerror, since g++ seems to want it...
-// Also changed FNDELAY flag to POSIX O_NONBLOCK.
-//
-// Revision 0.12.0.1  1994/05/17  05:22:30  hopper
-// Changed to use Rogue Wave's RWCString, instead of my String.
-//
-// Revision 0.12  1994/05/17  05:20:16  hopper
-// Changed to use ANSI error string lookup routines.
-// Also fixed one include of old header file.
-//
-// Revision 0.11  1994/05/07  03:24:53  hopper
-// Changed header files stuff around to be aprroximately right with
-// new libraries, and new names & stuff.
-//
-// Revision 0.10  1992/05/17  23:30:54  hopper
-// Genesis!
-//
+void SockListenModule::SLPlug::i_Write(const StrChunkPtr &chunk)
+{
+   assert(false);
+}
