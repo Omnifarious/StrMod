@@ -35,12 +35,11 @@ DEPDB = @DEPDB@
 MYMAKE := $(MAKE)
 
 #  StreambufModule.cc  HL7Module.cc
-LIBCCS = ChunkType.cc  StrChunkid.cc  EchoModule.cc  StrChunkio.cc \
-         StrFDPlug.cc  STR_ClassIdent.cc  StreamFDModule.cc \
-         SockListenModule.cc  StreamModule.cc  SocketModule.cc \
-         StreamSplitter.cc  StrChunk.cc  StrChunkPtr.cc  LinearExtent.cc \
-         GroupVector.cc  GV_Iterator.cc  StrSubChunk.cc  DBStrChunk.cc \
-         GroupChunk.cc  LinearExtentStrmOp.cc
+LIBCCS = StrChunkid.cc  EchoModule.cc  StrFDPlug.cc  STR_ClassIdent.cc \
+         StreamFDModule.cc  SockListenModule.cc  StreamModule.cc  \
+         SocketModule.cc  StreamSplitter.cc  StrChunk.cc  StrChunkPtr.cc \
+         LinearExtent.cc  GroupVector.cc  GV_Iterator.cc  StrSubChunk.cc \
+         DBStrChunk.cc  GroupChunk.cc  LinearExtentStrmOp.cc  StrChunkPtrT.cc
 
 CCNAMES = $(LIBCCS) \
           tests/testchunk.cc  tests/server.cc  tests/testdist.cc \
@@ -67,7 +66,7 @@ tests/server : tests/server.o
 	$(CXX) tests/server.o $(LDFLAGS) $(LIBS) -o tests/server
 
 tests/echoserv : tests/echoserv.o
-	$(CXX) tests/echoserv.o $(LDFLAGS) $(LIBS) -o tests/echoserv
+	$(CXX) tests/echoserv.o $(LDFLAGS) $(LIBS) -o tests/echoserv 2>&1 | c++filt
 
 tests/testdist : tests/testdist.o
 	$(CXX) tests/testdist.o $(LDFLAGS) $(LIBS) -o tests/testdist
