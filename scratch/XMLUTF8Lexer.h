@@ -15,7 +15,7 @@ class XMLParseStrategy
 {
  public:
    //! Just set up some initial defaults.
-   XMLParseStrategy() : nonwsok_(false), elmntok_(true),
+   XMLParseStrategy() : elmntok_(true),
                         wantattrs_(true), wantentities_(true) { }
    virtual ~XMLParseStrategy() {}
 
@@ -24,13 +24,11 @@ class XMLParseStrategy
    virtual void closeElementTag(size_t begin, size_t end,
                                 const ::std::string &name) = 0;
 
-   bool isNonWSOK() const { return nonwsok_; }
    bool isElementOK() const { return elmntok_; }
    bool wantAttributes() const { return wantattrs_; }
    bool wantEntities() const { return wantentities_; }
 
  protected:
-   bool nonwsok_;
    bool elmntok_;
    bool wantattrs_;
    bool wantentities_;
@@ -50,8 +48,13 @@ class XMLUTF8Lexer
                     XSHexEntity, XSEndEntity };
 
  public:
-   XMLUTF8Lexer() : state_(XStart), substate_(XSNone), namepos_(0) { }
+   XMLUTF8Lexer()
+        : state_(XStart), substate_(XSNone), namepos_(0), nonwsok_(false)
+   {
+   }
 
+   bool getNonWSInElements() const                     { return nonwsok_; }
+   void setNonWSInElements(bool nonwsok)               { nonwsok_ = nonwsok; }
    void lex(const char *buf, unsigned int len, XMLParseStrategy &parser);
 
  private:
@@ -75,6 +78,7 @@ class XMLUTF8Lexer
    XSubState substate_;
    char name_[256];
    size_t namepos_;
+   bool nonwsok_;
 
    static inline bool iswhite(const char c)
    {
@@ -242,15 +246,11 @@ class XMLUTF8Lexer
          switch (state_)
          {
           case XStart:
-            if (iswhite(c))
-            {
-               return;
-            }
-            else if (c == lessthan)  // <
+            if (c == lessthan)  // <
             {
                state_ = XLess;
             }
-            else
+            else if (! (getNonWSInElements() || iswhite(c)))
             {
                state_ = XBad;
             }
@@ -414,6 +414,9 @@ class XMLUTF8Lexer
 };
 
 // $Log$
+// Revision 1.3  2002/12/10 16:08:42  hopper
+// Preliminary changes to allow elements to have #PCDATA.
+//
 // Revision 1.2  2002/12/10 13:21:13  hopper
 // Moved Header line to better place.
 //

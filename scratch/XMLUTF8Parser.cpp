@@ -37,22 +37,26 @@ class TestStrategy : public XMLParseStrategy
    virtual void endElementTag(size_t end, bool wasempty) {
       ElementData &eldata = elstack_.top();
       eldata.datbegin_ = end;
-      ::std::cerr << "eldata.elbegin_ == " << eldata.elbegin_
-                  << " && eldata.datbegin_ == " << eldata.datbegin_ << "\n";
+//       ::std::cerr << "eldata.elbegin_ == " << eldata.elbegin_
+//                   << " && eldata.datbegin_ == " << eldata.datbegin_ << "\n";
       ::std::string tag(buf_ + eldata.elbegin_,
                         eldata.datbegin_ - eldata.elbegin_);
-      ::std::cerr << "tag == \"" << tag << "\"\n";
+//      ::std::cerr << "tag == \"" << tag << "\"\n";
       for (size_t i = 1; i < elstack_.size(); ++i) {
          cout << "   ";
       }
       if (wasempty) {
          eldata.datend_ = end;
          cout << "<" << eldata.name_ << "/> :=: [" << tag << "]\n";
-         cout.flush();
+//          cout.flush();
          elstack_.pop();
       } else {
          cout << "<" << eldata.name_ << "> :=: [" << tag << "]\n";
-         cout.flush();
+//          cout.flush();
+         if (eldata.name_ == "store")
+         {
+            lexer.setNonWSInElements(true);
+         }
       }
    }
    virtual void closeElementTag(size_t begin, size_t end, const ::std::string &name) {
@@ -85,7 +89,7 @@ int main()
    try {
       const char * const xmlstr = "<fred> <went> <down> <to> "
          "<the> <street> </street> <br/> </the> "
-         "<a><store></store></a>"
+         "<a><store>The New French Bakery</store></a>"
          "</to> </down> </went> </fred>";
       const char * const xml2str =
 "<fred>\n"
@@ -103,11 +107,11 @@ int main()
 "</fred>\n";
       XMLUTF8Lexer lexer;
       {
-         TestStrategy ts(xmlstr);
+         TestStrategy ts(xmlstr, lexer);
          lexer.lex(xmlstr, ::strlen(xmlstr), ts);
       }
       {
-         TestStrategy ts(xml2str);
+         TestStrategy ts(xml2str, lexer);
          lexer.lex(xml2str, ::strlen(xml2str), ts);
       }
       return 0;
@@ -122,6 +126,9 @@ int main()
 }
 
 // $Log$
+// Revision 1.3  2002/12/10 16:08:42  hopper
+// Preliminary changes to allow elements to have #PCDATA.
+//
 // Revision 1.2  2002/12/10 13:21:55  hopper
 // Moved log to the end, like it is for all the other files.
 //
