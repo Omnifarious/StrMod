@@ -92,7 +92,7 @@ bool GroupVector::FillIOVecDesc(size_t offset, GroupVector::IOVecDesc &desc)
 	    realgroupdata_ = groups_[group_num];
 
 	    const char *tmp =
-	       static_cast<const char *>(groups_[group_num].iov_base);
+	       static_cast<char *>(groups_[group_num].iov_base);
 
 	    groups_[group_num].iov_base = const_cast<char *>(tmp + off_adj);
 	    groups_[group_num].iov_len -= off_adj;
