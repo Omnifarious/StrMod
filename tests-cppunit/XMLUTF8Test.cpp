@@ -1,5 +1,7 @@
 #include <xml/utf8/Builder.h>
 #include <xml/utf8/Lexer.h>
+#include <cppunit/TestFixture.h>
+#include <cppunit/extensions/HelperMacros.h>
 
 /* $URL$
  * $Author$
@@ -9,7 +11,6 @@
 
 #include <string>
 #include <cstring>
-#include <iostream>
 #include <cstddef>
 #include <stack>
 #include <vector>
@@ -20,9 +21,10 @@ using ::strmod::xml::utf8::Builder;
 
 namespace strmod {
 namespace tests {
-namespace {
 
-using ::std::cout;
+class XMLUTF8Test : public ::Cppunit::TestFixture
+{
+};
 
 struct AttributeData
 {
@@ -150,11 +152,7 @@ int main()
 {
    std::set_terminate (__gnu_cxx::__verbose_terminate_handler);
    try {
-      const char * const xmlstr = "<fred> "
-         "<went joe=\"'barney\" alley='\"kate'> <down> <to> "
-         "<the> <street> </street> <br/> </the> "
-         "<a time= 'then' ><store time='now'>The New French Bakery</store></a>"
-         "</to> </down> </went> </fred>";
+      const char * const xmlstr = "<fred> <went joe=\"'barney\"\nalley='\"kate'> <down> <to> <the> <street> </street> <br/> </the> <a time= 'then' ><store time='now'>The New French Bakery</store\f></a>\r</to> </down> </went>\t</fred>";
       const char * const xml2str =
 "<fred>\n"
 "   <went>\n"
