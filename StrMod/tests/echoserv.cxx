@@ -63,7 +63,9 @@ int main(int argc, char *argv[])
 	 SocketModuleChunkPtr attemptedchunk = slmp->getConnection();
 	 SocketModule *attempted = attemptedchunk->GetModule();
 
-	 cerr << "Got connection from " << attempted->GetPeerAddr() << "\n";
+	 cerr << "Got connection from "
+	      << const_cast<SocketAddress &>(attempted->GetPeerAddr())
+	      << "\n";
 	 attemptedchunk->ReleaseModule();
 	 attemptedchunk.ReleasePtr();
 
