@@ -168,4 +168,10 @@ inline LCoreError::CompilerInfo::CompilerInfo(const char *sourcefile,
 {
 }
 
+//--
+
+class ostream;
+
+ostream &operator <<(ostream &os, const LCoreError &err);
+
 #endif

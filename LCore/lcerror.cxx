@@ -24,3 +24,26 @@
 #endif
 
 #include "LCore/LCoreError.h"
+#include <iostream>
+
+ostream &operator <<(ostream &os, const LCoreError &err)
+{
+   bool out = false;
+   if (err.getSourceFile())
+   {
+      os << "In " << err.getSourceFile();
+      out = true;
+   }
+   if (err.getLine() != 0)
+   {
+      os << (out ? ", at line " : "At line ") << err.getLine();
+      out = true;
+   }
+   if (err.getFunc())
+   {
+      os << (out ? ", in function '" : "In function '") << err.getFunc();
+   }
+   os << (out ? ": " : "Error: ")
+      << (err.getDesc() ? err.getDesc() : "<no description>");
+   return os;
+}
