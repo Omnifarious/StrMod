@@ -214,7 +214,7 @@ void SockListenModule::doAccept()
    int tempfd = accept(sockfd_, saddr, &stupid_compatibility_trick);
    length = stupid_compatibility_trick;
 #else
-   int tempfd = accept(sockfd_, saddr, &stupid_compatibility_trick);
+   int tempfd = accept(sockfd_, saddr, &length);
 #endif
 
    if (tempfd < 0)
