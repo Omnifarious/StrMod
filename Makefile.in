@@ -42,7 +42,7 @@ RULESDIR = $(MYOUTDIR)/rules
 
 CPPFLAGS = -I$(INCLUDEDIR)
 
-COMPONENTS = LCore UniEvent EHnet++ StrMod
+COMPONENTS = LCore UniEvent EHnet++ StrMod xml
 
 .PHONY: directories always all
 

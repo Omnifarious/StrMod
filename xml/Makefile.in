@@ -49,7 +49,7 @@ TESTCCS =
 
 UNIQUEDIRS = $(sort $(INCLUDEDIR) $(MYINCLUDEBASE) $(OUTDIR) $(MYOUTDIR))
 
-all: $(LIBDIR)/libstrm_xml.a
+all: $(LIBDIR)/libxml.a
 
 directories: $(UNIQUEDIRS) $(MYINCLUDEDIR)
 
