@@ -1,3 +1,14 @@
+Mon Apr 14 18:55:24 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in: Added new .cxx files to library.  Added
+	testserial test program.  Changed CCNAMES to be composed of all
+	the different kinds of cxx/cc files instead of having a whole
+	bunch of unspecified files tacked on the end.
+
+	* InSerializer.cxx:
+	* StrMod/InSerializer.h: Added class to aid in serialization of
+ 	simple data tyes.
+
 Fri Apr 11 12:42:30 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* OutSerializer.cxx:
