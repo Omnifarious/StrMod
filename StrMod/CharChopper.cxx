@@ -19,6 +19,8 @@
 #include <StrMod/GroupVector.h>
 #include <StrMod/GV_Iterator.h>
 #include <StrMod/StrSubChunk.h>
+#include <StrMod/PreAllocBuffer.h>
+#include <StrMod/DynamicBuffer.h>
 #include <algorithm>
 #include <cassert>
 
@@ -30,7 +32,7 @@ void CharChopper::addChunk(const StrChunkPtr &chnk)
 
    if (chnk.GetPtr() == curdata_.GetPtr())
    {
-      curdata_->Resize(usedsize_);
+      curdata_->resize(usedsize_);
       iscurdata = true;
    }
    else if (curdata_)
@@ -78,7 +80,7 @@ void CharChopper::processIncoming()
    assert(incoming_);
    assert(!outgoing_ready_);
    checkIncoming();
-   assert(incoming_is_db_ != INMaybe);
+   assert(incoming_is_bc_ != INMaybe);
 
    unsigned int inlen = incoming_->Length();
 
@@ -111,19 +113,20 @@ void CharChopper::processIncoming()
 	 }
       }
       assert((count >= inlen) || foundchar);
-      if ((incoming_is_db_ == INYes) && (count <= 16))
+      if ((incoming_is_bc_ == INYes) && (count <= 16))
       {
 	 if (!curdata_)
 	 {
 	    if (foundchar)
 	    {
-	       curdata_ = new DataBlockStrChunk(count);
+	       curdata_ = new PreAllocBuffer<16>;
+	       curdata_->resize(count);
 	    }
 	    else
 	    {
-	       curdata_ = new DataBlockStrChunk(32);
+	       curdata_ = new DynamicBuffer(32);
 	    }
-	    memcpy(curdata_->GetVoidP(), buf, count);
+	    memcpy(curdata_->getVoidP(), buf, count);
 	    usedsize_ = count;
 	 }
 	 else
@@ -140,9 +143,9 @@ void CharChopper::processIncoming()
 	       {
 		  curlen = max(usedshadow + usedshadow / 2, usedshadow + count);
 	       }
-	       curdata_->Resize(curlen);
+	       curdata_->resize(curlen);
 	    }
-	    memcpy(curdata_->GetCharP() + usedshadow, buf, count);
+	    memcpy(curdata_->getCharP() + usedshadow, buf, count);
 	    usedsize_ = usedshadow = (usedshadow + count);
 	 }
       }

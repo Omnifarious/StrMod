@@ -16,7 +16,7 @@
 
 #include <StrMod/StreamProcessor.h>
 #include <StrMod/StrChunkPtrT.h>
-#include <StrMod/DBStrChunk.h>
+#include <StrMod/BufferChunk.h>
 #include <StrMod/GroupChunk.h>
 #include <cstddef>
 #include <cassert>
@@ -37,9 +37,9 @@ class CharChopper : public StreamProcessor {
  protected:
    const char chopchar_;
    StrChunkPtrT<GroupChunk> groupdata_;
-   StrChunkPtrT<DataBlockStrChunk> curdata_;
+   StrChunkPtrT<BufferChunk> curdata_;
    size_t usedsize_;
-   enum { INYes, INNo, INMaybe } incoming_is_db_;
+   enum { INYes, INNo, INMaybe } incoming_is_bc_;
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
@@ -64,15 +64,15 @@ inline int CharChopper::AreYouA(const ClassIdent &cid) const
 inline void CharChopper::checkIncoming()
 {
    assert(incoming_);
-   if (incoming_is_db_ == INMaybe)
+   if (incoming_is_bc_ == INMaybe)
    {
-      if (incoming_->AreYouA(DataBlockStrChunk::identifier))
+      if (incoming_->AreYouA(BufferChunk::identifier))
       {
-	 incoming_is_db_ = INYes;
+	 incoming_is_bc_ = INYes;
       }
       else
       {
-	 incoming_is_db_ = INNo;
+	 incoming_is_bc_ = INNo;
       }
    }
 }
@@ -80,7 +80,7 @@ inline void CharChopper::checkIncoming()
 inline void CharChopper::zeroIncoming()
 {
    incoming_.ReleasePtr();
-   incoming_is_db_ = INMaybe;
+   incoming_is_bc_ = INMaybe;
 }
 
 inline void CharChopper::replaceIncoming(const StrChunkPtr &data)
