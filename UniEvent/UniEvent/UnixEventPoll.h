@@ -65,8 +65,8 @@ class UnixEventPoll : virtual public UnixEventRegistry,
    static void signalHandler(int signo);
    void handleSignal(int signo);
    void unHandleSignal(int signo);
-   void sigOccured(int signo);
-   void postEventsFor(unsigned int usigno);
+   void sigOccurred(int signo);
+   bool postSigEvents();
 };
 
 } // namespace unievent

@@ -9,15 +9,19 @@
 #include "UniEvent/UnixEventPoll.h"
 #include "UniEvent/EventPtr.h"
 #include "UniEvent/Dispatcher.h"
+#include "UniEvent/UNIXError.h"
+#include <LCore/LCoreError.h>
 #include <utility>
 #include <map>
 #include <vector>
+#include <list>
 #include <iostream>
 #include <iomanip>
 #include <cerrno>
 #include <stdexcept>
 #include <sys/poll.h>
 #include <signal.h>
+#include <unistd.h>
 
 typedef struct sigaction i_sigaction;
 
@@ -51,7 +55,7 @@ typedef multimap<int, FDEvent> FDMap;
 typedef vector<pollstruct> PollList;
 
 
-typedef std::vector<EventPtr> sigevtlist;
+typedef std::list<EventPtr> sigevtlist;
 struct sigdata
 {
    bool handler_registered_;
@@ -68,9 +72,10 @@ struct UnixEventPoll::Imp
 
    sigset_t caught_;
    sigset_t handled_;
+   sig_atomic_t sigoccurred_;
    siglist hdlrinfo_;
 
-   Imp()
+   Imp() : sigoccurred_(false)
    {
       sigemptyset(&caught_);
       sigemptyset(&handled_);
@@ -151,12 +156,61 @@ void UnixEventPoll::onSignal(int signo, const EventPtr &e)
    }
 }
 
+namespace {
+class equal_evtptr
+{
+ public:
+   equal_evtptr(const EventPtr &compptr) : compptr_(compptr) { }
+   bool operator ()(const EventPtr &evtptr) {
+      return evtptr.GetPtr() == compptr_.GetPtr();
+   }
+
+ private:
+   const EventPtr &compptr_;
+};
+}
+
 void UnixEventPoll::clearSignal(int signo, const EventPtr &e)
 {
+   unsigned int usigno = (signo < 0) ? ~0U : signo;
+   if ((usigno >= (sizeof(sigset_t) * 8)) ||
+       (usigno >= max_handled_by_S))
+   {
+      throw std::range_error("signo is too large in UNIXSignalHandler::clearSignal(int, const EventPtr &)");
+   }
+   else if (impl_.hdlrinfo_.size() > usigno)
+   {
+      using std::cerr;
+      sigdata &sd = impl_.hdlrinfo_[usigno];
+      cerr << "Before remove: sd.events_.size() == " << sd.events_.size() << "\n";
+      sd.events_.remove_if(equal_evtptr(e));
+      cerr << "After remove: sd.events_.size() == " << sd.events_.size() << "\n";
+      if (sd.events_.size() <= 0)
+      {
+         unHandleSignal(signo);
+         sd.handler_registered_ = false;
+      }
+   }
 }
 
 void UnixEventPoll::clearSignal(int signo)
 {
+   unsigned int usigno = (signo < 0) ? ~0U : signo;
+   if ((usigno >= (sizeof(sigset_t) * 8)) ||
+       (usigno >= max_handled_by_S))
+   {
+      throw std::range_error("signo is too large in UNIXSignalHandler::clearSignal(int)");
+   }
+   else if (impl_.hdlrinfo_.size() > usigno)
+   {
+      sigdata &sd = impl_.hdlrinfo_[usigno];
+      if (sd.handler_registered_)
+      {
+         sd.events_.clear();
+         unHandleSignal(signo);
+         impl_.hdlrinfo_[usigno].handler_registered_ = false;
+      }
+   }
 }
 
 void UnixEventPoll::postAt(const absolute_t &t, const EventPtr &ev)
@@ -244,44 +298,52 @@ void UnixEventPoll::doPoll(bool wait)
                                               0));
       }
    }
-   int pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
-                                 wait ? -1 : 0);
-   const int myerrno = errno;
-   if (pollresult >= 0)
-   {
-      const PollList::iterator end = impl_.polllist_.end();
-      PollList::iterator i = impl_.polllist_.begin();
-      while ((pollresult > 0) && (i != end))
+   int myerrno = 0;
+   int pollresult = 0;
+   do {
+      if (postSigEvents())
       {
-         const pollstruct &pollval = *i;
-         if (pollval.revents)
+         wait = false;
+      }
+      pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
+                              wait ? -1 : 0);
+      myerrno = errno;
+      if (pollresult >= 0)
+      {
+         const PollList::iterator end = impl_.polllist_.end();
+         PollList::iterator i = impl_.polllist_.begin();
+         while ((pollresult > 0) && (i != end))
          {
-            const FDCondSet condset = pollmask_to_condmask(pollval.revents);
-            const FDCondSet badset(FD_Closed, FD_Invalid);
-            --pollresult;
-            FDMap::iterator fdcur = impl_.fdmap_.lower_bound(pollval.fd);
-            const FDMap::iterator fdend = impl_.fdmap_.upper_bound(pollval.fd);
-            while (fdcur != fdend)
+            const pollstruct &pollval = *i;
+            if (pollval.revents)
             {
-               const FDEvent &curfdev = fdcur->second;
-               if (condset & curfdev.condset_)
+               const FDCondSet condset = pollmask_to_condmask(pollval.revents);
+               const FDCondSet badset(FD_Closed, FD_Invalid);
+               --pollresult;
+               FDMap::iterator fdcur = impl_.fdmap_.lower_bound(pollval.fd);
+               const FDMap::iterator fdend = impl_.fdmap_.upper_bound(pollval.fd);
+               while (fdcur != fdend)
                {
-                  dispatcher_->addEvent(curfdev.ev_);
-                  impl_.fdmap_.erase(fdcur++);
-               }
-               else if (badset & condset)
-               {
-                  impl_.fdmap_.erase(fdcur++);
-               }
-               else
-               {
-                  ++fdcur;
+                  const FDEvent &curfdev = fdcur->second;
+                  if (condset & curfdev.condset_)
+                  {
+                     dispatcher_->addEvent(curfdev.ev_);
+                     impl_.fdmap_.erase(fdcur++);
+                  }
+                  else if (badset & condset)
+                  {
+                     impl_.fdmap_.erase(fdcur++);
+                  }
+                  else
+                  {
+                     ++fdcur;
+                  }
                }
             }
+            ++i;
          }
-         ++i;
       }
-   }
+   } while ((pollresult < 0) && (myerrno == EINTR));
 }
 
 bool UnixEventPoll::invariant() const
@@ -361,26 +423,111 @@ void UnixEventPoll::printState(::std::ostream &os) const
    os << ")";
 }
 
-static void UnixEventPoll::signalHandler(int signo)
+void UnixEventPoll::signalHandler(int signo)
 {
+   UnixEventPoll *parent = dynamic_cast<UnixEventPoll *>(handled_by_S[signo]);
+   if (parent)
+   {
+      parent->sigOccurred(signo);
+   }
+   else
+   {
+      char str[] = "UnixEventPoll::signalHandler - Got bad signal #0x00\n";
+      str[49] = "0123456789ABCDEF"[(signo >> 8) & 0x0f];
+      str[50] = "0123456789ABCDEF"[signo & 0x0f];
+      ::write(2, str, sizeof(str));
+      local_sigaction act;
+      act.sa_handler = SIG_DFL;
+      sigemptyset(&act.sa_mask);
+      act.sa_flags = 0;
+      ::sigaction(signo, &act, 0);
+   }
 }
 
-void UnixEventRegistry::handleSignal(int signo)
+void UnixEventPoll::handleSignal(int signo)
 {
    local_sigaction act;
    act.sa_handler = signalHandler;
    sigemptyset(&act.sa_mask);
    act.sa_flags = 0;
+   handled_by_S[signo] = this;
    if (::sigaction(signo, &act, 0) != 0)
    {
       throw UNIXError("sigaction", errno, LCoreError(LCORE_GET_COMPILERINFO()));
    }
-   sigaddset(&imp_.handled_, signo);
+   sigaddset(&impl_.handled_, signo);
 }
 
-void UnixEventRegistry::unHandleSignal(int signo);
-void UnixEventRegistry::sigOccured(int signo);
-void UnixEventRegistry::postEventsFor(unsigned int usigno);
+void UnixEventPoll::unHandleSignal(int signo)
+{
+   local_sigaction act;
+   act.sa_handler = SIG_DFL;
+   sigemptyset(&act.sa_mask);
+   act.sa_flags = 0;
+   ::sigaction(signo, &act, 0);
+   handled_by_S[signo] = 0;
+   sigdelset(&impl_.handled_, signo);
+}
+
+void UnixEventPoll::sigOccurred(int signo)
+{
+   SigBlockRegion blocker(impl_.handled_);
+   sigaddset(&impl_.caught_, signo);
+   if (!impl_.sigoccurred_)
+   {
+      impl_.sigoccurred_ = true;
+   }
+}
+
+bool UnixEventPoll::postSigEvents()
+{
+   sigset_t caughtnow;
+   {
+      SigBlockRegion blocker(impl_.handled_);
+      if (impl_.sigoccurred_)
+      {
+         caughtnow = impl_.caught_;
+         sigemptyset(&impl_.caught_);
+         impl_.sigoccurred_ = false;
+      }
+      else
+      {
+         return false;
+      }
+   }
+   bool caughtany = false;
+   {
+      const siglist::size_type lastel = impl_.hdlrinfo_.size();
+      for (siglist::size_type i = 0; i != lastel; ++i)
+      {
+         if (sigismember(&caughtnow, i))
+         {
+            sigdata &thissig = impl_.hdlrinfo_[i];
+            if (!thissig.handler_registered_)
+            {
+               thissig.events_.clear();
+            }
+            else if (thissig.events_.size() <= 0)
+            {
+               unHandleSignal(i);
+               thissig.handler_registered_ = false;
+            }
+            else
+            {
+               const sigevtlist::iterator end = thissig.events_.end();
+               for (sigevtlist::iterator i = thissig.events_.begin();
+                    i != end;
+                    ++i)
+               {
+                  caughtany = true;
+                  dispatcher_->addEvent(*i);
+               }
+            }
+         }
+      }
+   }
+   return caughtany;
+}
 
 } // namespace unievent
 } // namespace strmod
