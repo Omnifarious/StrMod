@@ -1,5 +1,8 @@
 Sat Aug 24 07:37:48 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* StrMod/StrChunkPtr.h (class StrChunkPtr): Added new operator !
+	method as a counterpart to the operator bool conversion.
+
 	* tests/testmulti.cc: Added new test program for SimpleMultiplexer
 	class.
 
