@@ -1,9 +1,10 @@
 *.tar.gz
 *.flc
+GNUmakefile
 GNUmakefile~
-GNUmakefile.iris~
 echoserv
 testecho
 lib*.stamp
 depend.stamp
 dependdb.gdbm
+libStrMod.a
