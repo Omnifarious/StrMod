@@ -1,6 +1,9 @@
 /* $Header$ */
 
-// $Log$
+// For log, see ChangeLog
+//
+// $Revision$
+//
 // Revision 1.2  1998/06/02 01:08:15  hopper
 // Changed a static_cast to a more correct reinterpret_cast.
 //
@@ -22,7 +25,7 @@
    wait. */
 extern "C" int gethostname(char *name, int namelen);
 
-bool InetAddress::NameToIaddr(const char *name_addr, unsigned long &num)
+bool InetAddress::NameToIaddr(const char *name_addr, unsigned int &num)o
 {
    struct hostent *hostinfo;
    char *temp_name = const_cast<char *>(name_addr);
@@ -31,7 +34,7 @@ bool InetAddress::NameToIaddr(const char *name_addr, unsigned long &num)
    if (hostinfo == 0 || hostinfo->h_addrtype != AF_INET) {
       return(false);
    } else {
-      num = *((unsigned long *)(hostinfo->h_addr_list[0]));
+      num = ((struct in_addr *)(hostinfo->h_addr_list[0]))->s_addr;
       return(true);
    }
 }
