@@ -1,3 +1,8 @@
+2002-09-10  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* LCore/RefCounting.h, LCore/RefCountPtr.h: Added lots of class
+	documentation.
+
 2002-09-09  Eric M. Hopper  <hopper@omnifarious.org>
 
 	* clsprgid.cxx: Added some namespace documentation for
