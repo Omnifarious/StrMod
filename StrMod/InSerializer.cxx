@@ -34,10 +34,8 @@
 #include <StrMod/InSerializer.h>
 #include <StrMod/StrChunk.h>
 #include <StrMod/StrChunkPtr.h>
-#include <StrMod/GroupVector.h>
-#include <StrMod/GV_Iterator.h>
-
-static GroupVector dummy_gv(1);
+#include <StrMod/ChunkIterator.h>
+#include <StrMod/StaticBuffer.h>
 
 struct InSerializer::Impl {
    inline Impl(const void *buf, size_t size);
@@ -45,34 +43,31 @@ struct InSerializer::Impl {
    inline ~Impl();
    inline size_t BytesLeft() const;
 
-   GroupVector vec;
-   GroupVector::Iterator i;
-   size_t bytesread_;
+   StrChunk::const_iterator i_;
+   StrChunk::const_iterator end_;
    StrChunkPtr chnkptr_;
 };
 
 inline InSerializer::Impl::Impl(const void *buf, size_t size)
-     : vec(1), i(dummy_gv), bytesread_(0)
 {
-   vec.SetVec(0, buf, size);
-   i = vec.begin();
+   StaticBuffer *sbuf = new StaticBuffer(buf, size);
+   chnkptr_ = sbuf;
+   i_ = sbuf->begin();
+   end_ = sbuf->end();
 }
 
 inline InSerializer::Impl::Impl(const StrChunkPtr &ptr)
-     : vec(ptr->NumSubGroups()), i(dummy_gv), bytesread_(0), chnkptr_(ptr)
+     : i_(ptr->begin()), end_(ptr->end()), chnkptr_(ptr)
 {
-   chnkptr_->SimpleFillGroupVec(vec);
-   i = vec.begin();
 }
 
 inline InSerializer::Impl::~Impl()
 {
-   i = dummy_gv.begin();
 }
 
 inline size_t InSerializer::Impl::BytesLeft() const
 {
-   return(vec.TotalLength() - bytesread_);
+   return(end_ - i_);
 }
 
 InSerializer::InSerializer(const StrChunkPtr &ptr)
@@ -98,9 +93,8 @@ S1Byte InSerializer::GetS1Byte()
       had_error_ = true;
       return(0);
    } else {
-      U1Byte ch = *(impl_.i);
-      ++impl_.i;
-      ++impl_.bytesread_;
+      U1Byte ch = *(impl_.i_);
+      ++impl_.i_;
 
       S1Byte val;
 
@@ -117,9 +111,8 @@ U1Byte InSerializer::GetU1Byte()
       had_error_ = true;
       return(0);
    } else {
-      U1Byte ch = *(impl_.i);
-      ++impl_.i;
-      ++impl_.bytesread_;
+      U1Byte ch = *(impl_.i_);
+      ++impl_.i_;
 
       U1Byte val;
 
@@ -139,11 +132,10 @@ S2Byte InSerializer::GetS2Byte()
       U1Byte ch[2];
       S2Byte val;
 
-      ch[0] = *(impl_.i);
-      ++impl_.i;
-      ch[1] = *(impl_.i);
-      ++impl_.i;
-      impl_.bytesread_ += 2;
+      ch[0] = *(impl_.i_);
+      ++impl_.i_;
+      ch[1] = *(impl_.i_);
+      ++impl_.i_;
       ntoh(ch, val);
       return(val);
    }
@@ -160,11 +152,10 @@ U2Byte InSerializer::GetU2Byte()
       U1Byte ch[2];
       U2Byte val;
 
-      ch[0] = *(impl_.i);
-      ++impl_.i;
-      ch[1] = *(impl_.i);
-      ++impl_.i;
-      impl_.bytesread_ += 2;
+      ch[0] = *(impl_.i_);
+      ++impl_.i_;
+      ch[1] = *(impl_.i_);
+      ++impl_.i_;
       ntoh(ch, val);
       return(val);
    }
@@ -181,15 +172,14 @@ S4Byte InSerializer::GetS4Byte()
       U1Byte ch[4];
       S4Byte val;
 
-      ch[0] = *(impl_.i);
-      ++impl_.i;
-      ch[1] = *(impl_.i);
-      ++impl_.i;
-      ch[2] = *(impl_.i);
-      ++impl_.i;
-      ch[3] = *(impl_.i);
-      ++impl_.i;
-      impl_.bytesread_ += 4;
+      ch[0] = *(impl_.i_);
+      ++impl_.i_;
+      ch[1] = *(impl_.i_);
+      ++impl_.i_;
+      ch[2] = *(impl_.i_);
+      ++impl_.i_;
+      ch[3] = *(impl_.i_);
+      ++impl_.i_;
       ntoh(ch, val);
       return(val);
    }
@@ -206,15 +196,14 @@ U4Byte InSerializer::GetU4Byte()
       U1Byte ch[4];
       U4Byte val;
 
-      ch[0] = *(impl_.i);
-      ++impl_.i;
-      ch[1] = *(impl_.i);
-      ++impl_.i;
-      ch[2] = *(impl_.i);
-      ++impl_.i;
-      ch[3] = *(impl_.i);
-      ++impl_.i;
-      impl_.bytesread_ += 4;
+      ch[0] = *(impl_.i_);
+      ++impl_.i_;
+      ch[1] = *(impl_.i_);
+      ++impl_.i_;
+      ch[2] = *(impl_.i_);
+      ++impl_.i_;
+      ch[3] = *(impl_.i_);
+      ++impl_.i_;
       ntoh(ch, val);
       return(val);
    }
@@ -231,10 +220,10 @@ const string InSerializer::GetString()
       U1Byte ch[2];
       U2Byte len;
 
-      ch[0] = *(impl_.i);
-      ++impl_.i;
-      ch[1] = *(impl_.i);
-      ++impl_.i;
+      ch[0] = *(impl_.i_);
+      ++impl_.i_;
+      ch[1] = *(impl_.i_);
+      ++impl_.i_;
 
       ntoh(ch, len);
       if ((len < 1) || (len > impl_.BytesLeft())) {
@@ -246,11 +235,10 @@ const string InSerializer::GetString()
 
 	 result.reserve(templen);  // Weak attempt to optimize performance.
 	 while (templen--) {
-	    result += *(impl_.i);
-	    ++impl_.i;
+	    result += *(impl_.i_);
+	    ++impl_.i_;
 	 }
-	 ++impl_.i;  // Move iterator past trailing '\0'
-	 impl_.bytesread_ += (len + 2);  // + 2 for the initial length bytes.
+	 ++impl_.i_;  // Move iterator past trailing '\0'
 	 return(result);
       }
    }
@@ -264,10 +252,9 @@ void InSerializer::GetRaw(void *destbuf, size_t len)
 	 size_t templen = len;
 
 	 while (templen--) {
-	    *dest++ = *(impl_.i);
-	    ++impl_.i;
+	    *dest++ = *(impl_.i_);
+	    ++impl_.i_;
 	 }
-	 impl_.bytesread_ += len;
       } else {
 	 had_error_ = true;
       }
