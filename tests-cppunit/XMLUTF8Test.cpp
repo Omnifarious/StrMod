@@ -18,38 +18,88 @@
 
 using ::strmod::xml::utf8::Lexer;
 using ::strmod::xml::utf8::Builder;
+typedef Builder::Position Position;
+typedef Builder::BufHandle BufHandle;
+using ::std::string;
 
 namespace strmod {
 namespace tests {
 
 namespace {
+
 struct AttributeData
 {
-   ::std::string name_;
-   ::std::string value_;
-   ::std::string literal_;
-   char delimiter_;
+   const string name_;
+   const string value_;
+   const string literal_;
+   const char delimiter_;
 
-   AttributeData(const ::std::string &name, const ::std::string &value,
-                 const ::std::string &literal, char delimiter)
+   AttributeData(const string &name, const string &value,
+                 const string &literal, char delimiter)
         : name_(name), value_(value), literal_(literal), delimiter_(delimiter)
    {
    }
 };
 
+typedef ::std::vector<AttributeData> attrlist_t;
+
 struct ElementData
 {
-   const ::std::string name_;
-   size_t elbegin_;
-   size_t datbegin_;
-   size_t datend_;
+   const string name_;
+   const Position elbegin_;
+   Position datbegin_;
+   Position datend_;
    ::std::vector<AttributeData> attrlist_;
 
-   ElementData(const ::std::string &name, size_t elbegin)
+   ElementData(const string &name, Position elbegin)
         : name_(name), elbegin_(elbegin), datbegin_(elbegin), datend_(elbegin)
    {
    }
 };
+
+class TestBuilder : public Builder
+{
+ public:
+   TestBuilder(const char *buf, size_t blen, size_t chnklen)
+        : buf_(buf), blen_(len), blen2_(len / 2), chnklen_(chnklen)
+   {
+      CPPUNIT_ASSERT(len % 2 == 0);
+      {
+         unsigned int a = blen, b = chnklen;
+         unsigned int rem = a % b;
+         while (rem != 0)
+         {
+            a = b;
+            b = rem;
+            rem = a % b;
+         }
+         CPPUNIT_ASSERT(b == 1);
+      }
+   }
+
+   virtual void startElementTag(const Position &selbegin, const string &name);
+   virtual void addAttribute(const Position &attrbegin, const Position &attrend,
+                             const Position &valbegin, const Position &valend,
+                             const string &name);
+   virtual void endElementTag(const Position &selend, bool wasempty);
+   virtual void closeElementTag(const Position &celbegin,
+                                const Position &celend,
+                                const string &name);
+ private:
+   typedef ::std::stack<ElementData> elstack_t;
+
+   const char * const buf_;
+   const size_t blen_;
+   const size_t blen2_;
+   size_t chnklen_;
+   elstack_t elements_;
+};
+
+void TestBuilder::startElementTag(const Position &selbegin, const string &name)
+{
+   
+}
+
 }
 
 class XMLUTF8Test : public ::CppUnit::TestFixture
