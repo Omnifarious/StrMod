@@ -57,7 +57,7 @@ class XMLUTF8Lexer
 
  public:
    XMLUTF8Lexer()
-        : state_(XStart), substate_(XSNone), namepos_(0), nonwsok_(false)
+        : nonwsok_(false)
    {
    }
 
@@ -82,11 +82,20 @@ class XMLUTF8Lexer
    static const char char_x = '\x78';
    static const ::std::string out_of_range_message;
 
-   XState state_;
-   XSubState substate_;
    char name_[256];
-   size_t namepos_;
    bool nonwsok_;
+   struct LocalState {
+      XState state_;
+      XSubState substate_;
+      size_t namepos_;
+      size_t elbegin_, attrbegin_, attrvalbegin_;
+
+      LocalState()
+           : state_(XStart), substate_(XSNone), namepos_(0),
+             elbegin_(0), attrbegin_(0), attrvalbegin_(0)
+      {
+      }
+   } localstate_;
 
    static inline bool iswhite(const char c)
    {
@@ -131,110 +140,115 @@ class XMLUTF8Lexer
          ((c >= '\x61') && (c <= '\x66'));
    }
 
-   inline void advanceState(const char c)
+   inline void advanceState(const char c, const size_t i,
+                            LocalState &ss, XMLBuilder &parser)
    {
-      if (substate_ != XSNone)
+      if (ss.substate_ != XSNone)
       {
-         switch (substate_)
+         switch (ss.substate_)
          {
           case XSStartName:
             if (isnamestart(c))
             {
-               substate_ = XSInName;
-               name_[namepos_++] = c;
+               ss.substate_ = XSInName;
+               name_[ss.namepos_++] = c;
             }
             else
             {
-               substate_ = XSBad;
+               ss.substate_ = XSBad;
             }
             break;
 
           case XSInName:
             if (! isnamebody(c))
             {
-               substate_ = XSNone;
+               ss.substate_ = XSNone;
             }
             else
             {
-               name_[namepos_++] = c;
+               if (ss.namepos_ >= sizeof(name_))
+               {
+                  throw_out_of_range();
+               }
+               name_[ss.namepos_++] = c;
             }
             break;
 
           case XSEntity:
             if (isnamestart(c))
             {
-               substate_ = XSNamedEntity;
+               ss.substate_ = XSNamedEntity;
             }
             else if (c == poundsign)
             {
-               substate_ = XSCharEntity;
+               ss.substate_ = XSCharEntity;
             }
             else
             {
-               substate_ = XSBad;
+               ss.substate_ = XSBad;
             }
             break;
 
           case XSNamedEntity:
             if (c == semicolon)
             {
-               substate_ = XSEndEntity;
+               ss.substate_ = XSEndEntity;
             }
             else if (!isnamebody(c))
             {
-               substate_ = XSBad;
+               ss.substate_ = XSBad;
             }
             break;
 
           case XSCharEntity:
             if (isdigit(c))
             {
-               substate_ = XSDecEntity;
+               ss.substate_ = XSDecEntity;
             }
             else if (c == char_x)  // &#x
             {
-               substate_ = XSHexEntityStart;
+               ss.substate_ = XSHexEntityStart;
             }
             else
             {
-               substate_ = XSBad;
+               ss.substate_ = XSBad;
             }
 
           case XSDecEntity:
             if (c == semicolon)
             {
-               substate_ = XSEndEntity;
+               ss.substate_ = XSEndEntity;
             }
             else if (!isdigit(c))
             {
-               substate_ = XSBad;
+               ss.substate_ = XSBad;
             }
             break;
 
           case XSHexEntityStart:
             if (isxdigit(c))
             {
-               substate_ = XSHexEntity;
+               ss.substate_ = XSHexEntity;
             }
             else
             {
-               substate_ = XSBad;
+               ss.substate_ = XSBad;
             }
             break;
 
           case XSHexEntity:
             if (c == semicolon)
             {
-               substate_ = XSEndEntity;
+               ss.substate_ = XSEndEntity;
             }
             else if (!isxdigit(c))
             {
-               substate_ = XSBad;
+               ss.substate_ = XSBad;
             }
             break;
 
           case XSEndEntity:
-            substate_ = XSNone;
+            ss.substate_ = XSNone;
             break;
 
           case XSNone:
@@ -245,222 +259,237 @@ class XMLUTF8Lexer
 //          throw ::std::logic_error("Bad case!");
          }
       }
-      if (substate_ == XSBad)
+      if (ss.substate_ == XSBad)
       {
-         state_ = XBad;
+         ss.state_ = XBad;
       }
-      else if (substate_ == XSNone)
+      else if (ss.substate_ == XSNone)
       {
-         switch (state_)
+         switch (ss.state_)
          {
           case XStart:
             if (c == lessthan)  // <
             {
-               state_ = XLess;
+               ss.elbegin_ = i;
+               ss.state_ = XLess;
             }
             else if (! (getNonWSInElements() || iswhite(c)))
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XLess:
             if (c == exclamation)
             {
-               state_ = XCommentExcl;
+               ss.state_ = XCommentExcl;
             }
             else if (isnamestart(c))
             {
-               state_ = XOpenElement;
-               substate_ = XSInName;
-               namepos_ = 0;
-               name_[namepos_++] = c;
+               ss.state_ = XOpenElement;
+               ss.substate_ = XSInName;
+               ss.namepos_ = 0;
+               name_[ss.namepos_++] = c;
             }
             else if (c == forwslash)
             {
-               state_ = XCloseElement;
-               substate_ = XSStartName;
-               namepos_ = 0;
+               ss.state_ = XCloseElement;
+               ss.substate_ = XSStartName;
+               ss.namepos_ = 0;
             }
             else
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XCommentExcl:
             if (c == dash)
             {
-               state_ = XCommentExclDash;
+               ss.state_ = XCommentExclDash;
             }
             else
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XCommentExclDash:
             if (c == dash)
             {
-               state_ = XInComment;
+               ss.state_ = XInComment;
             }
             else
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XInComment:
             if (c == dash)
             {
-               state_ = XDashInComment;
+               ss.state_ = XDashInComment;
             }
             break;
 
           case XDashInComment:
             if (c == dash)
             {
-               state_ = XDashDashInComment;
+               ss.state_ = XDashDashInComment;
             }
             else
             {
-               state_ = XInComment;
+               ss.state_ = XInComment;
             }
             break;
 
           case XDashDashInComment:
             if (c == greaterthan)
             {
-               state_ = XStart;
+               ss.state_ = XStart;
             }
             else
             {
-               state_ = XInComment;
+               ss.state_ = XInComment;
             }
             break;
 
           case XOpenElement:
+            call_startElementTag(ss.elbegin_, ss.namepos_, parser);
             if (c == greaterthan)  // Parsed the whole tag
             {
-               state_ = XStart;
+               parser.endElementTag(i + 1, false);
+               ss.state_ = XStart;
             }
             else if (iswhite(c))
             {
-               state_ = XInOpenElement;
+               ss.state_ = XInOpenElement;
             }
             else if (c == forwslash)
             {
-               state_ = XEmptyElementEnd;
+               ss.state_ = XEmptyElementEnd;
             }
             else
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XInOpenElement:
             if (c == greaterthan) // Parsed the whole tag
             {
-               state_ = XStart;
+               parser.endElementTag(i + 1, false);
+               ss.state_ = XStart;
             }
             else if (c == forwslash)
             {
-               state_ = XEmptyElementEnd;
+               ss.state_ = XEmptyElementEnd;
             }
             else if (isnamestart(c))
             {
-               state_ = XAttr;
-               namepos_ = 0;
-               substate_ = XSInName;
+               ss.state_ = XAttr;
+               ss.namepos_ = 0;
+               name_[ss.namepos_++] = c;
+               ss.attrbegin_ = i;
+               ss.substate_ = XSInName;
             }
             else if (!iswhite(c))
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XEmptyElementEnd:
             if (c == greaterthan)
             {
-               state_ = XStart;  // Parsed the whole tag.
+               parser.endElementTag(i + 1, true);
+               ss.state_ = XStart;  // Parsed the whole tag.
             }
             else
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XCloseElement:
             if (iswhite(c))
             {
-               state_ = XInCloseElement;
+               ss.state_ = XInCloseElement;
             }
             else if (c == greaterthan)
             {
-               state_ = XStart;  // Parsed the whole tag.
+               call_closeElementTag(ss.elbegin_, i + 1, ss.namepos_, parser);
+               ss.state_ = XStart;  // Parsed the whole tag.
             }
             else
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XInCloseElement:
             if (c == greaterthan)
             {
-               state_ = XStart;  // Parsed the whole tag.
+               call_closeElementTag(ss.elbegin_, i + 1, ss.namepos_, parser);
+               ss.state_ = XStart;  // Parsed the whole tag.
             }
             else if (!iswhite(c))
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XAttr:
             if (c == equals)
             {
-               state_ = XAttrAfterEq;
+               ss.state_ = XAttrAfterEq;
             }
             else if (!iswhite(c))
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XAttrAfterEq:
             if (c == doublequote)
             {
-               state_ = XAttrDQ;
+               ss.state_ = XAttrDQ;
+               ss.attrvalbegin_ = i + 1;
             }
             else if (c == singlequote)
             {
-               state_ = XAttrSQ;
+               ss.state_ = XAttrSQ;
+               ss.attrvalbegin_ = i + 1;
             }
             else if (!iswhite(c))
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XAttrSQ:
             if (c == singlequote)
             {
-               state_ = XInOpenElement;
+               call_addAttribute(ss.attrbegin_, i + 1, ss.attrvalbegin_, i,
+                                 ss.namepos_, parser);
+               ss.state_ = XInOpenElement;
             }
             else if (c == lessthan)  // Don't ask me, amaya thinks it's evil.
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
           case XAttrDQ:
             if (c == doublequote)
             {
-               state_ = XInOpenElement;
+               call_addAttribute(ss.attrbegin_, i + 1, ss.attrvalbegin_, i,
+                                 ss.namepos_, parser);
+               ss.state_ = XInOpenElement;
             }
             else if (c == lessthan)  // Don't ask me, amaya thinks it's evil.
             {
-               state_ = XBad;
+               ss.state_ = XBad;
             }
             break;
 
@@ -471,14 +500,18 @@ class XMLUTF8Lexer
    }
 
    static void throw_out_of_range();
-   void call_startElementTag(size_t begin, XMLBuilder &parser);
+   void call_startElementTag(size_t begin, size_t namepos, XMLBuilder &parser);
    void call_addAttribute(size_t attrbegin, size_t attrend,
                           size_t valbegin, size_t valend,
-                          XMLBuilder &parser);
-   void call_closeElementTag(size_t begin, size_t end, XMLBuilder &parser);
+                          size_t namepos, XMLBuilder &parser);
+   void call_closeElementTag(size_t begin, size_t end, size_t namepos,
+                             XMLBuilder &parser);
 };
 
 // $Log$
+// Revision 1.7  2002/12/11 21:55:41  hopper
+// It parses attributes now.  There's even a decent test for it.  :-)
+//
 // Revision 1.6  2002/12/11 18:52:02  hopper
 // More steps towards parsing attributes.
 //

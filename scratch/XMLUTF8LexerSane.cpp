@@ -11,28 +11,32 @@ void XMLUTF8Lexer::throw_out_of_range()
    throw ::std::out_of_range(out_of_range_message);
 }
 
-void XMLUTF8Lexer::call_startElementTag(size_t first, XMLBuilder &parser)
+void XMLUTF8Lexer::call_startElementTag(size_t first, size_t namepos,
+                                        XMLBuilder &parser)
 {
-   parser.startElementTag(first, ::std::string(name_, namepos_));
+   parser.startElementTag(first, ::std::string(name_, namepos));
 }
 
 void XMLUTF8Lexer::call_closeElementTag(size_t first, size_t last,
-                                        XMLBuilder &parser)
+                                        size_t namepos, XMLBuilder &parser)
 {
-   parser.closeElementTag(first, last, ::std::string(name_, namepos_));
+   parser.closeElementTag(first, last, ::std::string(name_, namepos));
 }
 
 void XMLUTF8Lexer::call_addAttribute(size_t attrbegin, size_t attrend,
                                      size_t valbegin, size_t valend,
-                                     XMLBuilder &parser)
+                                     size_t namepos, XMLBuilder &parser)
 {
    parser.addAttribute(attrbegin, attrend,
                        valbegin, valend,
-                       ::std::string(name_, namepos_));
+                       ::std::string(name_, namepos));
 }
 
 
 // $Log$
+// Revision 1.4  2002/12/11 21:55:41  hopper
+// It parses attributes now.  There's even a decent test for it.  :-)
+//
 // Revision 1.3  2002/12/11 18:52:02  hopper
 // More steps towards parsing attributes.
 //

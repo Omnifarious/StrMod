@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstddef>
 #include <stack>
+#include <vector>
 #include <stdexcept>
 #include "XMLUTF8Lexer.h"
 
@@ -14,10 +15,10 @@ using ::std::cout;
 
 struct AttributeData
 {
-   const ::std::string name_;
-   const ::std::string value_;
-   const ::std::string literal_;
-   const char delimiter_;
+   ::std::string name_;
+   ::std::string value_;
+   ::std::string literal_;
+   char delimiter_;
 
    AttributeData(const ::std::string &name, const ::std::string &value,
                  const ::std::string &literal, char delimiter)
@@ -32,6 +33,7 @@ struct ElementData
    size_t elbegin_;
    size_t datbegin_;
    size_t datend_;
+   ::std::vector<AttributeData> attrlist_;
 
    ElementData(const ::std::string &name, size_t elbegin)
         : name_(name), elbegin_(elbegin), datbegin_(elbegin), datend_(elbegin)
@@ -53,7 +55,9 @@ class TestBuilder : public XMLBuilder
                              size_t valbegin, size_t valend,
                              const ::std::string &name)
    {
-      return;
+      ::std::string literal(buf_ + attrbegin, attrend - attrbegin);
+      ::std::string value(buf_ + valbegin, valend - valbegin);
+      elstack_.top().attrlist_.push_back(AttributeData(name, value, literal, buf_[valend]));
    }
    virtual void endElementTag(size_t end, bool wasempty)
    {
@@ -67,13 +71,25 @@ class TestBuilder : public XMLBuilder
       for (size_t i = 1; i < elstack_.size(); ++i) {
          cout << "   ";
       }
+      cout << "<" << eldata.name_;
+      if (eldata.attrlist_.size() > 0)
+      {
+         typedef ::std::vector<AttributeData> attrs_t;
+         attrs_t &attrlist_ = eldata.attrlist_;
+         for (attrs_t::iterator i = attrlist_.begin(); i != attrlist_.end(); ++i)
+         {
+            cout << " " << i->name_ << "="
+                 << i->delimiter_ << i->value_ << i->delimiter_
+                 << " :=: [" << i->literal_ << "]";
+         }
+      }
       if (wasempty) {
          eldata.datend_ = end;
-         cout << "<" << eldata.name_ << "/> :=: [" << tag << "]\n";
+         cout << "/> :=: [" << tag << "]\n";
 //          cout.flush();
          elstack_.pop();
       } else {
-         cout << "<" << eldata.name_ << "> :=: [" << tag << "]\n";
+         cout << "> :=: [" << tag << "]\n";
 //          cout.flush();
          if (eldata.name_ == "store")
          {
@@ -115,9 +131,10 @@ int main()
 {
    std::set_terminate (__gnu_cxx::__verbose_terminate_handler);
    try {
-      const char * const xmlstr = "<fred> <went> <down> <to> "
+      const char * const xmlstr = "<fred> "
+         "<went joe=\"'barney\" alley='\"kate'> <down> <to> "
          "<the> <street> </street> <br/> </the> "
-         "<a><store>The New French Bakery</store></a>"
+         "<a time= 'then' ><store time='now'>The New French Bakery</store></a>"
          "</to> </down> </went> </fred>";
       const char * const xml2str =
 "<fred>\n"
@@ -136,10 +153,13 @@ int main()
       XMLUTF8Lexer lexer;
       {
          TestBuilder ts(xmlstr, lexer);
+         ::std::cout << "Parsing: [" << xmlstr << "]\n\n";
          lexer.lex(xmlstr, ::strlen(xmlstr), ts);
       }
+      ::std::cout << "================================\n";
       {
          TestBuilder ts(xml2str, lexer);
+         ::std::cout << "Parsing: [" << xml2str << "]\n\n";
          lexer.lex(xml2str, ::strlen(xml2str), ts);
       }
       return 0;
@@ -154,6 +174,9 @@ int main()
 }
 
 // $Log$
+// Revision 1.6  2002/12/11 21:55:41  hopper
+// It parses attributes now.  There's even a decent test for it.  :-)
+//
 // Revision 1.5  2002/12/11 18:52:02  hopper
 // More steps towards parsing attributes.
 //

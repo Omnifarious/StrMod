@@ -10,44 +10,18 @@
 
 void XMLUTF8Lexer::lex(const char *buf, unsigned int len, XMLBuilder &parser)
 {
-   size_t elstart = 0;
-   for (unsigned int i = 0; (i < len) && (state_ != XBad); ++i)
+   LocalState stackstate(localstate_);
+   for (unsigned int i = 0; (i < len) && (stackstate.state_ != XBad); ++i)
    {
-      const XState oldstate = state_;
-      const XSubState oldsubstate = substate_;
-      advanceState(buf[i]);
-      if (namepos_ >= sizeof(name_))
-      {
-         throw_out_of_range();
-      }
-      if (state_ == XLess)
-      {
-         elstart = i;
-      }
-      if ((substate_ == XSNone) && (oldsubstate == XSInName) &&
-          (oldstate == XOpenElement))
-      {
-         call_startElementTag(elstart, parser);
-      }
-      if ((state_ != oldstate) && (state_ == XStart))
-      {
-         if ((oldstate == XOpenElement) || (oldstate == XInOpenElement))
-         {
-            parser.endElementTag(i + 1, false);
-         }
-         else if (oldstate == XEmptyElementEnd)
-         {
-            parser.endElementTag(i + 1, true);
-         }
-         else if ((oldstate == XCloseElement) || (oldstate == XInCloseElement))
-         {
-            call_closeElementTag(elstart, i + 1, parser);
-         }
-      }
+      advanceState(buf[i], i, stackstate, parser);
    }
+   localstate_ = stackstate;
 }
 
 // $Log$
+// Revision 1.4  2002/12/11 21:55:41  hopper
+// It parses attributes now.  There's even a decent test for it.  :-)
+//
 // Revision 1.3  2002/12/10 22:46:02  hopper
 // Renamed the XMLParserStrategy to the more appropriate XMLBuilder from
 // Design Patterns.
