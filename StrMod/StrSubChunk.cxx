@@ -67,7 +67,7 @@ StrSubChunk::StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent)
 
 //      cerr << "chunkext == " << chunkext
 //	   << " && subext_ == " << subext_ << "\n";
-	 subext_.SubExtent_eq(chunkext);
+	 subext_ = chunkext.SubExtent(subext_);
 //      cerr << "subext_ == " << subext_ << "\n";
       }
    }
