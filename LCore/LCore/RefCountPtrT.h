@@ -7,6 +7,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1997/05/12 14:36:03  hopper
+// Removed dangerous two dangerous operator =.
+//
 // Revision 1.1  1997/05/12 14:32:55  hopper
 // Added new RefCountPtr class, and RefCountPtrT class to aid in using
 // the ReferenceCounting mixin class.
@@ -36,8 +39,6 @@ class RefCountPtrT : virtual public RefCountPtr {
 
    inline T *GetPtr() const;
 
-   inline const RefCountPtr &operator =(const RefCountPtr &b);
-   inline const RefCountPtr &operator =(RC *b);
    inline const RefCountPtrT<T> &operator =(const RefCountPtrT<T> &b);
    inline const RefCountPtrT<T> &operator =(T *b);
 
@@ -63,18 +64,6 @@ template <class T>
 inline T *RefCountPtrT<T>::GetPtr() const
 {
    return(static_cast<T *>(RefCountPtr::GetPtr()));
-}
-
-template <class T>
-inline const RefCountPtr &RefCountPtrT<T>::operator =(const RefCountPtr &b)
-{
-   return(RefCountPtr::operator =(b));
-}
-
-template <class T>
-inline const RefCountPtr &RefCountPtrT<T>::operator =(ReferenceCounting *b)
-{
-   return(RefCountPtr::operator =(b));
 }
 
 template <class T>
