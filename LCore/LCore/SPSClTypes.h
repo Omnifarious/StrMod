@@ -3,6 +3,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.4  1996/07/08 02:29:05  hopper
+// Added EDIServ application to class library list.
+//
 // Revision 1.3  1996/06/18 03:33:16  hopper
 // Added comment so emacs would know this is a C++ header.
 //
@@ -43,7 +46,7 @@ class SPS_ClassNum : public ClassNum {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    enum SPSCORE_Libraries { Core = 0, Database,
-			    Mail = 4087,
+			    EDIServ = 4086, Mail = 4087,
 			    User0, User1, User2, User3,
 			    User4, User5, User6, User7 = 4095};
 
