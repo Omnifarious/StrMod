@@ -1,3 +1,8 @@
+2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* InetAddress.cxx: Fixed some compiler warnings about unused
+	variables.
+
 2001-03-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* libNet-0.2.2 is released.
