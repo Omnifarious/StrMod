@@ -1,3 +1,67 @@
+Mon Sep  2 18:04:03 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in (LIBCCS): Added new library source modules for
+	CharChopper, PassThrough, NewlineChopper, StreamProcessor, and
+	ProcessorModule classes.
+
+	* tests/testmulti.cc: Added code to test the ProcessorModule,
+ 	NewlineChopper, PassThrough, and StreamProcessor classes.
+
+	* StrChunkid.cc: Removed a file that's no longer needed because
+ 	identifiers are now declared inside the main source modules for
+ 	the classes they identify.
+
+	* StrMod/StreamProcessor.h: * StreamProcessor.cc: Created abstract
+ 	class for handling simple dataflows where one grabbed incoming
+ 	data, did stuff to it, and sent the result along.
+
+	* StrMod/ProcessorModule.h: 
+	* ProcessorModule.cc: Added class that would turn two
+ 	StreamProcessors into a StreamModule that used one StreamProcessor
+ 	for the data flowing in each direction.
+
+	* StrMod/CharChopper.h: 
+	* CharChopper.cc: Added CharChopper class so users would have a
+ 	simple class that would break up and recombine streams using
+ 	whatever character they chose as a separator.
+
+	* StrMod/PassThrough.h: 
+	* PassThrough.cc: Added PassThrough class to use when you needed a
+	StreamProcessor that did nothing except buffer one Chunk worth of
+	data.
+
+	* StrMod/NewlineChopper.h: 
+	* NewlineChopper.cc: Added NewlineChopper class so users would
+ 	have a simple class that would break up and recombine streams
+ 	using '\n' as a separator.
+
+	* STR_ClassIdent.cc: Added new classes to class id comment list.
+
+	* StrMod/DBStrChunk.h (DataBlockStrChunk): Changed inline
+ 	definition of constructor to take correct type as argument.
+
+	* config.h:
+	* sockdecl.h: 
+	* StrFDPlug.cc: 
+	* SocketModule.cc: 
+	* SockListenModule.cc: Added a crude attempt at fixing
+	deficiencies in AIX 3.2.5's include files with respect to socket
+	calls.
+	
+	* StreamFDModule.cc (BestChunkSize): Changed to try to handle
+	systems that don't set st_blksize for sockets.  Used 4096 as a
+	default block size.
+
+Sat Aug 31 10:42:12 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/EchoModule.h: 
+ 	* EchoModule.cc (class EchoModule): Changed to use
+ 	StrChunkPtr::operator bool a little more explicity.  Used to
+ 	compare pointer values to 0.
+
+	* SimpleMulti.cc: Fixed several bugs in class SimpleMultiplexer
+	that caused it to lock up when searching for the plug list.
+
 Sat Aug 24 07:37:48 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/StrChunkPtr.h (class StrChunkPtr): Added new operator !
