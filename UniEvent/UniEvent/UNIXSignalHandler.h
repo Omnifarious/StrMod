@@ -44,7 +44,15 @@ class UNIXSignalHandler : public Protocol {
  public:
    static const UNEVT_ClassIdent identifier;
 
+   /** Construct a UNIXSignalHandler given a dispatcher
+    * @param dispatcher A reference to the dispatcher this signal handler is to
+    * use to send 'interrupt' messages to when a signal occurs, and where to
+    * post the events resulting from a signal happening.
+    */
    UNIXSignalHandler(Dispatcher &dispatcher);
+   /** \brief Destroy a UNIXSignalHandler, doesn't current unregister handling
+    * for the signals.
+    */
    virtual ~UNIXSignalHandler();
 
    virtual int AreYouA(const ClassIdent &cid) const {
@@ -58,10 +66,22 @@ class UNIXSignalHandler : public Protocol {
     * posted (defualts to true).
     */
    void onSignal(int signo, const EventPtr &ev, bool oneshot = true);
+   /** Remove the given event from the specified category.
+    */
    void removeEvent(int signo, const EventPtr &ev, bool oneshot);
+   /** Remove the given event from the specified category.
+    */
    void removeEvent(int signo, const EventPtr &ev);
+   /** Remove the given event from the any lists it occurs in internally.
+    */
    void removeEvent(const EventPtr &ev);
 
+   /** Post events for any signals that have occured since this was last called.
+    * This is kind of a private method as it exposes how the UNIXSignalHandler
+    * is implemented internally.  OTOH, it's completely harmless for someone to
+    * call it at any random point in time.  Perhaps it will be made private
+    * later.
+    */
    void processOutstandingSignals();
 
  protected:
