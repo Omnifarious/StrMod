@@ -1,0 +1,83 @@
+rootdir = @top_srcdir@
+PWD = @pwd@
+CMP = @cmp@
+CAT = @cat@
+PROCLIBSRC = @proclibsrc@
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
+CC = @CC@
+CFLAGS = @CFLAGS@
+
+MYMAKE = $(MAKE) CC='$(CC)' CFLAGS='$(CFLAGS)' CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS\)'
+
+SUBDIR = .
+ifeq ($(SUBDIR),.)
+   SUBPREFIX =
+else
+   SUBPREFIX = $(SUBDIR)/
+endif
+
+INCLUDEDIR = $(rootdir)/include
+MYINCLUDEBASE = $(INCLUDEDIR)
+MYINCLUDEDIR = $(MYINCLUDEBASE)/UniEvent
+
+ifeq ($(rootdir),.)
+   OUTDIR = generated
+else
+   OUTDIR = $(rootdir)/generated
+endif
+ifeq ($(SUBDIR),.)
+   MYOUTDIR = $(OUTDIR)
+else
+   MYOUTDIR = $(OUTDIR)/$(SUBDIR)
+endif
+
+OBJDIR = $(MYOUTDIR)/obj
+LIBDIR = $(MYOUTDIR)/lib
+LIBSRC = $(MYOUTDIR)/lib_src
+
+LIBCXX = Event.cxx                Dispatcher.cxx          SimpleDispatcher.cxx \
+         SimpleDispatcherImp.cxx  UNEVT_ClassIdent.cxx    UNIXError.cxx \
+         UNIXpollManager.cxx      UNIXpollManagerImp.cxx  EventPtr.cxx
+
+TESTCCS = tests/testdisp.cxx  tests/testsimple.cxx  tests/testUPoll.cxx
+
+TESTEXECS = tests/testsimple tests/testUPoll
+
+.PHONY: directories always
+
+UNIQUEDIRS = $(sort $(INCLUDEDIR) $(MYINCLUDEBASE) $(OUTDIR) $(MYOUTDIR))
+
+all: $(LIBDIR)/libUniEvent.a
+
+directories: $(UNIQUEDIRS) $(MYINCLUDEDIR)
+
+$(UNIQUEDIRS):
+	mkdir -p $@
+
+$(MYOUTDIR)/lib_src: $(MYOUTDIR)
+
+pwd_test: always
+	@if [ ! -f pwd_test ]; then $(PWD) >pwd_test; else \
+	if $(PWD) | $(CMP) - pwd_test >/dev/null 2>/dev/null; then :; else \
+	   $(PWD) >pwd_test; \
+	fi; fi
+
+$(MYINCLUDEDIR): pwd_test
+	$(MYMAKE) $(MYINCLUDEBASE) 
+	rm -f $@
+	ln -s `$(CAT) pwd_test`/UniEvent $@
+
+$(LIBSRC): Makefile $(MYINCLUDEDIR)
+	$(PROCLIBSRC) -a $@ $(LIBCXX) Makefile
+
+$(LIBDIR)/libUniEvent.a:
+
+tests/testsimple : tests/testdisp.o tests/testsimple.o $(libdir)/libUniEvent.a
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -L$(libdir) \
+             tests/testdisp.o tests/testsimple.o -lUniEvent -lLCore \
+             -o tests/testsimple
+
+tests/testUPoll : tests/testUPoll.o $(libdir)/libUniEvent.a
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -L$(libdir) \
+             tests/testUPoll.o -lUniEvent -lLCore -o tests/testUPoll
