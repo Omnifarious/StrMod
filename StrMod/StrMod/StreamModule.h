@@ -8,8 +8,8 @@
 
 // For log information, see ../ChangeLog
 
-#include <assert.h>
-#include <stddef.h>
+#include <cassert>
+#include <cstddef>
 
 #include <LCore/Protocol.h>
 
@@ -201,7 +201,7 @@ class StreamModule::Plug : public Protocol {
    static void setIsWriting(Plug &othr, bool v)        { othr.setIsWriting(v); }
 
    //: This is so derived classes can get read access to the flags of any plug.
-   inline static const Flags getFlagsFrom(const Plug &p);
+   inline static const Flags &getFlagsFrom(const Plug &p);
 
    //: Tell a connected plug that this plug's readable state has changed.
    // <p>This checks the flags first and doesn't notify if the other plug
@@ -409,7 +409,7 @@ inline void StreamModule::Plug::setWriteable(bool val)
    }
 }
 
-inline const StreamModule::Plug::Flags
+inline const StreamModule::Plug::Flags &
 StreamModule::Plug::getFlagsFrom(const Plug &p)
 {
    return(p.flags_);
