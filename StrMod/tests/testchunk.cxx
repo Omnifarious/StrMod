@@ -1,9 +1,10 @@
-#include <StrMod/DBStrChunk.h>
+#include <StrMod/DynamicBuffer.h>
 #include <StrMod/GroupVector.h>
 #include <unistd.h>
 #include <iostream.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <cstring>
 
 class NoStrChunk : public StrChunk {
  public:
@@ -52,15 +53,15 @@ int main(int argc, char *argv[])
    fcntl(fd2, F_SETFL, fcntl(fd1, F_GETFL, 0) | O_NDELAY);
 
    {
-      DataBlockStrChunk buf1;
+      DynamicBuffer buf1;
       int result;
 
-      buf1.Resize(131072);
+      buf1.resize(131072);
       assert(buf1.Length() > 0);
       errno = 0;
-      result = read(fd1, buf1.GetVoidP(), buf1.Length());
+      result = read(fd1, buf1.getVoidP(), buf1.Length());
       if (result >= 0) {
-	 buf1.Resize(result);
+	 buf1.resize(result);
       }
       while (result > 0 || errno == EWOULDBLOCK) {
 	 if (buf1.Length() > 0) {
@@ -94,12 +95,12 @@ int main(int argc, char *argv[])
 	       }
 	    }
 	 }
-	 buf1.Resize(131072);
+	 buf1.resize(131072);
 	 assert(buf1.Length() > 0);
 	 errno = 0;
-	 result = read(fd1, buf1.GetVoidP(), buf1.Length());
+	 result = read(fd1, buf1.getVoidP(), buf1.Length());
 	 if (result >= 0) {
-	    buf1.Resize(result);
+	    buf1.resize(result);
 	 }
       }
       cerr << result << ' ' << errno << endl;
