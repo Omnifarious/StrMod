@@ -1,3 +1,17 @@
+1999-07-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/HopClTypes.h: 
+	* LCore/SPSClTypes.h: Removed a whole bunch of operator == that
+	were there only to appease buggy compilers.
+
+	* LCore/GenTypes.h: Changed include of sys/byteorder.h to
+	netinet/in.h since that more reliably exists and defines the
+	hton/ntoh family of macros.
+	Added const in a bunch of spots that I thought made sense.
+
+	* LCore/ClassTypes.h: Fixed so that all operator == are no longer
+	member functions so type conversion can occur on either argument.
+
 1999-01-17  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* LCore/RefCountPtr.h: Fixed a problem with NDEBUG being defined
