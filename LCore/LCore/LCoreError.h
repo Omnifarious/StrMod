@@ -26,6 +26,7 @@
 
 // For a log, see ../Changelog
 
+//! Anti-double inclusion macro.
 #define _LCORE_LCoreError_H_
 
 /** \file LCore/LCoreError.h
