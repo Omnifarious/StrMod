@@ -31,11 +31,11 @@ class UnixEventRegistry {
    typedef enum_set<FDConditions, FD_Readable, FD_Invalid> FDCondSet;
    static const FDCondSet all_fdconds;
 
-   inline UnixEventRegistry(Dispatcher *dispatcher);
+   inline UnixEventRegistry();
    inline virtual ~UnixEventRegistry();
 
    //! Register the event '*ev' to be fired on file descriptor condition true.
-   virtual bool registerFDCond(int fd,
+   virtual void registerFDCond(int fd,
                                const FDCondSet &condbits,
                                const EventPtr &ev) = 0;
 
@@ -61,24 +61,17 @@ class UnixEventRegistry {
     *
     * This function should be avoided as you may interfere unkowingly with other
     * parts of the program that are still depending on their events being posted
-    * when the signal happening.
+    * when the signal happens.
     */
    virtual void clearSignal(int signo) = 0;
 
    //! Actually call the UNIX poll system call, and dispatch resulting events.
    virtual void doPoll(bool wait = false) = 0;
-
- protected:
-   Dispatcher *getDispatcher() const                { return(disp_); }
-
- private:
-   Dispatcher * const disp_;
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline UnixEventRegistry::UnixEventRegistry(Dispatcher *dispatcher)
-   : disp_(dispatcher)
+inline UnixEventRegistry::UnixEventRegistry()
 {
 }
 
