@@ -1,15 +1,14 @@
 #include "StrMod/StreamSplitter.h"
 #include "StrMod/StreamFDModule.h"
 #include "StrMod/SocketModule.h"
+#include "StrMod/FDUtil.h"
 #include <UniEvent/UNIXpollManagerImp.h>
 #include <UniEvent/SimpleDispatcher.h>
 #include <EHnet++/InetAddress.h>
 #include <iostream.h>
 #include <unistd.h>
-#include <fcntl.h>
+#include <stdlib.h>
 #include <assert.h>
-
-extern "C" int atoi(const char *);
 
 int main(int argc, char *argv[])
 {
@@ -25,28 +24,20 @@ int main(int argc, char *argv[])
       port = atoi(argv[2]);
    }
    InetAddress echoaddr(host, port);
+   int error = 0;
 
+   if (FDUtil::setNonBlock(0, error))
    {
-      int temp;
-
-      if ((temp = fcntl(0, F_GETFL, 0)) < 0) {
-	 return(1);
-      }
-      temp &= ~O_NDELAY;
-      if (fcntl(0, F_SETFL, temp | O_NONBLOCK) < 0) {
+      if (!FDUtil::setNonBlock(1, error))
+      {
+	 cerr << "Couldn't set stdout to non-blocking.\n";
 	 return(1);
       }
    }
+   else
    {
-      int temp;
-
-      if ((temp = fcntl(1, F_GETFL, 0)) < 0) {
-	 return(1);
-      }
-      temp &= ~O_NDELAY;
-      if (fcntl(1, F_SETFL, temp | O_NONBLOCK) < 0) {
-	 return(1);
-      }
+      cerr << "Couldn't set stdin to non-blocking.\n";
+      return(1);
    }
 
    UNISimpleDispatcher disp;
@@ -74,26 +65,7 @@ int main(int argc, char *argv[])
 //        cerr << "Tick!\n";
    }
 
-   {
-      int temp;
-
-      if ((temp = fcntl(0, F_GETFL, 0)) < 0) {
-	 return(1);
-      }
-      temp &= ~(O_NDELAY | O_NONBLOCK);
-      if (fcntl(0, F_SETFL, temp) < 0) {
-	 return(1);
-      }
-   }
-   {
-      int temp;
-
-      if ((temp = fcntl(1, F_GETFL, 0)) < 0) {
-	 return(1);
-      }
-      temp &= ~(O_NDELAY | O_NONBLOCK);
-      if (fcntl(1, F_SETFL, temp) < 0) {
-	 return(1);
-      }
-   }
+   FDUtil::setBlock(0, error);
+   FDUtil::setBlock(1, error);
+   return(0);
 }
