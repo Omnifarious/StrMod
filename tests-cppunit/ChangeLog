@@ -1,3 +1,7 @@
+2003-01-12  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* DependTest.cxx: Added test for xml directory.
+
 2002-09-15  Eric M. Hopper  <hopper@omnifarious.org>
 
 	* LinearExtentTest.cxx: A complete suite of tests thoroughly
