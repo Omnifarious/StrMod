@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -31,6 +31,21 @@
 #include "EHnet++/NET_ClassIdent.h"
 
 namespace strmod {
+
+/** Some classes to handle network addresses, should be overhauled
+ *
+ * The only notable classes in here are SocketAddress and InetAddress.
+ * SocketAddress represents a generic network address that can be fed in as the
+ * argument to a 'connect' or 'bind' system call.  InetAddress represents an
+ * IPV4 address.
+ *
+ * If these were really well done, I'd have IPV4Address, IPV4TCPAddress, and
+ * IPV4tUDPAddress.  Then IPV4Address wouldn't have a port number, and the other
+ * two would.  But, as mention previously, these classes desparately need
+ * overhauling, not the least because they use DNS synchronously and can
+ * mysteriously halt your program waiting for DNS queries to resolve.
+ *
+ */
 namespace ehnet {
 
 const NET_ClassIdent NET_ClassIdent::identifier(0UL);
