@@ -51,7 +51,7 @@ $(libdir)/libEHnet++.a : $(LIBCCS)
 	$(RANLIB) $@
 	rm -f $(DEPSUB)
 
-$(EXTLIBTAG) : $(CCNAMES)
+$(EXTLIBTAG) : $(LIBCCS)
 	$(MAKE) $(DEPSUB)
 	touch $(EXTLIBTAG)
 	ar rv $(EXTLIB) $(DEPSUB)
