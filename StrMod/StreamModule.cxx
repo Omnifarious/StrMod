@@ -1,6 +1,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.3  1996/07/05 19:38:14  hopper
+ // Added forgotten StrPlug::WriteableNotify implementation.
+ //
  // Revision 1.2  1996/07/05 18:50:05  hopper
  // Changed to use new StrChunkPtr interface.  Also changed to implement
  // new parent module handling in StrPlug base class.
@@ -79,4 +82,12 @@ void StrPlug::ReadableNotify()
    }
 }
 
-void WriteableNotify();
+void StrPlug::WriteableNotify()
+{
+   StrPlug *mate = PluggedInto();
+
+   while (mate && mate->CanWrite() && CanRead()) {
+      mate->Write(Read());
+      mate = PluggedInto();
+   }
+}
