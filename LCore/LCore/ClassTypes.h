@@ -2,9 +2,10 @@
 
 /* $Header$ */
 
-// $Log$
-// Revision 1.1  1995/07/22 04:09:24  hopper
-// Initial revision
+// For a log, see ../ChangeLog
+//
+// Revision 1.1.1.1  1995/07/22 04:09:24  hopper
+// Imported sources
 //
 // Revision 0.2  1994/10/30 04:40:13  hopper
 // Moved various things into the new LCore library.
@@ -42,7 +43,8 @@ class ProgrammerNum : public Object {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    U4Byte GetPrNum() const                        { return(num); }
-   inline int operator ==(const ProgrammerNum &b) const;
+   friend inline bool operator ==(const ProgrammerNum &a,
+				  const ProgrammerNum &b);
 
    ProgrammerNum(U4Byte n) : num(n)               {}
 };
@@ -60,7 +62,7 @@ class ClassNum : public Object {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    U4Byte GetClNum() const                     { return(num); }
-   inline int operator ==(const ClassNum &b) const;
+   friend inline bool operator ==(const ClassNum &a, const ClassNum &b);
 
    ClassNum(U4Byte n) : num(n)                 {}
 };
@@ -83,16 +85,16 @@ class ClassIdent : public Object {
 
    const ProgrammerNum &GetProgrammer() const         { return(prnum); }
    const ClassNum &GetClass() const                   { return(clnum); }
-   inline int operator ==(const ClassIdent &b) const;
+   friend inline bool operator ==(const ClassIdent &a, const ClassIdent &b);
 
    inline ClassIdent(const ProgrammerNum &pn, const ClassNum &cn);
 };
 
 //------------------inline functions for class ProgrammerNum----------------
 
-inline int ProgrammerNum::operator ==(const ProgrammerNum &b) const
+inline bool operator ==(const ProgrammerNum &a, const ProgrammerNum &b)
 {
-   return(num == b.num);
+   return(a.num == b.num);
 }
 
 inline int ProgrammerNum::IsEqual(const Object &b) const
@@ -114,9 +116,9 @@ inline int ProgrammerNum::AreYouA(const ClassIdent &cid) const
 
 //------------------inline functions for class ClassNum----------------------
 
-inline int ClassNum::operator ==(const ClassNum &b) const
+inline bool operator ==(const ClassNum &a, const ClassNum &b)
 {
-   return(num == b.num);
+   return(a.num == b.num);
 }
 
 inline int ClassNum::IsEqual(const Object &b) const
@@ -138,9 +140,9 @@ inline int ClassNum::AreYouA(const ClassIdent &cid) const
 
 //-----------------inline functions for class ClassIdent---------------------
 
-inline int ClassIdent::operator ==(const ClassIdent &b) const
+inline bool operator ==(const ClassIdent &a, const ClassIdent &b)
 {
-   return((this == &b) || ((clnum == b.clnum) && (prnum == b.prnum)));
+   return((&a == &b) || ((a.clnum == b.clnum) && (a.prnum == b.prnum)));
 }
 
 inline int ClassIdent::IsEqual(const Object &b) const
