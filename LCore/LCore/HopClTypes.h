@@ -3,6 +3,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.4  1996/10/01 19:17:26  hopper
+// Added Trashcan library to libraries list.
+//
 // Revision 1.3  1996/03/26 16:23:00  hopper
 // Moved ReferenceCounting class over from Container library.
 // Fixed up class numbering system so LCore uses a seperate library number
@@ -56,7 +59,7 @@ class EH_ClassNum : public ClassNum {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    enum EH0_Libraries { Container = 0, Common, ETurboVis, Accounting,
-			FileIO, RecordID, StrMod, Net, LCore,
+			FileIO, RecordID, StrMod, Net, LCore, Trashcan,
 			Logger = 4083, MO_Entry, DriverFile, Journals, GMCs,
 			User0, User1, User2, User3,
 			User4, User5, User6, User7 = 4095};
