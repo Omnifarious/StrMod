@@ -22,10 +22,19 @@ using ::strmod::xml::utf8::Builder;
 namespace strmod {
 namespace tests {
 
-class XMLUTF8Test : public ::Cppunit::TestFixture
+class XMLUTF8Test : public ::CppUnit::TestFixture
 {
+//   CPPUNIT_TEST_SUITE(XMLUTF8Test);
+ private:
+   static const char S_xmlstr[383];
 };
 
+const char XMLUTF8Test::S_xmlstr[383] = "<fred> <went joe=\"'barney\"\nalley='\"kate'> <down> <to> <the> <street> </street> <br/> </the> <a time= 'then' ><store time='now'>The New French Bakery</store\f></a>\r</to> </down> </went>\t</fred><fred> <went joe=\"'barney\"\nalley='\"kate'> <down> <to> <the> <street> </street> <br/> </the> <a time= 'then' ><store time='now'>The New French Bakery</store\f></a>\r</to> </down> </went>\t</fred>";
+
+}
+}
+
+#if 0
 struct AttributeData
 {
    ::std::string name_;
@@ -221,3 +230,4 @@ int main()
 // Revision 1.1  2002/12/10 13:19:16  hopper
 // Some XML parsing classes I'm playing with until I get something that's
 // suitable for public consumption.
+#endif
