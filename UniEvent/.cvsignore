@@ -1,3 +1,5 @@
 *.stamp
 GNUmakefile
 dependdb.gdbm
+Makefile
+pwd_test
