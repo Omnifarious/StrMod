@@ -1,3 +1,17 @@
+Sun Apr  6 10:28:31 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in: Added new library CCs, a framework for tests,
+	and a clean target.
+
+	* UniEvent/Dispatcher.h (class UNIDispatcher): Added explanatory
+ 	comment so I wouldn't try to smooth a needed rough edge out of the
+ 	design again.
+
+	* UniEvent/SimpleDispatcher.h (class UNISimpleDispatcher): Removed
+ 	OSConditionManager accessor because there's no sense in having the
+ 	exact same implementation in several places in the inheritance
+ 	hierarchy.
+
 Tue Mar 11 15:29:55 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/SimpleDispatcher.h: 
