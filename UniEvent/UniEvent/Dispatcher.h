@@ -34,6 +34,10 @@
 class UNIEventPtr;
 class OSConditionManager;
 
+//: An interface for a simple queuer and dispatcher of events.
+// <p>This provides an interface for classes that want to implement a queue of
+// UNIEvent objects that are removed from the queue in FIFO order and 'fired'
+// by calling their triggerEvent methods.</p>
 class UNIDispatcher : virtual public Protocol {
  public:
    static const UNEVT_ClassIdent identifier;
@@ -43,16 +47,25 @@ class UNIDispatcher : virtual public Protocol {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   virtual void AddEvent(const UNIEventPtr &ev) = 0;
+   //: Add an event to the queue.
+   virtual void addEvent(const UNIEventPtr &ev) = 0;
 
-   inline void DispatchEvent(UNIDispatcher *enclosing = 0);
-   virtual void DispatchEvents(unsigned int numevents,
+   //: Dispatch a single event.
+   inline void dispatchEvent(UNIDispatcher *enclosing = 0);
+   //: Dispatch until a certain number of events have been dispatched, or the
+   //: queue is empty.
+   virtual void dispatchEvents(unsigned int numevents,
 			       UNIDispatcher *enclosing = 0) = 0;
-   virtual void DispatchUntilEmpty(UNIDispatcher *enclosing = 0) = 0;
-   virtual void StopDispatching() = 0;
-   virtual bool IsQueueEmpty() const = 0;
+   //: Dispatch until the queue is empty.
+   virtual void dispatchUntilEmpty(UNIDispatcher *enclosing = 0) = 0;
+   //: Cause the multiple event dispatch methods to halt before they normally
+   //: would.
+   virtual void stopDispatching() = 0;
+   //: Does the queue have any events in it?
+   virtual bool isQueueEmpty() const = 0;
 
-   //: This event is only triggered by the DispatchUntilEmpty function.
+   //: This event is only triggered whenever an event dispatch is attempted
+   //: when there's an empty queue.
    virtual void onQueueEmpty(const UNIEventPtr &ev) = 0;
 
  protected:
@@ -72,9 +85,9 @@ inline int UNIDispatcher::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
 
-inline void UNIDispatcher::DispatchEvent(UNIDispatcher *enclosing)
+inline void UNIDispatcher::dispatchEvent(UNIDispatcher *enclosing)
 {
-   DispatchEvents(1, enclosing);
+   dispatchEvents(1, enclosing);
 }
 
 #endif
