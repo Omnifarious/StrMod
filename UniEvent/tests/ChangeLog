@@ -1,3 +1,23 @@
+2002-03-21  hopper  <hopper@dev-ehopper>
+
+	* testupoll.cxx: Changed TimerEvent to use Timer interface instead
+	of unnecessarily requiring UnixEventPoll interface.
+	
+	Changed references to ::std::cerr to cerr because of using statement.
+
+	More consist state printing.
+	
+	Removed commented out code for signal based timing.
+
+	* testupoll.cxx:
+	Set up a new test for the timer portion of UnixEventPoll.
+
+2002-03-16  hopper  <hopper@dev-ehopper>
+
+	* testupoll.cxx: Added another signal test.
+
+	* testupoll.cxx: Added a small test for signal handling.
+
 2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
 
 	* testupoll.cxx: Print out more interesting information at
