@@ -41,10 +41,6 @@ UseTrackingVisitor::UseTrackingVisitor(bool ignorezeros)
 {
 }
 
-UseTrackingVisitor::~UseTrackingVisitor()
-{
-}
-
 void UseTrackingVisitor::visitStrChunk(const StrChunkPtr &chunk)
    throw(halt_visitation)
 {
