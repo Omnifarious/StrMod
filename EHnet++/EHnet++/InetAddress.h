@@ -7,8 +7,12 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/23 17:45:30  hopper
- // Initial revision
+ // Revision 1.2  1996/02/12 00:32:55  hopper
+ // Fixed to use the new C++ standard library string class instead of all the
+ // 'NetString' silliness.
+ //
+ // Revision 1.1.1.1  1995/07/23 17:45:30  hopper
+ // Imported sources
  //
  // Revision 0.2.0.4.1.1  1995/07/23 03:21:38  hopper
  // Added #include <string.h> so it would compile correctly used libg++ 2.7.0.
@@ -41,8 +45,7 @@
 #   include <EHnet++/SocketAddress.h>
 #endif
 
-#include <EHnet++/NString.h>
-#include <string.h>
+#include <string>
 #include <sys/types.h>
 #include <netinet/in.h>
 
@@ -51,34 +54,41 @@
 typedef unsigned short U2Byte;
 
 class InetAddress : public SocketAddress {
-   NetString hostname;
-   U2Byte port;
-   sockaddr_in inaddr;
-
- protected:
-   inline virtual SocketAddress *MakeCopy() const;
-
-   void InvalidateAddress();
-   int InvalidNum(unsigned long &num, int &i, int enddot = 1);
-   NetString ToDec(U2Byte num) const;
-
  public:
    virtual struct sockaddr *SockAddr(){ return((struct sockaddr *)(&inaddr)); }
    InetAddress *Copy() const          { return((InetAddress *)MakeCopy()); }
    virtual int AddressSize() const    { return(sizeof(sockaddr_in)); }
-   virtual NetString AsString();
+   virtual string AsString();
 
-   NetString GetHostname() const      { return(hostname); }
+   string GetHostname() const         { return(hostname); }
+   string GetHostname(bool forcelookup);
    U2Byte GetPort() const             { return(port); }
 
    const InetAddress &operator =(const InetAddress &b);
    const InetAddress &operator =(const sockaddr_in &iadr);
 
-   InetAddress(const NetString &h_name, U2Byte prt);
+   InetAddress(const string &h_name, U2Byte prt);
    InetAddress(U2Byte port);
    InetAddress(const InetAddress &b);
    InetAddress(const sockaddr_in &iadr);
    virtual ~InetAddress()             { }
+
+ protected:
+   inline virtual SocketAddress *MakeCopy() const;
+
+   void InvalidateAddress();
+   static bool ParseNumeric(const char *numeric_addr, unsigned long &num);
+   static bool NameToIaddr(const char *name_addr, unsigned long &num);
+   static string IaddrToName(const sockaddr_in &inaddr);
+
+ private:
+   string hostname;
+   U2Byte port;
+   sockaddr_in inaddr;
+
+   static bool AsciiToQInum(const char *s, int &i,
+			    unsigned long &num, bool endsindot);
+   static string ToDec(U2Byte num);
 };
 
 //--------------------------------inline functions-----------------------------

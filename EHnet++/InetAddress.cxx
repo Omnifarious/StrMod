@@ -1,8 +1,12 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/23 17:45:29  hopper
- // Initial revision
+ // Revision 1.2  1996/02/12 00:32:36  hopper
+ // Fixed to use the new C++ standard library string class instead of all the
+ // 'NetString' silliness.
+ //
+ // Revision 1.1.1.1  1995/07/23 17:45:29  hopper
+ // Imported sources
  //
  // Revision 0.3  1995/01/06  15:56:26  hopper
  // Merged 0.2 and 0.2.0.6
@@ -42,49 +46,18 @@
 #  pragma implementation "InetAddress.h"
 #endif
 
-#ifndef OS2
-#  include <EHnet++/InetAddress.h>
-#  include <netdb.h>
-#  include <sys/socket.h>
-#  include <sys/param.h>
-#else
-#  include "inetaddr.h"
-extern "C" {
-#  include <netdb.h>
-}
-#  include <stdlib.h>
-extern "C" {
-#  include <sys/socket.h>
-#  include <utils.h>
-}
-#  define MAXHOSTNAMELEN (_HOSTBUFSIZE + 1)
-#endif
-
+#include <EHnet++/InetAddress.h>
 #include <ctype.h>
-#include <string.h>
+#include <sys/socket.h>
+#include <stdlib.h>
 
-NetString InetAddress::ToDec(U2Byte num) const
+string InetAddress::AsString()
 {
-   U2Byte top = 10000;
-   NetString temp;
+   string portnum = ToDec(port);
+   string temp = hostname;
 
-   while (top > 0 && (num / top) < 1)
-      top /= 10;
-   if (top <= 0)
-      temp += '0';
-   else {
-      while (top > 0) {
-	 temp += '0' + ((num / top) % 10);
-	 top /= 10;
-      }
-   }
-   return(temp);
-}
-
-NetString InetAddress::AsString()
-{
-   NetString portnum = ToDec(port);
-   NetString temp = hostname;
+   /* I've seen a few alternative repesentations.  I guess the most common
+      is the same as this, except with no "port ". */
 
    temp += " port ";
    temp += portnum;
@@ -92,13 +65,25 @@ NetString InetAddress::AsString()
    return(temp);
 }
 
+string InetAddress::GetHostname(bool forcelookup)
+{
+   if (forcelookup) {
+      hostname = IaddrToName(inaddr);
+      return(hostname);
+   } else {
+      return(GetHostname());
+   }
+}
+
 const InetAddress &InetAddress::operator =(const InetAddress &b)
 {
-   if (this == &b)
-      return(*this);
-   hostname = b.hostname;
-   port = b.port;
-   inaddr = b.inaddr;
+   /* If we're not ourselves, copy all the data over from the other
+      InetAddress. */
+   if (this != &b) {
+      hostname = b.hostname;
+      port = b.port;
+      inaddr = b.inaddr;
+   }
 
    return(*this);
 }
@@ -107,108 +92,56 @@ const InetAddress &InetAddress::operator =(const sockaddr_in &iadr)
 {
    struct hostent *hostinfo;
 
+   /* Make sure we're not being set to our own inaddr, so the = won't be
+      disastrous. */
    if (&inaddr != &iadr) {
       inaddr = iadr;
-      inaddr.sin_family = AF_INET;
-      memset(inaddr.sin_zero, '\0', sizeof(inaddr.sin_zero));
    }
-   port = ntohs(iadr.sin_port);
-   hostinfo = gethostbyaddr((char *)(&(inaddr.sin_addr)),
-			    sizeof(inaddr.sin_addr), AF_INET);
-   if (hostinfo == 0) {
-      unsigned long addr = ntohl(inaddr.sin_addr.s_addr);
 
-      hostname = ToDec((addr >> 24) & 0xffUL);
-      hostname += '.';
-      hostname += ToDec((addr >> 16) & 0xffUL);
-      hostname += '.';
-      hostname += ToDec((addr >> 8) & 0xffUL);
-      hostname += '.';
-      hostname += ToDec(addr & 0xffUL);
-   } else
-      hostname = hostinfo->h_name;
+   /* Make sure we look a lot like the OS thinks an inaddr should look. */
+   inaddr.sin_family = AF_INET;
+   memset(inaddr.sin_zero, '\0', sizeof(inaddr.sin_zero));
+
+   /* Cache the hostname and port info.  We could instead do this every time
+      someone asks, but it would be kind of wasteful. */
+   port = ntohs(iadr.sin_port);
+   hostname = IaddrToName(inaddr);
+
    return(*this);
 }
 
-extern "C" int atoi(const char *);
-
-void InetAddress::InvalidateAddress()
-{
-   hostname = NetString("invalid.host.name");
-
-   inaddr.sin_addr.s_addr = INADDR_ANY;
-}
-
-int InetAddress::InvalidNum(unsigned long &num, int &i, int enddot)
-{
-   if (i >= hostname.strlen() || !isdigit(hostname.CharAt(i))) {
-      InvalidateAddress();
-      return(0);
-   }
-   
-   NetString temphname = hostname;
-
-   num = temphname.atoiAt(i);
-   if (num < 0 || num > 255) {
-      InvalidateAddress();
-      return(1);
-   }
-   while (i < hostname.strlen() && isdigit(hostname.CharAt(i)))
-      i++;
-   if (enddot) {
-      if (i >= hostname.strlen() || hostname.CharAt(i) != '.') {
-	 InvalidateAddress();
-	 return(1);
-      } else
-	 i++;
-   } else {
-      if (i < hostname.strlen()) {
-	 InvalidateAddress();
-	 return(1);
-      }
-   }
-   return(0);
-}
-
-InetAddress::InetAddress(const NetString &h_name, U2Byte prt) :
+InetAddress::InetAddress(const string &h_name, U2Byte prt) :
         hostname(h_name), port(prt)
 {
-   struct hostent *hostinfo;
-   NetString thname = hostname;
+   const char *c_hostname;
 
+   c_hostname = h_name.c_str();
    memset(&inaddr, '\0', sizeof(inaddr));
    inaddr.sin_family = AF_INET;
    inaddr.sin_port = htons(port);
-   if (isdigit(hostname.CharAt(0))) {
-      unsigned long num1, num2, num3, num4;
-      int i;
 
-      i = 0;
-      if (InvalidNum(num1, i))
-	 return;
-      if (InvalidNum(num2, i))
-	 return;
-      if (InvalidNum(num3, i))
-	 return;
-      if (InvalidNum(num4, i, 0))
-	 return;
-      inaddr.sin_addr.s_addr = htonl((((((num1 << 8) | num2) << 8) | num3)
-				      << 8) | num4);
-      *this = inaddr;
+   if (ParseNumeric(c_hostname, inaddr.sin_addr.s_addr)) {
+      /* If the address made sense as a <num>.<num>.<num>.<num> address,
+	 attempt to look up a 'real' hostname for this address. */
+      hostname = IaddrToName(inaddr);
+
+   } else if (NameToIaddr(c_hostname, inaddr.sin_addr.s_addr)) {
+      /* Otherwise, if we were able to translate the name into an actual
+         internet address, then the hostname is the name passed in. See note
+         after function. */
+      hostname = h_name;
+
    } else {
-      hostinfo = gethostbyname(thname);
-      if (hostinfo == 0 || hostinfo->h_addrtype != AF_INET)
-	 InvalidateAddress();
-      else {
-	 inaddr.sin_addr.s_addr =
-	    *((unsigned long *)(hostinfo->h_addr_list[0]));
-      }
+      /* This doesn't seem like any address we can translate to an internet
+         address. */
+      InvalidateAddress();
    }
 }
-
-static char buf[MAXHOSTNAMELEN + 1];
-
-extern "C" int gethostname(char *, int);
+/* **Note about above function**
+   This is, perhaps, not the right way to do things because the passed in
+   name could simply be an alias.  I think this way causes fewer surprises
+   for the programmer using this class, and there ARE ways to force lookup
+   of the alias, namely by calling GetHostname(true) to force a lookup. */
 
 InetAddress::InetAddress(U2Byte prt) : port(prt)
 {
@@ -218,17 +151,7 @@ InetAddress::InetAddress(U2Byte prt) : port(prt)
    inaddr.sin_family = AF_INET;
    inaddr.sin_port = htons(port);
    inaddr.sin_addr.s_addr = INADDR_ANY;
-   gethostname(buf, MAXHOSTNAMELEN + 1);
-   hostinfo = gethostbyname(buf);
-   if (hostinfo == 0) {
-      hostname = "INADDR_ANY(";
-      hostname += buf;
-      hostname += ")";
-   } else {
-      hostname = "INADDR_ANY(";
-      hostname += hostinfo->h_name;
-      hostname += ')';
-   }
+   hostname = IaddrToName(inaddr);
 }
 
 InetAddress::InetAddress(const InetAddress &b) : hostname(b.hostname),
@@ -241,4 +164,81 @@ InetAddress::InetAddress(const sockaddr_in &iadr) : port(0)
 {
    memset(&inaddr, '\0', sizeof(inaddr));
    *this = iadr;
+}
+
+void InetAddress::InvalidateAddress()
+{
+   hostname = string("invalid.host.name");
+
+   inaddr.sin_addr.s_addr = INADDR_ANY;
+}
+
+bool InetAddress::ParseNumeric(const char *numeric_addr, unsigned long &num)
+{
+   if (isdigit(numeric_addr[0])) {
+      unsigned long num1, num2, num3, num4;
+      int i;
+
+      i = 0;
+      if (!AsciiToQInum(numeric_addr, i, num1, true))
+	 return(false);
+      if (!AsciiToQInum(numeric_addr, i, num2, true))
+	 return(false);
+      if (!AsciiToQInum(numeric_addr, i, num3, true))
+	 return(false);
+      if (!AsciiToQInum(numeric_addr, i, num4, false))
+	 return(false);
+      num = htonl((((((num1 << 8) | num2) << 8) | num3) << 8) | num4);
+      return(true);
+   } else {
+      return(false);
+   }
+}
+
+bool InetAddress::AsciiToQInum(const char *s, int &i,
+			       unsigned long &num, bool endsindot)
+{
+   int mynum;
+
+   if (!isdigit(s[i])) {
+      return(false);
+   }
+   
+   mynum = atoi(s + i);
+   if (mynum < 0 || mynum > 255) {
+      return(false);
+   }
+   while (s[i] != '\0' && isdigit(s[i]))
+      i++;
+   if (endsindot) {
+      if (s[i] != '.') {
+	 return(false);
+      } else {
+	 i++;
+      }
+   } else {
+      if (s[i] != '\0') {
+	 return(false);
+      }
+   }
+   num = mynum;
+   return(true);
+}
+
+string InetAddress::ToDec(U2Byte num)
+{
+   U2Byte top = 10000;
+   string temp;
+
+   while (top > 0 && (num / top) < 1)
+      top /= 10;
+   if (top <= 0)
+      temp += '0';
+   else {
+      while (top > 0) {
+	 temp += '0' + ((num / top) % 10);
+	 top /= 10;
+      }
+   }
+   return(temp);
 }

@@ -1,6 +1,6 @@
+#include <string>
 #include <EHnet++/InetAddress.h>
 #include <iostream.h>
-#include <rw/cstring.h>
 
 int main(int argc, char *argv[])
 {
@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
       cout << "iaddr == \"" << iaddr.AsString() << "\"\n";
    } else {
-      RWCString name = argv[1];
+      string name = argv[1];
       InetAddress iaddr(name, 0);
 
       cout << "iaddr == \"" << iaddr.AsString() << "\"\n";

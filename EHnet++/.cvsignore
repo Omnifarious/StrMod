@@ -1,3 +1,9 @@
 GNUmakefile
 *.stamp
+conf.h
+conf.h.in
+config.cache
+config.log
+config.status
 configure
+dependdb.gdbm

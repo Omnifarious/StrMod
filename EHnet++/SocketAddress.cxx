@@ -1,8 +1,12 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/23 17:45:29  hopper
- // Initial revision
+ // Revision 1.2  1996/02/12 00:32:38  hopper
+ // Fixed to use the new C++ standard library string class instead of all the
+ // 'NetString' silliness.
+ //
+ // Revision 1.1.1.1  1995/07/23 17:45:29  hopper
+ // Imported sources
  //
  // Revision 0.2  1995/01/06  14:05:29  hopper
  // Merged 0.1.0.5 and 0.1
@@ -41,12 +45,6 @@
 #endif
 
 #include <iostream.h>
-
-#ifndef OS2
-#  include <EHnet++/NString.h>
-#else
-#  include "nstring.h"
-#endif
 
 void SocketAddress::PrintOn(ostream &os)
 {

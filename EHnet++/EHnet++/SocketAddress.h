@@ -7,8 +7,12 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/23 17:45:30  hopper
- // Initial revision
+ // Revision 1.2  1996/02/12 00:32:57  hopper
+ // Fixed to use the new C++ standard library string class instead of all the
+ // 'NetString' silliness.
+ //
+ // Revision 1.1.1.1  1995/07/23 17:45:30  hopper
+ // Imported sources
  //
  // Revision 0.1.0.4  1994/08/12  17:07:26  hopper
  // Changed to use NetString class. The NetString class handles all library
@@ -30,11 +34,12 @@
 
  // $Revision$
 
+#include <string>
+
 #define _EHNET_SocketAddress_H_
 
 struct sockaddr;
 class ostream;
-class NetString;
 
 class SocketAddress {
  protected:
@@ -46,7 +51,7 @@ class SocketAddress {
    virtual struct sockaddr *SockAddr() = 0;
    SocketAddress *Copy() const                  { return(MakeCopy()); }
    virtual int AddressSize() const = 0;
-   virtual NetString AsString() = 0;
+   virtual string AsString() = 0;
 
    SocketAddress()                              { }
    virtual ~SocketAddress()                     { }

@@ -12,7 +12,7 @@ CFLAGS = @CFLAGS@
 CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@
 
-CPPFLAGS = @CPPFLAGS@
+CPPFLAGS = @CPPFLAGS@ $(DEFS)
 DEFS =  @DEFS@
 
 LDFLAGS = @LDFLAGS@
@@ -35,28 +35,28 @@ DEPDB = @DEPDB@
 
 MYMAKE := $(MAKE)
 
-CCNAMES = InetAddress.cc  SocketAddress.cc  NetString.cc  tests/morejunk.cc
+CCNAMES = InetAddress.cc  SocketAddress.cc  InetAddrNetDB.cc  tests/morejunk.cc
 
-LIBCCS = InetAddress.cc  SocketAddress.cc  NetString.cc
+LIBCCS = InetAddress.cc  SocketAddress.cc  InetAddrNetDB.cc
 
 DEPSUB = $(patsubst %.c,%.o,$(?:.cc=.o))
 DEPSUBDD = $(patsubst %.c,%.c.d,$(?:.cc=.cc.d))
 
-$(libdir)/libStrMod.a : $(LIBCCS)
+$(libdir)/libEHnet++.a : $(LIBCCS)
 	$(MAKE) $(DEPSUB)
 	ar rv $@ $(DEPSUB)
-	$RANLIB $@
+	$(RANLIB) $@
 	rm -f $(DEPSUB)
 
 $(EXTLIBTAG) : $(CCNAMES)
 	$(MAKE) $(DEPSUB)
 	touch $(EXTLIBTAG)
 	ar rv $(EXTLIB) $(DEPSUB)
-	$RANLIB $@
+	$(RANLIB) $@
 	rm -f $(DEPSUB)
 
 tests/inetaddr : tests/morejunk.o
-	$(CXX) tests/morejunk.o $(LDFALGS) -o tests/testinetaddr
+	$(CXX) tests/morejunk.o $(LDFLAGS) $(LIBS) -o tests/testinetaddr
 
 GNUmakefile : depend.stamp
 	$(DEPDB) list --makefiles GNUmakefile GNUmakefile.new
