@@ -43,6 +43,11 @@ void EchoModule::EPlug::otherIsReadable()
    if (other != NULL && getFlagsFrom(*other).canread_)
    {
       setReadable(true);
+      other = pluggedInto();
+      if ((other == NULL) || !(getFlagsFrom(*other).canread_))
+      {
+	 setReadable(false);
+      }
    }
 }
 
@@ -53,6 +58,11 @@ void EchoModule::EPlug::otherIsWriteable()
    if (other != NULL && getFlagsFrom(*other).canwrite_)
    {
       setWriteable(true);
+      other = pluggedInto();
+      if ((other == NULL) || !(getFlagsFrom(*other).canwrite_))
+      {
+	 setWriteable(false);
+      }
    }
 }
 
