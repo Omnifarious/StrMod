@@ -1,3 +1,39 @@
+2000-12-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UseTrackingVisitor.cxx: Removed redundant destructor definition.
+
+	* StrMod/InSerializer.h, StrMod/StrChunk.h: Completely worked over
+	documentation for Doxygen.
+
+	* Makefile.in: Temporarily removed a few .cxx files that haven't
+	been converted to use ChunkIterator and ChunkVisitor yet.  Removed
+	obsolete GV_Iterator and GroupVecter .cxx files.
+
+	* StrMod/StrSubChunk.h, StrMod/StrChunk.h,
+	StrMod/SockListenModule.h, StrMod/PreAllocBuffer.h,
+	StrMod/EOFStrChunk.h, StrMod/DynamicBuffer.h, StrChunk.cxx,
+	StrMod/GroupChunk.h, GroupChunk.cxx, StrMod/BufferChunk.h,
+	BufferChunk.cxx, StrMod/GV_Iterator.h, GV_Iterator.cxx,
+	StrMod/GroupVector.h, GroupVector.h: Removed all the old
+	GroupVector based member functions, DropUnused, and i_DropUnused.
+
+	All of the functionality in the GroupVector and related classes
+	can be had using the ChunkIterator or ChunkVisitor classes.  The
+	DropUnused and i_DropUnused functionality wasn't used often, and
+	will be revisited later.
+
+2000-12-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StrChunkPtrT.h: Completely worked over the documentation
+	for Doxygen.  Made some changes because Doxygen has difficulties
+	with typedefs.
+
+	* CharChopper.cxx:, InSerializer.cxx: Fixed to use new iterator
+	system instead of old, crufty, GV_Iterator.
+
+	* StaticBuffer.cxx, StrMod/StaticBuffer.h (class StaticBuffer):
+	Added this class so that I could hack InSerializer into working.
+
 2000-11-30  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* GraphVizVisitor.cxx: Added some cleanup code and made it
