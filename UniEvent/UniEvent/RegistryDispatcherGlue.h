@@ -31,8 +31,8 @@ class RegistryDispatcherGlue
 
    Dispatcher *dispatcher() const                              { return disp_; }
    void dispatcher(Dispatcher *disp);
-   UnixEventRegistry *evenRegistry() const                     { return ureg_; }
-   void evenRegistry(UnixEventRegistry *ureg);
+   UnixEventRegistry *eventRegistry() const                    { return ureg_; }
+   void eventRegistry(UnixEventRegistry *ureg)                 { ureg_ = ureg; }
 
  private:
    class EmptyEvent : public Event
