@@ -58,4 +58,13 @@ UNIXError::UNIXError(int errno)
 {
 }
 
+inline UNIXError::~UNIXError()
+{
+}
+
+inline int UNIXError::AreYouA(const ClassIdent &cid) const
+{
+   return((identifier == cid) || Protocol::AreYouA(cid));
+}
+
 #endif
