@@ -28,11 +28,25 @@
 
 #define _LCORE_LCoreError_H_
 
+/** \file LCore/LCoreError.h
+ * This file defines LCORE_GET_COMPILERINFO, and contains LCoreError, and
+ * LCoreError::CompilerInfo.
+ */
+
 #if defined __GNUC__ && defined __GNUC_MINOR__ && ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 6)))
+/**
+ * \def LCORE_GET_COMPILERINFO()
+ * \brief Construct a temporary ::LCoreError::CompilerInfo object with values
+ * the compiler will provide in macros.
+ * This is the g++ version, and therefore has the function name available.  */
 #   define LCORE_GET_COMPILERINFO() \
              ::LCoreError::CompilerInfo(__FILE__, __LINE__, __PRETTY_FUNCTION__)
 # else
-#   define LCORE_GET_COMPILERINFO(desc) \
+/** \def LCORE_GET_COMPILERINFO()
+ * \brief Construct a temporary ::LCoreError::CompilerInfo object with values
+ * the compiler will provide in macros.
+ * This isn't the g++ version, and so has no function name.  */
+#   define LCORE_GET_COMPILERINFO() \
              ::LCoreError::CompilerInfo(__FILE__, __LINE__)
 #endif
 
@@ -59,16 +73,23 @@ class LCoreError {
  public:
    class CompilerInfo;
 
+   //! Contruct an LCoreError with however much information you can give it.
    explicit inline
    LCoreError(const char *desc = 0, const char *sourcefile = 0,
               unsigned int line = 0, const char *func = 0) throw ();
+   //! Contruct an LCoreError with a description, and a CompilerInfo object
    explicit inline LCoreError(const char *desc, const CompilerInfo &inf)
       throw();
+   //! Construct an LCoreError with a CompilerInfo object, but no description.
    inline LCoreError(const CompilerInfo &inf) throw();
 
+   //! Get the description, may return NULL.
    const char *getDesc() const throw ()                  { return desc_; }
+   //! Get the source file, may return NULL.
    const char *getSourceFile() const throw ()            { return sourcefile_; }
+   //! Get the line number.
    unsigned int getLine() const throw ()                 { return line_; }
+   //! Get the function name, may return NULL.
    const char *getFunc() const throw ()                  { return func_; }
 
  private:
@@ -84,17 +105,21 @@ class LCoreError {
  *
  * This class is largely so that macros that autmatically extract the
  * information from the compiler are easier to write.  See
- * LCORE_GET_COMPILERINFO.
+ * LCORE_GET_COMPILERINFO().
  */
 class LCoreError::CompilerInfo
 {
  public:
+   //! Constructs with a source file, line number, and possible function name.
    explicit inline
    CompilerInfo(const char *sourcefile, unsigned int line, const char *func = 0)
       throw();
 
+   //! Get the source file, may return NULL.
    const char *getSourceFile() const throw()             { return sourcefile_; }
+   //! Get the line number.
    unsigned int getLine() const throw ()                 { return line_; }
+   //! Get the function name, may return NULL.
    const char *getFunc() const throw ()                  { return func_; }
 
  private:
@@ -105,6 +130,12 @@ class LCoreError::CompilerInfo
 
 //-----------------------------inline functions--------------------------------
 
+/**
+ * \param desc A general description of the context of the error.
+ * \param sourcefile The name of the file the error occured in.
+ * \param line The line number the error occured on.
+ * \param func The name of the function the error occured in.
+ */
 inline
 LCoreError::LCoreError(const char *desc = 0, const char *sourcefile = 0,
                        unsigned int line = 0, const char *func = 0) throw ()

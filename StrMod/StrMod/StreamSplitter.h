@@ -71,7 +71,9 @@ class StreamSplitterModule : public StreamModule {
  public:
    static const STR_ClassIdent identifier;
 
+   //! Create a splitter module who's plugs are connected to nothing.
    StreamSplitterModule();
+   //! Delete splitter module and destroy all plugs it owns.
    virtual ~StreamSplitterModule();
 
    //! On what sides can a plug be created?
@@ -88,7 +90,7 @@ class StreamSplitterModule : public StreamModule {
  protected:
    class SPPlug;
    friend class SPPlug;
-   /** 
+   /* Not Doxygen yet. 
     * \brief This does most of the work.  It just forwards stuff to the other
     * plugs.
     */

@@ -58,6 +58,7 @@ class UNIXError : public LCoreError {
    inline UNIXError(const char *syscallname, int errnum, LCoreError &lcerr)
       throw();
 
+   //! Return name of system call that caused error.
    const char *getSyscallName() const throw ()          { return syscallname_; }
 
    //! The numeric value of the error, which corresponds to values from errno.h
@@ -84,6 +85,11 @@ class UNIXError : public LCoreError {
 
 //-----------------------------inline functions--------------------------------
 
+/**
+ * \param syscallname Name of system call that generated the error.
+ * \param desc [optional] Description of the context of the error.
+ * The actual Unix error number is grabbed from the global 'errno' value.
+ */
 inline
 UNIXError::UNIXError(const char *syscallname, const char *desc) throw ()
      : LCoreError(desc, LCORE_GET_COMPILERINFO()),
@@ -91,6 +97,11 @@ UNIXError::UNIXError(const char *syscallname, const char *desc) throw ()
 {
 }
 
+/**
+ * \param syscallname Name of system call that generated the error.
+ * \param errnum The Unix 'errno' value for this error.
+ * \param desc [optional] Description of the context of the error.
+ */
 inline
 UNIXError::UNIXError(const char *syscallname, int errnum, const char *desc)
    throw ()
@@ -99,11 +110,21 @@ UNIXError::UNIXError(const char *syscallname, int errnum, const char *desc)
 {
 }
 
+/**
+ * \param syscallname Name of system call that generated the error.
+ * \param lcerr An LCoreError, it's values will be copied into the UNIXError.
+ * The actual Unix error number is grabbed from the global 'errno' value.
+ */
 inline UNIXError::UNIXError(const char *syscallname, LCoreError &lcerr) throw()
      : LCoreError(lcerr), syscallname_(syscallname), errnum_(errno)
 {
 }
 
+/**
+ * \param syscallname Name of system call that generated the error.
+ * \param errnum The Unix 'errno' value for this error.
+ * \param lcerr An LCoreError, it's values will be copied into the UNIXError.
+ */
 inline
 UNIXError::UNIXError(const char *syscallname, int errnum, LCoreError &lcerr)
    throw ()
