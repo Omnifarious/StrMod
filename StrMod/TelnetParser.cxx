@@ -80,6 +80,16 @@ inline void TelnetParser::addToChunk(StrChunkPtrT<SuboptBuffer> &chnk,
    (chnk->getCharP())[cursize++] = ch;
 }
 
+/**
+ * \param ch The character to be stuffed into the state machine.
+ * \return The action it thinks you should take now.
+ *
+ * Run the internal state machine on one character.  The internal state
+ * machine will spit back what action it thinks you should perform.  This
+ * allows the internal state machine to only pay attention to the character
+ * sequence and be largely divorced from how the characters are actually
+ * sliced and diced.
+ */
 TelnetParser::Actions TelnetParser::processChar(U1Byte ch)
 {
    assert((state_ == PS_Normal) || (state_ == PS_Escape)
@@ -276,7 +286,9 @@ TelnetParser::Actions TelnetParser::processChar(U1Byte ch)
       break;
 
     default:
+      // This should never happen.
       assert(false);
+      // Try to do something reasonable if it does.
       state_ = PS_Normal;
       return(PC_SkipAddCurrent);
       break;
@@ -420,96 +432,10 @@ void TelnetParser::processIncoming()
    }
 }
 
-unsigned int
-TelnetParser::SingleChar::NumSubGroups(const LinearExtent &extent) const
-{
-   if ((extent.Length() > 0) && (extent.Offset() < 2))
-   {
-      return(1);
-   }
-   else
-   {
-      return(0);
-   }
-}
-
-void TelnetParser::SingleChar::FillGroupVec(const LinearExtent &extent,
-					    GroupVector &vec,
-					    unsigned int &start_index)
-{
-   if ((extent.Length() >0) && (extent.Offset() < 2))
-   {
-      LinearExtent me(0, 2);
-      me.SubExtent_eq(extent);
-      vec.SetVec(start_index++, buf_ + me.Offset(), me.Length());
-   }
-}
-
 void TelnetParser::SingleChar::acceptVisitor(ChunkVisitor &visitor)
    throw(ChunkVisitor::halt_visitation)
 {
    call_visitDataBlock(visitor, buf_, 2);
-}
-
-unsigned int
-TelnetParser::Suboption::NumSubGroups(const LinearExtent &extent) const
-{
-   LinearExtent first(0, 3);
-   LinearExtent second(3, 3 + rawlen_);
-   LinearExtent third(3 + rawlen_, 2);
-   unsigned int subgroups = 0;
-
-   if (first.intersection(extent).Length() > 0)
-   {
-      ++subgroups;
-   }
-   if (second.intersection(extent).Length() > 0)
-   {
-      ++subgroups;
-   }
-   if (third.intersection(extent).Length() > 0)
-   {
-      ++subgroups;
-   }
-   return(subgroups);
-}
-
-void TelnetParser::Suboption::FillGroupVec(const LinearExtent &extent,
-					   GroupVector &vec,
-					   unsigned int &start_index)
-{
-   LinearExtent first(0, 3);
-   LinearExtent second(3, 3 + raw_->Length());
-   LinearExtent third(3 + raw_->Length(), 2);
-
-   {
-      LinearExtent temp = first.intersection(extent);
-
-      if (temp.Length() > 0)
-      {
-	 vec.SetVec(start_index++, optstart_ + temp.Offset(), temp.Length());
-      }
-   }
-   {
-      LinearExtent temp = second.intersection(extent);
-
-      if (temp.Length() > 0)
-      {
-	 temp.MoveLeft(second.Offset());
-	 raw_->FillGroupVec(temp, vec, start_index);
-      }
-   }
-   {
-      LinearExtent temp = third.intersection(extent);
-
-      if (temp.Length() > 0)
-      {
-	 temp.MoveLeft(third.Offset());
-	 assert(temp.Offset() < 2);
-	 assert((temp.Offset() + temp.Length()) <= 2);
-	 vec.SetVec(start_index++, optend_ + temp.Offset(), temp.Length());
-      }
-   }
 }
 
 void TelnetParser::Suboption::acceptVisitor(ChunkVisitor &visitor)
@@ -518,25 +444,6 @@ void TelnetParser::Suboption::acceptVisitor(ChunkVisitor &visitor)
    call_visitDataBlock(visitor, optstart_, 3);
    call_visitStrChunk(visitor, raw_);
    call_visitDataBlock(visitor, optend_, 2);
-}
-
-unsigned int
-TelnetParser::OptionNegotiation::NumSubGroups(const LinearExtent &extent) const
-{
-   LinearExtent me(0, 3);
-   return((extent.intersection(me).Length() > 0) ? 1 : 0);
-}
-
-void TelnetParser::OptionNegotiation::FillGroupVec(const LinearExtent &extent,
-						   GroupVector &vec,
-						   unsigned int &start_index)
-{
-   LinearExtent me(0, 3);
-   me = me.intersection(extent);
-   if (me.Length() > 0)
-   {
-      vec.SetVec(start_index++, buf_ + me.Offset(), me.Length());
-   }
 }
 
 void TelnetParser::OptionNegotiation::acceptVisitor(ChunkVisitor &visitor)
