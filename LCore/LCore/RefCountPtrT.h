@@ -6,7 +6,8 @@
 
 /* $Header$ */
 
-// $Log$
+// For log see ../ChangeLog
+//
 // Revision 1.2  1997/05/12 14:36:03  hopper
 // Removed dangerous two dangerous operator =.
 //
@@ -29,10 +30,10 @@
 #define _LCORE_RefCountPtrT_H_
 
 template <class T>
-class RefCountPtrT : virtual public RefCountPtr {
+class RefCountPtrT : public RefCountPtr {
  public:
-   RefCountPtrT(T *rfptr = 0) : RefCountPtr(rfptr)                          { }
    RefCountPtrT(const RefCountPtrT<T> &b) : RefCountPtr(b)                  { }
+   inline RefCountPtrT(T *rfptr = 0);
 
    inline T &operator *() const;
    inline T *operator ->() const;
@@ -40,6 +41,7 @@ class RefCountPtrT : virtual public RefCountPtr {
    inline T *GetPtr() const;
 
    inline const RefCountPtrT<T> &operator =(const RefCountPtrT<T> &b);
+   inline const RefCountPtrT<T> &operator =(const RefCountPtr &b);
    inline const RefCountPtrT<T> &operator =(T *b);
 
  protected:
@@ -47,6 +49,11 @@ class RefCountPtrT : virtual public RefCountPtr {
 };
 
 //-----------------------------inline functions--------------------------------
+
+template <class T>
+inline RefCountPtrT<T>::RefCountPtrT(T *rfptr) : RefCountPtr(rfptr)
+{
+}
 
 template <class T>
 inline T &RefCountPtrT<T>::operator *() const
@@ -69,6 +76,14 @@ inline T *RefCountPtrT<T>::GetPtr() const
 template <class T>
 inline const RefCountPtrT<T> &
 RefCountPtrT<T>::operator =(const RefCountPtrT<T> &b)
+{
+   RefCountPtr::operator =(b);
+   return(*this);
+}
+
+template <class T>
+inline const RefCountPtrT<T> &
+RefCountPtrT<T>::operator =(const RefCountPtr &b)
 {
    RefCountPtr::operator =(b);
    return(*this);
