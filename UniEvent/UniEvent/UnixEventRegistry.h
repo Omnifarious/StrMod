@@ -66,7 +66,7 @@ class UnixEventRegistry {
    virtual void clearSignal(int signo) = 0;
 
    //! Actually call the UNIX poll system call, and dispatch resulting events.
-   virtual void doPoll(bool wait = true) = 0;
+   virtual void doPoll(bool wait = false) = 0;
 
  protected:
    Dispatcher *getDispatcher() const                { return(disp_); }
