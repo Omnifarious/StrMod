@@ -1,12 +1,18 @@
 #include <StrMod/OutSerializer.h>
 #include <StrMod/InSerializer.h>
-#include <StrMod/DBStrChunk.h>
+#include <StrMod/BufferChunk.h>
 #include <StrMod/StrChunkPtr.h>
 #include <iostream.h>
 
+#define HAVE_MREMAP 1
+#define USE_MEMCPY 1
+#define REALLOC_ZERO_BYTES_FREES 1
+#define DEBUG 1
+#include "dlmalloc.c"
+
 int main()
 {
-   DataBlockStrChunk *chnk;
+   BufferChunk *chnk;
 
    {
       OutSerializer out;
@@ -18,9 +24,9 @@ int main()
 
       out << a << b << c << george << "orwell" << d;
 
-      chnk = out.TakeChunk();
+      chnk = out.takeChunk();
    }
-   cout.write(chnk->GetVoidP(), chnk->Length());
+   cout.write(chnk->getVoidP(), chnk->Length());
 
    {
       StrChunkPtr chnkp = chnk;
