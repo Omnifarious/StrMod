@@ -1,6 +1,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1998/08/24 02:07:43  hopper
+// Changed order of members in initialization list to correspond to actual
+// initialization order.
+//
 // Revision 1.1  1997/04/14 23:55:06  hopper
 // Added class to aid in serialization of simple data tyes.
 //
@@ -30,7 +34,7 @@ struct InSerializer::Impl {
 };
 
 inline InSerializer::Impl::Impl(const void *buf, size_t size)
-     : vec(1), bytesread_(0), i(dummy_gv)
+     : vec(1), i(dummy_gv), bytesread_(0)
 {
    vec.SetVec(0, buf, size);
    i = vec.begin();
