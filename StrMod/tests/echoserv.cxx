@@ -3,17 +3,12 @@
 #include "StrMod/EchoModule.h"
 #include <EHnet++/InetAddress.h>
 #include <Dispatch/dispatcher.h>
+#include <vector>
 #include <iostream.h>
-#include <ibmpp/String.h>
-#include <ibmpp/DL_List.h>
-#define RWNO_STD_TYPEDEFS
-#include <rw/cstring.h>
 
 extern "C" int atoi(const char *);
 
-char String::junk = 0;
-
-struct EchoConnection : public Object {
+struct EchoConnection {
    SocketModule *socket;
    EchoModule echo;
 
@@ -35,7 +30,10 @@ inline EchoConnection::~EchoConnection()
    delete socket;
 }
 
-static void MaintainList(DL_List &lst);
+template class vector<EchoConnection *>;
+typedef vector<EchoConnection *> ConAry;
+
+static void MaintainList(ConAry &lst);
 
 int main(int argc, char *argv[])
 {
@@ -47,13 +45,14 @@ int main(int argc, char *argv[])
    InetAddress      here(atoi(argv[1]));
    SockListenModule slm(here);
    ListeningPlug   *slmp = slm.MakePlug();
-   DL_List          connections;
+   ConAry           connections;
 
    while (!slm.HasError()) {
       Dispatcher::instance().dispatch();
 
-      if (connections.HowMany() > 0)
+      if (connections.size() > 0) {
 	 MaintainList(connections);
+      }
 
       if (slmp->CanRead()) {
 	 SocketModuleChunk *attemptedchunk = slmp->Read();
@@ -62,23 +61,21 @@ int main(int argc, char *argv[])
 	 attemptedchunk->ReleaseModule();
 	 delete attemptedchunk;
 
-	 cerr << "Here!\n";
-	 connections.Add(new EchoConnection(attempted));
+	 connections.push_back(new EchoConnection(attempted));
       }
    }
    cerr << '\n' << slm.ErrorString() << '\n';
 }
 
-static void MaintainList(DL_List &lst)
+static void MaintainList(ConAry &lst)
 {
-   DLL_Cursor i(lst);
-
-   for (i.RestartAtFront(); i.IsValid();) {
-      EchoConnection *ec = static_cast<EchoConnection *>(i.cur());
+   for (ConAry::iterator i = lst.begin(); i < lst.end();) {
+      EchoConnection *ec = *i;
 
       if (ec->socket->HasError()) {
 	 cerr << "Error: " << ec->socket->ErrorString() << '\n';
-	 i.DeleteHere(DLL_Cursor::MoveForward);
+	 lst.erase(i);
+	 delete ec;
       } else
 	 ++i;
       ec = 0;
