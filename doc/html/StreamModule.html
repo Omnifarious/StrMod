@@ -75,5 +75,16 @@ pipeline, here are a few examples from the Unix world: <dl>
 </dl>
 </p>
 
+<h3>Moving data between StreamModules</h3>
+
+<p>StreamModule::Plugs move <a href="StrChunk.html">StrChunk</a>s around using
+ eachothers <a
+ href="../doxygen/classstrmod_1_1strmod_1_1StreamModule_1_1Plug.html#b11">i_Read</a>
+ and <a
+ href="../doxygen/classstrmod_1_1strmod_1_1StreamModule_1_1Plug.html#b12">i_Write</a>
+ methods to pull data from, and push data into another StreamModule.  These
+ methods are protected.  StreamModule::Plugs use their internal 'readable' and
+ 'writeable' state to determine when these methods are called.</p>
+
 </body>
 </html>
