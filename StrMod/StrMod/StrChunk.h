@@ -1,4 +1,4 @@
-#ifndef _STR_StrChunk_H_
+#ifndef _STR_StrChunk_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #pragma interface
@@ -7,6 +7,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.5  1996/06/29 06:27:12  hopper
+// Completely re-worked for new StrChunk handling.
+//
 // Revision 1.4  1996/02/26 03:42:15  hopper
 // Added stuff for new ShallowCopy method.
 //
@@ -108,9 +111,6 @@ static char _EH_StrChunk_H_rcsID[] = "$Id$";
 
 #include <assert.h>
 
-// ** For reasons why this has to be here, see StrChunk.cc
-#include <stdlib.h>
-
 #ifndef _STR_STR_ClassIdent_H_
 #  ifndef OS2
 #     include <StrMod/STR_ClassIdent.h>
@@ -119,119 +119,50 @@ static char _EH_StrChunk_H_rcsID[] = "$Id$";
 #  endif
 #endif
 
-#include <ibmpp/RefCounting.h>
 #include <LCore/Object.h>
 
 #define _STR_StrChunk_H_
 
-//---------------------------class StrChunkBuffer------------------------------
-
-class StrChunkBuffer : public Object, public ReferenceCounting {
- public:
-   static const STR_ClassIdent identifier;
-
-   StrChunkBuffer(const void *, unsigned int size);
-   StrChunkBuffer(const StrChunkBuffer &b);
-   StrChunkBuffer(unsigned int size);
-   inline virtual ~StrChunkBuffer();
-
-   inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   unsigned int GetSize() const            { return(length); }
-   void Resize(unsigned int size);
-
-   void *GetBufAsVoid() const              { return(data); }
-   unsigned char *GetBufAsChar() const     { return((unsigned char *)(data)); }
-
-   inline unsigned char &operator [](unsigned int index) const;
-
-   const StrChunkBuffer &operator =(const StrChunkBuffer &b);
-
- private:
-   unsigned int length;
-   void *data;
-};
+class LinearExtent;
+class GroupVector;
 
 //------------------------------class StrChunk---------------------------------
 
 class StrChunk : public Object {
  public:
+   enum KeepDir { KeepLeft, KeepRight, KeepNone };
    static const STR_ClassIdent identifier;
 
-   StrChunk() : last_errno(0)                    {}
-   virtual ~StrChunk()                           {}
+   StrChunk() : refcounter_(0)              { }
+   virtual ~StrChunk()                      { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
+
+   void AddReference()                      { refcounter_++; }
+   void DelReference()                      { if (refcounter_) refcounter_--; }
+   unsigned int NumReferences() const       { return(refcounter_); }
 
    virtual unsigned int Length() const = 0;
-
-   inline int FillFromFd(int fd, int start = 0, int maxsize = 0);
-   inline int PutIntoFd(int fd, int start = 0, int maxsize = 0);
-
-   inline int FillFromSock(int fd, int start = 0,
-			   int maxsize = 0, int flags = 0);
-   inline int PutIntoSock(int fd, int start = 0,
-			  int maxsize = 0, int flags = 0);
-
-   int GetLastErrno() const                      { return(last_errno); }
-
-   virtual const void *GetCVoidP() = 0;
+   virtual unsigned int NumSubGroups() const;
+   virtual unsigned int NumSubGroups(const LinearExtent &extent) const = 0;
+   inline void SimpleFillGroupVec(GroupVector &vec);
+   virtual void FillGroupVec(GroupVector &vec, unsigned int &start_index);
+   virtual void FillGroupVec(const LinearExtent &extent,
+			     GroupVector &vec, unsigned int &start_index) = 0;
+   inline void DropUnused(const LinearExtent &usedextent,
+			  KeepDir keepdir = KeepLeft);
 
  protected:
-   int last_errno;
-
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   virtual int i_FillFromFd(int fd, int start,
-			    int maxsize, int issocket, int flags) = 0;
-   virtual int i_PutIntoFd(int fd, int start,
-			   int maxsize, int issocket, int flags) = 0;
-};
+   void AddReferences(unsigned int num)     { refcounter_ += num; }
+   inline void DelReferences(unsigned int num);
 
-//--------------------------class DataBlockStrChunk----------------------------
-
-class DataBlockStrChunk : public StrChunk {
- public:
-   static const STR_ClassIdent identifier;
-
-   DataBlockStrChunk()                                  { buf = 0; }
-   inline DataBlockStrChunk(unsigned int length);
-   inline DataBlockStrChunk(unsigned int length, const void *mem);
-   virtual ~DataBlockStrChunk();
-
-   inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   inline virtual unsigned int Length() const;
-
-   virtual unsigned char &operator [](unsigned int bnum) const;
-
-   inline void *GetVoidP() const;
-   inline unsigned char *GetCharP() const;
-   virtual const void *GetCVoidP()                      { return(GetVoidP()); }
-
-   inline void Resize(unsigned int newsize);
-
-   inline DataBlockStrChunk *ShallowCopy() const;
-
- protected:
-   DataBlockStrChunk(const DataBlockStrChunk &b);
-
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-
-   void SetBuf(StrChunkBuffer *b);
-   void SetBuf(const void *b, unsigned int size);
-
-   virtual int i_FillFromFd(int fd, int start,
-			    int maxsize, int issocket, int flags);
-   virtual int i_PutIntoFd(int fd, int start,
-			   int maxsize, int issocket, int flags);
-
-   virtual StrChunk *i_ShallowCopy() const;
+   virtual void i_DropUnused(const LinearExtent &usedextent,
+			     KeepDir keepdir) = 0;
 
  private:
-   StrChunkBuffer *buf;
-
-   void operator =(const DataBlockStrChunk &b);
+   unsigned int refcounter_;
 };
 
 //------------------------inline functions for StrChunk------------------------
@@ -241,103 +172,27 @@ inline int StrChunk::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || Object::AreYouA(cid));
 }
 
-inline int StrChunk::FillFromFd(int fd, int start, int maxsize)
+inline void StrChunk::SimpleFillGroupVec(GroupVector &vec)
 {
-   return(i_FillFromFd(fd, start, maxsize, 0, 0));
+   unsigned int i = 0;
+
+   FillGroupVec(vec, i);
 }
 
-inline int StrChunk::PutIntoFd(int fd, int start, int maxsize)
+inline void StrChunk::DropUnused(const LinearExtent &usedextent,
+				 KeepDir keepdir)
 {
-   return(i_PutIntoFd(fd, start, maxsize, 0, 0));
+   if (NumReferences() <= 1) {
+      i_DropUnused(usedextent, keepdir);
+   }
 }
 
-inline int StrChunk::FillFromSock(int fd, int start, int maxsize, int flags)
+inline void StrChunk::DelReferences(unsigned int num)
 {
-   return(i_FillFromFd(fd, start, maxsize, 1, flags));
-}
-
-inline int StrChunk::PutIntoSock(int fd, int start, int maxsize, int flags)
-{
-   return(i_PutIntoFd(fd, start, maxsize, 1, flags));
-}
-
-//--------------------inline functions for DataBlockStrChunk-------------------
-
-inline int DataBlockStrChunk::AreYouA(const ClassIdent &cid) const
-{
-   return((identifier == cid) || StrChunk::AreYouA(cid));
-}
-
-inline unsigned int DataBlockStrChunk::Length() const
-{
-   return(buf ? buf->GetSize() : 0);
-}
-
-inline unsigned char &DataBlockStrChunk::operator [](unsigned int bnum) const
-{
-   assert(buf != 0); // See below in implementation of operator [] in
-                     // StrChunkBuffer for details of why I'm doing this.
-   return((*buf)[bnum]);
-}
-
-inline void *DataBlockStrChunk::GetVoidP() const
-{
-   return((buf == 0) ? 0 : buf->GetBufAsVoid());
-}
-
-inline unsigned char *DataBlockStrChunk::GetCharP() const
-{
-   return((buf == 0) ? 0 : buf->GetBufAsChar());
-}
-
-inline void DataBlockStrChunk::Resize(unsigned int newsize)
-{
-   if (buf)
-      buf->Resize(newsize);
+   if (refcounter_ > num)
+      refcounter_ -= num;
    else
-      SetBuf(new StrChunkBuffer(newsize));
-}
-
-inline DataBlockStrChunk *DataBlockStrChunk::ShallowCopy() const
-{
-   return(static_cast<DataBlockStrChunk *>(i_ShallowCopy()));
-}
-
-inline DataBlockStrChunk::DataBlockStrChunk(unsigned int length) : buf(0)
-{
-   SetBuf(new StrChunkBuffer(length));
-}
-
-inline DataBlockStrChunk::DataBlockStrChunk(unsigned int length,
-					    const void *mem) :
-     buf(0)
-{
-   SetBuf(mem, length);
-}
-
-//---------------------inline functions for StrChunkBuffer--------------------
-
-inline StrChunkBuffer::~StrChunkBuffer()
-{
-   if (data)
-      free(data);  // *yech* :-P
-}
-
-inline int StrChunkBuffer::AreYouA(const ClassIdent &cid) const
-{
-   return((identifier == cid) ||
-	  Object::AreYouA(cid) ||
-	  ReferenceCounting::AreYouA(cid));
-}
-
-inline unsigned char &StrChunkBuffer::operator [](unsigned int index) const
-{
-   assert(index < length); // This is a FATAL error. Programs that do this
-               // shouldn't keep running. (Also, I want to be able turn off as
-               // much extraneous debugging as possible speed, and assertions
-               // can be turned of using a flag.
-
-   return((GetBufAsChar())[index]);
+      refcounter_ = 0;
 }
 
 #endif
