@@ -1,4 +1,6 @@
- 1. Change StreamFDModule to use events to indicate error conditions.
+(Tasks with an asterisk instead of a period are done.)
+
+ 1* Change StreamFDModule to use events to indicate error conditions.
 
  2. A timer mechanism
 
