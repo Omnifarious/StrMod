@@ -1,3 +1,8 @@
+2001-02-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/ApplyVisitor.h, ApplyVisitor.cxx: Inital implementation
+	of a Visitor that applies a functor to every data extent.
+
 2001-02-11  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* STR_ClassIdent.cxx: Added new number for class
