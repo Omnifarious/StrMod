@@ -1,3 +1,11 @@
+2000-12-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in: Added back the now working StreamFDModule.cxx
+
+	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Lots of changes to
+	remove the GroupVector based code, and replace it with
+	ChunkVisitor based code.
+
 2000-12-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UseTrackingVisitor.cxx: Removed redundant destructor definition.
