@@ -9,7 +9,6 @@
 // For log see ../ChangeLog
 
 #include <LCore/Protocol.h>
-#include <bool.h>
 #include <UniEvent/UNEVT_ClassIdent.h>
 
 #define _UNEVT_Event_H_
@@ -29,6 +28,9 @@ class UNIEvent : virtual public Protocol {
    // can be passed in.
    virtual void TriggerEvent(UNIDispatcher *dispatcher = 0) = 0;
 
+   // Alternate form...
+   inline void operator ()(UNIDispatcher *dispatcher = 0);
+
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
@@ -43,6 +45,11 @@ class UNIEvent : virtual public Protocol {
 inline int UNIEvent::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
+}
+
+inline void UNIEvent::operator ()(UNIDispatcher *dispatcher = 0)
+{
+   TriggerEvent(dispatcher);
 }
 
 #endif
