@@ -4,6 +4,7 @@
 
 #include "UniEvent/UnixEventPoll.h"
 #include "UniEvent/EventPtr.h"
+#include "UniEvent/Dispatcher.h"
 #include <utility>
 #include <map>
 #include <sys/poll.h>
@@ -100,6 +101,33 @@ inline short condmask_to_pollmask(const FDCondSet &condset)
    return pollmask;
 }
 
+inline const FDCondSet pollmask_to_condmask(short pollmask)
+{
+   FDCondSet condset;
+
+   if (pollmask & POLLIN)
+   {
+      condset.set(UnixEventRegistry::FD_Readable);
+   }
+   if (pollmask & POLLOUT)
+   {
+      condset.set(UnixEventRegistry::FD_Writeable);
+   }
+   if (pollmask & POLLERR)
+   {
+      condset.set(UnixEventRegistry::FD_Error);
+   }
+   if (pollmask & POLLHUP)
+   {
+      condset.set(UnixEventRegistry::FD_Closed);
+   }
+   if (pollmask & POLLNVAL)
+   {
+      condset.set(UnixEventRegistry::FD_Invalid);
+   }
+   return condset;
+}
+
 void UnixEventPoll::doPoll(bool wait)
 {
    impl_.polllist_.clear();
@@ -119,26 +147,40 @@ void UnixEventPoll::doPoll(bool wait)
                                               0));
       }
    }
-   const int pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
+   int pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
                                  wait ? -1 : 0);
    const int myerrno = errno;
    if (pollresult >= 0)
    {
       const PollList::iterator end = impl_.polllist_.end();
-      for (PollList::iterator i = impl_.polllist_.begin();
-           (pollresult > 0) && (i != end);
-           ++i)
+      PollList::iterator i = impl_.polllist_.begin();
+      while ((pollresult > 0) && (i != end))
       {
          const pollstruct &pollval = *i;
          if (pollval.revents)
          {
             const FDCondSet condset = pollmask_to_condmask(pollval.revents);
             --pollresult;
+            const FDMap::iterator fdend = impl_.fdmap_.upper_bound(pollval.fd);
+            FDMap::iterator fdcur = impl_.fdmap_.lower_bound(pollval.fd);
+            while (fdcur != fdend)
+            {
+               const FDEvent &curfdev = fdcur->second;
+               if (curfdev.condset_ & condset)
+               {
+                  getDispatcher()->addEvent(curfdev.ev_);
+                  impl_.fdmap_.erase(fdcur++);
+               }
+               else
+               {
+                  ++fdcur;
+               }
+            }
          }
       }
    }
 }
 
-}
-}
-}
+} // Anonymous namespace
+} // namespace unievent
+} // namespace strmod
