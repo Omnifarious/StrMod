@@ -1,9 +1,9 @@
 2002-09-13  Eric Hopper  <hopper@omnifarious.org>
 
-	* Dependencies.cxx, buildtests.cxx: Changed to use the TestFactory
+	* DependTest.cxx, buildtests.cxx: Changed to use the TestFactory
 	approach.
 
 2002-09-13  Eric M. Hopper  <hopper@omnifarious.org>
 
-	* Dependencies.cxx: Testing to make sure it built OK and there are
+	* DependTest.cxx: Testing to make sure it built OK and there are
 	no intermodule dependencies that shouldn't be there.
