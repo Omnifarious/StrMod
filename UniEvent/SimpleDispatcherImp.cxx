@@ -36,8 +36,13 @@ void UNISimpleDispatcher::AddEvent(UNIEvent *ev)
    imp_.push_back(ev);
 }
 
-void UNISimpleDispatcher::DispatchEvents(unsigned int numevents)
+void UNISimpleDispatcher::DispatchEvents(unsigned int numevents,
+					 UNIDispatcher *enclosing)
 {
+   if (enclosing == 0) {
+      enclosing = this;
+   }
+
    unsigned int i = numevents;
 
    while (i && !QEmpty(imp_) && !stop_flag_) {
@@ -45,20 +50,24 @@ void UNISimpleDispatcher::DispatchEvents(unsigned int numevents)
 
       imp_.pop_front();
       i--;
-      ev->TriggerEvent(this);
+      ev->TriggerEvent(enclosing);
    }
    if (stop_flag_) {
       stop_flag_ = false;
    }
 }
 
-void UNISimpleDispatcher::DispatchUntilEmpty()
+void UNISimpleDispatcher::DispatchUntilEmpty(UNIDispatcher *enclosing)
 {
+   if (enclosing == 0) {
+      enclosing = this;
+   }
+
    while (!QEmpty(imp_) && !stop_flag_) {
       UNIEvent *ev = imp_.front();
 
       imp_.pop_front();
-      ev->TriggerEvent(this);
+      ev->TriggerEvent(enclosing);
    }
    if (stop_flag_) {
       stop_flag_ = false;

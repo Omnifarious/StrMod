@@ -28,9 +28,10 @@ class UNIDispatcher : virtual public Protocol {
 
    virtual void AddEvent(UNIEvent *ev) = 0;
 
-   void DispatchEvent()                                { DispatchEvents(1); }
-   virtual void DispatchEvents(unsigned int numevents) = 0;
-   virtual void DispatchUntilEmpty() = 0;
+   inline void DispatchEvent(UNIDispatcher *enclosing = 0);
+   virtual void DispatchEvents(unsigned int numevents,
+			       UNIDispatcher *enclosing = 0) = 0;
+   virtual void DispatchUntilEmpty(UNIDispatcher *enclosing = 0) = 0;
    virtual void StopDispatching() = 0;
    virtual bool_val IsQueueEmpty() const = 0;
 
@@ -50,6 +51,11 @@ class UNIDispatcher : virtual public Protocol {
 inline int UNIDispatcher::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
+}
+
+inline void UNIDispatcher::DispatchEvent(UNIDispatcher *enclosing)
+{
+   DispatchEvents(1, enclosing);
 }
 
 #endif

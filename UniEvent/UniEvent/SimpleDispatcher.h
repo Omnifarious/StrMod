@@ -27,8 +27,9 @@ class UNISimpleDispatcher : public UNIDispatcher {
 
    virtual void AddEvent(UNIEvent *ev);
 
-   virtual void DispatchEvents(unsigned int numevents);
-   virtual void DispatchUntilEmpty();
+   virtual void DispatchEvents(unsigned int numevents,
+			       UNIDispatcher *enclosing = 0);
+   virtual void DispatchUntilEmpty(UNIDispatcher *enclosing = 0);
    inline virtual void StopDispatching();
 
    virtual bool_val IsQueueEmpty() const;
