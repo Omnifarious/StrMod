@@ -1,3 +1,42 @@
+1999-07-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testmulti.cxx: Changed to accomodate the fact that
+	ProcessorModule, NewlineChopper, and PassThrough don't exist yet.
+	Also altered to fit new way of doing things.
+
+	* StrMod/SimpleMulti.h: 
+	* SimpleMulti.cxx: Completely redid SimpleMultiplexer to fit into
+	new way of doing things.
+
+	* StrMod/StreamModule.h: Changed to include new <cassert> and
+	<cstddef> header files instead of <assert.h> and <stddef.h>
+	(Plug::getFlagsFrom): Changed to return a reference to the Flags
+	structure.  Should be a little more efficient.
+
+	* StrMod/StrChunk.h: Changed to include new <cassert> header file
+	instead of <assert.h>
+
+	* StreamFDModule.cxx (plugWrite): Added a case to try to better
+	handle writing an EOF.
+	(doWriteFD): Added yet another way to determine the value of
+	MAXIOVCNT.
+	Added miscellaneous commented out debugging statements.
+
+	* SocketModule.cxx (SHUT_WR): Added #define for SHUT_WR so I could
+	use the symbolic argument to shutdown on Linux systems.
+
+	* STR_ClassIdent.cxx: Added comment line for
+	SimpleMultiplexer::ScanEvent
+
+1999-03-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StreamSplitter.cxx: Simplified logic for determining the value
+	passed into setReadable or setWriteable.  Added some commented out
+	debugging.
+
+	* SocketModule.cxx: Fixed to use new FDUtil::setNonBlock function.
+	Added some commented out debugging.
+
 1999-01-31  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* tests/echoserv.cxx (main): Fixed a small type error (with a cast
