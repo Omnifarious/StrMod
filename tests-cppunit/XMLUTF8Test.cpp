@@ -22,6 +22,36 @@ using ::strmod::xml::utf8::Builder;
 namespace strmod {
 namespace tests {
 
+namespace {
+struct AttributeData
+{
+   ::std::string name_;
+   ::std::string value_;
+   ::std::string literal_;
+   char delimiter_;
+
+   AttributeData(const ::std::string &name, const ::std::string &value,
+                 const ::std::string &literal, char delimiter)
+        : name_(name), value_(value), literal_(literal), delimiter_(delimiter)
+   {
+   }
+};
+
+struct ElementData
+{
+   const ::std::string name_;
+   size_t elbegin_;
+   size_t datbegin_;
+   size_t datend_;
+   ::std::vector<AttributeData> attrlist_;
+
+   ElementData(const ::std::string &name, size_t elbegin)
+        : name_(name), elbegin_(elbegin), datbegin_(elbegin), datend_(elbegin)
+   {
+   }
+};
+}
+
 class XMLUTF8Test : public ::CppUnit::TestFixture
 {
 //   CPPUNIT_TEST_SUITE(XMLUTF8Test);
