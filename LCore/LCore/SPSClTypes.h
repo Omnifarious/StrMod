@@ -1,8 +1,11 @@
-#ifndef _LCORE_SPSClTypes_H_
+#ifndef _LCORE_SPSClTypes_H_  // -*-c++-*-
 
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/06/18 03:33:16  hopper
+// Added comment so emacs would know this is a C++ header.
+//
 // Revision 1.2  1996/02/20 01:34:27  hopper
 // Added explicit declarations for some operator == that would normally be
 // matched by overloading rules if it weren't for a gcc 2.7.2 bug.
