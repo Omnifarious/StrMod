@@ -5,10 +5,16 @@
 #include <stdexcept>
 
 const ::std::string XMLUTF8Lexer::out_of_range_message("XMLUTF8Lexer::lex: Element, attribute or entity name too large!");
+const ::std::string XMLUTF8Lexer::bad_case_message("XMLUTF8Lexer::lex: Programmer error!  Bad case!");
 
 void XMLUTF8Lexer::throw_out_of_range()
 {
    throw ::std::out_of_range(out_of_range_message);
+}
+
+void XMLUTF8Lexer::throw_bad_case()
+{
+   throw ::std::logic_error(bad_case_message);
 }
 
 void XMLUTF8Lexer::call_startElementTag(const Position &first, size_t namepos,
@@ -37,6 +43,10 @@ void XMLUTF8Lexer::call_addAttribute(const Position &attrbegin,
 
 
 // $Log$
+// Revision 1.6  2003/01/10 02:29:10  hopper
+// Added a function to throw an exception when the main lexer routine
+// encounters 'impossible' conditions.
+//
 // Revision 1.5  2003/01/09 22:48:32  hopper
 // Much farter along multiple buffer parsing.
 //
