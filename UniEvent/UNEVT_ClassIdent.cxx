@@ -15,4 +15,5 @@ const UNEVT_ClassIdent UNEVT_ClassIdent::identifier(0UL);
  *   1UL  UNIDispatcher
  *   2UL  UNIEvent
  *   3UL  OSConditionManager
+ *   4UL  UNISimpleDispatcher
  */
