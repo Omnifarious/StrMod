@@ -197,7 +197,6 @@ inline SimpleMultiplexer::SinglePlug::SinglePlug(SimpleMultiplexer &parent)
 
 inline SimpleMultiplexer::SinglePlug::~SinglePlug()
 {
-   unPlug();
 }
 
 inline SimpleMultiplexer &SimpleMultiplexer::SinglePlug::getParent() const
