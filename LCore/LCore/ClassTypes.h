@@ -1,4 +1,4 @@
-#ifndef _LCORE_ClassTypes_H_
+#ifndef _LCORE_ClassTypes_H_  // -*- c++ -*-
 
 /*
  * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
@@ -48,18 +48,15 @@
 
 #include <iosfwd>
 
+#ifndef _LCORE_Object_H_INSIDE
 namespace strmod {
 namespace lcore {
+#endif
 
 class ClassIdent;
 
-class ProgrammerNum : public Object {
-   U4Byte num;
-
- protected:
-   inline virtual int IsEqual(const Object &b) const;
-   inline virtual const ClassIdent *i_GetIdent() const;
-
+class ProgrammerNum : public Object
+{
  public:
    static const ClassIdent identifier;
 
@@ -70,6 +67,13 @@ class ProgrammerNum : public Object {
 				  const ProgrammerNum &b);
 
    ProgrammerNum(U4Byte n) : num(n)               {}
+
+ protected:
+   inline virtual int IsEqual(const Object &b) const;
+   inline virtual const ClassIdent *i_GetIdent() const;
+
+ private:
+   U4Byte num;
 };
 
 class ClassNum : public Object {
@@ -190,8 +194,10 @@ inline int ClassIdent::AreYouA(const ClassIdent &cid) const
    return ((identifier == cid) || Object::AreYouA(cid));
 }
 
+#ifndef _LCORE_Object_H_INSIDE
 } // namespace lcore
 } // namespace strmod
+#endif
 
 #endif  // End of include check for LCore/Object.h
 #endif  // End double inclusion guard ifdef
