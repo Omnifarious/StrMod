@@ -15,7 +15,19 @@ class XMLBuilder
 {
  public:
    //! Handle for positions from previous calls to XMLUTF8Lexer::lex
-   typedef unsigned int PosHandle;
+   union BufHandle {
+      unsigned long ulval_;
+      void *ptrval_;
+   };
+   struct Position {
+      BufHandle bufhdl_;
+      size_t bufoffset_;
+
+      Position(BufHandle bufhdl, size_t bufoffset)
+           : bufhdl_(bufhdl), bufoffset_(bufoffset)
+      {
+      }
+   };
 
    //! Just set up some initial defaults.
    XMLBuilder() { }
@@ -502,6 +514,9 @@ class XMLUTF8Lexer
 };
 
 // $Log$
+// Revision 1.9  2003/01/08 18:00:07  hopper
+// More scrabblings along the path to a decent XML parser.
+//
 // Revision 1.8  2003/01/06 15:18:35  hopper
 // Towards further attempts to record positions in previously parsed buffers.
 //
