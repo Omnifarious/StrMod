@@ -260,14 +260,14 @@ void StreamFDModule::doReadFD()
       size = ::read(fd_, dbchunk->GetVoidP(), maxsize);
       // I may have an error, capture errno to make sure nothing happens to it.
       myerrno = errno;
-      // cerr << "Read " << size << " bytes.\n";
+      // cerr << fd_ << ": just read " << size << " bytes.\n";
 
       if (size > 0) {
 	 dbchunk->Resize(size);
 	 buffed_read_ = dbchunk;
-	 // cerr << fd_ << ": just read: <";
-	 // cerr.write(dbchunk->GetCharP(), dbchunk->Length());
-	 // cerr << ">\n";
+//  	 cerr << fd_ << ": just read: <";
+//  	 cerr.write(dbchunk->GetCharP(), dbchunk->Length());
+//  	 cerr << ">\n";
 	 dbchunk = 0;
       } else {
 	 delete dbchunk;
@@ -334,6 +334,7 @@ void StreamFDModule::doReadFD()
 
 void StreamFDModule::doWriteFD()
 {
+   // cerr << fd_ << ": in doWriteFD()\n";
 #ifndef MAXIOVCNT  // UnixWare 7 has this undefined.  *sigh*
    static const int MAXIOVCNT = sysconf(_SC_IOV_MAX);
 #endif
