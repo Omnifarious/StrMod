@@ -1,5 +1,8 @@
 1999-01-17  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* LCore/RefCountPtr.h: Fixed a problem with NDEBUG being defined
+	when it shouldn't be.
+
 	* LCore/GenTypes.h: Fixed UNIX U4Byte and S4Byte typedefs to use
 	int instead of long if you're compiling on a alpha.  This is in
 	lieu of a more comprehensive 64 bit solution.

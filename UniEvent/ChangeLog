@@ -1,3 +1,11 @@
+1999-01-31  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UNIXpollManagerImp.cxx (doPoll): Changed to handle possible
+	EINTR return code, indicating that the poll was interrupted by a
+	signal.  Some operating systems (AIX v.? and DGUX v.4.0D)
+	interrupt poll with a signal, even if the signal handler has the
+	SA_RESTART flag set.
+
 1999-01-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/EventPtrT.h (i_CheckType): Added a NULL check.  Not
