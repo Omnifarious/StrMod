@@ -128,5 +128,5 @@ void LinearExtent::ShortenCenter(length_t by)
    m_length -= by;
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

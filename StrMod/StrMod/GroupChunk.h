@@ -77,7 +77,7 @@ inline int GroupChunk::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

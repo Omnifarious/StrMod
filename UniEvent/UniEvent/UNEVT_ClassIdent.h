@@ -67,7 +67,7 @@ inline UNEVT_ClassIdent::UNEVT_ClassIdent(U4Byte cnum) :
 {
 }
 
-}; // namespace unievent
-}; // namespace strmod
+} // namespace unievent
+} // namespace strmod
 
 #endif

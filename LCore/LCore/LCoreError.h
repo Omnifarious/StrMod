@@ -140,8 +140,8 @@ class LCoreError::CompilerInfo
  * \param func The name of the function the error occured in.
  */
 inline
-LCoreError::LCoreError(const char *desc = 0, const char *sourcefile = 0,
-                       unsigned int line = 0, const char *func = 0) throw ()
+LCoreError::LCoreError(const char *desc, const char *sourcefile,
+                       unsigned int line, const char *func) throw ()
      : desc_(desc), sourcefile_(sourcefile), line_(line), func_(func)
 {
 }
@@ -165,7 +165,7 @@ inline LCoreError::LCoreError(const CompilerInfo &inf) throw()
 
 inline LCoreError::CompilerInfo::CompilerInfo(const char *sourcefile, 
                                               unsigned int line,
-                                              const char *func = 0) throw()
+                                              const char *func) throw()
      : sourcefile_(sourcefile), line_(line), func_(func)
 {
 }

@@ -155,7 +155,7 @@ inline U1Byte *BufferChunk::getCharP()
    return((buflen_ > 0) ? static_cast<U1Byte *>(buf_) : &junk_);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

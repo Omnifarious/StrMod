@@ -115,7 +115,7 @@ UNIXError::UNIXError(const char *syscallname,
 {
 }
 
-}; // namespace unievent
-}; // namespace strmod
+} // namespace unievent
+} // namespace strmod
 
 #endif

@@ -75,7 +75,7 @@ inline unsigned int StrSubChunk::Length() const
    return(subext_.Length());
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

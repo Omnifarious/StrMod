@@ -151,7 +151,7 @@ StrChunkPtrT<Chunk>::i_CheckType(ReferenceCounting *p) const
    return(((p != 0) && p->AreYouA(Chunk::identifier)) ? p : 0);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

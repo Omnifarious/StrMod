@@ -118,7 +118,7 @@ EventPtrT<Event_t>::i_CheckType(ReferenceCounting *p) const
    return(((p != 0) && p->AreYouA(Event::identifier)) ? p : 0);
 }
 
-}; // namespace unievent
-}; // namespace strmod
+} // namespace unievent
+} // namespace strmod
 
 #endif

@@ -159,7 +159,7 @@ inline void UseTrackingVisitor::startVisit(const StrChunkPtr &root)
    visitStrChunk(root);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

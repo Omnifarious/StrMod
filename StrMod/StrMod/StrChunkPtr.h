@@ -137,7 +137,7 @@ inline const StrChunkPtr &StrChunkPtr::operator =(StrChunk *b)
    return(*this);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

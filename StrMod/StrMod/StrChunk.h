@@ -154,7 +154,7 @@ inline void StrChunk::call_visitDataBlock(ChunkVisitor &visitor,
    visitor.visitDataBlock(start, len);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

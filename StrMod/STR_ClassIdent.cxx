@@ -40,8 +40,8 @@ namespace strmod {
 
 const STR_ClassIdent STR_ClassIdent::identifier(0UL);
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod
 
 /*
    0UL	STR_ClassIdent

@@ -112,7 +112,7 @@ class ChunkVisitor : public Protocol {
       throw(halt_visitation);
 };
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

@@ -112,7 +112,7 @@ inline STR_ClassIdent::STR_ClassIdent(U4Byte cnum) :
 {
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

@@ -153,6 +153,6 @@ inline UNIXpollManager::~UNIXpollManager()
 {
 }
 
-}; // namespace unievent
-}; // namespace strmod
+} // namespace unievent
+} // namespace strmod
 #endif

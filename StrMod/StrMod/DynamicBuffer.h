@@ -60,7 +60,7 @@ inline int DynamicBuffer::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || BufferChunk::AreYouA(cid));
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

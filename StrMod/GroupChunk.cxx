@@ -93,5 +93,5 @@ void GroupChunk::acceptVisitor(ChunkVisitor &visitor)
    }
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

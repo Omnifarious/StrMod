@@ -94,7 +94,7 @@ inline const EventPtr &EventPtr::operator =(Event *b)
    return(*this);
 }
 
-}; // namespace unievent
-}; // namespace strmod
+} // namespace unievent
+} // namespace strmod
 
 #endif

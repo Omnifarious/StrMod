@@ -79,5 +79,5 @@ void StrSubChunk::acceptVisitor(ChunkVisitor &visitor)
    call_visitStrChunk(visitor, subchunk_, subext_);
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

@@ -226,7 +226,7 @@ inline void LinearExtent::ShortenRight(length_t by)
    }
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

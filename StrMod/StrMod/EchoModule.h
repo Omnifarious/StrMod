@@ -162,7 +162,7 @@ inline EchoModule &EchoModule::EPlug::getParent() const
    return(static_cast<EchoModule &>(Plug::getParent()));
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

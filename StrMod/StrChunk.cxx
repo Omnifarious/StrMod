@@ -34,5 +34,5 @@ namespace strmod {
 //! A unique identifier for this class.
 const STR_ClassIdent StrChunk::identifier(6UL);
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

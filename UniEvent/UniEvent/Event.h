@@ -99,7 +99,7 @@ inline void Event::operator ()(Dispatcher *dispatcher)
    triggerEvent(dispatcher);
 }
 
-}; // namespace unievent
-}; // namespace strmod
+} // namespace unievent
+} // namespace strmod
 
 #endif

@@ -414,7 +414,7 @@ inline void StreamFDModule::FPlug::i_Write(const StrChunkPtr &ptr)
    getParent().plugWrite(ptr);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

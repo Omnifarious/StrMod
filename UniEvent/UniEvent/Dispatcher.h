@@ -157,7 +157,7 @@ inline void Dispatcher::dispatchEvent(Dispatcher *enclosing)
    dispatchEvents(1, enclosing);
 }
 
-}; // namespace unievent
-}; // namespace strmod
+} // namespace unievent
+} // namespace strmod
 
 #endif

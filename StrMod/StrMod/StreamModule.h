@@ -542,7 +542,7 @@ inline void StreamModule::Plug::notifyOtherWriteable() const
    }
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif
