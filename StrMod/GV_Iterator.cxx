@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1998/11/03 00:32:40  hopper
+// Fixed small syntax errors that g++ should've caught.
+//
 // Revision 1.1  1996/05/08 10:56:23  hopper
 // Initial functional revision
 //
@@ -12,7 +15,8 @@
 #include <StrMod/GV_Iterator.h>
 
 const STR_ClassIdent GroupVector::Iterator::identifier(17UL);
-const char GroupVector::Iterator::dummy_ = '\0';
+// See class declaration for initial value.
+const char GroupVector::Iterator::dummy_;
 
 void GroupVector::Iterator::HandleRepositionForward()
 {
@@ -39,7 +43,7 @@ void GroupVector::Iterator::HandleRepositionForward()
       cur_char_ = &dummy_;
    } else {
       cur_char_ =
-	 static_cast<const char *>(parent().groups_[cur_group_].iov_base)
+	 static_cast<char *>(parent().groups_[cur_group_].iov_base)
 	 + group_char_num_;
    }
 }
