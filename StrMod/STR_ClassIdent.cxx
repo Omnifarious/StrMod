@@ -1,8 +1,11 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:49  hopper
-// Initial revision
+// Revision 1.2  1996/05/08 11:11:29  hopper
+// Added a couple of new classes to the comments section.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:49  hopper
+// Imported sources
 //
 // Revision 1.4  1995/04/18  18:37:57  hopper
 // Added comments for new class numbers
@@ -43,4 +46,6 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
    SockListenModule	13UL
    ListeningPlug	14UL
    SocketModuleChunk	15UL
+   GroupVector		16UL
+   GroupVector::Iterator 17UL
 */
