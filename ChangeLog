@@ -1,5 +1,12 @@
 1999-10-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* distbin/proclibsrc.pl.in: Added this multipurpose perl script to
+	help all the depency collection and filtering to the top level
+	make file work.
+
+	* distbin/install-sh: Added this program so that configure would
+	always find a BSD compatible install.
+
 	* Makefile.in: Added the wondrous, splendiferous new makefile that
 	runs through all the component directories, collects depency
 	information, and does one, big make at the top level.
