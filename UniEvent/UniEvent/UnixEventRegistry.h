@@ -22,16 +22,29 @@ class EventPtr;
  * \brief Manages events associated with various file descriptors and/or
  * signals.
  */
-class UnixEventRegistry {
+class UnixEventRegistry
+{
  public:
-   //! These enums are intended to be used with the enum_set, FDCondSet.
-   enum FDConditions { FD_Readable, FD_Writeable,
-                       FD_Error, FD_Closed, FD_Invalid };
+   /** These enums are intended to be used with the enum_set, FDCondSet.
+    * In maintaining this enum, FD_Readable must be first, and FD_Invalid must
+    * be last.
+    * \note fd means file descriptor.
+    */
+   enum FDConditions {
+      FD_Readable, //!< Can the fd be read from without blocking?
+      FD_Writeable, //!< Can the fd be written to without blocking?
+      FD_Error,  //!< Is the fd in some kind of error state?
+      FD_Closed, //!< Has the fd been closed by another process?
+      FD_Invalid //!< Was the fd never opened?
+   };
    //! A set of 0 or more FDConditions.
    typedef enum_set<FDConditions, FD_Readable, FD_Invalid> FDCondSet;
+   //! The set of all FDConditions
    static const FDCondSet all_fdconds;
 
+   //! This is an abstract base class, so the constructor has little meaning.
    inline UnixEventRegistry();
+   //! An abstract base class with no members, has nothing to destruct.
    inline virtual ~UnixEventRegistry();
 
    //! Register the event '*ev' to be fired on file descriptor condition true.
