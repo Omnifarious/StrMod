@@ -1,3 +1,7 @@
+/* $Header$ */
+
+// For a log, see ChangeLog
+
 #include <UniEvent/SimpleDispatcher.h>
 #include <UniEvent/UnixEventRegistry.h>
 #include <UniEvent/UnixEventPoll.h>
