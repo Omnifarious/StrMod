@@ -1,8 +1,12 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/22 04:46:49  hopper
- // Initial revision
+ // Revision 1.2  1996/07/05 18:50:05  hopper
+ // Changed to use new StrChunkPtr interface.  Also changed to implement
+ // new parent module handling in StrPlug base class.
+ //
+ // Revision 1.1.1.1  1995/07/22 04:46:49  hopper
+ // Imported sources
  //
  // -> Revision 0.12  1995/04/14  16:42:55  hopper
  // -> Combined versions 0.11 and 0.11.0.4
@@ -64,3 +68,15 @@ bool StrPlug::PlugInto(StrPlug *p)
       }
    }
 }
+
+void StrPlug::ReadableNotify()
+{
+   StrPlug *mate = PluggedInto();
+
+   while (mate && mate->CanRead() && CanWrite()) {
+      Write(mate->Read());
+      mate = PluggedInto();
+   }
+}
+
+void WriteableNotify();

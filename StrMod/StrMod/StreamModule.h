@@ -1,4 +1,4 @@
-#ifndef _STR_StreamModule_H_
+#ifndef _STR_StreamModule_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #  pragma interface
@@ -6,7 +6,12 @@
 
 /* $Header$ */
 
+
 // $Log$
+// Revision 1.3  1996/07/05 18:49:56  hopper
+// Changed to use new StrChunkPtr interface.  Also changed to implement
+// new parent module handling in StrPlug base class.
+//
 // Revision 1.2  1996/02/26 03:43:51  hopper
 // Made StrPlug::PluggedInto method const as it ought to have been in the
 // first place.
@@ -104,6 +109,9 @@ static char _STR_StreamModule_H_rcsID[] = "$Id$";
 #ifndef _STR_STR_ClassIdent_H_
 #  include <StrMod/STR_ClassIdent.h>
 #endif
+#ifndef _STR_StrChunkPtr_H_
+#  include <StrMod/StrChunkPtr.h>
+#endif
 
 #define _STR_StreamModule_H_
 
@@ -129,54 +137,53 @@ class StreamModule : public Object {
    virtual StrPlug *CreatePlug(int side) = 0;
 };
 
-class StrChunk;
-
-// StrPlug's typically end up doing all the work, using their parent module as
-// a place to store local state variables. When I first wrote this comment in
-// here, I said the exact opposite. It didn't turn out that way, and I learned
-// a fair number of things when I realized that.
+class StrChunkPtr;
 
 class StrPlug : public Object {
  public:
    static const STR_ClassIdent identifier;
 
-   StrPlug() : ConnPlug(0), notify_flags(0) {}
+   inline StrPlug(StreamModule *parent);
    inline virtual ~StrPlug();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    virtual bool CanWrite() const = 0;
    inline virtual void NotifyOnWriteable();
-   virtual bool Write(StrChunk *) = 0;
+   virtual bool Write(const StrChunkPtr &) = 0;
 
    virtual bool CanRead() const = 0;
    inline virtual void NotifyOnReadable();
-   StrChunk *Read()                            { return(InternalRead()); }
+   const StrChunkPtr Read()                         { return(InternalRead()); }
 
    virtual bool PlugInto(StrPlug *p);
    inline bool PlugIntoAndNotify(StrPlug *p);
-   StrPlug *PluggedInto() const                { return(ConnPlug); }
+   StrPlug *PluggedInto() const                     { return(ConnPlug); }
    inline virtual void UnPlug();
 
-   StreamModule *ModuleFrom() const            { return(ParentModule()); }
+   StreamModule *ModuleFrom() const                 { return(parent_); }
    virtual int Side() const = 0;
 
  protected:
    enum { NotifyingOnWriteable = 0x01, NotifyingOnReadable = 0x02 };
 
-   StrPlug *ConnPlug;
-   unsigned char notify_flags;
+   virtual const ClassIdent *i_GetIdent() const     { return(&identifier); }
 
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const StrChunkPtr InternalRead() = 0;
 
-   virtual StreamModule *ParentModule() const = 0;
-   virtual StrChunk *InternalRead() = 0;
-
-   virtual void ReadableNotify()               {} // By default, don't
-   virtual void WriteableNotify()              {} // do anything
+   virtual void ReadableNotify();
+   virtual void WriteableNotify();
 
    inline void DoReadableNotify();
    inline void DoWriteableNotify();
+
+ private:
+   StrPlug *ConnPlug;
+   StreamModule *parent_;
+   unsigned char notify_flags;
+
+   StrPlug(const StrPlug &);
+   StrPlug &operator =(const StrPlug &);
 };
 
 //-----------------------------inline functions--------------------------------
@@ -187,6 +194,11 @@ inline int StreamModule::AreYouA(const ClassIdent &cid) const
 }
 
 //----------------StrPlug inlines------------------
+
+inline StrPlug::StrPlug(StreamModule *parent)
+     : ConnPlug(0), notify_flags(0), parent_(parent)
+{
+}
 
 inline StrPlug::~StrPlug()
 {
