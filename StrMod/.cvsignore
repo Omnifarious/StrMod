@@ -1,5 +1,6 @@
 *.tar.gz
 *.flc
+GNUmakefile
 GNUmakefile~
 echoserv
 testecho
