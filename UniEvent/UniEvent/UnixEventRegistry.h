@@ -29,39 +29,6 @@ class UnixEventGenerator {
 /*   enum SIGConds { SIG_Async = 0x01, SIG_Sync = 0x02 }; */
    static const FDCondSet all_fdconds;
 
-   /** \class PollEvent UNIXpollManager.h UniEvent/UNIXpollManager.h
-    * \brief Event that passes back info about what conditions triggered the
-    * event.
-    * Note that if you use the same event object for more than one set of
-    * conditions, the information returned by getCondBits is going to be
-    * spurious.
-    */
-   class PollEvent : public Event {
-    public:
-      static const UNEVT_ClassIdent identifier;
-
-      inline PollEvent();
-      virtual ~PollEvent()                             { }
-
-      inline virtual int AreYouA(const ClassIdent &cid) const;
-
-      //! Sets the condition bit(s) that triggered this event.
-      void setCondBits(const FDCondSet &condbits)      { bits_ = condbits; }
-
-      virtual void triggerEvent(Dispatcher *dispatcher = 0) = 0;
-
-    protected:
-      virtual const ClassIdent *i_GetIdent() const     { return(&identifier); }
-
-      //! What condition triggered this event?
-      const FDCondSet &getCondBits() const             { return(bits_); }
-
-    private:
-      FDCondSet bits_;
-   };
-
-   static const UNEVT_ClassIdent identifier;
-
    inline UnixEventGenerator(Dispatcher *dispatcher);
    inline virtual ~UnixEventGenerator();
 
@@ -90,27 +57,22 @@ class UnixEventGenerator {
    Dispatcher *getDispatcher() const                { return(disp_); }
 
  private:
-   Dispatcher *disp_;
+   Dispatcher * const disp_;
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline int UNIXpollManager::PollEvent::AreYouA(const ClassIdent &cid) const
-{
-   return (identifier == cid) || Event::AreYouA(cid);
-}
-
-inline UNIXpollManager::PollEvent::PollEvent()
+inline UnixEventGenerator::PollEvent::PollEvent()
      : bits_(0)
 {
 }
 
-inline UNIXpollManager::UNIXpollManager(Dispatcher *dispatcher)
+inline UnixEventGenerator::UnixEventGenerator(Dispatcher *dispatcher)
    : disp_(dispatcher)
 {
 }
 
-inline UNIXpollManager::~UNIXpollManager()
+inline UnixEventGenerator::~UnixEventGenerator()
 {
 }
 
