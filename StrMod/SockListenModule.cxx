@@ -141,7 +141,7 @@ int ListeningPlug::inputReady(int fd)
    }
 
    length = buflen;
-   saddr = static_cast<sockaddr *>(buf);
+   saddr = reinterpret_cast<sockaddr *>(buf);
    if ((newfd = accept(parent->sockfd, saddr, &length)) < 0) {
       parent->last_error = errno;
       return(0);
