@@ -1,3 +1,18 @@
+1999-10-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/RefCountPtr.h: Changed so that a preprocessor flag that
+	should disappear after the file is done does disappear.
+
+	* LCore/Protocol.h: Moved the protected section to where it should
+	be if it follows coding giudelines.  Added a reference to this
+	file.
+
+	* clsprgid.cxx: Added a new class, Debugable.
+
+	* LCore/Debugable.h:
+	* debugabl.cxx: Added a new 'Debugable' interface for checking
+	class invariants and printing state.
+
 1999-07-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* LCore/HopClTypes.h: 
