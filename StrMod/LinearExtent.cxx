@@ -1,6 +1,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/06/29 06:42:21  hopper
+// Added const qualifier.
+// New function SubExtent_eq, in place SubExtent calc.
+//
 // Revision 1.1  1996/05/08 11:16:47  hopper
 // First functional revision
 //
@@ -10,8 +14,11 @@
 #endif
 
 #include <StrMod/LinearExtent.h>
+#include <limits.h>
 
-const LinearExtent LinearExtent::SubExtent(const LinearExtent &extent)
+const LinearExtent LinearExtent::full_extent(0, UINT_MAX);
+
+const LinearExtent LinearExtent::SubExtent(const LinearExtent &extent) const
 {
    if (extent.m_offset > m_length) {
       return(LinearExtent(m_offset + m_length, 0));
@@ -22,6 +29,21 @@ const LinearExtent LinearExtent::SubExtent(const LinearExtent &extent)
 	 return(LinearExtent(newoff, m_length - extent.m_offset));
       } else {
 	 return(LinearExtent(newoff, extent.m_length));
+      }
+   }
+}
+
+const LinearExtent LinearExtent::SubExtent_eq(const LinearExtent &extent)
+{
+   if (extent.m_offset > m_length) {
+      m_offset += m_length;
+      m_length = 0;
+   } else {
+      m_offset += extent.m_offset;
+      if ((extent.m_offset + extent.m_length) > m_length) {
+	 m_length -= extent.m_offset;
+      } else {
+	 m_length = extent.m_length;
       }
    }
 }
