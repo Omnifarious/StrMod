@@ -60,6 +60,8 @@ INPUT                  = include/LCore \
                          include/UniEvent \
                          include/EHnet++ \
                          include/StrMod \
+                         include/xml \
+                         include/xml/utf8 \
                          LCore \
                          UniEvent \
                          EHnet++ \

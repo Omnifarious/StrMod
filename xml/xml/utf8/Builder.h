@@ -19,17 +19,17 @@ namespace strmod {
 namespace xml {
 namespace utf8 {
 
-/** \class Builder Builder.h xml/Builder.h
- * An interface class for an XMLUTF8Lexer to use to put tokens together into
- * some other structure.
+/** \class Builder Builder.h xml/utf8/Builder.h
+ * An interface class for an Lexer to use to put tokens together into some other
+ * structure.
  *
- * This is so the XMLUTF8Lexer doesn't have to know the details of how the
- * parser (or whatever is interpreting the output of the XMLUTF8Lexer) works.
- * It follows the Builder pattern from Design Patterns.
+ * This is so the Lexer doesn't have to know the details of how the parser (or
+ * whatever is interpreting the output of the Lexer) works.  It follows the
+ * Builder pattern from Design Patterns.
  *
- * In the various member functions that follow, there are various
- * parameters describing the positions of things.  In order to make
- * this description clearer, here is a diagram:
+ * In the various member functions that follow, there are various parameters
+ * describing the positions of things.  In order to make this description
+ * clearer, here is a diagram:
  * <pre>
  * &lt;LongTagName withan="attribute">And some element text&lt;/LongTagName> 
  * ^            ^       ^        ^^^                    ^             ^
@@ -44,24 +44,25 @@ namespace utf8 {
 class Builder
 {
  public:
-   //! Handle for positions from previous calls to XMLUTF8Lexer::lex
+   /** \class BufHandle Builder.h xml/utf8/Builder.h
+    * Handle for positions from previous calls to Lexer::lex
+    */
    union BufHandle {
-      unsigned long ulval_;
-      void *ptrval_;
+      unsigned long ulval_;  //!< If the user uses an integral type for the handle.
+      void *ptrval_; //!< If the user uses a pointer type for the handle.
    };
-   /**
+   /** \class Position Builder.h xml/utf8/Builder.h
     * The position of a token start, end, or other feature.
     *
-    * Since the XMLUTF8Lexer works on character buffers, and a given token
-    * may extend across several buffers, it also needs a way to communicate
-    * which buffer a particular token started or ended in.  To this end, since
-    * the XMLUTF8Lexer reports the positions in the buffer of token beginnings
-    * and endings, it reports those positions using an identifier (i.e. handle)
-    * for which buffer the position was in, what the offset is from that
-    * buffer.
+    * Since the Lexer works on character buffers, and a given token may extend
+    * across several buffers, it also needs a way to communicate which buffer a
+    * particular token started or ended in.  To this end, since the Lexer
+    * reports the positions in the buffer of token beginnings and endings, it
+    * reports those positions using an identifier (i.e. handle) for which buffer
+    * the position was in, what the offset is from that buffer.
     *
-    * An offset may point one past the last achracter in the buffer
-    * identified by the handle.
+    * An offset may point one past the last achracter in the buffer identified
+    * by the handle.
     *
     * This whole system is designed with three goals:
     * - Reduce the amount of information that has to be copied.
@@ -70,11 +71,11 @@ class Builder
     *    on the way to a parse tree.
     */
    struct Position {
-      //! A buffer identifier passed into XMLUTF8Lexer::lex
+      //! A buffer identifier passed into Lexer::lex
       BufHandle bufhdl_;
       //! The offset from the beginning of the buffer represented by bufhdl_
-      // This  may point one past the last achracter in the buffer
-      // identified by the handle.
+      // This may point one past the last achracter in the buffer identified by
+      // the handle.
       size_t bufoffset_;
 
       //! Convenience initializing contructor
