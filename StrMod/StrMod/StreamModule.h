@@ -7,8 +7,12 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:50  hopper
-// Initial revision
+// Revision 1.2  1996/02/26 03:43:51  hopper
+// Made StrPlug::PluggedInto method const as it ought to have been in the
+// first place.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:50  hopper
+// Imported sources
 //
 // ->Revision 0.30  1995/04/05  01:49:15  hopper
 // ->Changed things for integration into the rest of my libraries.
@@ -151,7 +155,7 @@ class StrPlug : public Object {
 
    virtual bool PlugInto(StrPlug *p);
    inline bool PlugIntoAndNotify(StrPlug *p);
-   StrPlug *PluggedInto()                      { return(ConnPlug); }
+   StrPlug *PluggedInto() const                { return(ConnPlug); }
    inline virtual void UnPlug();
 
    StreamModule *ModuleFrom() const            { return(ParentModule()); }
