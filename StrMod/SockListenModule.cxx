@@ -1,4 +1,4 @@
-k/*
+/*
  * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
