@@ -53,4 +53,7 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   40UL	BufferChunk::Factory
   41UL	InfiniteModule
   42UL	InfiniteModule::IPlug
+  43UL	SimpleTelnetClient
+  44UL	SimpleTelnetClient::UPlug
+  45UL	SimpleTelnetClient::SPlug
 */
