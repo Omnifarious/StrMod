@@ -25,7 +25,8 @@
 
 class StrChunkPtr;
 
-//: An abstract base for objects that can be modules in the StreamModule framework.
+//: An abstract base for objects that can be modules in the StreamModule
+//: framework.
 
 // <P>A StreamModule module can be thought of as a processing element in a
 // stream of data.  A StreamModule's 'sides' represent ports at which data can
@@ -53,7 +54,8 @@ class StreamModule : public Protocol {
  public:
    class Plug;
    friend class Plug;
-   //: The Strategy for what to do when a plug is disconnected from another plug.
+   //: The Strategy for what to do when a plug is disconnected from another
+   //: plug.
    // <p>Probably best used as a Flyweight.</p>
    // <p>Not called on module deletion, or if the module thinks it handles its
    // plugs disconnecting and there's no room for a Strategy to get
@@ -119,9 +121,11 @@ class StreamModule : public Protocol {
    // NEVER return 0 (NULL).
    virtual Plug *i_MakePlug(int side) = 0;
 
-   //: Used to set the readable flag of a plug since their set method is protected.
+   //: Used to set the readable flag of a plug since their set method is
+   //: protected.
    inline void setReadableFlagFor(Plug *p, bool val);
-   //: Used to set the writeable flag of a plug since their set method is protected.
+   //: Used to set the writeable flag of a plug since their set method is
+   //: protected.
    inline void setWriteableFlagFor(Plug *p, bool val);
 
  private:
