@@ -40,7 +40,8 @@ LIBCXX = Event.cxx                Dispatcher.cxx          SimpleDispatcher.cxx \
          SimpleDispatcherImp.cxx  UNEVT_ClassIdent.cxx    UNIXError.cxx \
          UNIXpollManager.cxx      UNIXpollManagerImp.cxx  EventPtr.cxx \
          UNIXSignalHandler.cxx    Timer.cxx               UNIXTimer.cxx \
-         UnixEventRegistry.cxx    UnixEventPoll.cxx       TimerEventTracker.cxx
+         UnixEventRegistry.cxx    UnixEventPoll.cxx       TimerEventTracker.cxx\
+         RegistryDispatcherGlue.cxx
 
 TESTCCS = tests/testdisp.cxx  tests/testsimple.cxx  tests/testUPoll.cxx
 
