@@ -1,3 +1,37 @@
+2001-02-24  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in: Added semi-test telnet source to the library.
+
+	* tests/tstelnet.cxx, tests/TelnetToAscii.cxx, tests/ttelnet.cxx,
+	SimpleTelnetClient.cxx: Changes to use the re-written
+	TelnetChunker stuff.
+
+	* StrMod/ApplyVisitor.h, ApplyVisitor.cxx: Had to move the call to
+	startVisit that actually begins the process of applying the
+	functor to the data out of the constructor.
+
+	I forgot that calling virtual functions in a constructor is a bad
+	idea.  Too much Python programming I expect.
+
+	* STR_ClassIdent.cxx: Changes to the class number list to reflect
+	reality.
+
+	* StrMod/TelnetParser.h, TelnetParser.cxx, TelnetChunker.cxx,
+	StreamFDModule.cxx: Small changes to fix missing symbols and bugs.
+
+2001-02-23  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetChunker.h, TelnetChunker.cxx,
+	StrMod/TelnetParser.h, TelnetParser.cxx,
+	StrMod/TelnetChunkBuilder.h: Completely changed around to use the
+	ApplyVisitor and to process a buffer at a time instead of a
+	character at a time.
+
+2001-02-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/LocalCopy.h, LocalCopy.cxx: New class for holding local
+	copies of member variables.  Like StackSwapper.
+
 2001-02-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/StackSwapper.h, StrMod/ApplyVisitor.h,
