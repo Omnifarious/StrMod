@@ -1,3 +1,7 @@
+1999-10-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in: Updated to be have everything the GNUmakefile has.
+
 1999-07-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/UNEVT_ClassIdent.h: Removed a redundant operator ==
