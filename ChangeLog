@@ -1,3 +1,8 @@
+2002-09-10  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* Doxyfile: New version number, and a new path to my private copy
+	of AT&Ts GraphViz tools.
+
 2002-08-30  Eric Hopper  <hopper@omnifarious.org>
 
 	* Lots of stuff: Lots of changes for lcore and ehnet namespaces.
