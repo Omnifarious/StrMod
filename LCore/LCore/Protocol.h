@@ -3,8 +3,13 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:09:25  hopper
-// Initial revision
+// Revision 1.2  1996/03/26 16:23:01  hopper
+// Moved ReferenceCounting class over from Container library.
+// Fixed up class numbering system so LCore uses a seperate library number
+// from the container library.
+//
+// Revision 1.1.1.1  1995/07/22 04:09:25  hopper
+// Imported sources
 //
 // Revision 0.2  1994/10/30  04:41:41  hopper
 // Moved various things into the new LCore library.
@@ -28,7 +33,7 @@ class Protocol {
    inline virtual const ClassIdent *i_GetIdent() const;
 
  public:
-   static const EH0_ClassIdent identifier;
+   static const LCore_ClassIdent identifier;
 
    const ClassIdent &GetIdent() const               { return(*i_GetIdent()); }
    virtual int AreYouA(const ClassIdent &cid) const {

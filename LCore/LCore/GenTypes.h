@@ -3,8 +3,13 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:09:24  hopper
-// Initial revision
+// Revision 1.2  1996/03/26 16:22:59  hopper
+// Moved ReferenceCounting class over from Container library.
+// Fixed up class numbering system so LCore uses a seperate library number
+// from the container library.
+//
+// Revision 1.1.1.1  1995/07/22 04:09:24  hopper
+// Imported sources
 //
 // Revision 0.3  1994/10/30  04:40:26  hopper
 // Moved various things into the new LCore library.
@@ -18,7 +23,6 @@
 
 #ifdef __GNUG__
 #  pragma interface
-#  include <sys/byteorder.h>   // UNIX systems only.
 #endif
 
 #define _LCORE_GenTypes_H_

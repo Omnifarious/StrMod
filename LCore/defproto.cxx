@@ -4,4 +4,4 @@
  /* UNIX:@@:defs/Protocol.cc:@@: */
 /* MSDOS:@@:DEFS/DEFPROTO.CPP:@@: */
 
-const EH0_ClassIdent Protocol::identifier(21UL);
+const LCore_ClassIdent Protocol::identifier(7UL);

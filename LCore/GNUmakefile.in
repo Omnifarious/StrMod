@@ -14,7 +14,7 @@ MYMAKE := $(MAKE)
 
 CCNAMES = classimp.cc  defproto.cc  hopclimp.cc  objctstr.cc  progrimp.cc \
           clsprgid.cc  cltpsstr.cc  gentyimp.cc  objctstd.cc  objecimp.cc \
-          protoimp.cc  defeh_cl.cc  defspscl.cc
+          protoimp.cc  defeh_cl.cc  defspscl.cc  defrefco.cc  refcoimp.cc
 
 SONAMES = $(CCNAMES:.cc=.s.o)
 

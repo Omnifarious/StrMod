@@ -4,4 +4,4 @@
  /* UNIX:@@:defs/EH_ClassIdent.cc:@@: */
 /* MSDOS:@@:DEFS/DEFEH_CL.CPP:@@: */
 
-const EH0_ClassIdent EH_ClassIdent::identifier(37UL);
+const LCore_ClassIdent EH_ClassIdent::identifier(6UL);

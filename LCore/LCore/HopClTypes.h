@@ -3,6 +3,11 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/03/26 16:23:00  hopper
+// Moved ReferenceCounting class over from Container library.
+// Fixed up class numbering system so LCore uses a seperate library number
+// from the container library.
+//
 // Revision 1.2  1996/02/12 00:43:48  hopper
 // Added Net library class EH0_Libraries enum in class EH_ClassNum.
 //
@@ -36,7 +41,7 @@
 
 #define _LCORE_HopClTypes_H_
 
-class EH0_ClassIdent;
+class LCore_ClassIdent;
 
 class EH_ClassNum : public ClassNum {
  protected:
@@ -46,12 +51,12 @@ class EH_ClassNum : public ClassNum {
    friend class EH_ClassIdent;
 
  public:
-   static const EH0_ClassIdent identifier;
+   static const LCore_ClassIdent identifier;
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    enum EH0_Libraries { Container = 0, Common, ETurboVis, Accounting,
-			FileIO, RecordID, StrMod, Net,
+			FileIO, RecordID, StrMod, Net, LCore,
 			Logger = 4083, MO_Entry, DriverFile, Journals, GMCs,
 			User0, User1, User2, User3,
 			User4, User5, User6, User7 = 4095};
@@ -64,14 +69,12 @@ class EH_ClassNum : public ClassNum {
 
 //----------
 
-class EH0_ClassIdent;
-
 class EH_ClassIdent : public ClassIdent {
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
 
  public:
-   static const EH0_ClassIdent identifier;
+   static const LCore_ClassIdent identifier;
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
@@ -84,18 +87,18 @@ class EH_ClassIdent : public ClassIdent {
 
 //----------
 
-class EH0_ClassIdent : public EH_ClassIdent {
+class LCore_ClassIdent : public EH_ClassIdent {
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
 
  public:
-   static const EH0_ClassIdent identifier;
+   static const LCore_ClassIdent identifier;
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    inline bool operator ==(const ClassIdent &b) const;
 
-   inline EH0_ClassIdent(U4Byte cnum);
+   inline LCore_ClassIdent(U4Byte cnum);
 };
 
 //---------------------------inline functions--------------------------------
@@ -155,23 +158,23 @@ inline EH_ClassIdent::EH_ClassIdent(EH_ClassNum cnum) :
 
 //--------------
 
-inline const ClassIdent *EH0_ClassIdent::i_GetIdent() const
+inline const ClassIdent *LCore_ClassIdent::i_GetIdent() const
 {
    return(&identifier);
 }
 
-inline int EH0_ClassIdent::AreYouA(const ClassIdent &cid) const
+inline int LCore_ClassIdent::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
 }
 
-inline bool EH0_ClassIdent::operator ==(const ClassIdent &b) const
+inline bool LCore_ClassIdent::operator ==(const ClassIdent &b) const
 {
    return(EH_ClassIdent::operator ==(b));
 }
 
-inline EH0_ClassIdent::EH0_ClassIdent(U4Byte cnum) :
-     EH_ClassIdent(EH_ClassNum(EH_ClassNum::Container, cnum))
+inline LCore_ClassIdent::LCore_ClassIdent(U4Byte cnum) :
+     EH_ClassIdent(EH_ClassNum(EH_ClassNum::LCore, cnum))
 {
 }
 
