@@ -40,26 +40,61 @@
 
 #define _STR_StrChunkPtrT_H_
 
+/** \class StrChunkPtrT StrChunkPtrT.h StrMod/StrChunkPtrT.h
+ * A convenience template to point at things derived from StrChunk.
+ *
+ * This is nice to have since the inheritance relationship between
+ * StrChunkPtrT and StrChunk mirrors the inheritance relationship between
+ * StrChunk and any of it's subclasses.  This allows us to use a StrChunkPtrT
+ * when we care about the type of a StrChunk and still pass it into methods
+ * requiring a <code>const StrChunkPtr &</code> without a type conversion.
+ *
+ * Note that this class (and none of my other template classes) override the
+ * various Protocol type identification methods.  This is because the LCore
+ * type identification system doesn't handle templated types well, and also
+ * because of the dubious value of identifying them precisely.  It will still
+ * register as being a StrChunkPtr or RefCountPtr.
+ */
 template <class Chunk>
 class StrChunkPtrT : public StrChunkPtr {
  public:
+   //! An easier way to refer to StrChunkPtr.
    typedef StrChunkPtr super1;
 
+   //@{
+   /**
+    * These all construct a StrChunkPtr from the appropriate type and maintain
+    * the reference count to the pointed at StrChunk.
+    */
    inline StrChunkPtrT(const StrChunkPtrT<Chunk> &b) : super1(b)            { }
    inline StrChunkPtrT(const RefCountPtrT<Chunk> &b) : super1(b.GetPtr())   { }
    inline StrChunkPtrT(Chunk *stptr = 0) : super1(stptr)                    { }
+   //@}
 
+   //@{
+   /**
+    * The methods you need to override to do a smart pointer.
+    */
    inline Chunk &operator *() const;
    inline Chunk *operator ->() const;
+   //@}
 
+   //! A way to get the raw pointer value, just in case.
    inline Chunk *GetPtr() const;
 
+   //@{
+   /**
+    * These all set a StrChunkPtrs value from the appropriate type and
+    * maintain the reference count to the pointed at StrChunk.
+    */
    inline const StrChunkPtrT<Chunk> &operator =(const StrChunkPtrT<Chunk> &b);
    inline const StrChunkPtrT<Chunk> &operator =(const RefCountPtrT<Chunk> &b);
    inline const StrChunkPtrT<Chunk> &operator =(Chunk *b);
+   //@}
 
  protected:
-   inline virtual RC *i_CheckType(RC *p) const;
+   //! See class RefCountPtr.  Used in ensuring type safety.
+   inline virtual ReferenceCounting *i_CheckType(ReferenceCounting *p) const;
 };
 
 //-----------------------------inline functions--------------------------------
