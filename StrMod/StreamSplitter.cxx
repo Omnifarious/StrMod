@@ -103,6 +103,8 @@ StreamModule::Plug *StreamSplitterModule::i_MakePlug(int side)
 
 const StrChunkPtr StreamSplitterModule::SPPlug::i_Read()
 {
+//     unsigned int side = side_;
+//     cerr << "plug side: " << side << " i_Read()\n";
    SPPlug *partner = getReadPartner();
    assert(partner != NULL);
    assert(partner->pluggedInto() != NULL);
@@ -120,6 +122,8 @@ const StrChunkPtr StreamSplitterModule::SPPlug::i_Read()
 
 void StreamSplitterModule::SPPlug::i_Write(const StrChunkPtr &ptr)
 {
+//     unsigned int side = side_;
+//     cerr << "plug side: " << side << " i_Read()\n";
    SPPlug *partner = getWritePartner();
    assert(partner != NULL);
    assert(partner->pluggedInto() != NULL);
@@ -135,7 +139,8 @@ void StreamSplitterModule::SPPlug::i_Write(const StrChunkPtr &ptr)
 
 void StreamSplitterModule::SPPlug::otherIsReadable()
 {
-//     cerr << "plug side: " << side_ << " otherIsReadable\n";
+//     unsigned int side = side_;
+//     cerr << "plug side: " << side << " otherIsReadable\n";
    SPPlug *partner = getWritePartner();
 //     cerr << "partner == " << partner;
 //     if (partner != NULL)
@@ -143,20 +148,22 @@ void StreamSplitterModule::SPPlug::otherIsReadable()
 //        cerr << " && partner->side() == " << partner->side();
 //     }
 //     cerr << "\n";
+//     cerr << "getFlagsFrom(*pluggedInto()).canread_ == "
+//  	<< (((pluggedInto() != NULL) && getFlagsFrom(*pluggedInto()).canread_) ?
+//  	    "true\n" : "false\n");
 
    if (partner != NULL)
    {
       Plug *other = pluggedInto();
 
-      partner->setReadable((other == NULL) ?
-			   false :
-			   getFlagsFrom(*other).canread_);
+      partner->setReadable((other != NULL) && getFlagsFrom(*other).canread_);
    }
 }
 
 void StreamSplitterModule::SPPlug::otherIsWriteable()
 {
-//     cerr << "plug side: " << side_ << " otherIsWriteable\n";
+//     unsigned int side = side_;
+//     cerr << "plug side: " << side << " otherIsWriteable\n";
    SPPlug *partner = getReadPartner();
 //     cerr << "partner == " << partner;
 //     if (partner != NULL)
@@ -164,13 +171,15 @@ void StreamSplitterModule::SPPlug::otherIsWriteable()
 //        cerr << " && partner->side() == " << partner->side();
 //     }
 //     cerr << "\n";
+//     cerr << "getFlagsFrom(*pluggedInto()).canwrite_ == "
+//  	<< (((pluggedInto() != NULL)
+//  	     && getFlagsFrom(*pluggedInto()).canwrite_) ?
+//  	    "true\n" : "false\n");
 
    if (partner != NULL)
    {
       Plug *other = pluggedInto();
 
-      partner->setWriteable((other == NULL) ?
-			    false :
-			    getFlagsFrom(*other).canwrite_);
+      partner->setWriteable((other != NULL) && getFlagsFrom(*other).canwrite_);
    }
 }
