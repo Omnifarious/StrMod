@@ -31,7 +31,8 @@ class OSConditionManager : virtual public Protocol {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    virtual bool HasConditions() const = 0;
-   virtual void WaitConditions(WaitType wait = Wait_FOREVER,
+   virtual void WaitConditions(UNIDispatcher &post_to,
+			       WaitType wait = Wait_FOREVER,
 			       sec_t secs = 1, usec_t usecs = 0) = 0;
 
    inline bool AddCondition(OSObConds *obc);
