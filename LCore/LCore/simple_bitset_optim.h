@@ -55,10 +55,6 @@ inline _single_int_bitset<Tsize>::_single_int_bitset(bool initial_value)
 template <size_t Tsize>
 inline _single_int_bitset<Tsize>::_single_int_bitset(const _single_int_bitset<Tsize> &rhs)
 {
-   using ::std::cerr;
-
-   cerr << "topmask_ == " << topmask_ << '\n';
-   cerr << "bits_ == " << bits_ << " && rhs.bits_ == " << rhs.bits_ << '\n';
    bits_ = rhs.bits_;
 }
 template <size_t Tsize> inline _single_int_bitset<Tsize> &
