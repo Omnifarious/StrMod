@@ -46,7 +46,7 @@ class UnixEventGenerator {
       inline virtual int AreYouA(const ClassIdent &cid) const;
 
       //! Sets the condition bit(s) that triggered this event.
-      void setCondBits(unsigned int condbits)          { bits_ = condbits; }
+      void setCondBits(const FDCondSet &condbits)      { bits_ = condbits; }
 
       virtual void triggerEvent(Dispatcher *dispatcher = 0) = 0;
 
@@ -54,27 +54,27 @@ class UnixEventGenerator {
       virtual const ClassIdent *i_GetIdent() const     { return(&identifier); }
 
       //! What condition triggered this event?
-      unsigned int getCondBits() const                 { return(bits_); }
+      const FDCondSet &getCondBits() const             { return(bits_); }
 
     private:
-      unsigned int bits_;
+      FDCondSet bits_;
    };
 
    static const UNEVT_ClassIdent identifier;
 
-   inline UNIXpollManager(Dispatcher *dispatcher);
-   inline virtual ~UNIXpollManager();
+   inline UnixEventGenerator(Dispatcher *dispatcher);
+   inline virtual ~UnixEventGenerator();
 
    //! Register the event '*ev' to be fired on file descriptor condition true.
    virtual bool registerFDCond(int fd,
-			       unsigned int condbits,
-			       const EventPtr &ev) = 0;
+                               const FDCondSet &condbits,
+                               const EventPtr &ev) = 0;
    /** Register '*ev' to be fired when file descriptor condition true.
     * This function promises to fill in the poll event with information about
     * the conditions causing the event to be triggered.
     */
    virtual bool registerFDCond(int fd,
-			       unsigned int condbits,
+			       const FDCondSet &condbits,
 			       const EventPtrT<PollEvent> &ev) = 0;
 /*   // Register the event '*ev' to be fired when a signal happens.
    bool_val registerSIGCond(int sig, unsigned int condbits, const EventPtr &ev);
