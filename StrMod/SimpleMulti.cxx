@@ -1,6 +1,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/08/31 15:45:03  hopper
+// Fixed several bugs in class SimpleMultiplexer that caused it to lock up
+// when searching for the plug list.
+//
 // Revision 1.1  1996/08/24 12:55:52  hopper
 // New source module for SimpleMultiplexer class, and related plug classes.
 //
@@ -55,7 +59,16 @@ bool SimpleMultiplexer::DeletePlug(StrPlug *plug)
       MPlugList::iterator search = find(mplugs_.begin(), mplugs_.end(), plug);
 
       if (search != mplugs_.end()) {
-	 MultiPlug *dplug = (*search);
+	 MultiPlug *dplug = *search;
+
+	 if ((search == nextplug_) || (dplug == *nextplug_)) {
+	    ++nextplug_;
+	    if (nextplug_ == mplugs_.end()) {
+	       nextplug_ = ((mplugs_.size() == 1) ?
+			    mplugs_.end() : mplugs_.begin());
+	    }
+	 }
+	 mplugs_.erase(search);
 	 if (!(dplug->HasRead())) {
 	    dplug->SetHasRead();
 	    --multis_left_to_read_mchunk_;
@@ -67,6 +80,7 @@ bool SimpleMultiplexer::DeletePlug(StrPlug *plug)
 	 } else {
 	    (*search)->UnPlug();
 	 }
+	 delete dplug;
 	 return(true);
       } else {
 	 return(false);
@@ -88,10 +102,15 @@ StrPlug *SimpleMultiplexer::CreatePlug(int side)
 	 nplug->ClearHasRead();
       }
       mplugs_.push_back(nplug);
+      if (mplugs_.size() == 1) {
+	 nextplug_ = mplugs_.begin();
+      }
       return(nplug);
    }
 }
 
+
+#include <StrMod/StrChunk.h>
 
 bool SimpleMultiplexer::SingleWrite(const StrChunkPtr &chnk)
 {
@@ -109,6 +128,9 @@ bool SimpleMultiplexer::SingleWrite(const StrChunkPtr &chnk)
 	    --multis_left_to_read_mchunk_;
 	 }
       }
+//      cerr << "SingleWrite: chnk->Length() == " << chnk->Length()
+//	   << " &&  multis_left_to_read_mchunk_ == "
+//	   << multis_left_to_read_mchunk_ << "\n";
       for (i = mplugs_.begin(); i != mplugs_.end(); ++i) {
 	 if (!((*i)->HasRead())) {
 	    (*i)->DoReadableNotify();
@@ -122,23 +144,40 @@ bool SimpleMultiplexer::SingleWrite(const StrChunkPtr &chnk)
 
 bool SimpleMultiplexer::SingleCanRead()
 {
+//   cerr << "SingleCanRead() CALL\n";
    if (mplugs_.size() < 1) {
       return(false);
    }
 
-   MPlugList::iterator oldplug = nextplug_;
+   MPlugList::iterator newplug(nextplug_);
+   MPlugList::iterator end(mplugs_.end());
 
-   do {
-      MultiPlug *cur = *nextplug_;
-
+   if (newplug == end) {
+      newplug = mplugs_.begin();
+   }
+      
+   while (true) {
+//      cerr << "SingleCanRead() LOOP\n";
+      MultiPlug *cur = *newplug;
+      
       if (cur->PluggedInto() && cur->PluggedInto()->CanRead()) {
+	 nextplug_ = newplug;
+//	 cerr << "SingleCanRead() -> true\n";
 	 return(true);
       }
-      if (++nextplug_ == mplugs_.end()) {
-	 nextplug_ = mplugs_.begin();
+      ++newplug;
+      if (newplug == nextplug_) {
+//	 cerr << "SingleCanRead() -> false\n";
+	 return(false);
       }
-   } while (nextplug_ != oldplug);
-   return(false);
+      if (newplug == end) {
+	 newplug = mplugs_.begin();
+      }
+      if (newplug == nextplug_) {
+//	 cerr << "SingleCanRead() -> false\n";
+	 return(false);
+      }
+   }
 }
 
 const StrChunkPtr SimpleMultiplexer::SingleRead()
@@ -146,7 +185,9 @@ const StrChunkPtr SimpleMultiplexer::SingleRead()
    StrChunkPtr retptr;  // Auto-initialized to null.
 
    if (SingleCanRead()) {
-      retptr = (*nextplug_)->Read();
+      retptr = (*nextplug_)->PluggedInto()->Read();
+//      cerr << "SingleRead: Reading "
+//	   << (retptr ? retptr->Length() : 0) << " bytes\n";
       if (++nextplug_ == mplugs_.end()) {
 	 nextplug_ = mplugs_.begin();
       }
@@ -159,6 +200,11 @@ const StrChunkPtr SimpleMultiplexer::SingleRead()
 bool SimpleMultiplexer::MultiWrite(const StrChunkPtr &ptr)
 {
    if (MultiCanWrite()) {
+      if (SingleCanWrite()) {
+//	 cerr << "MultiWrite: SingleCanWrite\n";
+//	 cerr << "(bool)mchunk_ == " << (mchunk_ ? true : false) << "\n";
+      }
+//      cerr << "MultiWrite: Writing " << ptr->Length() << " bytes\n";
       return(splug_.PluggedInto()->Write(ptr));
    } else {
       return(false);
@@ -168,7 +214,10 @@ bool SimpleMultiplexer::MultiWrite(const StrChunkPtr &ptr)
 const StrChunkPtr SimpleMultiplexer::MultiRead(MultiPlug *mplug)
 {
    StrChunkPtr retptr;  // Auto-initialized to null.
+   void *temp = mplug;
 
+//   cerr << "MultiRead:" << temp << ": multis_left_to_read_mchunk_ == "
+//	<< multis_left_to_read_mchunk_ << "\n";
    if (MultiCanRead(mplug)) {
       retptr = mchunk_;
       mplug->SetHasRead();
