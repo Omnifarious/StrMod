@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1999/03/05 15:30:32  hopper
+// Some lint cleanup changes, and also cleanups and fixes to the code
+// that handles interplug communication and notification.
+//
 // Revision 1.2  1996/02/12 05:50:04  hopper
 // Added operator == to work around g++ 2.7.2 bug.
 //
@@ -33,7 +37,7 @@ class STR_ClassIdent : public EH_ClassIdent {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline bool operator ==(const ClassIdent &b) const;
+//     inline bool operator ==(const ClassIdent &b) const;
 
    inline STR_ClassIdent(U4Byte cnum);
 };
@@ -50,10 +54,10 @@ inline int STR_ClassIdent::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
 }
 
-inline bool STR_ClassIdent::operator ==(const ClassIdent &b) const
-{
-   return(EH_ClassIdent::operator ==(b));
-}
+//  inline bool STR_ClassIdent::operator ==(const ClassIdent &b) const
+//  {
+//     return(EH_ClassIdent::operator ==(b));
+//  }
 
 inline STR_ClassIdent::STR_ClassIdent(U4Byte cnum) :
      EH_ClassIdent(EH_ClassNum(EH_ClassNum::StrMod, cnum))

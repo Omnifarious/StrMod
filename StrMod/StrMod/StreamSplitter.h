@@ -87,6 +87,11 @@ class StreamSplitterModule : public StreamModule {
       //: See base class.  This just forwards.
       virtual void i_Write(const StrChunkPtr &ptr);
 
+      //: See base class.
+      inline virtual bool needsNotifyReadable() const;
+      //: See base class.
+      inline virtual bool needsNotifyWriteable() const;
+
       //: See base class.  This just forwards.
       virtual void otherIsReadable();
       //: See base class.  This just forwards.
@@ -149,6 +154,16 @@ inline bool_val StreamSplitterModule::ownsPlug(const Plug *p) const
 inline StreamSplitterModule &StreamSplitterModule::SPPlug::getParent() const
 {
    return(static_cast<StreamSplitterModule &>(Plug::getParent()));
+}
+
+inline bool StreamSplitterModule::SPPlug::needsNotifyReadable() const
+{
+   return((side_ == SideIn) || (side_ == SideBiDir));
+}
+
+inline bool StreamSplitterModule::SPPlug::needsNotifyWriteable() const
+{
+   return((side_ == SideOut) || (side_ == SideBiDir));
 }
 
 inline StreamSplitterModule::SPPlug *

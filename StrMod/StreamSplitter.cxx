@@ -34,11 +34,6 @@ bool_val StreamSplitterModule::deletePlug(Plug *plug)
       return(false);
    }
 
-   if (plug->pluggedInto() != NULL)
-   {
-      plug->unPlug();
-   }
-
    if (&inplug_ == plug)
    {
       flags_.inmade = 0;
@@ -51,6 +46,12 @@ bool_val StreamSplitterModule::deletePlug(Plug *plug)
    {
       flags_.bimade = 0;
    }
+
+   if (plug->pluggedInto() != NULL)
+   {
+      plug->unPlug();
+   }
+
    return(true);
 }
 
@@ -112,10 +113,7 @@ const StrChunkPtr StreamSplitterModule::SPPlug::i_Read()
    setIsReading(*other, false);
    other = partner->pluggedInto();
 
-   if ((other == NULL) || !(getFlagsFrom(*other).canread_))
-   {
-      setReadable(false);
-   }
+   setReadable((other == NULL) ? false : getFlagsFrom(*other).canread_);
 
    return(chunk);
 }
@@ -132,10 +130,7 @@ void StreamSplitterModule::SPPlug::i_Write(const StrChunkPtr &ptr)
    setIsWriting(*other, false);
    other = partner->pluggedInto();
 
-   if ((other == NULL) || !(getFlagsFrom(*other).canwrite_))
-   {
-      setWriteable(false);
-   }
+   setWriteable((other == NULL) ? false : getFlagsFrom(*other).canwrite_);
 }
 
 void StreamSplitterModule::SPPlug::otherIsReadable()
@@ -149,16 +144,13 @@ void StreamSplitterModule::SPPlug::otherIsReadable()
 //     }
 //     cerr << "\n";
 
-   Plug *other = pluggedInto();
-
-   if ((other != NULL) && (getFlagsFrom(*other).canread_) && (partner != NULL))
+   if (partner != NULL)
    {
-      partner->setReadable(true);
-      other = pluggedInto();
-      if ((other == NULL) || !(getFlagsFrom(*other).canread_))
-      {
-	 partner->setReadable(false);
-      }
+      Plug *other = pluggedInto();
+
+      partner->setReadable((other == NULL) ?
+			   false :
+			   getFlagsFrom(*other).canread_);
    }
 }
 
@@ -173,15 +165,12 @@ void StreamSplitterModule::SPPlug::otherIsWriteable()
 //     }
 //     cerr << "\n";
 
-   Plug *other = pluggedInto();
-
-   if ((other != NULL) && (getFlagsFrom(*other).canwrite_) && (partner != NULL))
+   if (partner != NULL)
    {
-      partner->setWriteable(true);
-      other = pluggedInto();
-      if ((other == NULL) || !(getFlagsFrom(*other).canwrite_))
-      {
-	 partner->setWriteable(false);
-      }
+      Plug *other = pluggedInto();
+
+      partner->setWriteable((other == NULL) ?
+			    false :
+			    getFlagsFrom(*other).canwrite_);
    }
 }

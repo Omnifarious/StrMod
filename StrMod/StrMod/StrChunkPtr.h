@@ -81,8 +81,10 @@ inline int StrChunkPtr::AreYouA(const ClassIdent &cid) const
 
 inline const StrChunkPtr &StrChunkPtr::operator =(const StrChunkPtr &b)
 {
+   //lint -save -e1529
    super1::operator =(b);
    return(*this);
+   //lint -restore
 }
 
 inline const StrChunkPtr &StrChunkPtr::operator =(const super1 &b)

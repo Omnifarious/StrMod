@@ -6,10 +6,7 @@
 
 /* $Header$ */
 
-// $Log$
-// Revision 1.1  1996/08/24 12:55:45  hopper
-// New source module for SimpleMultiplexer class, and related plug classes.
-//
+// For log, see ../ChangeLog
 
 #include <StrMod/StreamModule.h>
 #include <StrMod/SimplePlug.h>
@@ -17,6 +14,7 @@
 
 #define _STR_SimpleMulti_H_
 
+//: Use this module of you need one source copied to many destinations.
 // This implements a simple multiplexer that duplicates all input on
 // the 'single' side to all the plugs attached to the 'multi' side,
 // and combines all the data from the 'multi' side into one flow on

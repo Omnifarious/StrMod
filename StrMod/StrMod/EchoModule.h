@@ -39,13 +39,18 @@ class EchoModule : public StreamModule {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
+   /*lint -save -e1735 */
    inline virtual bool canCreate(int side = 0) const;
+   /*lint -e1511 */
    inline Plug *makePlug(int side = 0);
+   /*lint -restore */
    virtual bool ownsPlug(const Plug *plug) const   { return(i_OwnsPlug(plug)); }
    virtual bool deletePlug(Plug *plug);
 
  protected:
    virtual const ClassIdent *i_GetIdent() const    { return(&identifier); }
+
+   virtual void plugDisconnected(Plug *plug);
 
    inline virtual Plug *i_MakePlug(int side);
 
@@ -69,6 +74,9 @@ class EchoModule : public StreamModule {
 
       virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
 
+      virtual bool needsNotifyReadable() const          { return(true); }
+      virtual bool needsNotifyWriteable() const         { return(true); }
+
       virtual void otherIsReadable();
       virtual void otherIsWriteable();
 
@@ -79,7 +87,7 @@ class EchoModule : public StreamModule {
    bool plugcreated_;
    EPlug eplug_;
 
-   bool i_OwnsPlug(const Plug *plug) const;
+   inline bool i_OwnsPlug(const Plug *plug) const;
 };
 
 //-------------------------------inline functions------------------------------
@@ -108,7 +116,9 @@ inline EchoModule::Plug *EchoModule::i_MakePlug(int side)
 {
    assert(side == 0 && !plugcreated_);
    plugcreated_ = true;
+   //lint -save -e1536
    return(&eplug_);
+   //lint -restore
 }
 
 //=========EchoModule::EPlug inlines========

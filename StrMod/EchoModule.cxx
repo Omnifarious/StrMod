@@ -26,8 +26,8 @@ bool EchoModule::deletePlug(Plug *plug)
 {
    if (i_OwnsPlug(plug))
    {
-      plug->unPlug();
       plugcreated_ = false;
+      plug->unPlug();
       return(true);
    }
    else
@@ -36,37 +36,31 @@ bool EchoModule::deletePlug(Plug *plug)
    }
 }
 
+void EchoModule::plugDisconnected(Plug *plug)
+{
+   assert(plug == &eplug_);
+   assert(plugcreated_);
+
+   setReadableFlagFor(&eplug_, false);
+   setWriteableFlagFor(&eplug_, false);
+   StreamModule::plugDisconnected(plug);
+}
+
 void EchoModule::EPlug::otherIsReadable()
 {
    Plug *other = pluggedInto();
 
-   if (other != NULL && getFlagsFrom(*other).canread_)
-   {
-      setReadable(true);
-      other = pluggedInto();
-      if ((other == NULL) || !(getFlagsFrom(*other).canread_))
-      {
-	 setReadable(false);
-      }
-   }
+   setReadable((other == NULL) ? false : getFlagsFrom(*other).canread_);
 }
 
 void EchoModule::EPlug::otherIsWriteable()
 {
    Plug *other = pluggedInto();
 
-   if (other != NULL && getFlagsFrom(*other).canwrite_)
-   {
-      setWriteable(true);
-      other = pluggedInto();
-      if ((other == NULL) || !(getFlagsFrom(*other).canwrite_))
-      {
-	 setWriteable(false);
-      }
-   }
+   setWriteable((other == NULL) ? false : getFlagsFrom(*other).canwrite_);
 }
 
-inline const StrChunkPtr EchoModule::EPlug::i_Read()
+const StrChunkPtr EchoModule::EPlug::i_Read()
 {
    StrChunkPtr tmp = readOther();
    Plug *other = pluggedInto();
@@ -83,7 +77,7 @@ inline const StrChunkPtr EchoModule::EPlug::i_Read()
    return(tmp);
 }
 
-inline void EchoModule::EPlug::i_Write(const StrChunkPtr &ptr)
+void EchoModule::EPlug::i_Write(const StrChunkPtr &ptr)
 {
    writeOther(ptr);
 
