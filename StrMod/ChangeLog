@@ -1,3 +1,8 @@
+2001-08-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StreamFDModule.cxx: More support for error events.  Filled on
+	all those ERROR HANDLING comments I forgot to fill in before.  :-(
+
 2001-07-04  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Preliminary support
