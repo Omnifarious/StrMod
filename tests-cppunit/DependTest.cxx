@@ -45,10 +45,12 @@ class DependTest : public ::CppUnit::TestFixture
    CPPUNIT_TEST(testContents_ehnet);
    CPPUNIT_TEST(testContents_unievent);
    CPPUNIT_TEST(testContents_strmod);
+   CPPUNIT_TEST(testContents_xml);
    CPPUNIT_TEST(testDepends_lcore);
    CPPUNIT_TEST(testDepends_ehnet);
    CPPUNIT_TEST(testDepends_unievent);
    CPPUNIT_TEST(testDepends_strmod);
+   CPPUNIT_TEST(testDepends_xml);
    CPPUNIT_TEST_SUITE_END();
  private:
    static const string S_objectdir;
@@ -56,6 +58,7 @@ class DependTest : public ::CppUnit::TestFixture
    static const string S_ls_ehnet[6];
    static const string S_ls_unievent[12];
    static const string S_ls_strmod[42];
+   static const string S_ls_xml[3];
 
  public:
    void setUp();
@@ -65,11 +68,13 @@ class DependTest : public ::CppUnit::TestFixture
    void testContents_ehnet();
    void testContents_unievent();
    void testContents_strmod();
+   void testContents_xml();
 
    void testDepends_lcore();
    void testDepends_ehnet();
    void testDepends_unievent();
    void testDepends_strmod();
+   void testDepends_xml();
 
  protected:
    void checkDepends(const string &file, const string &ok_namespaces_regex);
@@ -98,6 +103,10 @@ void DependTest::setUp()
       ofstream out("ls_strmod.txt");
       dumpStrings(out, S_ls_strmod, sizeof(S_ls_strmod) / sizeof(string));
    }
+   {
+      ofstream out("ls_xml.txt");
+      dumpStrings(out, S_ls_xml, sizeof(S_ls_xml) / sizeof(string));
+   }
 }
 
 void DependTest::tearDown()
@@ -106,6 +115,7 @@ void DependTest::tearDown()
    unlink("ls_ehnet.txt");
    unlink("ls_unievent.txt");
    unlink("ls_strmod.txt");
+   unlink("ls_xml.txt");
 }
 
 void DependTest::testContents_lcore()
@@ -134,6 +144,13 @@ void DependTest::testContents_strmod()
    string cmdline("export LC_COLLATE=C; (cd '" + S_objectdir + "'; /bin/ls StrMod_*) | /usr/bin/diff - ls_strmod.txt >/dev/null 2>/dev/null");
    int sysret = system(cmdline.c_str());
    CPPUNIT_ASSERT_EQUAL_MESSAGE("StrMod .o files don't match list in S_ls_strmod.", 0, sysret);
+}
+
+void DependTest::testContents_xml()
+{
+   string cmdline("export LC_COLLATE=C; (cd '" + S_objectdir + "'; /bin/ls xml_*) | /usr/bin/diff - ls_xml.txt >/dev/null 2>/dev/null");
+   int sysret = system(cmdline.c_str());
+   CPPUNIT_ASSERT_EQUAL_MESSAGE("xml .o files don't match list in S_ls_xml.", 0, sysret);
 }
 
 void DependTest::testDepends_lcore()
@@ -169,6 +186,15 @@ void DependTest::testDepends_strmod()
    for (unsigned int i = 0; i < (sizeof(S_ls_strmod) / sizeof(string)); ++i)
    {
       checkDepends(S_ls_strmod[i], ok_names);
+   }
+}
+
+void DependTest::testDepends_xml()
+{
+   const string ok_names = "(std|strmod::xml)::";
+   for (unsigned int i = 0; i < (sizeof(S_ls_xml) / sizeof(string)); ++i)
+   {
+      checkDepends(S_ls_xml[i], ok_names);
    }
 }
 
@@ -291,6 +317,12 @@ const string DependTest::S_ls_strmod[42] = {
    "StrMod_TelnetChunker.o",
    "StrMod_TelnetParser.o",
    "StrMod_UseTrackingVisitor.o"
+};
+
+const string DependTest::S_ls_xml[3] = {
+   "xml_utf8_Builder.o",
+   "xml_utf8_Lexer.o",
+   "xml_utf8_LexerSane.o"
 };
 
 } // namespace strmod::tests
