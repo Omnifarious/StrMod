@@ -1,3 +1,26 @@
+2001-04-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Changed commenting
+	from Perceps to doxygen.
+
+	Preliminary attempt to implement anti-starvation fixes.  This
+	attempt will probably be thrown away and the class completely
+	re-worked.
+
+	* StrMod/StreamSplitter.h: Changed comment style from Perceps to
+	doxygen.
+
+	* StrMod/SocketModule.h, SocketModule.cxx: Added dispatcher
+	argument to constructor for anti-starvation changes.
+
+	Changed to set max chunk size to common OS socket buffer size
+	instead of using the value from the fcntl call.  For some reason,
+	that call was returning a value that wasn't really optimum under
+	Linux.
+
+	* StrMod/SockListenModule.h, SockListenModule.cxx: Added
+	dispatcher argument to constructor for anti-starvation changes.
+
 2001-03-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* libNet-0.2.2 is released.
