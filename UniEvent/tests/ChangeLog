@@ -1,3 +1,29 @@
+2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* testupoll.cxx: Print out more interesting information at
+	wortwhile junctures.
+
+2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* testupoll.cxx: Changed to allow a number of input files to be
+	given on the command line so they can all be polled for input.
+
+2002-03-13  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* testupoll.cxx: The test works now.  Removed code to chop newline
+	from the end if the string read by getline because getline already
+	does it.
+
+2002-03-12  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* testupoll.cxx: More attempts to ferret out the problem.  GCC
+	bug?
+
+2002-03-08  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* testupoll.cxx: In the middle of testing and debugging.  Added to
+	library makefile.
+
 2001-09-04  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* testsig.cxx: A testing harness that works, though it uses a
