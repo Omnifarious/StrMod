@@ -1,6 +1,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.3  1996/02/12 05:49:23  hopper
+ // Changed to use new ANSI string class instead of RWCString.
+ //
  // Revision 1.2  1995/07/23 04:00:34  hopper
  // Added #include <string.h> in various places to avoid triggering a bug
  // in libg++ 2.7.0
@@ -65,7 +68,7 @@ extern "C" int close(int);
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <rw/cstring.h>
+#include <string>
 
 #ifndef NO_RcsID
 static char StreamFDModule_CC_rcsID[] =
@@ -77,7 +80,7 @@ extern "C" char *strerror(int);
 const STR_ClassIdent StreamFDModule::identifier(8UL);
 const STR_ClassIdent StrFDPlug::identifier(9UL);
 
-RWCString StreamFDModule::ErrorString() const
+string StreamFDModule::ErrorString() const
 {
    int errn = ErrorNum();
 

@@ -23,7 +23,7 @@ static char _SockListenModule_CC_rcsID[] =
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <errno.h>
-#include <rw/cstring.h>
+#include <string>
 #include <iostream.h>
 #include <unistd.h>
 
@@ -31,7 +31,7 @@ const STR_ClassIdent SockListenModule::identifier(13UL);
 const STR_ClassIdent ListeningPlug::identifier(14UL);
 const STR_ClassIdent SocketModuleChunk::identifier(15UL);
 
-RWCString SockListenModule::ErrorString() const
+string SockListenModule::ErrorString() const
 {
    int errn = ErrorNum();
 

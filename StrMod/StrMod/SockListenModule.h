@@ -7,8 +7,11 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:51  hopper
-// Initial revision
+// Revision 1.2  1996/02/12 05:49:34  hopper
+// Changed to use new ANSI string class instead of RWCString.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:51  hopper
+// Imported sources
 //
 // Revision 0.12  1995/04/18  03:39:29  hopper
 // Merged revisions 0.11 and 0.11.0.3
@@ -54,12 +57,13 @@ static char _SockListenModule_H_rcsID[] =
 #  include <StrMod/StrChunk.h>
 #endif
 
+#include <string>
+
 #define _STR_SockListenModule_H_
 
 class ListeningPlug;
 class SocketModuleChunk;
 class SocketAddress;
-class RWCString;
 
 class SockListenModule : public StreamModule {
    friend class ListeningPlug;
@@ -80,7 +84,7 @@ class SockListenModule : public StreamModule {
    bool HasError() const                           { return(last_error != 0); }
    int ErrorNum() const                            { return(last_error); }
    void ClearError()                               { last_error = 0; }
-   RWCString ErrorString() const;
+   string ErrorString() const;
    const SocketAddress *GetBoundAddress() const    { return(myaddr); }
 
  protected:
@@ -182,7 +186,7 @@ inline int SockListenModule::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
 
-inline virtual bool SockListenModule::CanCreate(int side) const
+inline bool SockListenModule::CanCreate(int side) const
 {
    return((side == 1) && !plug_pulled);
 }

@@ -7,8 +7,11 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/22 04:46:50  hopper
- // Initial revision
+ // Revision 1.2  1996/02/12 05:49:35  hopper
+ // Changed to use new ANSI string class instead of RWCString.
+ //
+ // Revision 1.1.1.1  1995/07/22 04:46:50  hopper
+ // Imported sources
  //
  // -> Revision 0.15  1995/04/14  15:39:49  hopper
  // -> Combined revision 0.14, and 0.14.0.4
@@ -65,10 +68,11 @@ static char _StreamFDModule_H_rcsID[] =
 #   include <Dispatch/iohandler.h>
 #endif
 
+#include <string>
+
 #define _STR_StreamFDModule_H_
 
 class StrFDPlug;
-class RWCString;
 
 //---------------------------class StreamFDModule------------------------------
 
@@ -94,7 +98,7 @@ class StreamFDModule : public StreamModule {
    bool HasError() const                           { return(last_error != 0); }
    int ErrorNum() const                            { return(last_error); }
    void ClearError()                               { last_error = 0; }
-   RWCString ErrorString() const;
+   string ErrorString() const;
    int BestChunkSize();
    void SetMaxBlockSize(unsigned int mbs)          { max_block_size = mbs; }
    void UnsetMaxBlockSize()                        { max_block_size = 0; }
