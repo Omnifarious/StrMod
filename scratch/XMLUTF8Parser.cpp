@@ -25,11 +25,11 @@ struct ElementData
    }
 };
 
-class TestStrategy : public XMLParseStrategy
+class TestBuilder : public XMLBuilder
 {
  public:
-   TestStrategy(const char *buf) : buf_(buf) { }
-   virtual ~TestStrategy() { }
+   TestBuilder(const char *buf, XMLUTF8Lexer &lexer) : buf_(buf), lexer_(lexer) { }
+   virtual ~TestBuilder() { }
 
    virtual void startElementTag(size_t begin, const ::std::string &name) {
       elstack_.push(ElementData(name, begin));
@@ -55,7 +55,7 @@ class TestStrategy : public XMLParseStrategy
 //          cout.flush();
          if (eldata.name_ == "store")
          {
-            lexer.setNonWSInElements(true);
+            lexer_.setNonWSInElements(true);
          }
       }
    }
@@ -68,6 +68,10 @@ class TestStrategy : public XMLParseStrategy
       if (name != eldata.name_) {
          throw ::std::runtime_error("Parse error!\n");
       }
+      if (name == "store")
+      {
+         lexer_.setNonWSInElements(false);
+      }
       for (size_t i = 1; i < elstack_.size(); ++i) {
          cout << "   ";
       }
@@ -78,6 +82,7 @@ class TestStrategy : public XMLParseStrategy
 
  private:
    const char * const buf_;
+   XMLUTF8Lexer &lexer_;
    ::std::stack<ElementData> elstack_;
 };
 
@@ -107,11 +112,11 @@ int main()
 "</fred>\n";
       XMLUTF8Lexer lexer;
       {
-         TestStrategy ts(xmlstr, lexer);
+         TestBuilder ts(xmlstr, lexer);
          lexer.lex(xmlstr, ::strlen(xmlstr), ts);
       }
       {
-         TestStrategy ts(xml2str, lexer);
+         TestBuilder ts(xml2str, lexer);
          lexer.lex(xml2str, ::strlen(xml2str), ts);
       }
       return 0;
@@ -126,6 +131,10 @@ int main()
 }
 
 // $Log$
+// Revision 1.4  2002/12/10 22:46:02  hopper
+// Renamed the XMLParserStrategy to the more appropriate XMLBuilder from
+// Design Patterns.
+//
 // Revision 1.3  2002/12/10 16:08:42  hopper
 // Preliminary changes to allow elements to have #PCDATA.
 //

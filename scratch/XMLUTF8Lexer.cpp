@@ -8,8 +8,7 @@
 #include <string>
 #include <stdexcept>
 
-void XMLUTF8Lexer::lex(const char *buf, unsigned int len,
-                       XMLParseStrategy &parser)
+void XMLUTF8Lexer::lex(const char *buf, unsigned int len, XMLBuilder &parser)
 {
    size_t elstart = 0;
    for (unsigned int i = 0; (i < len) && (state_ != XBad); ++i)
@@ -49,6 +48,10 @@ void XMLUTF8Lexer::lex(const char *buf, unsigned int len,
 }
 
 // $Log$
+// Revision 1.3  2002/12/10 22:46:02  hopper
+// Renamed the XMLParserStrategy to the more appropriate XMLBuilder from
+// Design Patterns.
+//
 // Revision 1.2  2002/12/10 13:23:38  hopper
 // No commented out lines, use version control instead, that's what it's
 // for.

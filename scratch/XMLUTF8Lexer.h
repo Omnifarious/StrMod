@@ -11,13 +11,13 @@
 #include <cstddef>
 #include <string>
 
-class XMLParseStrategy
+class XMLBuilder
 {
  public:
    //! Just set up some initial defaults.
-   XMLParseStrategy() : elmntok_(true),
+   XMLBuilder() : elmntok_(true),
                         wantattrs_(true), wantentities_(true) { }
-   virtual ~XMLParseStrategy() {}
+   virtual ~XMLBuilder() {}
 
    virtual void startElementTag(size_t begin, const ::std::string &name) = 0;
    virtual void endElementTag(size_t end, bool wasempty) = 0;
@@ -55,7 +55,7 @@ class XMLUTF8Lexer
 
    bool getNonWSInElements() const                     { return nonwsok_; }
    void setNonWSInElements(bool nonwsok)               { nonwsok_ = nonwsok; }
-   void lex(const char *buf, unsigned int len, XMLParseStrategy &parser);
+   void lex(const char *buf, unsigned int len, XMLBuilder &parser);
 
  private:
    static const char exclamation = '\x21';
@@ -409,11 +409,15 @@ class XMLUTF8Lexer
    }
 
    static void throw_out_of_range();
-   void call_startElementTag(size_t begin, XMLParseStrategy &parser);
-   void call_closeElementTag(size_t begin, size_t end, XMLParseStrategy &parser);
+   void call_startElementTag(size_t begin, XMLBuilder &parser);
+   void call_closeElementTag(size_t begin, size_t end, XMLBuilder &parser);
 };
 
 // $Log$
+// Revision 1.4  2002/12/10 22:46:02  hopper
+// Renamed the XMLParserStrategy to the more appropriate XMLBuilder from
+// Design Patterns.
+//
 // Revision 1.3  2002/12/10 16:08:42  hopper
 // Preliminary changes to allow elements to have #PCDATA.
 //

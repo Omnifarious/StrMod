@@ -1,6 +1,6 @@
 # $Header$
 
-CXX = g++ -pipe -march=athlon-xp
+CXX = g++ -pipe -march=pentium3
 CXXFLAGS = -Wall -O2
 CXXSUPER = -Wall -O3 -finline-limit=50000
 #CXXFLAGS = -Wall -g
@@ -35,6 +35,10 @@ XMLUTF8LexerSane.o : XMLUTF8Lexer.h
 XMLUTF8Parser.o : XMLUTF8Lexer.h
 
 # $Log$
+# Revision 1.3  2002/12/10 22:46:02  hopper
+# Renamed the XMLParserStrategy to the more appropriate XMLBuilder from
+# Design Patterns.
+#
 # Revision 1.2  2002/12/10 13:20:18  hopper
 # Put comments in Makefile comment format instead of C++.  Oops.
 #
