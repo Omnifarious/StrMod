@@ -316,7 +316,7 @@ class Listener {
 };
 
 Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
-		   Dispatcher &amp;disp, UNIXpollManager &amp;pman)
+                   Dispatcher &amp;disp, UNIXpollManager &amp;pman)
     : listener_(NULL), from_(from.Copy()), to_(to.Copy())
 {
    listener_ = new SockListenModule(*from_, disp, pman, 2);
@@ -347,8 +347,9 @@ int main()
       if (cin)
       {
          InetAddress listenaddr(inport);
-         SockListenModule *slm = new SockListenModule(listenaddr, dispatcher,
-                                                      pollmanager, 2);
+         InetAddress destaddr(outaddr, outport);
+         Listener *listener = new Listener(listenaddr, destaddr,
+                                           dispatcher, pollmanager);
          cout &lt;&lt; "Accepting connections on port " &lt;&lt; inport
               &lt;&lt; " and redirecting data to a connection to "
               &lt;&lt; outaddr &lt;&lt; " port " &lt;&lt; outport &lt;&lt; "\n";
