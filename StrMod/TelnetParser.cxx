@@ -191,6 +191,7 @@ TelnetParser::Actions TelnetParser::processChar(U1Byte ch)
       {
 	 if (ch == TN_SE)
 	 {
+	    state_ = PS_Normal;
 	    cookedsubopt_->resize(cookedsize_);
 	    if (rawsubopt_)
 	    {
