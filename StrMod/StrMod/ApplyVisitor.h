@@ -45,35 +45,31 @@ class ApplyVisitor_Base : public UseTrackingVisitor {
  public:
    static const STR_ClassIdent identifier;
 
-   /**
-    * \brief This constructor will apply use_visitDataBlock to the given
-    * chunk.
-    *
-    * This constructor immediately does the apply.  There is really no point
-    * in keeping this object around after it's been constructed.
+   /** \brief This constructor will set up apply to visit the given chunk.
     *
     * @param chunk The chunk to go through.
     */
    ApplyVisitor_Base(const StrChunkPtr &chunk);
-   /**
-    * \brief This constructor will apply use_visitDataBlock to a section of
-    * the given chunk described by extent.
-    *
-    * This constructor immediately does the apply.  There is really no point
-    * in keeping this object around after it's been constructed.
+   /** \brief This constructor will set up apply to visit the section of the
+    * given chunk described by extent.
     *
     * @param chunk The chunk to go through.
     * @param extent Which part of the chunk to go through.
     */
    ApplyVisitor_Base(const StrChunkPtr &chunk, LinearExtent &extent);
-   /** Whee, its a destructor, and since this class has no state, it
-    * doesn't do much.
+   /** Whee, its a destructor, and since this class has no state that won't
+    * destruct itself, it doesn't do much.
     */
    virtual ~ApplyVisitor_Base()                         { }
 
    virtual int AreYouA(const ClassIdent &cid) const     {
       return((identifier == cid) || UseTrackingVisitor::AreYouA(cid));
    }
+
+   /** \brief Visits every data block according to the parameters given in
+    * the constructor.
+   */
+   void apply();
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
@@ -87,6 +83,11 @@ class ApplyVisitor_Base : public UseTrackingVisitor {
    virtual void use_visitDataBlock(const void *start, size_t len,
                                    const void *realstart, size_t reallen)
       throw(halt_visitation) = 0;
+
+ private:
+   const StrChunkPtr chunk_;
+   const bool extent_used_;
+   const LinearExtent extent_;
 };
 
 //---
@@ -103,7 +104,7 @@ class ApplyVisitor : public ApplyVisitor_Base {
  public:
    /**
     * \brief Does what ApplyVisitor_Base::ApplyVisitor_Base(const StrChunkPtr
-    * &) does, but runs <code>func</code> on every bit of data instead.
+    * &) does.
     *
     * @param chunk The chunk to go through.
     * @param func The functor to run on every data extent.
@@ -111,10 +112,10 @@ class ApplyVisitor : public ApplyVisitor_Base {
    inline ApplyVisitor(const StrChunkPtr &chunk, _Function &func);
    /**
     * \brief Does what ApplyVisitor_Base::ApplyVisitor_Base(const StrChunkPtr
-    * &, LinearExtent &) does, but runs <code>func</code> on every bit of data
-    * instead.
+    * &, LinearExtent &) does.
     *
     * @param chunk The chunk to go through.
+    * @param extent The portion of the chunk to go through.
     * @param func The functor to run on every data extent.
     */
    inline ApplyVisitor(const StrChunkPtr &chunk, const LinearExtent &extent,
@@ -171,6 +172,7 @@ template <class _Function>
 inline void for_each(const StrChunkPtr &chunk, _Function &func)
 {
    ApplyVisitor<_Function> av(chunk, func);
+   av.apply();
 }
 
 /** A function to hide the rather odd syntax for using the class.
@@ -183,6 +185,7 @@ inline void for_each(const StrChunkPtr &chunk, const LinearExtent &extent,
                      _Function &func)
 {
    ApplyVisitor<_Function> av(chunk, extent, func);
+   av.apply();
 }
 
 #endif

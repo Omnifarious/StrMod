@@ -28,17 +28,30 @@
 #include "StrMod/StrSubChunk.h"
 #include "StrMod/StrChunkPtr.h"
 
+const STR_ClassIdent ApplyVisitor_Base::identifier(51UL);
+
 ApplyVisitor_Base::ApplyVisitor_Base(const StrChunkPtr &chunk)
-     : UseTrackingVisitor(true)
+     : UseTrackingVisitor(true), chunk_(chunk), extent_used_(false)
 {
-   startVisit(chunk);
 }
 
 ApplyVisitor_Base::ApplyVisitor_Base(const StrChunkPtr &chunk,
                                      LinearExtent &extent)
-     : UseTrackingVisitor(true)
+     : UseTrackingVisitor(true), chunk_(chunk),
+       extent_used_(true), extent_(extent)
 {
-   StrSubChunk mychunk(chunk, extent);
-   mychunk.AddReference();
-   startVisit(&mychunk);
+}
+
+void ApplyVisitor_Base::apply()
+{
+   if (extent_used_)
+   {
+      StrSubChunk mychunk(chunk_, extent_);
+      mychunk.AddReference();
+      startVisit(&mychunk);
+   }
+   else
+   {
+      startVisit(chunk_);
+   }
 }
