@@ -117,7 +117,7 @@ TelnetParser::Actions TelnetParser::processChar(U1Byte ch)
 	 if (ch == TN_IAC)
 	 {
 	    state_ = PS_Normal;
-	    return(PC_SkipAddCurrent);
+	    return(PC_AddIAC);
 	 }
 	 else if (ch == TN_SB)
 	 {
@@ -145,7 +145,7 @@ TelnetParser::Actions TelnetParser::processChar(U1Byte ch)
 	 {
 	    state_ = PS_Normal;
 	    // So do SOMETHING about it besides crash.
-	    return(PC_AddPrevIACAndCurrentChar);
+	    return(PC_AddIACAndCurrentChar);
 	 }
       }
       break;
