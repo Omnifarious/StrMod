@@ -82,7 +82,7 @@ class UseTrackingVisitor : public ChunkVisitor {
     *
     * @param len Length of the used part of the data area.
     *
-    * @param ralstart Start of the actual data area, including the unused
+    * @param realstart Start of the actual data area, including the unused
     * portions.
     *
     * @param reallen Length of the actual data area, including the unsused
