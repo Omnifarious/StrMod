@@ -1,3 +1,27 @@
+1999-01-13  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/echoserv.cxx: Changed to use new StreamModule system so
+	SockListenModule could be properly tested.
+
+	* StrMod/StrChunkPtrT.h: Fixed incredibly stupid mistake in
+	typedef for super1.
+
+	* StrMod/SocketModule.h: Added explanatory comment.
+	Added class forward decl to make sure the right class is being
+	talked about.
+
+	* StreamFDModule.cxx: Added some commented out debugging.
+	(StreamFDModule::~StreamFDModule): Now calls
+	UNIXpollManager::freeFD being called for the descriptor the
+	StreamFDModule was taking care of.
+
+	* StrMod/StreamFDModule.h: Made more const correct.  Added cop-out
+	getFD method for getting the file descriptor if need be.
+
+	* StrMod/SockListenModule.h:
+	* SockListenModule.cxx: Rewritten to make this fit withing the new
+	StreamModule framework.
+
 1999-01-12  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* tests/testsplit.cxx: Removed spurious include.  Added check for
