@@ -1,4 +1,25 @@
+Sun Jul  7 00:09:41 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StrChunkPtr.h (class StrChunkPtr): Fixed default
+	implementation of i_CheckType to actually be correct.
+
+	* StrMod/StreamFDModule.h (class StreamFDModule): Arranged for
+	max_block_size to be initialized correctly.
+
+	* StreamFDModule.cc: Fixed a problem with the initialization of
+ 	max_block_size.  Used to rely on StrChunkio crud for a solution.
+
+	* StrFDPlug.cc: Added, then commented out some debugging.
+	Rearranged statements to make logic clearer.
+
+	* StreamModule.cc: Added, then commented out some debugging.  I
+	left it there because it might be useful someday.
+
 Fri Jul  5 13:19:20 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrChunkio.cc: Dropped.  Functionality split between StrChunk.cc
+ 	and StrFDPlug.cc.  Some functionality no longer necessary because
+ 	of new StrChunkPtr system.
 
 	* EchoModule.cc: Killed OS2 garbage.
 	(DeletePlug): Removed reference to obsolete PutIntoFd funtion.
