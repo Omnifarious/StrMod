@@ -25,7 +25,7 @@
    wait. */
 extern "C" int gethostname(char *name, int namelen);
 
-bool InetAddress::NameToIaddr(const char *name_addr, unsigned int &num)o
+bool InetAddress::NameToIaddr(const char *name_addr, U4Byte &num)
 {
    struct hostent *hostinfo;
    char *temp_name = const_cast<char *>(name_addr);

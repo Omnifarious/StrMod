@@ -120,18 +120,19 @@ InetAddress::InetAddress(const string &h_name, U2Byte prt) :
    memset(&inaddr, '\0', sizeof(inaddr));
    inaddr.sin_family = AF_INET;
    inaddr.sin_port = htons(port);
+   U4Byte saddr = 0;
 
-   if (ParseNumeric(c_hostname, inaddr.sin_addr.s_addr)) {
+   if (ParseNumeric(c_hostname, saddr)) {
       /* If the address made sense as a <num>.<num>.<num>.<num> address,
 	 attempt to look up a 'real' hostname for this address. */
       hostname = IaddrToName(inaddr);
-
-   } else if (NameToIaddr(c_hostname, inaddr.sin_addr.s_addr)) {
+      inaddr.sin_addr.s_addr = saddr;
+   } else if (NameToIaddr(c_hostname, saddr)) {
       /* Otherwise, if we were able to translate the name into an actual
          internet address, then the hostname is the name passed in. See note
          after function. */
       hostname = h_name;
-
+      inaddr.sin_addr.s_addr = saddr;
    } else {
       /* This doesn't seem like any address we can translate to an internet
          address. */
@@ -174,7 +175,7 @@ void InetAddress::InvalidateAddress()
    inaddr.sin_addr.s_addr = INADDR_ANY;
 }
 
-bool InetAddress::ParseNumeric(const char *numeric_addr, unsigned int &num)
+bool InetAddress::ParseNumeric(const char *numeric_addr, U4Byte &num)
 {
    if (isdigit(numeric_addr[0])) {
       unsigned long num1, num2, num3, num4;

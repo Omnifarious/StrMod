@@ -48,6 +48,7 @@
 #ifndef _EHNET_SocketAddress_H_
 #   include <EHnet++/SocketAddress.h>
 #endif
+#include <LCore/GenTypes.h>
 
 #include <string>
 #include <sys/types.h>
@@ -89,8 +90,8 @@ class InetAddress : public SocketAddress {
    inline virtual SocketAddress *MakeCopy() const;
 
    void InvalidateAddress();
-   static bool ParseNumeric(const char *numeric_addr, unsigned int &num);
-   static bool NameToIaddr(const char *name_addr, unsigned int &num);
+   static bool ParseNumeric(const char *numeric_addr, U4Byte &num);
+   static bool NameToIaddr(const char *name_addr, U4Byte &num);
    static string IaddrToName(const sockaddr_in &inaddr);
 
  private:
