@@ -19,8 +19,8 @@ class TelnetToAscii : public StreamProcessor {
  public:
    static const EH_ClassIdent identifier;
 
-   TelnetToAscii();
-   explicit TelnetToAscii(const string &name);
+   explicit TelnetToAscii(bool stripdata = false);
+   explicit TelnetToAscii(const string &name, bool stripdata = false);
    virtual ~TelnetToAscii()                                          { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
@@ -32,6 +32,7 @@ class TelnetToAscii : public StreamProcessor {
 
  private:
    StrChunkPtr namechunk_;
+   bool stripdata_;
 };
 
 //-----------------------------inline functions--------------------------------

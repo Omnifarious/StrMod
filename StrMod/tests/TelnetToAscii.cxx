@@ -16,11 +16,13 @@
 const EH_ClassIdent TelnetToAscii::identifier(
    EH_ClassNum(EH_ClassNum::User5, 0UL));
 
-TelnetToAscii::TelnetToAscii()
+TelnetToAscii::TelnetToAscii(bool stripdata)
+     : stripdata_(stripdata)
 {
 }
 
-TelnetToAscii::TelnetToAscii(const string &name)
+TelnetToAscii::TelnetToAscii(const string &name, bool stripdata)
+     : stripdata_(stripdata)
 {
    string myname = "\n";
    myname += name;
@@ -37,9 +39,12 @@ void TelnetToAscii::processIncoming()
 
    if (!incoming_->AreYouA(TelnetData::identifier))
    {
-      outgoing_ = incoming_;
+      if (!stripdata_)
+      {
+	 outgoing_ = incoming_;
+	 outgoing_ready_ = true;
+      }
       incoming_.ReleasePtr();
-      outgoing_ready_ = true;
    }
    else
    {
