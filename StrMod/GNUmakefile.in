@@ -42,12 +42,14 @@ LIBCCS = EchoModule.cxx  StrFDPlug.cxx  STR_ClassIdent.cxx \
          DBStrChunk.cxx  GroupChunk.cxx  LinearExtentStrmOp.cxx \
          StrChunkPtrT.cxx  SimplePlug.cxx  SimpleMulti.cxx  CharChopper.cxx \
          PassThrough.cxx  NewlineChopper.cxx  StreamProcessor.cxx \
-         ProcessorModule.cxx
+         ProcessorModule.cxx  OutSerializer.cxx  InSerializer.cxx
 
-CCNAMES = $(LIBCCS) \
-          tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx \
-          tests/testecho.cxx   tests/teststr.cxx tests/echoserv.cxx \
-          tests/testextent.cxx tests/testGV.cxx  tests/testmulti.cxx
+TESTCCS = tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx  \
+          tests/testecho.cxx   tests/teststr.cxx tests/echoserv.cxx  \
+          tests/testextent.cxx tests/testGV.cxx  tests/testmulti.cxx \
+	  tests/testserial.cxx
+
+CCNAMES = $(LIBCCS) $(TESTCCS)
 
 CNAMES = utils/cechoserv.c  utils/audiodiv.c  utils/writelots.c
 
@@ -64,6 +66,9 @@ $(EXTLIBTAG) : $(LIBCCS)
 	touch $(EXTLIBTAG)
 	ar rv $(EXTLIB) $(DEPSUB)
 	rm -f $(DEPSUB)
+
+tests/testserial : tests/testserial.o OutSerializer.o InSerializer.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/testserial
 
 tests/server : tests/server.o
 	$(CXX) tests/server.o $(LDFLAGS) $(LIBS) -o tests/server
@@ -82,7 +87,7 @@ tests/teststr : tests/teststr.o
 
 tests/testchunk : tests/testchunk.o DBStrChunk.o StrChunk.o GroupVector.o \
                   LinearExtent.o  STR_ClassIdent.o
-	$(CXX) tests/testchunk.o $(LDFLAGS) $(LIBS) -o tests/testchunk
+	$(CXX) $^ -o $@ -L/home/hopper/lib -lLCore 2>&1 | c++filt
 
 tests/testecho : tests/testecho.o
 	$(CXX) tests/testecho.o $(LDFLAGS) $(LIBS) -o tests/testecho 2>&1 | c++filt
