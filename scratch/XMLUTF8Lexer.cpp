@@ -1,4 +1,8 @@
-/* $Header$ */
+/* $URL$
+ * $Author$
+ * $Date$
+ * $Rev$
+ */
 
 #ifdef __GNUG__
 #  pragma implementation "XMLUTF8Lexer.h"

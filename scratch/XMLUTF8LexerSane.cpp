@@ -1,4 +1,8 @@
-/* $Header$ */
+/* $URL$
+ * $Author$
+ * $Date$
+ * $Rev$
+ */
 
 #include "XMLUTF8Lexer.h"
 #include <string>

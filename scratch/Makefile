@@ -1,4 +1,7 @@
-# $Header$
+# $URL$
+# $Author$
+# $Date$
+# $Rev$
 
 CXX = g++ -pipe -march=pentium3
 CXXFLAGS = -Wall -O2

@@ -2,7 +2,11 @@
 
 #define _XML_XMLUTF8Lexer_H_
 
-/* $Header$ */
+/* $URL$
+ * $Author$
+ * $Date$
+ * $Rev$
+ */
 
 #ifdef __GNUG__
 #  pragma interface

@@ -1,4 +1,8 @@
-/* $Header$ */
+/* $URL$
+ * $Author$
+ * $Date$
+ * $Rev$
+ */
 
 #include <string>
 #include <cstring>
