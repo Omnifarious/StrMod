@@ -1,7 +1,7 @@
 #ifndef _STR_PreAllocBuffer_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -39,16 +39,18 @@ namespace strmod {
  * \brief Just a base class that defines the functions for the template class
  * that don't depend on the template argument.
  */
-class PreAllocBufferBase : public BufferChunk {
+class PreAllocBufferBase : public BufferChunk
+{
  private:
    void a_silly_member_function_to_make_sure_a_vtable_is_generated();
+   typedef lcore::U1Byte U1Byte;
  public:
    static const STR_ClassIdent identifier;
 
    PreAllocBufferBase()                                 { }
    virtual ~PreAllocBufferBase() = 0;
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //: See class Debugable
    virtual bool invariant() const = 0;
@@ -59,7 +61,7 @@ class PreAllocBufferBase : public BufferChunk {
    virtual void resize(unsigned int newsize) throw(std::bad_alloc) = 0;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    void i_destruct(const U1Byte * const preallocbuf);
    void i_resize(const unsigned int newsize,
@@ -80,6 +82,8 @@ class PreAllocBufferBase : public BufferChunk {
  */
 template <unsigned int TInitialAlloc>
 class PreAllocBuffer : public PreAllocBufferBase {
+ private:
+   typedef lcore::U1Byte U1Byte;
  public:
    // There isn't any identifier here because there's no good way (in the
    // identifier system) to generate a unique identifier for every template
@@ -99,7 +103,7 @@ class PreAllocBuffer : public PreAllocBufferBase {
 
 //-----------------------------inline functions--------------------------------
 
-inline int PreAllocBufferBase::AreYouA(const ClassIdent &cid) const
+inline int PreAllocBufferBase::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || BufferChunk::AreYouA(cid));
 }

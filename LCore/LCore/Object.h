@@ -77,9 +77,11 @@ class Object {
 					  parent::AreYouA(cid));
 
 #ifndef _LCORE_ClassTypes_H_
-#define _LCORE_Object_H_INSIDE
+}  // end namespace lcore
+}  // end namespace strmod
    #include <LCore/ClassTypes.h>
-#undef _LCORE_Object_H_INSIDE
+namespace strmod {
+namespace lcore {
 #endif
 
 inline void Object::PrintOn(std::ostream &os)

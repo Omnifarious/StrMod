@@ -22,7 +22,10 @@
  /* UNIX:@@:ObjectSTR.cc:@@: */
 /* MSDOS:@@:OBJCTSTR.CPP:@@: */
 
-void Object::PrintOn(std::ostream &os) const
+namespace strmod {
+namespace lcore {
+
+void Object::PrintOn(::std::ostream &os) const
 {
    if (Object::identifier == GetIdent())
       os << "an Object (why someone created just an object is beyond me)";
@@ -31,3 +34,6 @@ void Object::PrintOn(std::ostream &os) const
       os << "class id is: " << *((const Object *)(&(GetIdent()))) << '\n';
    }
 }
+
+} // namespace lcore
+} // namespace strmod

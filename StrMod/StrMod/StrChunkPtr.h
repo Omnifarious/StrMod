@@ -66,10 +66,11 @@ class StrChunk;
  * A smart pointer class that points a StrChunks and handles their reference
  * counts.
  */
-class StrChunkPtr : public RefCountPtrT<StrChunk> {
+class StrChunkPtr : public lcore::RefCountPtrT<StrChunk>
+{
  public:
    //! An easier way to refer to RefCountPtrT<StrChunk>
-   typedef RefCountPtrT<StrChunk> super1;
+   typedef lcore::RefCountPtrT<StrChunk> super1;
    static const STR_ClassIdent identifier;
 
    //@{
@@ -83,7 +84,7 @@ class StrChunkPtr : public RefCountPtrT<StrChunk> {
    //@}
 
    //! See class Protocol
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //@{
    /**
@@ -97,7 +98,7 @@ class StrChunkPtr : public RefCountPtrT<StrChunk> {
 
  protected:
    //! See class Protocol
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 };
 
 //-----------------------------inline functions--------------------------------
@@ -114,7 +115,7 @@ inline StrChunkPtr::StrChunkPtr(StrChunk *stptr) : super1(stptr)
 {
 }
 
-inline int StrChunkPtr::AreYouA(const ClassIdent &cid) const
+inline int StrChunkPtr::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }

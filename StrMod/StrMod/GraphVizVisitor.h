@@ -1,7 +1,7 @@
 #ifndef _STR_GraphVizVisitor_H_  // -*-mode: c++; c-file-style: "gmtellemtel";-*-
 
 /*
- * Copyright 2000 by Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2000-2002 by Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -41,7 +41,8 @@ class BufferChunk;
  * Generates output suitable for AT&T's Open Source GraphViz program, found at
  * http://www.research.att.com/sw/tools/graphviz/
  */
-class GraphVizVisitor : public UseTrackingVisitor {
+class GraphVizVisitor : public UseTrackingVisitor
+{
  public:
    static const STR_ClassIdent identifier;
 
@@ -50,7 +51,7 @@ class GraphVizVisitor : public UseTrackingVisitor {
    //! Destructor, also doesn't do much.
    virtual ~GraphVizVisitor()       { }
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || UseTrackingVisitor::AreYouA(cid));
    }
 
@@ -61,7 +62,7 @@ class GraphVizVisitor : public UseTrackingVisitor {
    const StrChunkPtr visit(const StrChunkPtr &root, std::ostream &out);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)

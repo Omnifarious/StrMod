@@ -32,15 +32,22 @@ namespace unievent {
  * poll(2) system call to find out about events.
  */
 class UnixEventPoll : virtual public UnixEventRegistry,
-                      virtual public Debugable,
+                      virtual public lcore::Debugable,
                       virtual public Timer,
                       private TimerEventTracker
 {
  public:
+   static const UNEVT_ClassIdent identifier;
+
    //! Construct to use \c dispatcher to post events to. 
    UnixEventPoll(Dispatcher *dispatcher);
    //! Currently doesn't clean signal handlers.
    virtual ~UnixEventPoll();
+
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
+      return((identifier == cid) || Timer::AreYouA(cid)
+             || Debugable::AreYouA(cid));
+   }
 
    virtual bool invariant() const;
    virtual void printState(::std::ostream &os) const;
@@ -64,6 +71,9 @@ class UnixEventPoll : virtual public UnixEventRegistry,
    virtual absolute_t currentTime() const;
 
    virtual void doPoll(bool wait = false);
+
+ protected:
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
    struct Imp;

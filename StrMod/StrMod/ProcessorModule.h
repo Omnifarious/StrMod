@@ -1,7 +1,7 @@
 #ifndef _STR_ProcessorModule_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-9 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -92,7 +92,7 @@ class ProcessorModule : public StreamModule
     */
    virtual ~ProcessorModule()                           { }
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool canCreate(int side) const;
 
@@ -101,7 +101,7 @@ class ProcessorModule : public StreamModule
    virtual bool deletePlug(Plug *plug);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    inline virtual Plug *i_MakePlug(int side);
 
@@ -116,14 +116,16 @@ class ProcessorModule : public StreamModule
 		    StreamProcessor &readproc, StreamProcessor &writeproc);
       virtual ~PMPlug();
 
-      inline virtual int AreYouA(const ClassIdent &cid) const;
+      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       inline ProcessorModule &getParent() const;
 
       inline virtual int side() const                   { return(side_); }
 
     protected:
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       virtual const StrChunkPtr i_Read();
       virtual void i_Write(const StrChunkPtr &chnk);
@@ -148,7 +150,7 @@ class ProcessorModule : public StreamModule
 
 //----------ProcessorModule::PMPlug inlines-----
 
-inline int ProcessorModule::PMPlug::AreYouA(const ClassIdent &cid) const
+inline int ProcessorModule::PMPlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }
@@ -182,7 +184,7 @@ inline ProcessorModule::ProcessorModule(StreamProcessor &from_one,
    otherside_.setWriteable(true);
 }
 
-inline int ProcessorModule::AreYouA(const ClassIdent &cid) const
+inline int ProcessorModule::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }

@@ -88,7 +88,7 @@ void DynamicBuffer::resize(unsigned int newsize) throw(std::bad_alloc)
 	 }
 	 else
 	 {
-	    buf_ = static_cast<U1Byte *>(newbuf);
+	    buf_ = static_cast<lcore::U1Byte *>(newbuf);
 	    buflen_ = newsize;
 	 }
       }

@@ -1,7 +1,7 @@
 #ifndef _STR_ApplyVisitor_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-2001 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -65,7 +65,7 @@ class ApplyVisitor_Base : public UseTrackingVisitor {
     */
    virtual ~ApplyVisitor_Base()                         { }
 
-   virtual int AreYouA(const ClassIdent &cid) const     {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || UseTrackingVisitor::AreYouA(cid));
    }
 
@@ -75,7 +75,7 @@ class ApplyVisitor_Base : public UseTrackingVisitor {
    void apply();
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)

@@ -1,11 +1,11 @@
-#ifndef _EHNET_InetAddress_H_
+#ifndef _EHNET_InetAddress_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #  pragma interface
 #endif
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1999-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -74,64 +74,66 @@
 
 #define _EHNET_InetAddress_H_
 
-typedef unsigned short U2Byte;
+namespace strmod {
+namespace ehnet {
 
 class InetAddress : public SocketAddress {
+ private:
+   typedef ::strmod::lcore::U2Byte U2Byte;
+   typedef ::strmod::lcore::U4Byte U4Byte;
  public:
    static const NET_ClassIdent identifier;
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || SocketAddress::AreYouA(cid));
    }
 
-   virtual struct sockaddr *SockAddr(){ return((struct sockaddr *)(&inaddr)); }
-   InetAddress *Copy() const          { return((InetAddress *)MakeCopy()); }
-   virtual int AddressSize() const    { return(sizeof(sockaddr_in)); }
-   virtual std::string AsString();
+   virtual ::sockaddr *SockAddr()         { return (::sockaddr *)(&inaddr); }
+   InetAddress *Copy() const              { return (InetAddress *)MakeCopy(); }
+   virtual int AddressSize() const        { return sizeof(::sockaddr_in); }
+   virtual ::std::string AsString();
 
-   std::string GetHostname() const         { return(hostname); }
-   std::string GetHostname(bool forcelookup);
-   U2Byte GetPort() const             { return(port); }
+   ::std::string GetHostname() const                    { return(hostname); }
+   ::std::string GetHostname(bool forcelookup);
+   U2Byte GetPort() const                               { return port; }
 
    const InetAddress &operator =(const InetAddress &b);
-   const InetAddress &operator =(const sockaddr_in &iadr);
+   const InetAddress &operator =(const ::sockaddr_in &iadr);
 
-   InetAddress(const std::string &h_name, U2Byte prt);
+   InetAddress(const ::std::string &h_name, U2Byte prt);
    InetAddress(U2Byte port);
    InetAddress(const InetAddress &b);
-   InetAddress(const sockaddr_in &iadr);
-   virtual ~InetAddress()             { }
+   InetAddress(const ::sockaddr_in &iadr);
+   virtual ~InetAddress()                               { }
 
  protected:
-   inline virtual const ClassIdent *i_GetIdent() const;
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    inline virtual SocketAddress *MakeCopy() const;
 
    void InvalidateAddress();
    static bool ParseNumeric(const char *numeric_addr, U4Byte &num);
    static bool NameToIaddr(const char *name_addr, U4Byte &num);
-   static std::string IaddrToName(const sockaddr_in &inaddr);
+   static ::std::string IaddrToName(const ::sockaddr_in &inaddr);
 
  private:
-   std::string hostname;
+   ::std::string hostname;
    U2Byte port;
-   sockaddr_in inaddr;
+   ::sockaddr_in inaddr;
 
    static bool AsciiToQInum(const char *s, int &i,
 			    unsigned long &num, bool endsindot);
-   static std::string ToDec(U2Byte num);
+   static ::std::string ToDec(U2Byte num);
 };
 
 //--------------------------------inline functions-----------------------------
-
-inline const ClassIdent *InetAddress::i_GetIdent() const
-{
-   return(&identifier);
-}
 
 inline SocketAddress *InetAddress::MakeCopy() const
 {
    return(new InetAddress(*this));
 }
+
+} // end namespace ehnet
+} // end namespace strmod
 
 #endif

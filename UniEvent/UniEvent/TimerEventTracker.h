@@ -1,5 +1,23 @@
 #ifndef _UNEVT_TimerEventTracker_H_  // -*-c++-*-
 
+/*
+ * Copyright 2002 Eric M. Hopper <hopper@omnifarious.org>
+ * 
+ *     This program is free software; you can redistribute it and/or modify it
+ *     under the terms of the GNU Lesser General Public License as published
+ *     by the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ * 
+ *     This program is distributed in the hope that it will be useful, but
+ *     WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *     Lesser General Public License for more details.
+ * 
+ *     You should have received a copy of the GNU Lesser General Public
+ *     License along with this program; if not, write to the Free Software
+ *     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 #ifdef __GNUG__
 #  pragma interface
 #endif
@@ -21,9 +39,11 @@ class Dispatcher;
 /** \class TimerEventTracker TimerEventTracker.h UniEvent/TimerEventTracker.h
  * \brief Tracks Timer events, can be used to implement Timer
  */
-   class TimerEventTracker : virtual public Timer, virtual public Debugable
+class TimerEventTracker : virtual public Timer, virtual public lcore::Debugable
 {
  public:
+   static const UNEVT_ClassIdent identifier;
+
    /** \brief Construct using the ANSI C time function to provide an initial
     * base.
     */
@@ -32,6 +52,11 @@ class Dispatcher;
    explicit TimerEventTracker(const absolute_t &now);
    //! Nothing special or unexpected
    virtual ~TimerEventTracker();
+
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
+      return((identifier == cid) || Timer::AreYouA(cid)
+             || Debugable::AreYouA(cid));
+   }
 
    virtual void postAt(const absolute_t &t, const EventPtr &ev);
    // Leave the implementation of postIn as it is in Timer.
@@ -64,6 +89,9 @@ class Dispatcher;
 
    virtual bool invariant() const                               { return true; }
    virtual void printState(::std::ostream &os) const;
+
+ protected:
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
    class Imp;

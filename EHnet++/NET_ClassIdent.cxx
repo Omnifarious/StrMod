@@ -30,7 +30,13 @@
 
 #include "EHnet++/NET_ClassIdent.h"
 
+namespace strmod {
+namespace ehnet {
+
 const NET_ClassIdent NET_ClassIdent::identifier(0UL);
 
-// SocketAddress		1UL
-// InetAddress			2UL
+} // end namespace ehnet
+} // end namespace lcore
+
+// SocketAddress		 1UL
+// InetAddress		 2UL

@@ -45,6 +45,9 @@
 
 #include "LCore/RefCounting.h"
 
+namespace strmod {
+namespace lcore {
+
 const LCore_ClassIdent RefCountPtr::identifier(9UL);
 
 void RefCountPtr::i_SetPtr(ReferenceCounting *p, bool deleteref)
@@ -62,3 +65,6 @@ void RefCountPtr::i_SetPtr(ReferenceCounting *p, bool deleteref)
    }
    ptr_ = p;
 }
+
+} // namespace lcore
+} // namespace strmod

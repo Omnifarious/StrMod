@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -26,4 +26,10 @@
 
 #include "EHnet++/InetAddress.h"
 
+namespace strmod {
+namespace ehnet {
+
 const NET_ClassIdent InetAddress::identifier(3UL);
+
+} // end namespace ehnet
+} // end namespace lcore

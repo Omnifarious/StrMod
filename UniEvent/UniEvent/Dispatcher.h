@@ -1,7 +1,7 @@
 #ifndef _UNEVT_Dispatcher_H_  // -*-c++-*-
 
 /*
- * Copyright 1991-2001 Eric M. Hopper <hopper@omnifarious.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -43,7 +43,8 @@ class EventPtr;
  * Event objects that are removed from the queue in FIFO order and 'fired' by
  * calling their triggerEvent methods.
  */
-class Dispatcher : virtual public Protocol {
+class Dispatcher : virtual public lcore::Protocol
+{
  public:
    static const UNEVT_ClassIdent identifier;
 
@@ -52,7 +53,7 @@ class Dispatcher : virtual public Protocol {
    //! Because abstract classes should have a virtual destructor.
    virtual ~Dispatcher()                            { }
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Add an event to the queue.
    virtual void addEvent(const EventPtr &ev) = 0;
@@ -136,7 +137,7 @@ class Dispatcher : virtual public Protocol {
    virtual bool isQueueEmpty() const = 0;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
    //! Purposely left undefined.
@@ -147,7 +148,7 @@ class Dispatcher : virtual public Protocol {
 
 //-----------------------------inline functions--------------------------------
 
-inline int Dispatcher::AreYouA(const ClassIdent &cid) const
+inline int Dispatcher::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }

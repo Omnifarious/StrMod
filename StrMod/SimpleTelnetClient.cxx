@@ -31,6 +31,8 @@
 namespace strmod {
 namespace strmod {
 
+using lcore::U1Byte;
+
 const STR_ClassIdent SimpleTelnetClient::identifier(43UL);
 const STR_ClassIdent SimpleTelnetClient::UPlug::identifier(44UL);
 const STR_ClassIdent SimpleTelnetClient::SPlug::identifier(45UL);

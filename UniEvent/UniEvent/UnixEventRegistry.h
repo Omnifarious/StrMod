@@ -38,7 +38,7 @@ class UnixEventRegistry
       FD_Invalid //!< Was the fd never opened?
    };
    //! A set of 0 or more FDConditions.
-   typedef enum_set<FDConditions, FD_Readable, FD_Invalid> FDCondSet;
+   typedef lcore::enum_set<FDConditions, FD_Readable, FD_Invalid> FDCondSet;
    //! The set of all FDConditions
    static const FDCondSet all_fdconds;
 

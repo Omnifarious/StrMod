@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -44,12 +44,15 @@
    wait. */
 extern "C" int gethostname(char *name, int namelen);
 
+namespace strmod {
+namespace ehnet {
+
 bool InetAddress::NameToIaddr(const char *name_addr, U4Byte &num)
 {
-   struct hostent *hostinfo;
+   ::hostent *hostinfo;
    char *temp_name = const_cast<char *>(name_addr);
 
-   hostinfo = gethostbyname(temp_name);
+   hostinfo = ::gethostbyname(temp_name);
    if (hostinfo == 0 || hostinfo->h_addrtype != AF_INET) {
       return(false);
    } else {
@@ -58,10 +61,10 @@ bool InetAddress::NameToIaddr(const char *name_addr, U4Byte &num)
    }
 }
 
-std::string InetAddress::IaddrToName(const sockaddr_in &inaddr)
+::std::string InetAddress::IaddrToName(const sockaddr_in &inaddr)
 {
-   std::string hostname;
-   struct hostent *hostinfo;
+   ::std::string hostname;
+   ::hostent *hostinfo;
 
    /* If we're dealing with a non-INADDR_ANY address. */
    if (inaddr.sin_addr.s_addr != INADDR_ANY) {
@@ -71,7 +74,7 @@ std::string InetAddress::IaddrToName(const sockaddr_in &inaddr)
       cast_addr = const_cast<char *>(
 	 reinterpret_cast<const char *>(&inaddr.sin_addr));
       /* Look up the name for the given address.*/
-      hostinfo = gethostbyaddr(cast_addr, sizeof(inaddr.sin_addr), AF_INET);
+      hostinfo = ::gethostbyaddr(cast_addr, sizeof(inaddr.sin_addr), AF_INET);
 
       if (hostinfo != 0) {
 	 /* Eureka! We found a 'real' hostname for our internet number. */
@@ -107,8 +110,8 @@ std::string InetAddress::IaddrToName(const sockaddr_in &inaddr)
 
       char buf[MAXHOSTNAMELEN + 1];
 
-      gethostname(buf, MAXHOSTNAMELEN + 1);
-      hostinfo = gethostbyname(buf);
+      ::gethostname(buf, MAXHOSTNAMELEN + 1);
+      hostinfo = ::gethostbyname(buf);
       hostname = "INADDR_ANY(";
       if (hostinfo != 0) {
 	 hostname += hostinfo->h_name;
@@ -119,3 +122,6 @@ std::string InetAddress::IaddrToName(const sockaddr_in &inaddr)
    }
    return(hostname);
 }
+
+} // end namespace ehnet
+} // end namespace lcore

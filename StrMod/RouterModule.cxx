@@ -33,6 +33,8 @@
 namespace strmod {
 namespace strmod {
 
+using lcore::ClassIdent;
+
 const STR_ClassIdent RouterModule::identifier(52UL);
 const STR_ClassIdent RouterModule::RPlug::identifier(53UL);
 

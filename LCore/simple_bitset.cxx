@@ -13,6 +13,8 @@
 #include "LCore/simple_bitset.h"
 #include <algorithm>
 
+namespace strmod {
+namespace lcore {
 namespace priv {
 
 const unsigned int _base_simple_bitset::bits_in[256] = {
@@ -64,4 +66,6 @@ const size_t _base_simple_bitset::bits_t_bits;
    ::std::reverse(str.begin(), str.end());
    return str;
 }
-}
+} // namespace priv
+} // namespace lcore
+} // namespace strmod

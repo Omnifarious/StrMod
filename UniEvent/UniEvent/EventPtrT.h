@@ -46,12 +46,14 @@ namespace strmod {
 namespace unievent {
 
 template <class Event_t>
-class EventPtrT : virtual public EventPtr {
+class EventPtrT : virtual public EventPtr
+{
  public:
    typedef EventPtr super1;
+   typedef lcore::RefCountPtrT<Event_t> refctr_t;
 
    EventPtrT(EventPtrT<Event_t> &b) : super1(b)                              { }
-   EventPtrT(RefCountPtrT<Event_t> &b) : super1(b.GetPtr())                  { }
+   EventPtrT(refctr_t &b) : super1(b.GetPtr())                  { }
    EventPtrT(Event_t *eptr = 0) : super1(eptr)                               { }
 
    inline Event_t &operator *() const;
@@ -60,11 +62,12 @@ class EventPtrT : virtual public EventPtr {
    inline Event_t *GetPtr() const;
 
    inline const EventPtrT<Event_t> &operator =(const EventPtrT<Event_t> &b);
-   inline const EventPtrT<Event_t> &operator =(const RefCountPtrT<Event_t> &b);
+   inline const EventPtrT<Event_t> &operator =(const refctr_t &b);
    inline const EventPtrT<Event_t> &operator =(Event_t *b);
 
  protected:
-   inline virtual ReferenceCounting *i_CheckType(ReferenceCounting *p) const;
+   inline virtual lcore::ReferenceCounting *
+   i_CheckType(lcore::ReferenceCounting *p) const;
 };
 
 //-----------------------------inline functions--------------------------------
@@ -97,7 +100,7 @@ EventPtrT<Event_t>::operator =(const EventPtrT<Event_t> &b)
 
 template <class Event_t>
 inline const EventPtrT<Event_t> &
-EventPtrT<Event_t>::operator =(const RefCountPtrT<Event_t> &b)
+EventPtrT<Event_t>::operator =(const refctr_t &b)
 {
    super1::operator =(b.GetPtr());
    return(*this);
@@ -112,8 +115,8 @@ EventPtrT<Event_t>::operator =(Event_t *b)
 }
 
 template <class Event_t>
-inline ReferenceCounting *
-EventPtrT<Event_t>::i_CheckType(ReferenceCounting *p) const
+inline lcore::ReferenceCounting *
+EventPtrT<Event_t>::i_CheckType(lcore::ReferenceCounting *p) const
 {
    return(((p != 0) && p->AreYouA(Event::identifier)) ? p : 0);
 }

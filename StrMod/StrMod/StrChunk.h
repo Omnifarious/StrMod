@@ -66,7 +66,8 @@ class LinearExtent;
  * a different tree.  It might even be found twice in the same tree.  This
  * complexity requires reference counts for tractable resource handling.
  */
-class StrChunk : public Object, public ReferenceCounting {
+class StrChunk : public lcore::Object, public lcore::ReferenceCounting
+{
    friend class ChunkVisitor;
  public:
    class __iterator;
@@ -80,11 +81,11 @@ class StrChunk : public Object, public ReferenceCounting {
    //! Not much to talk about.
    virtual ~StrChunk()                                 { }
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Number of octets this chunk takes up.  May be deprecated.
    virtual unsigned int Length() const = 0;
-   
+
    //@{
    /**
     * Get an STL style const bidirectional iterator.
@@ -98,7 +99,7 @@ class StrChunk : public Object, public ReferenceCounting {
 
  protected:
    //! See class Protocol
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 
    //! Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
@@ -127,7 +128,7 @@ class StrChunk : public Object, public ReferenceCounting {
 
 //------------------------inline functions for StrChunk------------------------
 
-inline int StrChunk::AreYouA(const ClassIdent &cid) const
+inline int StrChunk::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Object::AreYouA(cid));
 }

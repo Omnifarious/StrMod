@@ -1,7 +1,7 @@
 #ifndef _STR_UseTrackingVisitor_H_  // -*-mode: c++; c-file-style: "hopper";-*-
 
 /*
- * Copyright 2000 by Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2000-2002 by Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -40,7 +40,8 @@ namespace strmod {
  * Simplifies the Visitor interface down so that derived classes don't have to
  * worry about tracking which parts of a StrChunk are actually used.
  */
-class UseTrackingVisitor : public ChunkVisitor {
+class UseTrackingVisitor : public ChunkVisitor
+{
  public:
    static const STR_ClassIdent identifier;
 
@@ -53,12 +54,12 @@ class UseTrackingVisitor : public ChunkVisitor {
     */
    virtual ~UseTrackingVisitor()                      { }
 
-   virtual int AreYouA(const ClassIdent &cid) const   {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const   {
       return((identifier == cid) || ChunkVisitor::AreYouA(cid));
    }
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
 
    /** \name Only overload these
@@ -119,7 +120,7 @@ class UseTrackingVisitor : public ChunkVisitor {
    const bool ignorezeros_;
 
    //! Don't overload this function in derived classes!  (Wish I had Java's
-   //! 'final'.) 
+   //! 'final'.)
    virtual void visitStrChunk(const StrChunkPtr &chunk)
       throw(halt_visitation);
    //! Don't overload this function in derived classes!  (Wish I had Java's

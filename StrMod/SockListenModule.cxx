@@ -50,6 +50,9 @@
 namespace strmod {
 namespace strmod {
 
+using ehnet::SocketAddress;
+using lcore::LCoreError;
+
 const STR_ClassIdent SockListenModule::identifier(13UL);
 const STR_ClassIdent SockListenModule::SLPlug::identifier(14UL);
 const STR_ClassIdent SocketModuleChunk::identifier(15UL);
@@ -311,7 +314,7 @@ void SockListenModule::doAccept()
 	 {
 	    sockaddr_in *sinad
 	       = reinterpret_cast<struct sockaddr_in *>(saddr);
-	    InetAddress *addr = new InetAddress(*sinad);
+	    ehnet::InetAddress *addr = new ehnet::InetAddress(*sinad);
 
 	    newmodule_ = makeSocketModule(tempfd, addr, disp_, ureg_);
 	 }

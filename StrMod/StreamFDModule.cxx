@@ -62,6 +62,7 @@ typedef struct stat statbuf_t;
 using unievent::Dispatcher;
 using unievent::UnixEventRegistry;
 using unievent::UNIXError;
+using lcore::LCoreError;
 
 const STR_ClassIdent StreamFDModule::identifier(8UL);
 const STR_ClassIdent StreamFDModule::FPlug::identifier(9UL);

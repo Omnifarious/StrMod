@@ -43,7 +43,8 @@ namespace unievent {
  *
  * There is a special kind of error called an EOF error.  An EOF error signals that an EOF condition exists on the file descriptor in questoin.  The 'errno' value is ESUCCESS (0) in this case.
  */
-class UNIXError : public LCoreError {
+class UNIXError : public lcore::LCoreError
+{
  public:
    //! A value for no error at all.
    static const UNIXError S_noerror;
@@ -95,7 +96,7 @@ class UNIXError : public LCoreError {
  */
 inline
 UNIXError::UNIXError(const char *syscallname,
-                     const LCoreError &lcerr, bool iseof) throw ()
+                     const lcore::LCoreError &lcerr, bool iseof) throw ()
      : LCoreError(lcerr), syscallname_(syscallname),
        errnum_(iseof ? errno : 0), iseof_(iseof)
 {
@@ -108,7 +109,7 @@ UNIXError::UNIXError(const char *syscallname,
  */
 inline
 UNIXError::UNIXError(const char *syscallname,
-                     int errnum, const LCoreError &lcerr)
+                     int errnum, const lcore::LCoreError &lcerr)
    throw ()
      : LCoreError(lcerr), syscallname_(syscallname),
        errnum_(errnum), iseof_(false)

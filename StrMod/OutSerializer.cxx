@@ -115,7 +115,7 @@ static void SAddCharStr(OutSerializer &out, const char *data, size_t len)
       len = 65534;
    }
 
-   U2Byte netlen = len;
+   lcore::U2Byte netlen = len;
 
    out.addU2Byte(netlen + 1);  // Add 1 for trailing '\0';
    out.addRaw(data, netlen);

@@ -62,7 +62,7 @@ class GroupChunk : public StrChunk
    //! Dereferences all direct children.
    virtual ~GroupChunk();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual unsigned int Length() const                 { return(totalsize_); }
 
@@ -72,7 +72,7 @@ class GroupChunk : public StrChunk
    void push_front(const StrChunkPtr &chnk);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
@@ -88,7 +88,7 @@ class GroupChunk : public StrChunk
 
 //-----------------------------inline functions--------------------------------
 
-inline int GroupChunk::AreYouA(const ClassIdent &cid) const
+inline int GroupChunk::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }

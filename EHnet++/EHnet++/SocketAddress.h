@@ -1,11 +1,11 @@
-#ifndef _EHNET_SocketAddress_H_
+#ifndef _EHNET_SocketAddress_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #pragma interface
 #endif
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -25,7 +25,7 @@
 /* $Header$ */
 
  // For a log, see ../ChangeLog
-//
+ //
  // Revision 1.4  1996/02/20 01:06:33  hopper
  // Added inline definition for ostream &operator << for SocketAddresses.
  //
@@ -68,41 +68,42 @@
 
 struct sockaddr;
 
-class SocketAddress : virtual public Protocol {
+namespace strmod {
+namespace ehnet {
+
+class SocketAddress : virtual public lcore::Protocol {
  public:
    static const NET_ClassIdent identifier;
 
-   SocketAddress()                              { }
-   virtual ~SocketAddress()                     { }
+   SocketAddress()                                      { }
+   virtual ~SocketAddress()                             { }
 
-   virtual int AreYouA(const ClassIdent &cid) const {
-      return((identifier == cid) || Protocol::AreYouA(cid));
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
+      return((identifier == cid) || lcore::Protocol::AreYouA(cid));
    }
 
-   virtual void PrintOn(std::ostream &);
+   virtual void PrintOn(::std::ostream &);
 
-   virtual struct sockaddr *SockAddr() = 0;
-   SocketAddress *Copy() const                  { return(MakeCopy()); }
+   virtual ::sockaddr *SockAddr() = 0;
+   SocketAddress *Copy() const                          { return(MakeCopy()); }
    virtual int AddressSize() const = 0;
-   virtual std::string AsString() = 0;
+   virtual ::std::string AsString() = 0;
 
  protected:
-   inline virtual const ClassIdent *i_GetIdent() const;
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual SocketAddress *MakeCopy() const = 0;
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline const ClassIdent *SocketAddress::i_GetIdent() const
-{
-   return(&identifier);
-}
-
-inline std::ostream &operator <<(std::ostream &os, SocketAddress &sa)
+inline ::std::ostream &operator <<(::std::ostream &os, SocketAddress &sa)
 {
    sa.PrintOn(os);
    return(os);
 }
+
+} // namespace ehnet
+} // namespace strmod
 
 #endif

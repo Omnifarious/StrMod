@@ -1,7 +1,7 @@
 #ifndef _STR_StreamSplitter_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -70,7 +70,8 @@ namespace strmod {
  * <p>The SideOut plug is <b>never</b> writeable, and the SideIn plug is
  * <b>never</b> readable..</p>
  */
-class StreamSplitterModule : public StreamModule {
+class StreamSplitterModule : public StreamModule
+{
  public:
    static const STR_ClassIdent identifier;
 
@@ -110,7 +111,9 @@ class StreamSplitterModule : public StreamModule {
       virtual int side() const                          { return(side_); }
 
     protected:
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       virtual const StrChunkPtr i_Read();
       virtual void i_Write(const StrChunkPtr &ptr);
@@ -128,7 +131,7 @@ class StreamSplitterModule : public StreamModule {
       Sides side_;
    };
 
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    /** See base class.  This one sets the read/writeable flags on the other
     * plugs to be right.

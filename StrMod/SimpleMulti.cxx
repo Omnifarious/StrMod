@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -45,13 +45,14 @@ namespace strmod {
 
 /** A private class for StrPlugs on the 'many' side of a SimpleMultiplexer.
  */
-class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
+class SimpleMultiplexer::MultiPlug : public StreamModule::Plug
+{
    friend class SimpleMultiplexer;
    friend class SinglePlug;
  public:
    static const STR_ClassIdent identifier;
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline SimpleMultiplexer &getParent() const;
 
@@ -69,11 +70,11 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
    //! A destructor.  Calls unPlug()
    inline virtual ~MultiPlug();
 
-   virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual const StrChunkPtr i_Read();
 
-   virtual void i_Write(const StrChunkPtr &ptr); 
+   virtual void i_Write(const StrChunkPtr &ptr);
 
    virtual bool needsNotifyWriteable() const        { return(true); }
    virtual bool needsNotifyReadable() const         { return(true); }
@@ -117,13 +118,13 @@ class SimpleMultiplexer::ScanEvent : public unievent::Event {
    void parentGone()                                    { parent_ = 0; }
 
  protected:
-   virtual const ClassIdent *i_GetIdent()               { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent()        { return &identifier; }
 
  private:
    SimpleMultiplexer *parent_;
 };
 
-int SimpleMultiplexer::MultiPlug::AreYouA(const ClassIdent &cid) const
+int SimpleMultiplexer::MultiPlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }
@@ -446,7 +447,7 @@ void SimpleMultiplexer::multiDidRead(MultiPlug &mplug)
 //     cerr << "readable_multis_ == " << readable_multis_ << "\n";
    assert(readable_multis_ > 0);
    setReadableFlagFor(&mplug, false);
-   
+
    if (--readable_multis_ == 0)
    {
 //        cerr << "readable_multis_ == 0 && writeable_multiothers_ == "
@@ -622,5 +623,5 @@ bool SimpleMultiplexer::deletePlug(Plug *plug)
    return false;
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

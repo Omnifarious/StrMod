@@ -1,7 +1,7 @@
 #ifndef _STR_CharChopper_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -74,7 +74,7 @@ class CharChopper : public StreamProcessor
    CharChopper(char chopchar) : chopchar_(chopchar)    { }
    // Derived class destructor doesn't do anything base class one doesn't do.
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
  private:
    const char chopchar_;
@@ -83,7 +83,7 @@ class CharChopper : public StreamProcessor
    size_t usedsize_;
    enum { INYes, INNo, INMaybe } incoming_is_bc_;
 
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual void processIncoming();
 
@@ -98,7 +98,7 @@ class CharChopper : public StreamProcessor
 
 //-----------------------------inline functions--------------------------------
 
-inline int CharChopper::AreYouA(const ClassIdent &cid) const
+inline int CharChopper::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamProcessor::AreYouA(cid));
 }

@@ -88,7 +88,7 @@ InSerializer::~InSerializer()
    delete &impl_;
 }
 
-S1Byte InSerializer::GetS1Byte()
+lcore::S1Byte InSerializer::GetS1Byte()
 {
    if (HadError()) {
       return(0);
@@ -96,17 +96,17 @@ S1Byte InSerializer::GetS1Byte()
       had_error_ = true;
       return(0);
    } else {
-      U1Byte ch = *(impl_.i_);
+      lcore::U1Byte ch = *(impl_.i_);
       ++impl_.i_;
 
-      S1Byte val;
+      lcore::S1Byte val;
 
-      ntoh(&ch, val);
+      lcore::ntoh(&ch, val);
       return(val);
    }
 }
 
-U1Byte InSerializer::GetU1Byte()
+lcore::U1Byte InSerializer::GetU1Byte()
 {
    if (HadError()) {
       return(0);
@@ -114,17 +114,17 @@ U1Byte InSerializer::GetU1Byte()
       had_error_ = true;
       return(0);
    } else {
-      U1Byte ch = *(impl_.i_);
+      lcore::U1Byte ch = *(impl_.i_);
       ++impl_.i_;
 
-      U1Byte val;
+      lcore::U1Byte val;
 
-      ntoh(&ch, val);
+      lcore::ntoh(&ch, val);
       return(val);
    }
 }
 
-S2Byte InSerializer::GetS2Byte()
+lcore::S2Byte InSerializer::GetS2Byte()
 {
    if (HadError()) {
       return(0);
@@ -132,19 +132,19 @@ S2Byte InSerializer::GetS2Byte()
       had_error_ = true;
       return(0);
    } else {
-      U1Byte ch[2];
-      S2Byte val;
+      lcore::U1Byte ch[2];
+      lcore::S2Byte val;
 
       ch[0] = *(impl_.i_);
       ++impl_.i_;
       ch[1] = *(impl_.i_);
       ++impl_.i_;
-      ntoh(ch, val);
+      lcore::ntoh(ch, val);
       return(val);
    }
 }
 
-U2Byte InSerializer::GetU2Byte()
+lcore::U2Byte InSerializer::GetU2Byte()
 {
    if (HadError()) {
       return(0);
@@ -152,19 +152,19 @@ U2Byte InSerializer::GetU2Byte()
       had_error_ = true;
       return(0);
    } else {
-      U1Byte ch[2];
-      U2Byte val;
+      lcore::U1Byte ch[2];
+      lcore::U2Byte val;
 
       ch[0] = *(impl_.i_);
       ++impl_.i_;
       ch[1] = *(impl_.i_);
       ++impl_.i_;
-      ntoh(ch, val);
+      lcore::ntoh(ch, val);
       return(val);
    }
 }
 
-S4Byte InSerializer::GetS4Byte()
+lcore::S4Byte InSerializer::GetS4Byte()
 {
    if (HadError()) {
       return(0);
@@ -172,8 +172,8 @@ S4Byte InSerializer::GetS4Byte()
       had_error_ = true;
       return(0);
    } else {
-      U1Byte ch[4];
-      S4Byte val;
+      lcore::U1Byte ch[4];
+      lcore::S4Byte val;
 
       ch[0] = *(impl_.i_);
       ++impl_.i_;
@@ -183,12 +183,12 @@ S4Byte InSerializer::GetS4Byte()
       ++impl_.i_;
       ch[3] = *(impl_.i_);
       ++impl_.i_;
-      ntoh(ch, val);
+      lcore::ntoh(ch, val);
       return(val);
    }
 }
 
-U4Byte InSerializer::GetU4Byte()
+lcore::U4Byte InSerializer::GetU4Byte()
 {
    if (HadError()) {
       return(0);
@@ -196,8 +196,8 @@ U4Byte InSerializer::GetU4Byte()
       had_error_ = true;
       return(0);
    } else {
-      U1Byte ch[4];
-      U4Byte val;
+      lcore::U1Byte ch[4];
+      lcore::U4Byte val;
 
       ch[0] = *(impl_.i_);
       ++impl_.i_;
@@ -207,7 +207,7 @@ U4Byte InSerializer::GetU4Byte()
       ++impl_.i_;
       ch[3] = *(impl_.i_);
       ++impl_.i_;
-      ntoh(ch, val);
+      lcore::ntoh(ch, val);
       return(val);
    }
 }
@@ -220,21 +220,21 @@ const std::string InSerializer::GetString()
       had_error_ = true;
       return("");
    } else {
-      U1Byte ch[2];
-      U2Byte len;
+      lcore::U1Byte ch[2];
+      lcore::U2Byte len;
 
       ch[0] = *(impl_.i_);
       ++impl_.i_;
       ch[1] = *(impl_.i_);
       ++impl_.i_;
 
-      ntoh(ch, len);
+      lcore::ntoh(ch, len);
       if ((len < 1) || (len > impl_.BytesLeft())) {
 	 had_error_ = true;
 	 return("");
       } else {
 	 std::string result;
-	 U2Byte templen = len - 1;  // Skip trailing '\0'
+	 lcore::U2Byte templen = len - 1;  // Skip trailing '\0'
 
 	 result.reserve(templen);  // Weak attempt to optimize performance.
 	 while (templen--) {
@@ -251,7 +251,7 @@ void InSerializer::GetRaw(void *destbuf, size_t len)
 {
    if (!HadError()) {
       if (impl_.BytesLeft() >= len) {
-	 U1Byte *dest = static_cast<U1Byte *>(destbuf);
+	 lcore::U1Byte *dest = static_cast<lcore::U1Byte *>(destbuf);
 	 size_t templen = len;
 
 	 while (templen--) {
