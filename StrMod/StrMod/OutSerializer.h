@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1998/06/02 00:30:53  hopper
+// Fixed a small bug that caused adding a 2 bytes value to not work
+// correctly.
+//
 // Revision 1.1  1997/04/11 17:44:15  hopper
 // Added OutSerializer class for simple serialization of basic data types.
 //
@@ -87,7 +91,7 @@ inline void OutSerializer::AddS2Byte(S2Byte num)
    SetMinSuggestedSize(cur_pos_ + 2);
 
    hton(num, buf_ + cur_pos_);
-   cur_pos_ + 2;
+   cur_pos_ += 2;
 }
 
 inline void OutSerializer::AddU2Byte(U2Byte num)
