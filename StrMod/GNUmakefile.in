@@ -39,12 +39,13 @@ LIBCCS = StrChunkid.cc  EchoModule.cc  StrFDPlug.cc  STR_ClassIdent.cc \
          StreamFDModule.cc  SockListenModule.cc  StreamModule.cc  \
          SocketModule.cc  StreamSplitter.cc  StrChunk.cc  StrChunkPtr.cc \
          LinearExtent.cc  GroupVector.cc  GV_Iterator.cc  StrSubChunk.cc \
-         DBStrChunk.cc  GroupChunk.cc  LinearExtentStrmOp.cc  StrChunkPtrT.cc
+         DBStrChunk.cc  GroupChunk.cc  LinearExtentStrmOp.cc  StrChunkPtrT.cc \
+         SimplePlug.cc  SimpleMulti.cc
 
 CCNAMES = $(LIBCCS) \
           tests/testchunk.cc  tests/server.cc  tests/testdist.cc \
           tests/testecho.cc  tests/teststr.cc  tests/echoserv.cc \
-          tests/testextent.cc  tests/testGV.cc
+          tests/testextent.cc  tests/testGV.cc  tests/testmulti.cc
 
 CNAMES = utils/cechoserv.c  utils/audiodiv.c  utils/writelots.c
 
@@ -67,6 +68,9 @@ tests/server : tests/server.o
 
 tests/echoserv : tests/echoserv.o
 	$(CXX) tests/echoserv.o $(LDFLAGS) $(LIBS) -o tests/echoserv 2>&1 | c++filt
+
+tests/multitest : tests/testmulti.o
+	$(CXX) tests/testmulti.o $(LDFLAGS) $(LIBS) -o tests/multitest 2>&1 | c++filt
 
 tests/testdist : tests/testdist.o
 	$(CXX) tests/testdist.o $(LDFLAGS) $(LIBS) -o tests/testdist
