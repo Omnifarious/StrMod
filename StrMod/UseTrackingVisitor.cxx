@@ -31,6 +31,11 @@
 
 const STR_ClassIdent UseTrackingVisitor::identifier(47UL);
 
+/*!
+ * @param ignorezeros Should the use_* Template Methods be called for
+ * StrChunks that have no used bytes or data sections that have no
+ * used bytes?
+ */
 UseTrackingVisitor::UseTrackingVisitor(bool ignorezeros)
      : curpos_(0), ignorezeros_(ignorezeros)
 {

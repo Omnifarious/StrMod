@@ -46,45 +46,94 @@
 
 class ostream;
 
+/** \class LinearExtent LinearExtent.h StrMod/LinearExtent.h
+ * A simple class describing a subrange of a contiguous sequence.
+ *
+ * This class sees such a subrange as beginning at an offset, and proceeding
+ * for some number of items.
+ */
 class LinearExtent {
  public:
-   typedef unsigned int off_t;
-   typedef unsigned int length_t;
+   typedef unsigned int off_t;  ///< Type for expressing the offset.
+   typedef unsigned int length_t;  ///< Type for expressing the length.
 
+   /**
+    * A constant for an infinite length extent starting at offset 0.
+    *
+    * Not actually _infinite_, but of length UINT_MAX.
+    */
    static const LinearExtent full_extent;
 
+   //! A zero length extent starting at offset 0.
    inline LinearExtent();
+   //! An extent starting at \c offset having length \c length.
    inline LinearExtent(off_t offset, length_t length);
+   //! Not meant to be inherited from, so not virtual.
    inline ~LinearExtent();
 
+   //! Retrieve offset.
    inline off_t Offset() const;
+   //! Set offset.
    inline void Offset(off_t new_off);
+   //! Retrieve length.
    inline length_t Length() const;
+   //! Set length.
    inline void Length(length_t new_length);
 
+   /** \name STL Transforms
+    * These functions translate the extent coordinate system of offset, length
+    * into the STL coordinate system of [begin, end).
+    */
+   //@{
+   //! Offset of beginning of extent (for STL like algorithms).  Same as
+   //! Offset().
    inline off_t beginOffset() const;
+   //! Offset of end of extent (for STL like algorithms).  Same as Offset() +
+   //! Length()
    inline off_t endOffset() const;
+   //@}
 
+   //! Given two extents, what is extent is common to both?
    inline const LinearExtent intersection(const LinearExtent &other) const;
 
+   /** \name Extent as a Moveable Tape Measure
+    * To understand what all these functions do, it's helpful to keep an image
+    * of the full contiguous sequence in mind, whith the LinearExtent acting
+    * as a sort of tape measure stretched along some part of the sequence.
+    */
+   //@{
+   //! Lengthen an extent by lowering the offset and increasing the length by
+   //! the same amount.
    void LengthenLeft(length_t by);
+   //! Lengthen an extent by lowering the offset by half of \c by and
+   //! increasing the length by \c by.
    void LengthenCenter(length_t by);
+   //! Lengthen an extent merely by adding to the length.
    inline void LengthenRight(length_t by);
 
+   //! Shorten an extent by increasing its offset and decreasing its length by
+   //! the same amount.
    void ShortenLeft(length_t by);
+   //! Shorten an extent by increasing its offset by half of \c by and
+   //! decreasing its length by \c by.
    void ShortenCenter(length_t by);
+   //! Shorten an extent by simply decreasing its length.
    inline void ShortenRight(length_t by);
 
+   //! Add to the offset.
    inline void MoveRight(off_t by);
+   //! Subtract from the offset.
    inline void MoveLeft(off_t by);
+   //@}
 
+   //! Translate a subextent into the underlying sequence's coordinate space.
    const LinearExtent SubExtent(const LinearExtent &extent) const;
+   //! The function is to SubExtent as += is to +.
    const LinearExtent &SubExtent_eq(const LinearExtent &extent);
 
  private:
    off_t m_offset;
    length_t m_length;
-
 };
 
 ostream &operator <<(ostream &os, const LinearExtent &ext);

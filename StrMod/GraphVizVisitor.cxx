@@ -36,6 +36,14 @@
 
 const STR_ClassIdent GraphVizVisitor::identifier(48UL);
 
+/*!
+ * @param root The root of the StrChunk DAG to be printed.
+ *
+ * @param out The ostream to print the GraphViz parseable tree on.
+ *
+ * @return A pointer to a StrChunk containing the data in the DAG flattened
+ * into a single buffer.
+ */
 const StrChunkPtr GraphVizVisitor::visit(const StrChunkPtr &root, ostream &out)
 {
    StrChunkPtr retval;
@@ -102,6 +110,12 @@ void GraphVizVisitor::use_visitDataBlock(const void *start, size_t len,
    rootpos_ += len;
 }
 
+/*!
+ * Prints out a chunk of data that may contain non-printable characters.  It
+ * prints out the octal escape sequence for a non-printable character, or a
+ * '"' character.  It captures '"' characters because those are used to
+ * delimit strings in GraphViz.
+ */
 void GraphVizVisitor::printData(const void *data, size_t len)
 {
    (*out_) << "d_" << data << "[shape=box,label=\"";

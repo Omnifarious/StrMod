@@ -59,22 +59,41 @@
 
 class StrChunk;
 
+/** \class StrChunkPtr StrChunkPtr.h StrMod/StrChunkPtr.h
+ * A smart pointer class that points a StrChunks and handles their reference
+ * counts.
+ */
 class StrChunkPtr : public RefCountPtrT<StrChunk> {
  public:
+   //! An easier way to refer to RefCountPtrT<StrChunk>
    typedef RefCountPtrT<StrChunk> super1;
    static const STR_ClassIdent identifier;
 
+   //@{
+   /**
+    * These all construct a StrChunkPtr from the appropriate type and maintain
+    * the reference count to the pointed at StrChunk.
+    */
    inline StrChunkPtr(const StrChunkPtr &b);
    inline StrChunkPtr(const super1 &b);
    inline StrChunkPtr(StrChunk *stptr = 0);
+   //@}
 
+   //! See class Protocol
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
+   //@{
+   /**
+    * These all set a StrChunkPtrs value from the appropriate type and
+    * maintain the reference count to the pointed at StrChunk.
+    */
    inline const StrChunkPtr &operator =(const StrChunkPtr &b);
    inline const StrChunkPtr &operator =(const super1 &b);
    inline const StrChunkPtr &operator =(StrChunk *b);
+   //@}
 
  protected:
+   //! See class Protocol
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 };
 
@@ -99,10 +118,8 @@ inline int StrChunkPtr::AreYouA(const ClassIdent &cid) const
 
 inline const StrChunkPtr &StrChunkPtr::operator =(const StrChunkPtr &b)
 {
-   //lint -save -e1529
    super1::operator =(b);
    return(*this);
-   //lint -restore
 }
 
 inline const StrChunkPtr &StrChunkPtr::operator =(const super1 &b)

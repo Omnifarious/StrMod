@@ -37,40 +37,74 @@
 class StrChunkPtr;
 class StrChunk;
 
+/** \class ChunkVisitor ChunkVisitor.h StrMod/ChunkVisitor.h
+ * The interface for a StrChunk visitor.
+ *
+ * Part of an implementation of the <a
+ * href="http://exciton.cs.oberlin.edu/javaresources/DesignPatterns/VisitorPattern.htm">Visitor
+ * pattern</a> for traversing StrChunk DAGs.
+ *
+ * A StrChunk may be visited many times because the StrChunk containment
+ * hierarchy is a DAG.  This means that a given StrChunk can be contained
+ * through more than one path, though it can never contain itself.  Because a
+ * StrChunk can contain 'substrings' of other StrChunks, each time a StrChunk
+ * is visited, it may have different constraints stating which part of the
+ * data or StrChunks it contains are visible to the parent.
+ *
+ * Derived classes should provide some sort of 'visit' method that takes at
+ * least the top level chunk to be visited as an argument.  It isn't provided
+ * here because many visitor classes will have build up and tear down
+ * operations to perform before visiting.
+ */
 class ChunkVisitor : public Protocol {
    friend class StrChunk;
  public:
-   //: An exception to allow the visitor to halt the traversal.
+   //! An exception to allow the visitor to halt the traversal.
    class halt_visitation : public exception {
    };
    static const STR_ClassIdent identifier;
 
+   //! Do nothing constructor for interface class.
    ChunkVisitor()                                   { }
+   //! Do nothing virtual destructor for interface class.
    virtual ~ChunkVisitor()                          { }
 
    virtual int AreYouA(const ClassIdent &cid) const {
       return((identifier == cid) || Protocol::AreYouA(cid));
    }
 
-   // Derived classes should provide some sort of 'visit' method that
-   // takes at least the top level chunk to be visited as an argument.
-
  protected:
-   virtual const ClassIdent *GetIdent() const       { return(&identifier); }
+   virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
 
-   //: Visit a StrChunk, with no extent constraints imposed by parent.
+   /** \name StrChunk visit functions
+    */
+   //@{
+   /**
+    * Visit a StrChunk, with no extent constraints imposed by parent.
+    */
    virtual void visitStrChunk(const StrChunkPtr &chunk)
       throw(halt_visitation) = 0;
-   //: Visit a StrChunk, with extent constraints imposed by parent.
+   /**
+    * Visit a StrChunk, with extent constraints imposed by parent.
+    */
    virtual void visitStrChunk(const StrChunkPtr &chunk,
 			      const LinearExtent &used)
       throw(halt_visitation) = 0;
-   //: Visit some raw data in a StrChunk.
+   //@}
+   //! Visit some raw data in a StrChunk.
    virtual void visitDataBlock(const void *start, size_t len)
       throw(halt_visitation) = 0;
 
-   //: Call the StrChunk's 'acceptVisitor' method to visit a StrChunk's
-   //: children.
+   /**
+    * Call the StrChunk's 'acceptVisitor' method to visit a StrChunk's
+    * children.
+    *
+    * This exists so derived classes will have very limited and controlled
+    * access to a protected member function of StrChunk.  It always provides
+    * <code>this</code> as the visitor argument of StrChunk::acceptVisitor.
+    *
+    * @param chnk The StrChunk to call acceptVisitor on.
+    */
    void call_acceptVisitor(const StrChunkPtr &chnk)
       throw(halt_visitation);
 };

@@ -31,21 +31,29 @@
 #include <vector>
 #include <algorithm>
 
-typedef StrChunk::__iterator sciterator;
-
-//: Java style since it's only in this .cxx file.
+/**
+ * A bunch of data that can be share among all the StrChunk::__iterator
+ * objects for a given StrChunk.
+ */
 class StrChunk::__iterator::shared : public ReferenceCounting {
  public:
+   /**
+    * Holds information about where to find a chunk of data and how big it is.
+    */
    struct rawdata {
-      const void *base_;
-      unsigned int len_;
+      const void *base_;  ///< Location of data area
+      unsigned int len_;  ///< Length of data area
    };
-   StrChunkPtr root_;
-   rawdata *dataexts_;
-   unsigned int numexts_;
-   unsigned int length_;
+   StrChunkPtr root_;  ///< The StrChunk I'm the share iterator data area for.
+   rawdata *dataexts_;  ///< A list of the data chunks in root_.
+   unsigned int numexts_; ///< The number of data chunks in root_.
+   unsigned int length_;  ///< The total length of all of the data chunks in root_.  Should be equal to root_->Length()
 
    inline shared(const StrChunkPtr &root);
+   /**
+    * Set the special StrChunk storage pointer back to NULL if it was pointing
+    * at me.
+    */
    ~shared()
    {
       if (getStorage(*root_) == this)
@@ -54,6 +62,11 @@ class StrChunk::__iterator::shared : public ReferenceCounting {
       }
       delete[] dataexts_;
    }
+   /**
+    * Pulls out the mysterious void * inside StrChunk to check to see if
+    * another StrChunk::__iterator has left us with a gift of a shared data
+    * section we can use.
+    */
    static shared *forStrChunk(const StrChunkPtr &chnk) {
       shared *tmp = static_cast<shared *>(getStorage(*chnk));
       if (!tmp)
@@ -64,12 +77,31 @@ class StrChunk::__iterator::shared : public ReferenceCounting {
    }
 };
 
-//: Java style since it's only in this .cxx file.
+/**
+ * The ChunkVisitor that gathers data for the StrChunk::__iterator to use.
+ */
 class StrChunk::__iterator::ExtVisitor : public UseTrackingVisitor {
  public:
-   ExtVisitor()                             { }
+   //! ChunkVisitors never have very interesting constructors
+   // Do ignore zeros though.  When iterating over data, zero length chunks
+   // and data extents are pointless.
+   ExtVisitor() : UseTrackingVisitor(true)  { }
+   //! And rarely interesting destructors either.
    virtual ~ExtVisitor()                    { }
 
+   /**
+    * Visit the StrChunk DAG rooted at root, filling up the shared data
+    * structure with what I find.
+    *
+    * @param root The StrChunk to visit.
+    *
+    * @param dataexts A reference to a pointer to a list of data extents.  Set
+    * to point at the new list after it's all ben figured out.
+    *
+    * @param numexts A reference to an int that will be filled with the number
+    * of data extents I found, and therefor how many data extents dataexts now
+    * points at.
+    */
    void visit(const StrChunkPtr &root,
               shared::rawdata *&dataexts, unsigned int &numexts)
    {
@@ -84,10 +116,17 @@ class StrChunk::__iterator::ExtVisitor : public UseTrackingVisitor {
    }
 
  protected:
+   /*!
+    * I don't care about chunks, just data (because the iterator has to
+    * iterate over the data) so do nothing when told about a chunk.
+    */
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
       throw(halt_visitation)                { }
 
+   /*!
+    * Add this new chunk of data to our list.
+    */
    virtual void use_visitDataBlock(const void *start, size_t len,
                                    const void *realstart, size_t reallen)
       throw(halt_visitation)
@@ -110,9 +149,11 @@ class StrChunk::__iterator::ExtVisitor : public UseTrackingVisitor {
 
 //---
 
-// Can't be inside the class because it references ExtVisitor in a way
-// the requires the full definition to be available.
-inline sciterator::shared::shared(const StrChunkPtr &root)
+/**
+ * Create a shared data area and set up the funny void * storage area in
+ * StrChunk to hold it.
+ */
+inline StrChunk::__iterator::shared::shared(const StrChunkPtr &root)
      : ReferenceCounting(0), root_(root), dataexts_(0), numexts_(0),
        length_(root->Length())
 {
@@ -127,12 +168,12 @@ inline sciterator::shared::shared(const StrChunkPtr &root)
 
 //---
 
-sciterator::__iterator()
+StrChunk::__iterator::__iterator()
      : shared_(0), abspos_(0), extpos_(0), extlast_(0), curext_(0), extbase_(0)
 {
 }
 
-sciterator::__iterator(const StrChunkPtr &chnk)
+StrChunk::__iterator::__iterator(const StrChunkPtr &chnk)
      : shared_(0), abspos_(0), extpos_(0), extlast_(0), curext_(0), extbase_(0)
 {
    assert(chnk);
@@ -141,7 +182,7 @@ sciterator::__iterator(const StrChunkPtr &chnk)
    moveToBegin();
 }
 
-sciterator::__iterator(shared *sh)
+StrChunk::__iterator::__iterator(shared *sh)
      : shared_(sh), abspos_(0), extlast_(0), extpos_(0),
        curext_(0), extbase_(0)
 {
@@ -152,7 +193,7 @@ sciterator::__iterator(shared *sh)
    }
 }
 
-sciterator::__iterator(const __iterator &other)
+StrChunk::__iterator::__iterator(const __iterator &other)
      : shared_(other.shared_), abspos_(other.abspos_), extpos_(other.extpos_),
        extlast_(other.extlast_), curext_(other.curext_),
        extbase_(other.extbase_)
@@ -163,7 +204,7 @@ sciterator::__iterator(const __iterator &other)
    }
 }
 
-sciterator::~__iterator()
+StrChunk::__iterator::~__iterator()
 {
    if (shared_)
    {
@@ -179,8 +220,8 @@ sciterator::~__iterator()
    }
 }
 
-const sciterator &
-sciterator::operator =(const __iterator &other)
+const StrChunk::__iterator &
+StrChunk::__iterator::operator =(const __iterator &other)
 {
    // The order of operations here handle self assignment
    shared_->DelReference();
@@ -199,7 +240,7 @@ sciterator::operator =(const __iterator &other)
    return(*this);
 };
 
-bool sciterator::isEqual(const __iterator &other) const
+bool StrChunk::__iterator::isEqual(const __iterator &other) const
 {
    if ((shared_ == other.shared_) ||
        (shared_ && other.shared_ &&
@@ -209,8 +250,14 @@ bool sciterator::isEqual(const __iterator &other) const
    }
    return(false);
 }
-
-bool sciterator::isLessThan(const __iterator &other) const
+/*!
+ * Returns a comparison of position within a StrChunk if the two iterators
+ * point at the same StrChunk.
+ *
+ * Punts and returns some silly value when the values aren't comparable
+ * because the iterators don't point at the same StrChunk.
+ */
+bool StrChunk::__iterator::isLessThan(const __iterator &other) const
 {
    if ((shared_ == other.shared_) ||
        (shared_ && other.shared_ &&
@@ -224,8 +271,15 @@ bool sciterator::isLessThan(const __iterator &other) const
    }
 }
 
-sciterator::difference_type
-sciterator::distance(const __iterator &other) const
+/*!
+ * @return The number of bytes between two iterators.
+ *
+ * Returns a silly value if the two iterators don't point at the same
+ * StrChunk.  I believe that STL leaves this behavior undefined, so the silly
+ * value is as good as anything else.
+ */
+StrChunk::__iterator::difference_type
+StrChunk::__iterator::distance(const __iterator &other) const
 {
    if ((shared_ == other.shared_) ||
        (shared_ && other.shared_ &&
@@ -243,7 +297,7 @@ sciterator::distance(const __iterator &other) const
 
 static const unsigned char junk = 'G';
 
-void sciterator::moveToEnd()
+void StrChunk::__iterator::moveToEnd()
 {
    if (!shared_)
    {
@@ -257,7 +311,7 @@ void sciterator::moveToEnd()
    extlast_ = 0;
 }
 
-void sciterator::moveToBegin()
+void StrChunk::__iterator::moveToBegin()
 {
    if (!shared_)
    {
@@ -280,7 +334,7 @@ void sciterator::moveToBegin()
    }
 }
 
-void sciterator::move_forward_complex()
+void StrChunk::__iterator::move_forward_complex()
 {
    assert(extpos_ >= extlast_);
    if (extpos_ < extlast_)
@@ -311,7 +365,7 @@ void sciterator::move_forward_complex()
    --extlast_;
 }
 
-void sciterator::move_backward_complex()
+void StrChunk::__iterator::move_backward_complex()
 {
    assert(extpos_ == 0);
    if (extpos_ != 0)

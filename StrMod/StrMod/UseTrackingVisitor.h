@@ -33,37 +33,80 @@
 
 #define _STR_UseTrackingVisitor_H_
 
+/** \class UseTrackingVisitor UseTrackingVisitor.h StrMod/UseTrackingVisitor.h
+ * Simplifies the Visitor interface down so that derived classes don't have to
+ * worry about tracking which parts of a StrChunk are actually used.
+ */
 class UseTrackingVisitor : public ChunkVisitor {
  public:
    static const STR_ClassIdent identifier;
 
+   /**
+    * Constructor.
+    */
    UseTrackingVisitor(bool ignorezeros = false);
-   virtual ~UseTrackingVisitor();
+   /**
+    * \brief Destructor.  Doesn't do much.
+    */
+   virtual ~UseTrackingVisitor()                      { }
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const ClassIdent &cid) const   {
       return((identifier == cid) || ChunkVisitor::AreYouA(cid));
    }
 
  protected:
-   virtual const ClassIdent *GetIdent() const       { return(&identifier); }
+   virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
 
-   //: This is the function called by the UseTracking machinery.
-   //: <strong>Don't overload functions that don't start with
-   //: <code>use_</code></strong>.
+
+   /** \name Only overload these
+    * <strong>Only overload these functions, not the various private visit*
+    * functions down below.</strong>
+    */
+   //@{
+   /**
+    * \brief This is the Template Method function to visit a StrChunk.  Called
+    * by the UseTracking machinery.
+    *
+    * @param chunk The chunk being visited.
+    *
+    * @param extent Which extent of the chunk is used.
+    */
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
       throw(halt_visitation) = 0;
-
-   //: This is the function called by the UseTracking machinery.
-   //: <strong>Don't overload functions that don't start with
-   //: <code>use_</code></strong>.
+   /**
+    * \brief This is the Template Method function to visit an actual chunk of
+    * data.  Called by the UseTracking machinery.
+    *
+    * @param start Start of the portion of the data area that's used.
+    *
+    * @param len Length of the used part of the data area.
+    *
+    * @param ralstart Start of the actual data area, including the unused
+    * portions.
+    *
+    * @param reallen Length of the actual data area, including the unsused
+    * portions.
+    */
    virtual void use_visitDataBlock(const void *start, size_t len,
                                    const void *realstart, size_t reallen)
       throw(halt_visitation) = 0;
+   //@}
 
+   /**
+    * Retrieves the parent StrChunk of the currently visited chunk or piece of
+    * data.
+    */
    inline const StrChunkPtr &getParent() const;
+   /**
+    * Retrieves the offset of where the currently visited chunk or piece of
+    * data is within its parent.
+    */
    inline const LinearExtent::off_t parentOffset() const;
 
+   /**
+    * Start a traversal of a chunk DAG.
+    */
    inline void startVisit(const StrChunkPtr &root);
 
  private:
@@ -72,17 +115,17 @@ class UseTrackingVisitor : public ChunkVisitor {
    StrChunkPtr curchnk_;
    const bool ignorezeros_;
 
-   //: Don't overload this function in derived classes!  (Wish I had Java's
-   //: 'final'.)
+   //! Don't overload this function in derived classes!  (Wish I had Java's
+   //! 'final'.) 
    virtual void visitStrChunk(const StrChunkPtr &chunk)
       throw(halt_visitation);
-   //: Don't overload this function in derived classes!  (Wish I had Java's
-   //: 'final'.)
+   //! Don't overload this function in derived classes!  (Wish I had Java's
+   //! 'final'.)
    virtual void visitStrChunk(const StrChunkPtr &chunk,
 			      const LinearExtent &used)
       throw(halt_visitation);
-   //: Don't overload this function in derived classes!  (Wish I had Java's
-   //: 'final'.)
+   //! Don't overload this function in derived classes!  (Wish I had Java's
+   //! 'final'.)
    virtual void visitDataBlock(const void *start, size_t len)
       throw(halt_visitation);
 
@@ -103,6 +146,9 @@ inline const LinearExtent::off_t UseTrackingVisitor::parentOffset() const
    return(curpos_);
 }
 
+/*!
+ * @param root The root of the DAG to visit.
+ */
 inline void UseTrackingVisitor::startVisit(const StrChunkPtr &root)
 {
    curpos_ = 0;
