@@ -7,8 +7,11 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:51  hopper
-// Initial revision
+// Revision 1.2  1996/02/12 05:50:04  hopper
+// Added operator == to work around g++ 2.7.2 bug.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:51  hopper
+// Imported sources
 //
 // Revision 1.2  1995/04/05  04:52:07  hopper
 // Fixed a stupid mistake.
@@ -30,6 +33,8 @@ class STR_ClassIdent : public EH_ClassIdent {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
+   inline bool operator ==(const ClassIdent &b) const;
+
    inline STR_ClassIdent(U4Byte cnum);
 };
 
@@ -43,6 +48,11 @@ inline const ClassIdent *STR_ClassIdent::i_GetIdent() const
 inline int STR_ClassIdent::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
+}
+
+inline bool STR_ClassIdent::operator ==(const ClassIdent &b) const
+{
+   return(EH_ClassIdent::operator ==(b));
 }
 
 inline STR_ClassIdent::STR_ClassIdent(U4Byte cnum) :
