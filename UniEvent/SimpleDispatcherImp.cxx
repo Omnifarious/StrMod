@@ -116,6 +116,8 @@ SimpleDispatcher::SimpleDispatcher()
      : imp_(*(new Imp)), stop_flag_(false)
 {
    imp_.internalevnum_ = 0;
+   imp_.interrupted_ = 0;
+   imp_.curevt_ = 0;
 }
 
 SimpleDispatcher::~SimpleDispatcher()
