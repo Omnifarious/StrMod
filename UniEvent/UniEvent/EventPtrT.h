@@ -7,6 +7,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1999/01/10 17:14:14  hopper
+// Added a NULL check to i_CheckType.  Not sure if it is right still.
+//
 // Revision 1.1  1997/05/13 01:03:34  hopper
 // Added new EventPtr classes to maintain reference count on UNIEvent classes.
 //
@@ -90,7 +93,7 @@ template <class Event>
 inline ReferenceCounting *
 UNIEventPtrT<Event>::i_CheckType(ReferenceCounting *p) const
 {
-   return(p->AreYouA(Event::identifier) ? p : 0);
+   return(((p != 0) && p->AreYouA(Event::identifier)) ? p : 0);
 }
 
 #endif
