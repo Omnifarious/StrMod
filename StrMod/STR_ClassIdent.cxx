@@ -74,7 +74,7 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   43UL	SimpleTelnetClient
   44UL	SimpleTelnetClient::UPlug
   45UL	SimpleTelnetClient::SPlug
-  46UL
+  46UL	StaticBuffer
   47UL	UseTrackingVisitor
   48UL	GraphVizVisitor
 */
