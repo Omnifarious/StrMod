@@ -1,10 +1,9 @@
 #include <Dispatch/dispatcher.h>
 #include <Dispatch/iohandler.h>
 // #include "AudHandle.h"
-#include <ibmpp/String.h>
+// #include <ibmpp/String.h>
+#include <string>
 #include <iostream.h>
-
-char String::junk = 0;
 
 class CoutHandler : public IOHandler {
    Dispatcher *dist;
@@ -64,15 +63,13 @@ TimerHandler::TimerHandler(long sc, long usc, Dispatcher *d, CoutHandler *o) :
    dist->startTimer(sec, usec, this);
 }
 
-const String test("quit", 1);
-
 CinHandler::inputReady(int fd)
 {
-   String george;
+   string george;
 
    if (fd == 0) {
       cin >> george;
-      if (george != test) {
+      if (george != "quit") {
 	 out->str() << "You typed \"" << george << "\".\n";
 	 return(0);
       } else {
