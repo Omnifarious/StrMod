@@ -48,6 +48,7 @@ class TelnetChunker : public StreamProcessor {
    class OptionNegotiation;
 
    static const STR_ClassIdent identifier;
+   //! The maximum size an unfinished suboption can reach before it's aborted.
    static const unsigned int MAX_SUBOPTSIZE = (64U * 1024U);
 
    /** Construct a TelnetChunker.
