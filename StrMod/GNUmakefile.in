@@ -34,7 +34,7 @@ DEPDB = @DEPDB@
 
 MYMAKE := $(MAKE)
 
-# HL7Module.cc   StreambufModule.cc
+#  StreambufModule.cc  HL7Module.cc
 CCNAMES = ChunkType.cc  StrChunkid.cc  EchoModule.cc  StrChunkio.cc \
           StrFDPlug.cc  STR_ClassIdent.cc  StreamFDModule.cc \
           SockListenModule.cc  StreamModule.cc  SocketModule.cc \
@@ -65,22 +65,22 @@ $(EXTLIBTAG) : $(LIBCCS)
 	rm -f $(DEPSUB)
 
 tests/server : tests/server.o
-	$(CXX) tests/server.o $(LDFALGS) -o tests/server
+	$(CXX) tests/server.o $(LDFLAGS) $(LIBS) -o tests/server
 
 tests/echoserv : tests/echoserv.o
-	$(CXX) tests/echoserv.o $(LDFLAGS) -o tests/echoserv
+	$(CXX) tests/echoserv.o $(LDFLAGS) $(LIBS) -o tests/echoserv
 
 tests/testdist : tests/testdist.o
-	$(CXX) tests/testdist.o $(LDFLAGS) -o tests/testdist
+	$(CXX) tests/testdist.o $(LDFLAGS) $(LIBS) -o tests/testdist
 
 tests/teststr : tests/teststr.o
-	$(CXX) tests/teststr.o $(LDFLAGS) -o tests/teststr
+	$(CXX) tests/teststr.o $(LDFLAGS) $(LIBS) -o tests/teststr
 
 tests/testchunk : tests/testchunk.o
-	$(CXX) tests/testchunk.o $(LDFLAGS) -o tests/testchunk
+	$(CXX) tests/testchunk.o $(LDFLAGS) $(LIBS) -o tests/testchunk
 
 tests/testecho : tests/testecho.o
-	$(CXX) tests/testecho.o $(LDFLAGS) -o tests/testecho 2>&1 | c++filt
+	$(CXX) tests/testecho.o $(LDFLAGS) $(LIBS) -o tests/testecho 2>&1 | c++filt
 
 GNUmakefile : depend.stamp
 	$(DEPDB) list --makefiles GNUmakefile GNUmakefile.new
