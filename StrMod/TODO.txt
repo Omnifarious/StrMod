@@ -1,3 +1,6 @@
 1. Change the StrChunk system to use visitors for going through all the
    chunks for things like collecting lists of data chunks to write, or
    collapsing deep containment hierarchies.
+
+2. Change the modules that can have errors to be able to fire an event
+   when an error happens in addition to flagging the error status.
