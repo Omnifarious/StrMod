@@ -1,4 +1,4 @@
-#ifndef _EH_StreamSplitter_H_  // -*-c++-*-
+#ifndef _STR_StreamSplitter_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #  pragma interface
@@ -6,223 +6,179 @@
 
 /* $Header$ */
 
- // $Log$
- // Revision 1.3  1996/07/05 19:39:23  hopper
- // Minor change.
- //
- // Revision 1.2  1996/07/03 03:44:36  hopper
- // Made some necessary changes to make this work with new StrChunk style.
- //
- // Revision 1.1.1.1  1995/07/22 04:46:50  hopper
- // Imported sources
- //
- // -> Revision 0.13  1995/04/14  15:33:37  hopper
- // -> Combined revision 0.12, and 0.12.0.3
- // ->
- // -> Revision 0.12.0.3  1995/04/14  15:28:41  hopper
- // -> Changed things for integration into the rest of my libraries.
- // ->
- // -> Revision 0.12.0.2  1994/06/16  02:16:22  hopper
- // -> Added #pragma interface declaration.
- // ->
- // -> Revision 0.12.0.1  1994/05/16  04:37:08  hopper
- // -> No changes, but I needed a head for the inevitable WinterFire-OS/2
- // -> branch.
- // ->
- // -> Revision 0.12  1994/05/07  03:40:55  hopper
- // -> Move enclosing #ifndef ... #define bits around. Changed names of some
- // -> non-multiple include constants. Changed directories for certain
- // -> type of include files.
- // ->
- // -> Revision 0.11  1992/04/27  22:39:01  hopper
- // -> Added inline definition for
- // -> SplitterPlug::SplitterPlug(SplitterModule *, int)
- // ->
- // -> Revision 0.10  1992/04/27  21:31:14  hopper
- // -> Genesis!
- // ->
+// For a change log see ../ChangeLog
 
-#ifndef NO_RcsID
-static char _EH_StreamSplitter_H_rcsID[] =
-      "$Id$";
+//! author="Eric Hopper" lib=StrMod
+
+#ifndef _STR_STR_ClassIdent_H_
+#   include <StrMod/STR_ClassIdent.h>
 #endif
-
-#ifndef _EH_StreamModule_H_
+#ifndef _STR_StrChunkPtr_H_
+#   include <StrMod/StrChunkPtr.h>
+#endif
+#ifndef _STR_StreamModule_H_
 #   include <StrMod/StreamModule.h>
 #endif
+#include <bool.h>
+#include <stddef.h>  // NULL
 
-#define _EH_StreamSplitter_H_
+#define _STR_StreamSplitter_H_
 
+//: This module is for treating two uni-directional streams as one
+//: bi-directional stream.
+// <font face=Courier><pre>
 // SplitterModule's work this way
-//
+//              SideIn
 //  Module>---->--->-->--+
 //                       |       (bi-directional)
-//            side 0->  Splitter===>==<==>==<==>==<===Module
+//                      Splitter===>==<==>==<==>==<===Module
 //                       |      ^
 //  Module<----<---<--<--+      |
-//                              +--side 1
+//              SideOut         +--side SideBiDir
+// </pre></font>
 //
-// The SplitterModule takes three i/o streams, one that does both input and
+
+// <p>The SplitterModule takes three i/o streams, one that does both input and
 // output, one that does input, and one that does output, and connects them
 // together. They're connected in such a way as to cause the output of the
 // stream that does input and ouput goes into the stream that only takes input,
 // and the output of the stream that only does output goes to the input of the
-// combined stream.
-// The Splitter module coughs & dies if the ouput only module tries to read from
-// it. If the input only module tries to write to it, the output goes into the
-// bit-bucket.
-// The same plug type is used for all the connections, but they probably should
-// be different types. I just didn't want to clutter the name space unnecesarily
-// with names. When nested classes become more reliable under g++ perhaps this
-// will be implemented.
-
-
-class SplitterPlug;
-
-// All terms like inputonly, or outputonly are from the point of view of the
-// SplitterModule, and not the modules the terms reference.
-
-class SplitterModule : public StreamModule {
-   friend class SplitterPlug;
-
- public:
-   enum PlugTypes { CombinedPlug, InputOnlyPlug, OutputOnlyPlug };
-
-   static const STR_ClassIdent identifier;
-
-   inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   inline virtual bool CanCreate(int side) const;
-   inline bool CanCreate(PlugTypes plugtype) const;
-   inline SplitterPlug *MakePlug(int plugtype);
-   inline SplitterPlug *MakePlug(PlugTypes plugtype);
-   inline virtual bool OwnsPlug(StrPlug *plug) const;
-   virtual bool DeletePlug(StrPlug *plug);
-
-   SplitterModule();
-   virtual ~SplitterModule();
-
- protected:
-   SplitterPlug *combined, *inputonly, *outputonly;
-   struct {
-      unsigned int combined   : 1;
-      unsigned int inputonly  : 1;
-      unsigned int outputonly : 1;
-   } created;
-
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-
-   virtual StrPlug *CreatePlug(int side);
-};
-
-//----------------------------class SplitterPlug-------------------------------
-
-class StrChunkPtr;
-
-class SplitterPlug : public StrPlug {
-   friend class SplitterModule;
-
+// combined stream.</p>
+// <p>The SideOut plug is <b>never</b> writeable, and the SideIn plug is
+// <b>never</b> readable..</p>
+class StreamSplitterModule : public StreamModule {
  public:
    static const STR_ClassIdent identifier;
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   StreamSplitterModule();
+   virtual ~StreamSplitterModule();
 
-   virtual SplitterModule::PlugTypes PlugType() const  { return(sp_plugtype); }
+   //: On what sides can a plug be created?
+   enum Sides { SideIn, SideOut, SideBiDir };
 
-   virtual bool CanWrite() const;
-   virtual bool Write(const StrChunkPtr &);
-
-   virtual bool CanRead() const;
-
-   inline SplitterModule *ModuleFrom() const;
-   inline virtual int Side() const;
+   //: See base class.
+   inline virtual bool_val canCreate(int side) const;
+   //: See base class.
+   virtual bool_val deletePlug(Plug *plug);
+   //: See base class.
+   inline virtual bool_val ownsPlug(const Plug *p) const;
 
  protected:
-   inline SplitterPlug(SplitterModule *parent,
-		       SplitterModule::PlugTypes ptype);
-   ~SplitterPlug()                                     { }
+   class SPPlug;
+   friend class SPPlug;
+   //: This does most of the work.  It just forwards stuff to the other plugs.
+   class SPPlug : public Plug {
+      friend class StreamSplitterModule;
+    public:
+      static const STR_ClassIdent identifier;
 
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+      SPPlug(StreamSplitterModule &p, Sides s) : Plug(p), side_(s)           { }
+      virtual ~SPPlug()                                                      { }
 
-   virtual const StrChunkPtr InternalRead();
+      inline StreamSplitterModule &getParent() const;
 
-   virtual void ReadableNotify();
-   virtual void WriteableNotify();
+      virtual int side() const                          { return(side_); }
+
+    protected:
+      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+
+      //: See base class.  This just forwards.
+      virtual const StrChunkPtr i_Read();
+      //: See base class.  This just forwards.
+      virtual void i_Write(const StrChunkPtr &ptr);
+
+      //: See base class.  This just forwards.
+      virtual void otherIsReadable();
+      //: See base class.  This just forwards.
+      virtual void otherIsWriteable();
+
+      inline SPPlug *getReadPartner() const;
+      inline SPPlug *getWritePartner() const;
+
+    private:
+      Sides side_;
+   };
+
+   //: See Protocol base.
+   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+
+   //: See base class.  This one sets the read/writeable flags on the other
+   //: plugs to be right.
+   // It calls the base class version after doing its work.
+   virtual void plugDisconnected(Plug *plug);
+
+   //: See base class.
+   virtual Plug *i_MakePlug(int side);
 
  private:
-   SplitterModule::PlugTypes sp_plugtype;
+   struct {
+      int inmade : 1;
+      int outmade : 1;
+      int bimade : 1;
+   } flags_;
+   SPPlug inplug_;
+   SPPlug outplug_;
+   SPPlug biplug_;
 };
 
-//--------------------------SplitterModule inlines-----------------------------
+//-----------------------------inline functions--------------------------------
 
-inline int SplitterModule::AreYouA(const ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamModule::AreYouA(cid));
-}
-
-inline bool SplitterModule::CanCreate(int side) const
+bool_val StreamSplitterModule::canCreate(int side) const
 {
    switch (side) {
-    case CombinedPlug:
-      return(combined && !created.combined);
-      break;
-    case InputOnlyPlug:
-      return(inputonly && !created.inputonly);
-      break;
-    case OutputOnlyPlug:
-      return(outputonly && !created.outputonly);
-      break;
+    case SideIn:
+      return(flags_.inmade == 0);
+    case SideOut:
+      return(flags_.outmade == 0);
+    case SideBiDir:
+      return(flags_.bimade == 0);
     default:
       return(false);
    }
 }
 
-inline bool SplitterModule::CanCreate(PlugTypes side) const
+inline bool_val StreamSplitterModule::ownsPlug(const Plug *p) const
 {
-   return(CanCreate(int(side)));
+   return((flags_.inmade && (&inplug_ == p))
+	  || (flags_.outmade && (&outplug_ == p))
+	  || (flags_.bimade && (&biplug_ == p)));
 }
 
-inline SplitterPlug *SplitterModule::MakePlug(int plugtype)
+//--
+
+inline StreamSplitterModule &StreamSplitterModule::SPPlug::getParent() const
 {
-   if (plugtype >= CombinedPlug && plugtype <= OutputOnlyPlug)
-      return((SplitterPlug *)(CreatePlug(plugtype)));
-   else
-      return(0);
+   return(static_cast<StreamSplitterModule &>(Plug::getParent()));
 }
 
-inline SplitterPlug *SplitterModule::MakePlug(PlugTypes plugtype)
+inline StreamSplitterModule::SPPlug *
+StreamSplitterModule::SPPlug::getReadPartner() const
 {
-   return(MakePlug(int(plugtype)));
+   switch (side_)
+   {
+    case SideOut:
+      return(&(getParent().biplug_));
+    case SideBiDir:
+      return(&(getParent().inplug_));
+    case SideIn:
+    default:
+      return(NULL);
+   }
 }
 
-inline bool SplitterModule::OwnsPlug(StrPlug *plug) const
+inline StreamSplitterModule::SPPlug *
+StreamSplitterModule::SPPlug::getWritePartner() const
 {
-   return((plug == combined && created.combined) ||
-	  (plug == inputonly && created.inputonly) ||
-	  (plug == outputonly && created.outputonly));
-}
-
-//---------------------------SplitterPlug inlines------------------------------
-
-inline int SplitterPlug::AreYouA(const ClassIdent &cid) const
-{
-   return((identifier == cid) || StrPlug::AreYouA(cid));
-}
-
-inline SplitterModule *SplitterPlug::ModuleFrom() const
-{
-   return(static_cast<SplitterModule *>(StrPlug::ModuleFrom()));
-}
-
-inline int SplitterPlug::Side() const
-{
-   return(sp_plugtype);
-}
-
-SplitterPlug::SplitterPlug(SplitterModule *parent,
-			   SplitterModule::PlugTypes ptype)
-     : StrPlug(parent), sp_plugtype(ptype)
-{
+   switch (side_)
+   {
+    case SideIn:
+      return(&(getParent().biplug_));
+    case SideBiDir:
+      return(&(getParent().outplug_));
+    case SideOut:
+    default:
+      return(NULL);
+   }
 }
 
 #endif
