@@ -1,3 +1,16 @@
+2000-12-01  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/RefCountPtrT.h, LCore/RefCountPtr.h: Made some changes
+	because Doxygen has difficulties with typedefs.
+
+	* LCore/Debugable.h: Completely worked over the documentation for
+	Doxygen.
+
+	* LCore/Protocol.h, defproto.cxx: Added Doxygen documentation.
+
+	* cltpsstr.cxx: Changed include of iostream to new standard C++
+	library style.
+
 2000-01-27  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* LCore/RefCounting.h: Made the member variable refcounter mutable
