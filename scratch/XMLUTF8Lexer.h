@@ -14,30 +14,23 @@
 class XMLBuilder
 {
  public:
-   struct Cookie {
-      friend class XMLBuilder;
-    private:
-      unsigned int val_;
-   };
+   //! Handle for positions from previous calls to XMLUTF8Lexer::lex
+   typedef unsigned int PosHandle;
 
    //! Just set up some initial defaults.
    XMLBuilder() { }
    virtual ~XMLBuilder() {}
 
-   virtual void startElementTag(size_t begin, const ::std::string &name) = 0;
-   virtual void addAttribute(size_t attrbegin, size_t attrend,
-                             size_t valbegin, size_t valend,
+   virtual void startElementTag(PosHandle begin, const ::std::string &name) = 0;
+   virtual void addAttribute(PosHandle attrbegin, PosHandle attrend,
+                             PosHandle valbegin, PosHandle valend,
                              const ::std::string &name) = 0;
-   virtual void endElementTag(size_t end, bool wasempty) = 0;
-   virtual void closeElementTag(size_t begin, size_t end,
+   virtual void endElementTag(PosHandle end, bool wasempty) = 0;
+   virtual void closeElementTag(PosHandle begin, PosHandle end,
                                 const ::std::string &name) = 0;
 
-//   virtual const Cookie makeCookie(size_t index) = 0;
-//   virtual void destroyCookie(const Cookie &cookie) = 0;
-
- protected:
-   Cookie i_makeCookie(unsigned int val) { Cookie c; c.val_ = val; return c; }
-   unsigned int i_valFromCookie(const Cookie &cookie) { return cookie.val_; }
+   virtual const PosHandle savePosition(size_t index) = 0;
+   virtual void forgetPosition(PosHandle handle) = 0;
 };
 
 class XMLUTF8Lexer
@@ -509,6 +502,9 @@ class XMLUTF8Lexer
 };
 
 // $Log$
+// Revision 1.8  2003/01/06 15:18:35  hopper
+// Towards further attempts to record positions in previously parsed buffers.
+//
 // Revision 1.7  2002/12/11 21:55:41  hopper
 // It parses attributes now.  There's even a decent test for it.  :-)
 //
