@@ -5,47 +5,67 @@
 #include <UniEvent/EventPtr.h>
 #include <iostream>
 #include <cstring>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 class StdinEvent : public strmod::unievent::Event
 {
  public:
-   StdinEvent(strmod::unievent::UnixEventRegistry *ureg)
-        : ureg_(ureg) { }
+   StdinEvent(strmod::unievent::UnixEventRegistry *ureg, int fd)
+        : ureg_(ureg), fd_(fd) { }
    virtual void triggerEvent(strmod::unievent::Dispatcher *dispatcher = 0);
 
  private:
    strmod::unievent::UnixEventRegistry * const ureg_;
+   const int fd_;
 };
 
 void StdinEvent::triggerEvent(strmod::unievent::Dispatcher *dispatcher)
 {
    using std::cout;
-   using std::cin;
    using strmod::unievent::UnixEventRegistry;
    char buf[321];
    cout << "You typed something!\n";
    cout.flush();
-   cin.getline(buf, sizeof(buf) - 2);
-   cout << "You typed: \"" << buf << "\"\n";
+   int readbytes = ::read(fd_, buf, sizeof(buf) - 2);
+   if (readbytes > 0)
+   {
+      cout << "You typed: \"";
+      cout.write(buf, readbytes);
+      cout << "\"\n";
+   }
+   else
+   {
+      cout << "I got an error or EOF\n";
+   }
    cout.flush();
    UnixEventRegistry::FDCondSet tmp(UnixEventRegistry::FD_Readable);
 //   ::std::cerr << "tmp == " << tmp.to_string() << "\n";
-   ureg_->registerFDCond(0, tmp, this);
+   ureg_->registerFDCond(fd_, tmp, this);
 }
 
-int main()
+int main(int argc, const char *argv[])
 {
    strmod::unievent::SimpleDispatcher dispatcher;
    strmod::unievent::UnixEventPoll upoll(&dispatcher);
+   using ::std::cerr;
 
    using strmod::unievent::UnixEventRegistry;
-   upoll.printState(std::cerr);
-   UnixEventRegistry::FDCondSet tmp(UnixEventRegistry::FD_Readable);
-//   ::std::cerr << "tmp == " << tmp.to_string() << "\n";
-   UnixEventRegistry::FDCondSet tmp2;
-   tmp2 = tmp;
-//   ::std::cerr << "tmp2 == " << tmp2.to_string() << "\n";
-   upoll.registerFDCond(0, tmp2, new StdinEvent(&upoll));
+   upoll.printState(cerr);
+   const UnixEventRegistry::FDCondSet rdcond(UnixEventRegistry::FD_Readable);
+   upoll.registerFDCond(0, rdcond, new StdinEvent(&upoll, 0));
+   for (int i = 1; i < argc; ++i)
+   {
+      cerr << "Opening up \"" << argv[i] << "\" for reading.\n";
+      const int tempfd = open(argv[i], O_RDONLY | O_NONBLOCK);
+      cerr << "Got fd # " << tempfd << "\n";
+      if (tempfd >= 0)
+      {
+         upoll.registerFDCond(tempfd, rdcond, new StdinEvent(&upoll, tempfd));
+      }
+   }
 //   upoll.printState(std::cerr);
    do {
       if (dispatcher.isQueueEmpty())
