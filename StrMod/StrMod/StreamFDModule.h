@@ -7,6 +7,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.6  1996/10/23 10:14:23  hopper
+ // Cosmetic change to make operator precedence more obvious.
+ //
  // Revision 1.5  1996/09/21 20:01:44  hopper
  // Moved the guts of the file I/O (the stuff that actually reads on writes to
  // the file descriptor) out of StrFDPlug, and put it into
@@ -244,7 +247,7 @@ inline int StrFDPlug::AreYouA(const ClassIdent &cid) const
 
 inline bool StrFDPlug::CanWrite() const
 {
-   return(!ModuleFrom()->cur_write);
+   return(!(ModuleFrom()->cur_write));
 }
 
 inline bool StrFDPlug::CanRead() const
