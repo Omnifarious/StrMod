@@ -49,20 +49,22 @@ class TestBuilder : public XMLBuilder
 
    virtual void startElementTag(const Position &begin, const ::std::string &name)
    {
-      elstack_.push(ElementData(name, begin));
+      elstack_.push(ElementData(name, begin.bufoffset_));
    }
    virtual void addAttribute(const Position &attrbegin, const Position &attrend,
                              const Position &valbegin, const Position &valend,
                              const ::std::string &name)
    {
-      ::std::string literal(buf_ + attrbegin, attrend - attrbegin);
-      ::std::string value(buf_ + valbegin, valend - valbegin);
-      elstack_.top().attrlist_.push_back(AttributeData(name, value, literal, buf_[valend]));
+      ::std::string literal(buf_ + attrbegin.bufoffset_,
+                            attrend.bufoffset_ - attrbegin.bufoffset_);
+      ::std::string value(buf_ + valbegin.bufoffset_,
+                          valend.bufoffset_ - valbegin.bufoffset_);
+      elstack_.top().attrlist_.push_back(AttributeData(name, value, literal, buf_[valend.bufoffset_]));
    }
    virtual void endElementTag(const Position &end, bool wasempty)
    {
       ElementData &eldata = elstack_.top();
-      eldata.datbegin_ = end;
+      eldata.datbegin_ = end.bufoffset_;
 //       ::std::cerr << "eldata.elbegin_ == " << eldata.elbegin_
 //                   << " && eldata.datbegin_ == " << eldata.datbegin_ << "\n";
       ::std::string tag(buf_ + eldata.elbegin_,
@@ -84,7 +86,7 @@ class TestBuilder : public XMLBuilder
          }
       }
       if (wasempty) {
-         eldata.datend_ = end;
+         eldata.datend_ = end.bufoffset_;
          cout << "/> :=: [" << tag << "]\n";
 //          cout.flush();
          elstack_.pop();
@@ -101,10 +103,11 @@ class TestBuilder : public XMLBuilder
                                 const Position &end, const ::std::string &name)
    {
       ElementData &eldata = elstack_.top();
-      eldata.datend_ = begin;
+      eldata.datend_ = begin.bufoffset_;
       ::std::string data = ::std::string(buf_ + eldata.datbegin_,
                                          eldata.datend_ - eldata.datbegin_);
-      ::std::string tag = ::std::string(buf_ + begin, end - begin);
+      ::std::string tag = ::std::string(buf_ + begin.bufoffset_,
+                                        end.bufoffset_ - begin.bufoffset_);
       if (name != eldata.name_) {
          throw ::std::runtime_error("Parse error!\n");
       }
@@ -155,13 +158,17 @@ int main()
       {
          TestBuilder ts(xmlstr, lexer);
          ::std::cout << "Parsing: [" << xmlstr << "]\n\n";
-         lexer.lex(xmlstr, ::strlen(xmlstr), ts);
+         XMLBuilder::BufHandle bh;
+         bh.ulval_ = 0;
+         lexer.lex(xmlstr, ::strlen(xmlstr), bh, ts);
       }
       ::std::cout << "================================\n";
       {
          TestBuilder ts(xml2str, lexer);
          ::std::cout << "Parsing: [" << xml2str << "]\n\n";
-         lexer.lex(xml2str, ::strlen(xml2str), ts);
+         XMLBuilder::BufHandle bh;
+         bh.ulval_ = 0;
+         lexer.lex(xml2str, ::strlen(xml2str), bh, ts);
       }
       return 0;
    } catch (::std::exception e) {
@@ -175,6 +182,10 @@ int main()
 }
 
 // $Log$
+// Revision 1.8  2003/01/10 02:29:49  hopper
+// Initial, dumb support for the multi-buffer enabled Lexer and Builder
+// interfaces.
+//
 // Revision 1.7  2003/01/09 22:48:32  hopper
 // Much farter along multiple buffer parsing.
 //
