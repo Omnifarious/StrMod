@@ -30,24 +30,43 @@
 
 #define _STR_FDUtil_H_
 
-//: A class utility library for file descriptor operations.
+namespace strmod {
+namespace strmod {
+
+/** \class FDUtil FDUtil.h StrMod/FDUtil.h
+ * \brief A class utility library for file descriptor operations.
+ *
+ * This should probably be changed to a namespace.  It, perhaps, shouldn't exist
+ * at all.  :-)
+ */
 class FDUtil {
  public:
-   //: Set a file descriptor to POSIX non-blocking.
-   // This will turn off O_NDELAY and turn on O_NONBLOCK.
-   // Returns true on success, false on failure.  If there's a failure,
-   // myerrno will be set to the errno result that precipitated the failure,
-   // otherwise, it will not be touched.
-   // fd is an IN parameter, and myerrno is an OUT parameter.
+   /** Set a file descriptor to POSIX non-blocking.
+    * This will turn off \code O_NDELAY and turn on \code O_NONBLOCK.
+    *
+    * Returns true on success, false on failure.  If there's a failure, myerrno
+    * will be set to the errno result that precipitated the failure, otherwise,
+    * it will not be touched.
+    *
+    * @param fd The file descriptor to set to non-blocking.
+    * @param myerrno An OUT parameter, will be set to errno if there's an error.
+    */
    static bool setNonBlock(int fd, int &myerrno);
 
-   //: Set a file descriptor to blocking.
-   // Removes O_NDELAY and O_NONBLOCK.
-   // Returns true on success, false on failure.  If there's a failure,
-   // myerrno will be set to the errno result that precipitated the failure,
-   // otherwise, it will not be touched.
-   // fd is an IN parameter, and myerrno is an OUT parameter.
+   /** Set a file descriptor to blocking.
+    * Removes \code O_NDELAY and \code O_NONBLOCK.
+    *
+    * Returns true on success, false on failure.  If there's a failure, myerrno
+    * will be set to the errno result that precipitated the failure, otherwise,
+    * it will not be touched.
+    *
+    * @param fd The file descriptor to set to non-blocking.
+    * @param myerrno An OUT parameter, will be set to errno if there's an error.
+    */
    static bool setBlock(int fd, int &myerrno);
 };
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

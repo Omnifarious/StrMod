@@ -29,6 +29,9 @@
 
 #include "StrMod/EchoModule.h"
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent EchoModule::identifier(3UL);
 const STR_ClassIdent EchoModule::EPlug::identifier(4UL);
 
@@ -111,3 +114,6 @@ void EchoModule::EPlug::i_Write(const StrChunkPtr &ptr)
       setWriteable(false);
    }
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

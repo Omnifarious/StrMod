@@ -28,6 +28,7 @@
 
 //! author="Eric Hopper" lib=StrMod
 
+#include <cstddef>  // NULL
 #ifndef _STR_STR_ClassIdent_H_
 #   include <StrMod/STR_ClassIdent.h>
 #endif
@@ -37,9 +38,11 @@
 #ifndef _STR_StreamModule_H_
 #   include <StrMod/StreamModule.h>
 #endif
-#include <stddef.h>  // NULL
 
 #define _STR_StreamSplitter_H_
+
+namespace strmod {
+namespace strmod {
 
 /** \class StreamSplitterModule StreamSplitter.h StrMod/StreamSplitter.h
  * \brief This module is for treating two uni-directional streams as one
@@ -216,5 +219,8 @@ StreamSplitterModule::SPPlug::getWritePartner() const
       return(NULL);
    }
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

@@ -51,7 +51,10 @@ static char _SockListenModule_CC_rcsID[] =
 #include "config.h"
 #include "sockdecl.h"
 
-using strmod::unievent::UNIXError;
+namespace strmod {
+namespace strmod {
+
+using unievent::UNIXError;
 
 const STR_ClassIdent SockListenModule::identifier(13UL);
 const STR_ClassIdent SockListenModule::SLPlug::identifier(14UL);
@@ -125,8 +128,8 @@ class SockListenModule::FDPollErEv : public SockListenModule::FDPollEv {
 };
 
 SockListenModule::SockListenModule(const SocketAddress &bind_addr,
-                                   strmod::unievent::Dispatcher &disp,
-				   strmod::unievent::UNIXpollManager &pmgr,
+                                   unievent::Dispatcher &disp,
+				   unievent::UNIXpollManager &pmgr,
 				   int qlen)
       : sockfd_(-1), has_error_(false), lplug_(*this),
         plug_pulled_(false), checking_read_(false), newmodule_(0),
@@ -376,3 +379,6 @@ void SockListenModule::SLPlug::i_Write(const StrChunkPtr &chunk)
 {
    assert(false);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

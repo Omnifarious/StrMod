@@ -30,11 +30,14 @@
 // An interface for things that create BufferChunks.
 //
 
-#include <StrMod/BufferChunk.h>
-#include <StrMod/STR_ClassIdent.h>
 #include <LCore/Protocol.h>
+#include <StrMod/STR_ClassIdent.h>
+#include <StrMod/BufferChunk.h>
 
 #define _STR_BufferChunkFactory_H_
+
+namespace strmod {
+namespace strmod {
 
 class BufferChunk::Factory : virtual public Protocol {
  public:
@@ -57,5 +60,8 @@ inline int BufferChunk::Factory::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

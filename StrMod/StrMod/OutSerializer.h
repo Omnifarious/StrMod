@@ -41,20 +41,27 @@
 
 #define _STR_OutSerializer_H_
 
+namespace strmod {
+namespace strmod {
+
+/** \class OutSerializer OutSerializer.h StrMod/OutSerializer.h
+ */
 class OutSerializer {
  public:
    struct State;
 
    OutSerializer(size_t suggested_size);
-   //: Use this as the external state to save into on destruction.  Only use
-   //: this if you've read the directions.  :-)
-   // <p>This class can be much more efficient if it's always instantiated
-   // locally.  Sometimes though, the state will need to be saved across
-   // function calls.  That's where this constructor comes in.</p>
-   // <p>If the <code>takeChunk</code> function is called, a flag is set in
-   // the external state (that is also set when the external state is
-   // initially constructed) that tells this OutSerializer constructor that it
-   // needs to reset the state.</p>
+   /** \brief Use this as the external state to save into on destruction, only
+    * use this if you've read the directions.  :-)
+    *
+    * This class can be much more efficient if it's always instantiated locally.
+    * Sometimes though, the state will need to be saved across function calls.
+    * That's where this constructor comes in.
+    *
+    * If the takeChunk function is called, a flag is set in the external state
+    * (that is also set when the external state is initially constructed) that
+    * tells this OutSerializer constructor that it needs to reset the state.
+    */
    OutSerializer(State &savedstate);
    OutSerializer();
    virtual ~OutSerializer();
@@ -221,5 +228,8 @@ inline OutSerializer &operator <<(OutSerializer &os, const char *str)
    os.addString(str);
    return(os);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

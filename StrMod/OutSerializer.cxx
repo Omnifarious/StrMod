@@ -36,6 +36,9 @@
 #include "StrMod/BufferChunkFactory.h"
 #include "StrMod/DynamicBuffer.h"
 
+namespace strmod {
+namespace strmod {
+
 inline OutSerializer::State::State(BufferChunk::Factory *fact)
      : fact_(fact), cur_chunk_(0), buf_(0), chnklen_(0), cur_pos_(0)
 {
@@ -161,3 +164,6 @@ void OutSerializer::resizeChunk(size_t newsize)
    state_.chnklen_ = state_.cur_chunk_->Length();
    assert(state_.chnklen_ >= newsize);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -36,13 +36,16 @@
 // the result along.
 //
 
-#include <LCore/GenTypes.h>
-#include <StrMod/STR_ClassIdent.h>
-#include <LCore/Protocol.h>
-#include <StrMod/StrChunkPtr.h>
 #include <cassert>
+#include <LCore/GenTypes.h>
+#include <LCore/Protocol.h>
+#include <StrMod/STR_ClassIdent.h>
+#include <StrMod/StrChunkPtr.h>
 
 #define _STR_StreamProcessor_H_
+
+namespace strmod {
+namespace strmod {
 
 /** \class StreamProcessor StreamProcessor.h StrMod/StreamProcessor.h
  * Describes a simple non-active processor of a unidirectional data stream
@@ -161,5 +164,8 @@ inline const StrChunkPtr StreamProcessor::readFrom()
    }
    return(tmp);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

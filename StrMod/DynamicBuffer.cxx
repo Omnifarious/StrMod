@@ -30,6 +30,9 @@
 #include <new>
 #include <cassert>
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent DynamicBuffer::identifier(39UL);
 
 DynamicBuffer::DynamicBuffer(unsigned int len) throw(bad_alloc)
@@ -91,3 +94,6 @@ void DynamicBuffer::resize(unsigned int newsize) throw(bad_alloc)
       }
    }
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -37,6 +37,9 @@
 #include <StrMod/ChunkIterator.h>
 #include <StrMod/StaticBuffer.h>
 
+namespace strmod {
+namespace strmod {
+
 struct InSerializer::Impl {
    inline Impl(const void *buf, size_t size);
    inline Impl(const StrChunkPtr &ptr);
@@ -265,3 +268,6 @@ size_t InSerializer::BytesLeft()
 {
    return(impl_.BytesLeft());
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -26,13 +26,16 @@
 
 // For a log, see ../ChangeLog
 
-#define _STR_TelnetParser_H_
-
-#include <StrMod/TelnetChars.h>
-#include <StrMod/STR_ClassIdent.h>
+#include <cstddef>
 #include <LCore/Protocol.h>
 #include <LCore/HopClTypes.h>
-#include <cstddef>
+#include <StrMod/TelnetChars.h>
+#include <StrMod/STR_ClassIdent.h>
+
+#define _STR_TelnetParser_H_
+
+namespace strmod {
+namespace strmod {
 
 class TelnetChunkBuilder;
 template <int n> class PreAllocBuffer;
@@ -128,5 +131,8 @@ inline void TelnetParser::dropBytes(size_t bytes)
       curpos_ -= bytes;
    }
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

@@ -41,6 +41,9 @@
 
 #define _STR_ProcessorModule_H_
 
+namespace strmod {
+namespace strmod {
+
 class StrChunkPtr;
 class StreamProcessor;
 
@@ -199,5 +202,8 @@ inline StreamModule::Plug *ProcessorModule::i_MakePlug(int side)
       return(0);
    }
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

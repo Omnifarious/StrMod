@@ -29,6 +29,9 @@
 #include <cstdlib>  // malloc, realloc, and free.
 #include <cstring>  // memcpy
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent PreAllocBufferBase::identifier(38UL);
 
 void
@@ -54,8 +57,8 @@ void PreAllocBufferBase::i_destruct(const U1Byte * const preallocbuf)
 }
 
 void PreAllocBufferBase::i_resize(const unsigned int newsize,
-											 const unsigned int prebufsize,
-											 U1Byte * const preallocbuf) throw(bad_alloc)
+                                  const unsigned int prebufsize,
+                                  U1Byte * const preallocbuf) throw(bad_alloc)
 {
    if (newsize <= prebufsize)
    {
@@ -132,3 +135,6 @@ void PreAllocBufferBase::i_printState(ostream &os,
    }
    os << ", buflen_ == " << buflen_ << ", prebufsize == " << prebufsize << ")";
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -30,8 +30,13 @@
 
 #define _STR_PreAllocBuffer_H_
 
-//: Just a base class that defines the non-varying functions for the template
-//: class.
+namespace strmod {
+namespace strmod {
+
+/** \class PreAllocBufferBase PreAllocBuffer.h StrMod/PreAllocBuffer.h
+ * \brief Just a base class that defines the functions for the template class
+ * that don't depend on the template argument.
+ */
 class PreAllocBufferBase : public BufferChunk {
  private:
    void a_silly_member_function_to_make_sure_a_vtable_is_generated();
@@ -67,8 +72,10 @@ class PreAllocBufferBase : public BufferChunk {
 
 //---
 
-//: A template class for buffers that contain a certain fixed amount of
-//: storage that's not dynamically allocated.
+/** \class PreAllocBuffer PreAllocBuffer.h StrMod/PreAllocBuffer.h
+ * \brief A template class for buffers that contain a certain fixed amount of
+ * storage that's not dynamically allocated.
+ */
 template <unsigned int TInitialAlloc>
 class PreAllocBuffer : public PreAllocBufferBase {
  public:
@@ -126,5 +133,8 @@ PreAllocBuffer<TInitialAlloc>::resize(unsigned int newsize) throw(bad_alloc)
 {
    i_resize(newsize, TInitialAlloc, preallocbuf_);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

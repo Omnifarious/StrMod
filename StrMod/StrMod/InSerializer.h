@@ -35,10 +35,12 @@
 //
 
 #include <LCore/GenTypes.h>
-#include <string.h>
 #include <string>
 
 #define _STR_InSerializer_H_
+
+namespace strmod {
+namespace strmod {
 
 class StrChunkPtr;
 
@@ -80,7 +82,7 @@ class InSerializer {
    inline bool GetBool()                               { return(GetU1Byte()); }
 
    //! Get a string value.  See OutSerializer for more on format.
-   const string GetString();
+   const std::string GetString();
 
    //! Get a \c len bytes and dump them in \c destbuf.
    // \param destbuf A memory area to copy bytes into.
@@ -138,10 +140,13 @@ inline InSerializer &operator >>(InSerializer &is, U4Byte &num)
    return(is);
 }
 
-inline InSerializer &operator >>(InSerializer &is, string &str)
+inline InSerializer &operator >>(InSerializer &is, std::string &str)
 {
    str = is.GetString();
    return(is);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

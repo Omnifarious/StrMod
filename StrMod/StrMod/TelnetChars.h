@@ -30,6 +30,9 @@
 
 #define _STR_TelnetChars_H_
 
+namespace strmod {
+namespace strmod {
+
 /** \class TelnetChars TelnetChars.h StrMod/TelnetChars.h
  * A class holding a bunch of telnet character constants.
  *
@@ -147,5 +150,8 @@ TelnetChars::convertCharToOptionNegotiation(
    }
    return false;
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

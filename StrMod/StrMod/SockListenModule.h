@@ -28,9 +28,11 @@
 
 // $Revision$
 
-#ifndef _STR_SocketModule_H_
-#  include <StrMod/SocketModule.h>
-#endif
+#include <string>
+
+#include <UniEvent/EventPtrT.h>
+#include <UniEvent/UNIXpollManager.h>
+#include <UniEvent/UNIXError.h>
 
 #ifndef _STR_StreamModule_H_
 #   include <StrMod/StreamModule.h>
@@ -44,17 +46,20 @@
 #  include <StrMod/StrChunkPtrT.h>
 #endif
 
-#include <UniEvent/EventPtrT.h>
-#include <UniEvent/UNIXpollManager.h>
-#include <UniEvent/UNIXError.h>
+#ifndef _STR_SocketModule_H_
+#  include <StrMod/SocketModule.h>
+#endif
 
-#include <string>
 
 #define _STR_SockListenModule_H_
 
+class SocketAddress;
+
+namespace strmod {
+namespace strmod {
+
 class ListeningPlug;
 class SocketModuleChunk;
-class SocketAddress;
 
 /** \class SocketModuleChunk SockListenModule.h StrMod/SockListenModule.h
  * \brief A special 'zero length' chunk that contains a SocketModule.
@@ -121,8 +126,8 @@ class SockListenModule : public StreamModule {
     * the pending connection queue?
     */
    SockListenModule(const SocketAddress &bind_addr,
-                    strmod::unievent::Dispatcher &disp,
-                    strmod::unievent::UNIXpollManager &pmgr,
+                    unievent::Dispatcher &disp,
+                    unievent::UNIXpollManager &pmgr,
 		    int qlen = 1);
    //! Closes the socket being listened to.
    virtual ~SockListenModule();
@@ -137,7 +142,7 @@ class SockListenModule : public StreamModule {
    //! Has there been an error of any kind?
    bool hasError() const throw()               { return has_error_; }
    //! What was the error, if any?
-   const strmod::unievent::UNIXError &getError() const throw();
+   const unievent::UNIXError &getError() const throw();
    //! Pretend no error happened.
    void clearError() throw();
 
@@ -186,21 +191,21 @@ class SockListenModule : public StreamModule {
     * Note, ownership of <code>peer</code> is being passed here.
     */
    inline SocketModule *makeSocketModule(int fd, SocketAddress *peer,
-					 strmod::unievent::Dispatcher &disp,
-                                         strmod::unievent::UNIXpollManager &pmgr);
+					 unievent::Dispatcher &disp,
+                                         unievent::UNIXpollManager &pmgr);
 
    //! Set an error so that hasError and getError return something.
-   inline void setError(const strmod::unievent::UNIXError &err) throw();
+   inline void setError(const unievent::UNIXError &err) throw();
 
    //! Return the new module (if any) and try to 'accept' another connection.
    SocketModule *getNewModule();
 
  private:
-   typedef strmod::unievent::Dispatcher Dispatcher;
-   typedef strmod::unievent::UNIXpollManager UNIXpollManager;
+   typedef unievent::Dispatcher Dispatcher;
+   typedef unievent::UNIXpollManager UNIXpollManager;
 
    int sockfd_;
-   unsigned char errorstore_[sizeof(strmod::unievent::UNIXError)];
+   unsigned char errorstore_[sizeof(unievent::UNIXError)];
    bool has_error_;
    SLPlug lplug_;
    bool plug_pulled_;
@@ -210,9 +215,9 @@ class SockListenModule : public StreamModule {
    Dispatcher &disp_;
    UNIXpollManager &pmgr_;
    FDPollEv *readevptr_;
-   strmod::unievent::EventPtrT<UNIXpollManager::PollEvent> readev_;
+   unievent::EventPtrT<UNIXpollManager::PollEvent> readev_;
    FDPollEv *errorevptr_;
-   strmod::unievent::EventPtrT<UNIXpollManager::PollEvent> errorev_;
+   unievent::EventPtrT<UNIXpollManager::PollEvent> errorev_;
 
    void eventRead(unsigned int condbits);
    void eventError(unsigned int condbits);
@@ -281,10 +286,10 @@ inline StreamModule::Plug *SockListenModule::i_MakePlug(int side)
    }
 }
 
-inline SocketModule *SockListenModule::makeSocketModule(int fd,
-							SocketAddress *peer,
-                                                        strmod::unievent::Dispatcher &disp,
-							strmod::unievent::UNIXpollManager &pmgr)
+inline SocketModule *
+SockListenModule::makeSocketModule(int fd, SocketAddress *peer,
+                                   unievent::Dispatcher &disp,
+                                   unievent::UNIXpollManager &pmgr)
 {
    // Ownership of peer is passed here.
    return(new SocketModule(fd, peer, disp, pmgr));
@@ -301,5 +306,8 @@ inline SockListenModule &SockListenModule::SLPlug::getParent() const
 {
    return(static_cast<SockListenModule &>(Plug::getParent()));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

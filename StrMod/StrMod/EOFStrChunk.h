@@ -37,11 +37,17 @@
 
 #define _STR_EOFStrChunk_H_
 
-//: A special 'zero length' chunk that indicates a stream EOF.
-// This is mostly for a StreamFDModule to use.  It has an option for
-// generating them when an EOF is read, and if this chunk is written to a
-// StreamFDModule it invokes a special EOF handling virtual function instead
-// of physically writing the chunk to the file descriptor.
+namespace strmod {
+namespace strmod {
+
+/** \class EOFStrChunk EOFStrChunk.h StrMod/EOFStrChunk.h
+ * \brief A special 'zero length' chunk that indicates a stream EOF.
+ *
+ * This is mostly for a StreamFDModule to use.  It has an option for generating
+ * them when an EOF is read, and if this chunk is written to a StreamFDModule it
+ * invokes a special EOF handling virtual function instead of physically writing
+ * the chunk to the file descriptor.
+ */
 class EOFStrChunk : public StrChunk {
  public:
    static const STR_ClassIdent identifier;
@@ -56,7 +62,6 @@ class EOFStrChunk : public StrChunk {
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation)             { }
 };
@@ -73,5 +78,8 @@ inline int EOFStrChunk::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

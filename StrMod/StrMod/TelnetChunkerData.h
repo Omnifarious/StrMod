@@ -26,16 +26,19 @@
 
 // For a log, see ../ChangeLog
 
+#include <cstddef>
+#include <LCore/GenTypes.h>
 #include <StrMod/TelnetChunker.h>
 #include <StrMod/TelnetChars.h>
 #include <StrMod/StrChunk.h>
 #include <StrMod/STR_ClassIdent.h>
 #include <StrMod/StrChunkPtrT.h>
 #include <StrMod/BufferChunk.h>
-#include <LCore/GenTypes.h>
-#include <cstddef>
 
 #define _STR_TelnetChunkerData_H_
+
+namespace strmod {
+namespace strmod {
 
 /** \class TelnetChunker::TelnetData TelnetChunkerData.h StrMod/TelnetChunkerData.h
  * This is just a base abstract class for all things recognized as
@@ -273,5 +276,8 @@ TelnetChunker::OptionNegotiation::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || TelnetData::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

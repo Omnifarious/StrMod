@@ -29,6 +29,13 @@
 
 //! author="Eric Hopper" lib=StrMod
 
+#include <cstddef>  // size_t
+
+#include <UniEvent/EventPtr.h>
+#include <UniEvent/EventPtrT.h>
+#include <UniEvent/UNIXpollManager.h>
+#include <UniEvent/UNIXError.h>
+
 #ifndef _STR_StreamModule_H_
 #   include <StrMod/StreamModule.h>
 #endif
@@ -36,17 +43,14 @@
 #   include <StrMod/StrChunkPtr.h>
 #endif
 
-#include <UniEvent/EventPtr.h>
-#include <UniEvent/EventPtrT.h>
-#include <UniEvent/UNIXpollManager.h>
-#include <UniEvent/UNIXError.h>
-
-#include <cstddef>  // size_t
-
 #define _STR_StreamFDModule_H_
 
-class GroupVector;
 template <class enum_t, enum_t first, enum_t last> class enum_set;
+
+namespace strmod {
+namespace strmod {
+
+class GroupVector;
 
 /** \class StreamFDModule StreamFDModule.h StrMod/StreamFDModule.h
  * \brief This module is for communicating outside your program via UNIX IO.
@@ -93,7 +97,7 @@ class StreamFDModule : public StreamModule {
       ErrFatal  //! General, fatal error affecting both reading and writing.  Must be highest enum value.
    };
    //! Typedef for set of error types.
-   typedef enum_set<ErrorType, ErrRead, ErrFatal> ErrorSet;
+   typedef ::enum_set<ErrorType, ErrRead, ErrFatal> ErrorSet;
 
 
    static const STR_ClassIdent identifier;
@@ -130,8 +134,8 @@ class StreamFDModule : public StreamModule {
     * therefore, should be checked for) on <code>fd</code>.
     */
    StreamFDModule(int fd,
-                  strmod::unievent::Dispatcher &disp,
-                  strmod::unievent::UNIXpollManager &pollmgr,
+                  unievent::Dispatcher &disp,
+                  unievent::UNIXpollManager &pollmgr,
 		  IOCheckFlags checkmask = CheckBoth);
    //! Closes the associated file descriptor.
    virtual ~StreamFDModule();
@@ -151,13 +155,13 @@ class StreamFDModule : public StreamModule {
     * an event for a particular error type, that event will be forgotten about
     * and not posted.
     */
-   void onErrorIn(ErrorType err, const strmod::unievent::EventPtr &ev) throw();
+   void onErrorIn(ErrorType err, const unievent::EventPtr &ev) throw();
    /** Reset the error value for a particular category.
     * This does not work for the ErrFatal category.
     */
    void resetErrorIn(ErrorType err) throw ();
    //! Get the error value for a particular category.
-   const strmod::unievent::UNIXError &getErrorIn(ErrorType err) const throw ();
+   const unievent::UNIXError &getErrorIn(ErrorType err) const throw ();
 
    //! Set whether or not and EOFStrChunk is sent when an EOF is read.
    inline void setSendChunkOnEOF(bool newval) throw();
@@ -261,7 +265,7 @@ class StreamFDModule : public StreamModule {
 //     void setReadEOF(bool newval);
 
    //! Set an error in a particular category.
-   void setErrorIn(ErrorType err, const strmod::unievent::UNIXError &errval)
+   void setErrorIn(ErrorType err, const unievent::UNIXError &errval)
       throw();
 
    //! Called by readev_ and resumeread_'s triggerEvent.
@@ -302,15 +306,15 @@ class StreamFDModule : public StreamModule {
    EvMixin *parenttrackers_[5];
    // The following 5 members are duplicates of the pointers held in the
    // previous array.  They are reference counted.
-   typedef strmod::unievent::EventPtrT<strmod::unievent::UNIXpollManager::PollEvent> PollEvPtr;
+   typedef unievent::EventPtrT<unievent::UNIXpollManager::PollEvent> PollEvPtr;
    PollEvPtr readev_;
    PollEvPtr writeev_;
    PollEvPtr errorev_;
-   strmod::unievent::EventPtr resumeread_;
-   strmod::unievent::EventPtr resumewrite_;
+   unievent::EventPtr resumeread_;
+   unievent::EventPtr resumewrite_;
    ErrorInfo &errorinfo_;
-   strmod::unievent::Dispatcher &disp_;
-   strmod::unievent::UNIXpollManager &pollmgr_;
+   unievent::Dispatcher &disp_;
+   unievent::UNIXpollManager &pollmgr_;
 };
 
 //-----------------inline functions for class StreamFDModule-------------------
@@ -409,5 +413,8 @@ inline void StreamFDModule::FPlug::i_Write(const StrChunkPtr &ptr)
 {
    getParent().plugWrite(ptr);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

@@ -41,6 +41,9 @@
 #include <algorithm>
 #include <cassert>
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent CharChopper::identifier(26UL);
 
 void CharChopper::addChunk(const StrChunkPtr &chnk)
@@ -192,3 +195,6 @@ void CharChopper::processIncoming()
       outgoing_ready_ = foundchar;
    }
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

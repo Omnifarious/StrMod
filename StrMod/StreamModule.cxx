@@ -31,6 +31,9 @@ static char _EH_StreamModule_CC_rcsID[] = "$Id$";
 #include "StrMod/StreamModule.h"
 #include "StrMod/StrChunkPtr.h"
 
+namespace strmod {
+namespace strmod {
+
 //! A unique identifier for this class.
 const STR_ClassIdent StreamModule::identifier(1UL);
 //! A unique identifier for this class.
@@ -176,3 +179,6 @@ void StreamModule::Plug::pullLoop()
    }
 }
 //@}
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -32,11 +32,14 @@
 
 #define _STR_ChunkIterator_H_
 
+namespace strmod {
+namespace strmod {
+
 /** \clsss StrChunk::__iterator ChunkIterator.h StrMod/ChunkIterator.h
  * The const_iterator class for StrChunk.
  */
 class StrChunk::__iterator :
-   public bidirectional_iterator<const U1Byte, int>
+   public std::bidirectional_iterator<const U1Byte, int>
 {
  private:
    class shared;
@@ -228,5 +231,8 @@ operator -(const StrChunk::__iterator &a, const StrChunk::__iterator &b)
 {
    return(a.distance(b));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

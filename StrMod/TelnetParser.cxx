@@ -33,6 +33,9 @@
 #include <cassert>
 #include <cstddef>
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent TelnetParser::identifier(50UL);
 
 TelnetParser::TelnetParser()
@@ -340,3 +343,6 @@ void TelnetParser::reset(TelnetChunkBuilder &builder)
    regionbegin_ = curpos_;
    state_ = PS_Normal;
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

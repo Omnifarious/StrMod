@@ -36,9 +36,12 @@
 #   include <StrMod/StrChunkPtr.h>
 #endif
 
-#include <assert.h>
+#include <cassert>
 
 #define _STR_EchoModule_H_
+
+namespace strmod {
+namespace strmod {
 
 class StrChunk;
 
@@ -158,5 +161,8 @@ inline EchoModule &EchoModule::EPlug::getParent() const
 {
    return(static_cast<EchoModule &>(Plug::getParent()));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

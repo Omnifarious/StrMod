@@ -34,6 +34,9 @@
 #include <cctype>
 #include <cstring>
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent GraphVizVisitor::identifier(48UL);
 
 /*!
@@ -149,3 +152,5 @@ void GraphVizVisitor::printData(const void *data, size_t len)
    (*out_) << "\"];\n";
 }
 
+};  // End namespace strmod
+};  // End namespace strmod

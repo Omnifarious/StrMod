@@ -31,6 +31,9 @@
 #include <vector>
 #include <algorithm>
 
+namespace strmod {
+namespace strmod {
+
 /**
  * A bunch of data that can be share among all the StrChunk::__iterator
  * objects for a given StrChunk.
@@ -150,7 +153,7 @@ class StrChunk::__iterator::ExtVisitor : public UseTrackingVisitor {
    }
 
  private:
-   vector<shared::rawdata> extvec_;
+   std::vector<shared::rawdata> extvec_;
 };
 
 //---
@@ -427,3 +430,6 @@ StrChunk::__iterator StrChunk::end()
    tmp.moveToEnd();
    return tmp;
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

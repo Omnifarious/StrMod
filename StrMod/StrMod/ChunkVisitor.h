@@ -26,13 +26,16 @@
 
 // For a log, see ../ChangeLog
 
+#include <cstddef>
+#include <stdexcept>
 #include <LCore/Protocol.h>
 #include <StrMod/STR_ClassIdent.h>
 #include <StrMod/LinearExtent.h>
-#include <stdexcept>
-#include <cstddef>
 
 #define _STR_ChunkVisitor_H_
+
+namespace strmod {
+namespace strmod {
 
 class StrChunkPtr;
 class StrChunk;
@@ -108,5 +111,8 @@ class ChunkVisitor : public Protocol {
    void call_acceptVisitor(const StrChunkPtr &chnk)
       throw(halt_visitation);
 };
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

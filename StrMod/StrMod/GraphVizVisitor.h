@@ -32,7 +32,13 @@
 
 #define _STR_GraphVizVisitor_H_
 
+namespace std {
 class ostream;
+};
+
+namespace strmod {
+namespace strmod {
+
 class BufferChunk;
 
 /** \class GraphVizVisitor GraphVizVisitor.h StrMod/GraphVizVisitor.h
@@ -56,7 +62,7 @@ class GraphVizVisitor : public UseTrackingVisitor {
     * Visits the chunk DAG printing out a GraphViz parsable graph description,
     * returning a StrChunk containing the data for the chunk DAG.
     */
-   const StrChunkPtr visit(const StrChunkPtr &root, ostream &out);
+   const StrChunkPtr visit(const StrChunkPtr &root, std::ostream &out);
 
  protected:
    virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
@@ -72,12 +78,15 @@ class GraphVizVisitor : public UseTrackingVisitor {
    void printData(const void *data, size_t len);
 
  private:
-   typedef pair<const void *, const void *> edge_t;
-   typedef set<edge_t> edgeset_t;
-   ostream *out_;
+   typedef std::pair<const void *, const void *> edge_t;
+   typedef std::set<edge_t> edgeset_t;
+   std::ostream *out_;
    BufferChunk *data_;
    size_t rootpos_;
    edgeset_t edges_;
 };
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

@@ -26,8 +26,8 @@
 
 // For log, see ../ChangeLog
 
-#include <StrMod/StreamModule.h>
 #include <list>
+#include <StrMod/StreamModule.h>
 
 #define _STR_SimpleMulti_H_
 
@@ -36,6 +36,9 @@ namespace unievent {
 class Dispatcher;
 };
 };
+
+namespace strmod {
+namespace strmod {
 
 /** \class SimpleMultiplexer SimpleMulti.h StrMod/SimpleMulti.h
  * \brief Use this module of you need one source copied to many
@@ -78,7 +81,7 @@ class SimpleMultiplexer : public StreamModule {
     *
     * @param disp The strmod::unievent::Dispatcher to post to.  */
 
-   SimpleMultiplexer(strmod::unievent::Dispatcher &disp);
+   SimpleMultiplexer(unievent::Dispatcher &disp);
    //! Also destroys all Plug's and any unsent data.
    virtual ~SimpleMultiplexer();
 
@@ -216,7 +219,7 @@ class SimpleMultiplexer : public StreamModule {
    bool scan_posted_;
    StrChunkPtr mchunk_;
    ScanEvent * const scan_;
-   strmod::unievent::Dispatcher &dispatcher_;
+   unievent::Dispatcher &dispatcher_;
    unsigned int readable_multis_;
    unsigned int readable_multiothers_;
    unsigned int writeable_multiothers_;
@@ -270,5 +273,8 @@ inline SimpleMultiplexer &SimpleMultiplexer::SinglePlug::getParent() const
 {
    return(static_cast<SimpleMultiplexer &>(Plug::getParent()));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

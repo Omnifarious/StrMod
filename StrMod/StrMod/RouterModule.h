@@ -26,11 +26,11 @@
 
 // For a log, see ../ChangeLog
 
-#include <StrMod/StreamModule.h>
-#include <StrMod/STR_ClassIdent.h>
-#include <deque>
-#include <iterator>
 #include <cstddef>
+#include <iterator>
+#include <deque>
+#include <StrMod/STR_ClassIdent.h>
+#include <StrMod/StreamModule.h>
 
 #define _STR_RouterModule_H_
 
@@ -39,6 +39,9 @@ namespace unievent {
 class Dispatcher;
 };
 };
+
+namespace strmod {
+namespace strmod {
 
 /** \class RouterModule RouterModule.h StrMod/RouterModule.h
  * \brief Provides an abstract base for classes that route chunks from a plug to
@@ -49,15 +52,15 @@ class RouterModule : public StreamModule {
    class RPlug;
    friend class RPlug;
    //! Just a type alias to avoid errors in typing deque<RPlug *>.
-   typedef deque<RPlug *> RPlugList;
+   typedef std::deque<RPlug *> RPlugList;
    //! Just a type alias to avoid errors in typing back_insert_iterator<RPlugList>
-   typedef back_insert_iterator<RPlugList> RPlugAdder;
+   typedef std::back_insert_iterator<RPlugList> RPlugAdder;
 
  public:
    static const STR_ClassIdent identifier;
 
    //! Construct, given the strmod::unievent::Dispatcher to use to post scan events.
-   explicit RouterModule(strmod::unievent::Dispatcher &disp);
+   explicit RouterModule(unievent::Dispatcher &disp);
    //! Destroy the RouterModule and all of its plugs.
    virtual ~RouterModule();
 
@@ -104,7 +107,7 @@ class RouterModule : public StreamModule {
  private:
    class ScanEvent;
    friend class ScanEvent;
-   strmod::unievent::Dispatcher &disp_;
+   unievent::Dispatcher &disp_;
    bool scan_posted_;
    ScanEvent * const scan_;
    bool inroutingdone_;
@@ -177,5 +180,8 @@ inline RouterModule::RPlug::RPlug(RouterModule &parent)
      : Plug(parent), deleted_(false)
 {
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

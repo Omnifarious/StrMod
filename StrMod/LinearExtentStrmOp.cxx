@@ -27,7 +27,10 @@
 //
 
 #include <StrMod/LinearExtent.h>
-#include <iostream.h>
+#include <iostream>
+
+namespace strmod {
+namespace strmod {
 
 ostream &operator <<(ostream &os, const LinearExtent &ext)
 {
@@ -42,3 +45,6 @@ ostream &operator <<(ostream &os, const LinearExtent &ext)
    return(os << "[" << ext.Offset() << "--(" << ext.Length()
 	     << ")-->" << end << ")");
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

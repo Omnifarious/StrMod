@@ -41,6 +41,9 @@
 
 #define _STR_StreamModule_H_
 
+namespace strmod {
+namespace strmod {
+
 class StrChunkPtr;
 
 /** \class StreamModule StreamModule.h StrMod/StreamModule.h
@@ -538,5 +541,8 @@ inline void StreamModule::Plug::notifyOtherWriteable() const
       other_->otherIsWriteable();
    }
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

@@ -40,6 +40,9 @@
 #include <algorithm>
 #include <cassert>
 
+namespace strmod {
+namespace strmod {
+
 /** A private class for StrPlugs on the 'many' side of a SimpleMultiplexer.
  */
 class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
@@ -100,9 +103,9 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
    bool other_isreadable_;
 };
 
-class SimpleMultiplexer::ScanEvent : public strmod::unievent::Event {
+class SimpleMultiplexer::ScanEvent : public unievent::Event {
  private:
-   typedef strmod::unievent::Dispatcher Dispatcher;
+   typedef unievent::Dispatcher Dispatcher;
  public:
    static const STR_ClassIdent identifier;
 
@@ -386,7 +389,7 @@ void SimpleMultiplexer::SinglePlug::otherIsWriteable()
    }
 }
 
-SimpleMultiplexer::SimpleMultiplexer(strmod::unievent::Dispatcher &disp)
+SimpleMultiplexer::SimpleMultiplexer(unievent::Dispatcher &disp)
      : splug_(*this), splug_created_(false), scan_posted_(false),
        scan_(new ScanEvent(*this)), dispatcher_(disp),
        readable_multis_(0), readable_multiothers_(0), writeable_multiothers_(0)
@@ -616,5 +619,8 @@ bool SimpleMultiplexer::deletePlug(Plug *plug)
 	 return(true);
       }
    }
-   assert(false);
+   return false;
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

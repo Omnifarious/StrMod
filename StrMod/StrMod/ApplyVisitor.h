@@ -30,6 +30,9 @@
 
 #define _STR_ApplyVisitor_H_
 
+namespace strmod {
+namespace strmod {
+
 class StrChunkPtr;
 
 /** \class ApplyVisitor_Base ApplyVisitor.h StrMod/ApplyVisitor.h
@@ -163,10 +166,13 @@ ApplyVisitor<_Function>::use_visitDataBlock(const void *start, size_t len,
    func_(start, len);
 }
 
-/** A function to hide the rather odd syntax for using the class.
+/** A function to hide the rather odd syntax for using the ApplyVisitor class.
  *
  * Much like the STL for_each function, but this one iterates over the data
  * extents making up a StrChunk.
+ *
+ * @param chunk The chunk to iterate over.
+ * @param func The functor to apply.
  */
 template <class _Function>
 inline void for_each(const StrChunkPtr &chunk, _Function &func)
@@ -175,10 +181,14 @@ inline void for_each(const StrChunkPtr &chunk, _Function &func)
    av.apply();
 }
 
-/** A function to hide the rather odd syntax for using the class.
+/** A function to hide the rather odd syntax for using the ApplyVisitor class.
  *
  * Much like the STL for_each function, but this one iterates over the data
  * extents making up the section of the StrChunk described by extent.
+ *
+ * @param chunk The chunk to iterate over.
+ * @param extent Which LinearExtent of the chunk to iterator over.
+ * @param func The functor to apply.
  */
 template <class _Function>
 inline void for_each(const StrChunkPtr &chunk, const LinearExtent &extent,
@@ -187,5 +197,8 @@ inline void for_each(const StrChunkPtr &chunk, const LinearExtent &extent,
    ApplyVisitor<_Function> av(chunk, extent, func);
    av.apply();
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

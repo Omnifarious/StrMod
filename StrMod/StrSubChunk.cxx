@@ -38,7 +38,10 @@
 #include "StrMod/StrChunkPtr.h"
 #include "StrMod/ChunkVisitor.h"
 #include <cassert>
-// #include <iostream.h>
+// #include <iostream>
+
+namespace strmod {
+namespace strmod {
 
 const STR_ClassIdent StrSubChunk::identifier(18UL);
 
@@ -75,3 +78,6 @@ void StrSubChunk::acceptVisitor(ChunkVisitor &visitor)
 {
    call_visitStrChunk(visitor, subchunk_, subext_);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -54,10 +54,13 @@
 #  define ESUCCESS 0
 #endif
 
+namespace strmod {
+namespace strmod {
+
 typedef struct stat statbuf_t;
-using strmod::unievent::Dispatcher;
-using strmod::unievent::UNIXpollManager;
-using strmod::unievent::UNIXError;
+using unievent::Dispatcher;
+using unievent::UNIXpollManager;
+using unievent::UNIXError;
 
 const STR_ClassIdent StreamFDModule::identifier(8UL);
 const STR_ClassIdent StreamFDModule::FPlug::identifier(9UL);
@@ -187,7 +190,7 @@ class StreamFDModule::FDPollErEv
 };
 
 class StreamFDModule::ResumeReadEv
-   : public StreamFDModule::EvMixin, public strmod::unievent::Event
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    ResumeReadEv(StreamFDModule &parent)
@@ -203,7 +206,7 @@ class StreamFDModule::ResumeReadEv
 };
 
 class StreamFDModule::ResumeWriteEv
-   : public StreamFDModule::EvMixin, public strmod::unievent::Event
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    ResumeWriteEv(StreamFDModule &parent)
@@ -300,7 +303,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    }
 
  private:
-   typedef vector<iovec> iovecvec;
+   typedef std::vector<iovec> iovecvec;
    StrChunkPtr curchunk_;
    size_t totalbytes_;
    size_t curbyte_;
@@ -355,7 +358,7 @@ inline void StreamFDModule::BufferList::advanceBy(size_t numbytes)
 //---
 
 struct StreamFDModule::ErrorInfo {
-   strmod::unievent::EventPtr events_[(ErrFatal - ErrRead) + 1];
+   unievent::EventPtr events_[(ErrFatal - ErrRead) + 1];
    unsigned char errdata_[(ErrFatal - ErrRead) + 1][sizeof(UNIXError)];
    ErrorSet used_;
 };
@@ -375,7 +378,7 @@ bool StreamFDModule::hasErrorIn(const ErrorSet &set) const throw ()
 }
 
 void StreamFDModule::onErrorIn(ErrorType err,
-                               const strmod::unievent::EventPtr &ev) throw()
+                               const unievent::EventPtr &ev) throw()
 {
    errorinfo_.events_[err] = ev;
 }
@@ -938,3 +941,6 @@ StreamFDModule::~StreamFDModule()
    delete &curbuflist_;
    delete &errorinfo_;
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -28,6 +28,9 @@
 #include "StrMod/StrSubChunk.h"
 #include "StrMod/StrChunkPtr.h"
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent ApplyVisitor_Base::identifier(51UL);
 
 ApplyVisitor_Base::ApplyVisitor_Base(const StrChunkPtr &chunk)
@@ -55,3 +58,6 @@ void ApplyVisitor_Base::apply()
       startVisit(chunk_);
    }
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

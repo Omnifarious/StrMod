@@ -1,3 +1,13 @@
+2001-09-14  Eric Hopper  <hopper@omnifarious.org>
+
+	* SimpleMulti.cxx (deletePlug): Changed an assert to a return of
+	'false', which is what it should've been.
+
+2001-09-07  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Everything: I moved this entire subsection into the
+	strmod::strmod namespace.
+
 2001-08-18  Eric M. Hopper  <hopper@omnifarious.org>
 
 	* StrMod/RouterModule.h, RouterModule.cxx, StrMod/SimpleMulti.h,

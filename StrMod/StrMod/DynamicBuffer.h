@@ -30,7 +30,12 @@
 
 #define _STR_DynamicBuffer_H_
 
-//: A completely dyanmically allocated bag of bytes.
+namespace strmod {
+namespace strmod {
+
+/** \class DynamicBuffer DynamicBuffer.h StrMod/DynamicBuffer.h
+ * \brief A completely dyamically allocated bag of bytes.
+ */
 class DynamicBuffer : public BufferChunk {
  public:
    static const STR_ClassIdent identifier;
@@ -54,5 +59,8 @@ inline int DynamicBuffer::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || BufferChunk::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

@@ -35,6 +35,9 @@
 
 #define _STR_NewlineChopper_H_
 
+namespace strmod {
+namespace strmod {
+
 class NewlineChopper : public CharChopper {
  public:
    typedef CharChopper parentclass;
@@ -58,5 +61,8 @@ inline int NewlineChopper::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || parentclass::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

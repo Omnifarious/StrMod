@@ -30,11 +30,14 @@
 #include <UniEvent/EventPtr.h>
 #include <algorithm>
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent RouterModule::identifier(52UL);
 const STR_ClassIdent RouterModule::RPlug::identifier(53UL);
 
-using strmod::unievent::Dispatcher;
-using strmod::unievent::Event;
+using unievent::Dispatcher;
+using unievent::Event;
 
 class RouterModule::ScanEvent : public Event {
  public:
@@ -315,3 +318,6 @@ void RouterModule::RPlug::i_Write(const StrChunkPtr &ptr)
    parent.postScan();
    parent.processIncoming(*this, ptr);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -28,4 +28,10 @@
 
 #include "StrMod/EOFStrChunk.h"
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent EOFStrChunk::identifier(31UL);
+
+};  // End namespace strmod
+};  // End namespace strmod

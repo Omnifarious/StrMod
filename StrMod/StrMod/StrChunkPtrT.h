@@ -40,6 +40,9 @@
 
 #define _STR_StrChunkPtrT_H_
 
+namespace strmod {
+namespace strmod {
+
 /** \class StrChunkPtrT StrChunkPtrT.h StrMod/StrChunkPtrT.h
  * A convenience template to point at things derived from StrChunk.
  *
@@ -147,5 +150,8 @@ StrChunkPtrT<Chunk>::i_CheckType(ReferenceCounting *p) const
 {
    return(((p != 0) && p->AreYouA(Chunk::identifier)) ? p : 0);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

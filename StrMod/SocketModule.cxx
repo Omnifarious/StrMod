@@ -33,11 +33,11 @@ static char _SocketModule_CC_rcsID[] =
 #include <EHnet++/SocketAddress.h>
 #include "StrMod/SocketModule.h"
 #include "StrMod/FDUtil.h"
-#include <string.h>
+#include <cstring>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <errno.h>
+#include <cerrno>
 #include <unistd.h>
 #include "config.h"
 #include "sockdecl.h"
@@ -46,14 +46,17 @@ static char _SocketModule_CC_rcsID[] =
 #define SHUT_WR 1
 #endif
 
-using strmod::unievent::UNIXError;
+namespace strmod {
+namespace strmod {
+
+using unievent::UNIXError;
 
 const STR_ClassIdent SocketModule::identifier(12UL);
 
 // MakeSocket sets makesock_errno_.
 SocketModule::SocketModule(const SocketAddress &addr,
-                           strmod::unievent::Dispatcher &disp,
-                           strmod::unievent::UNIXpollManager &pollmgr,
+                           unievent::Dispatcher &disp,
+                           unievent::UNIXpollManager &pollmgr,
                            bool blockconnect)
    throw(UNIXError)
      : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, pollmgr,
@@ -69,8 +72,8 @@ SocketModule::~SocketModule()  // This might be changed later to add
 }                              // connection.
 
 SocketModule::SocketModule(int fd, SocketAddress *pr,
-                           strmod::unievent::Dispatcher &disp,
-                           strmod::unievent::UNIXpollManager &pollmgr)
+                           unievent::Dispatcher &disp,
+                           unievent::UNIXpollManager &pollmgr)
      : StreamFDModule(fd, disp, pollmgr, StreamFDModule::CheckBoth),
        peer_(*pr)
 {
@@ -163,3 +166,6 @@ int SocketModule::MakeSocket(SocketModule &obj,
    }
    return(fd);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -26,12 +26,15 @@
 
 // For a log, see ../ChangeLog
 
-#include <StrMod/ChunkVisitor.h>
-#include <StrMod/StrChunkPtr.h>
-#include <StrMod/LinearExtent.h>
 #include <cstddef>
+#include <StrMod/LinearExtent.h>
+#include <StrMod/StrChunkPtr.h>
+#include <StrMod/ChunkVisitor.h>
 
 #define _STR_UseTrackingVisitor_H_
+
+namespace strmod {
+namespace strmod {
 
 /** \class UseTrackingVisitor UseTrackingVisitor.h StrMod/UseTrackingVisitor.h
  * Simplifies the Visitor interface down so that derived classes don't have to
@@ -155,5 +158,8 @@ inline void UseTrackingVisitor::startVisit(const StrChunkPtr &root)
    curext_ = LinearExtent::full_extent;
    visitStrChunk(root);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

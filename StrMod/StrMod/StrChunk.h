@@ -29,19 +29,18 @@
 #include <cassert>
 #include <cstddef>
 
-#ifndef _STR_STR_ClassIdent_H_
-#  ifndef OS2
-#     include <StrMod/STR_ClassIdent.h>
-#  else
-#     include "str_clas.h"
-#  endif
-#endif
-
 #include <LCore/Object.h>
 #include <LCore/RefCounting.h>
+
+#ifndef _STR_STR_ClassIdent_H_
+#  include <StrMod/STR_ClassIdent.h>
+#endif
 #include <StrMod/ChunkVisitor.h>
 
 #define _STR_StrChunk_H_
+
+namespace strmod {
+namespace strmod {
 
 class LinearExtent;
 
@@ -154,5 +153,8 @@ inline void StrChunk::call_visitDataBlock(ChunkVisitor &visitor,
 {
    visitor.visitDataBlock(start, len);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif
