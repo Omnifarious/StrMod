@@ -21,10 +21,21 @@ dnl Checks for library functions.
 
 dnl Checks for specific strange quirks
 AC_LANG_PUSH(C++)
-  AC_MSG_CHECKING(if accept(2) takes a size_t * like it should)
+  AC_MSG_CHECKING(if we have socklen_t)
   AC_COMPILE_IFELSE(
-    [AC_LANG_SOURCE([[#include <sys/types.h>
+    [AC_LANG_SOURCE([[#include <sys/socket.h>
+int main()
+{
+   socklen_t saddrsize;
+   return 0;
+}]])], AC_MSG_RESULT(yes),
+   AC_MSG_RESULT(no)
+   CPPFLAGS="$CPPFLAGS -DHAVE_NO_SOCKLEN_T"
+   AC_MSG_CHECKING(if accept wants int or size_t)
+   AC_COMPILE_IFELSE(
+     [AC_LANG_SOURCE([[#include <sys/types.h>
 #include <sys/socket.h>
+#include <cstddef>
 int main()
 {
    unsigned char addrbuf[8192];
@@ -32,20 +43,9 @@ int main()
    size_t length = sizeof(addrbuf);
    accept(0, saddr, &length);
    return 0;
-}]])], AC_MSG_RESULT(yes),
-
-    AC_COMPILE_IFELSE(
-      [[AC_LANG_SOURCE([[#include <sys/types.h>
-#include <sys/socket.h>
-int main()
-{
-   unsigned char addrbuf[8192];
-   struct sockaddr *saddr = reinterpret_cast<struct sockaddr *>(addrbuf);
-   int length = sizeof(addrbuf);
-   accept(0, saddr, &length);
-   return 0;
-}]])]], AC_MSG_RESULT(no - stupid thing), AC_MSG_WARN(neither int * nor size_t * worked, assuming int *))
-   CPPFLAGS="$CPPFLAGS -DACCEPT_NEEDSINT")
+})]])], AC_MSG_RESULT(size_t)
+        CPPFLAGS="$CPPFLAGS -DSOCKLEN_IS_SIZE_T",
+        AC_MSG_RESULT(int)))
 
 AC_LANG_POP()
 

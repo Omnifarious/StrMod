@@ -143,7 +143,7 @@ void SocketModule::setSelfAddr(int fd)
 {
    unsigned char addrbuf[8192];
    struct sockaddr *saddr = reinterpret_cast<struct sockaddr *>(addrbuf);
-   size_t length = sizeof(addrbuf);
+   socklen_t length = sizeof(addrbuf);
 
    if (getsockname(fd, saddr, &length) == 0)
    {

@@ -11,3 +11,12 @@ int connect(int Socket, struct sockaddr *Name, int NameLength);
       }
 #  endif
 #endif
+
+#ifdef HAVE_NO_SOCKLEN_T
+#  ifdef SOCKLEN_IS_SIZE_T
+#    include <cstddef>
+typedef size_t socklen_t;
+#  else
+typedef int socklen_t;
+#  endif // SOCKLEN_IS_SIZE_T
+#endif // HAVE_NO_SOCKLEN_T

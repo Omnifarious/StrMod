@@ -258,14 +258,8 @@ void SockListenModule::doAccept()
 
    unsigned char addrbuf[8192];
    struct sockaddr *saddr = reinterpret_cast<struct sockaddr *>(addrbuf);
-   size_t length = sizeof(addrbuf);
-#ifdef ACCEPT_NEEDSINT
-   int stupid_compatibility_trick = length;
-   int tempfd = accept(sockfd_, saddr, &stupid_compatibility_trick);
-   length = stupid_compatibility_trick;
-#else
+   socklen_t length = sizeof(addrbuf);
    int tempfd = accept(sockfd_, saddr, &length);
-#endif
 
    if (tempfd < 0)
    {
