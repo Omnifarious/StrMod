@@ -370,7 +370,7 @@ void StrChunk::__iterator::move_forward_complex()
    ++abspos_;
    assert(abspos_ < shrd.length_);
    ++curext_;
-   assert(curext_ < shred_->numexts_);
+   assert(curext_ < shrd.numexts_);
    extpos_ = 0;
    extbase_ = static_cast<const unsigned char *>(shrd.dataexts_[curext_].base_);
    extlast_ = shrd.dataexts_[curext_].len_;
