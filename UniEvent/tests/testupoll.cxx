@@ -27,7 +27,7 @@ void StdinEvent::triggerEvent(strmod::unievent::Dispatcher *dispatcher)
    using std::cout;
    using strmod::unievent::UnixEventRegistry;
    char buf[321];
-   cout << "You typed something!\n";
+   cout << "You typed something on fd #" << fd_ << "!\n";
    cout.flush();
    int readbytes = ::read(fd_, buf, sizeof(buf) - 2);
    if (readbytes > 0)
@@ -42,7 +42,6 @@ void StdinEvent::triggerEvent(strmod::unievent::Dispatcher *dispatcher)
    }
    cout.flush();
    UnixEventRegistry::FDCondSet tmp(UnixEventRegistry::FD_Readable);
-//   ::std::cerr << "tmp == " << tmp.to_string() << "\n";
    ureg_->registerFDCond(fd_, tmp, this);
 }
 
@@ -70,7 +69,8 @@ int main(int argc, const char *argv[])
    do {
       if (dispatcher.isQueueEmpty())
       {
-//         upoll.printState(std::cerr);
+         upoll.printState(::std::cerr);
+         ::std::cerr << "\n";
          upoll.doPoll(true);
 //         upoll.printState(std::cerr);
       }
