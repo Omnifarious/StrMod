@@ -50,7 +50,7 @@ class SocketModule : public StreamFDModule
    SocketModule(const ehnet::SocketAddress &addr,
                 unievent::Dispatcher &disp,
                 unievent::UnixEventRegistry &ureg,
-                bool blockconnect = true) throw(unievent::UNIXError);
+		bool blockconnect = true) throw(unievent::UNIXError);
    virtual ~SocketModule();
 
    inline virtual int AreYouA(const lcore::ClassIdent &cid) const;

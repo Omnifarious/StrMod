@@ -58,9 +58,9 @@ SocketModule::SocketModule(const SocketAddress &addr,
                            bool blockconnect)
    throw(UNIXError)
      : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, ureg,
-                      StreamFDModule::CheckBoth),
+		      StreamFDModule::CheckBoth),
        peer_(*(addr.Copy())),
-       self_(0)
+       self_(NULL)
 {
    setMaxChunkSize(64U * 1024U);
    setSelfAddr(getFD());
@@ -69,15 +69,15 @@ SocketModule::SocketModule(const SocketAddress &addr,
 SocketModule::~SocketModule()  // This might be changed later to add
 {                              // a shutdown message sent to the
    delete &peer_;              // socket on the other side of the
-   delete self_;               // connection.
-}
+   delete self_;
+}                              // connection.
 
 SocketModule::SocketModule(int fd, SocketAddress *pr,
                            unievent::Dispatcher &disp,
                            unievent::UnixEventRegistry &ureg)
      : StreamFDModule(fd, disp, ureg, StreamFDModule::CheckBoth),
        peer_(*pr),
-       self_(0)
+       self_(NULL)
 {
    setMaxChunkSize(64U * 1024U);
    setSelfAddr(fd);
@@ -89,7 +89,7 @@ void SocketModule::writeEOF()
    {
       if (hasErrorIn(ErrRead) && getErrorIn(ErrRead).isEOF())
       {
-         StreamFDModule::writeEOF();
+	 StreamFDModule::writeEOF();
       }
       else
       {
@@ -147,9 +147,9 @@ void SocketModule::setSelfAddr(int fd)
    {
       if (saddr->sa_family != AF_INET)
       {
-//         std::cerr << "Got connection from non-AF_INET peer" << std::endl;
+         // ::std::cerr << "Got connection from non-AF_INET peer" << std::endl;
          // Got connection from non-AF_INET peer.
-         setErrorIn(ErrWrite,
+         setErrorIn(ErrFatal,
                     UNIXError("<none>", 0,
                               LCoreError("Got connection from non-AF_INET peer",
                                          LCORE_GET_COMPILERINFO())));
@@ -164,7 +164,7 @@ void SocketModule::setSelfAddr(int fd)
 }
 
 int SocketModule::MakeSocket(SocketModule &obj,
-                             const SocketAddress &addr, bool blockconnect)
+			     const SocketAddress &addr, bool blockconnect)
    throw(UNIXError)
 {
    int fd = -1;
