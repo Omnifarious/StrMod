@@ -1,6 +1,10 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.8  1996/10/23 10:12:53  hopper
+ // Fixed an = vs. == bug that caused StreamFDModule to stop being able to
+ // write.
+ //
  // Revision 1.7  1996/09/21 20:01:37  hopper
  // Moved the guts of the file I/O (the stuff that actually reads on writes to
  // the file descriptor) out of StrFDPlug, and put it into
@@ -242,7 +246,7 @@ int StrFDPlug::outputReady(int fd)
    parent->DoWriteFD();
 
    if (!wrtngto && (parent->fd >= 0)
-       && (parent->last_error = 0) && !(parent->cur_write)) {
+       && (parent->last_error == 0) && !(parent->cur_write)) {
       DoWriteableNotify();
    }
    return(0);
