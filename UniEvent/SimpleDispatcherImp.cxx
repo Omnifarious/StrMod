@@ -4,6 +4,7 @@
 
 #include "UniEvent/SimpleDispatcher.h"
 #include "UniEvent/Event.h"
+#include "UniEvent/EventPtr.h"
 #include <deque>
 
 typedef deque<UNIEvent *> ImpBase;
@@ -31,9 +32,10 @@ UNISimpleDispatcher::~UNISimpleDispatcher()
    delete (&imp_);
 }
 
-void UNISimpleDispatcher::AddEvent(UNIEvent *ev)
+void UNISimpleDispatcher::AddEvent(const UNIEventPtr &ev)
 {
-   imp_.push_back(ev);
+   ev->AddReference();
+   imp_.push_back(ev.GetPtr());
 }
 
 void UNISimpleDispatcher::DispatchEvents(unsigned int numevents,
@@ -51,6 +53,12 @@ void UNISimpleDispatcher::DispatchEvents(unsigned int numevents,
       imp_.pop_front();
       i--;
       ev->TriggerEvent(enclosing);
+      if (ev->NumReferences() > 0) {
+	    ev->DelReference();
+      }
+      if (ev->NumReferences() <= 0) {
+	 delete ev;
+      }
    }
    if (stop_flag_) {
       stop_flag_ = false;
@@ -68,6 +76,12 @@ void UNISimpleDispatcher::DispatchUntilEmpty(UNIDispatcher *enclosing)
 
       imp_.pop_front();
       ev->TriggerEvent(enclosing);
+      if (ev->NumReferences() > 0) {
+	    ev->DelReference();
+      }
+      if (ev->NumReferences() <= 0) {
+	 delete ev;
+      }
    }
    if (stop_flag_) {
       stop_flag_ = false;

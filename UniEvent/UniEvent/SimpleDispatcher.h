@@ -25,7 +25,7 @@ class UNISimpleDispatcher : public UNIDispatcher {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   virtual void AddEvent(UNIEvent *ev);
+   virtual void AddEvent(const UNIEventPtr &ev);
 
    virtual void DispatchEvents(unsigned int numevents,
 			       UNIDispatcher *enclosing = 0);

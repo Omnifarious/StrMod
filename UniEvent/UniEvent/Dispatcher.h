@@ -14,7 +14,7 @@
 
 #define _UNEVT_Dispatcher_H_
 
-class UNIEvent;
+class UNIEventPtr;
 class OSConditionManager;
 
 class UNIDispatcher : virtual public Protocol {
@@ -26,7 +26,7 @@ class UNIDispatcher : virtual public Protocol {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   virtual void AddEvent(UNIEvent *ev) = 0;
+   virtual void AddEvent(const UNIEventPtr &ev) = 0;
 
    inline void DispatchEvent(UNIDispatcher *enclosing = 0);
    virtual void DispatchEvents(unsigned int numevents,
