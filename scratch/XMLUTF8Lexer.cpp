@@ -20,7 +20,6 @@ void XMLUTF8Lexer::lex(const char *buf, unsigned int len,
       if (namepos_ >= sizeof(name_))
       {
          throw_out_of_range();
-//         throw ::std::out_of_range(out_of_range_message);
       }
       if (state_ == XLess)
       {
@@ -50,6 +49,10 @@ void XMLUTF8Lexer::lex(const char *buf, unsigned int len,
 }
 
 // $Log$
+// Revision 1.2  2002/12/10 13:23:38  hopper
+// No commented out lines, use version control instead, that's what it's
+// for.
+//
 // Revision 1.1  2002/12/10 13:19:16  hopper
 // Some XML parsing classes I'm playing with until I get something that's
 // suitable for public consumption.
