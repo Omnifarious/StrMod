@@ -174,7 +174,7 @@ created before the UNIXpollManagerImp:</p>
 
 <p>Putting this all together yields a code that looks something like this:</p>
 <pre class="codeblock">SimpleDispatcher dispatcher;
-UNIXpollManager pollmanager(&ampl;dispatcher);
+UNIXpollManagerImp pollmanager(&ampl;dispatcher);
 
 do
 {
@@ -218,6 +218,30 @@ store them as SocketAddresses.</p>
 
 <pre class="codeblock">class Listener {
  public:
+   Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+            Dispatcher &amp;disp, UNIXpollManager &amp;pman);
+   ~Listener();
+
+ private:
+   SockListenModule *listener_;
+   SocketAddress * const from_;
+   SocketAddress * const to_;
+};
+
+Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+		   Dispatcher &amp;disp, UNIXpollManager &amp;pman)
+    : listener_(NULL), from_(from.Copy()), to_(to.Copy())
+{
+   listener_ = new SockListenModule(*from_, disp, pman, 2);
+}
+
+Listener::~Listener()
+{
+   delete listener_;
+   delete from_;
+   delete to_;
+}class Listener {
+ public:
    Listener(const SocketAddress &amp;from, const SocketAddress &amp;to);
    ~Listener();
 
@@ -228,7 +252,7 @@ store them as SocketAddresses.</p>
 };
 
 Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
-		   UNIDispatcher &amp;disp, UNIXpollManagerImp &amp;pman)
+		   UNIDispatcher &amp;disp, UNIXpollManager &amp;pman)
     : listener_(NULL), from_(from.Copy()), to_(to.Copy())
 {
    listener_ = new SockListenModule(*from_, disp, pman, 2);
@@ -265,13 +289,13 @@ namespace directives.</p>
 #include &lt;EHnet++/SocketAddress.h>
 #include &lt;EHnet++/InetAddress.h>
 #include &lt;UniEvent/Dispatcher.h>
-#include &lt;UniEvent/SimpleDistpacher.h>
+#include &lt;UniEvent/SimpleDispatcher.h>
 #include &lt;UniEvent/UNIXpollManager.h>
 #include &lt;UniEvent/UNIXpollManagerImp.h>
 #include &lt;iostream>
 #include &lt;string>
 
-using strmod::strmod::SockListenModue;
+using strmod::strmod::SockListenModule;
 using strmod::unievent::Dispatcher;
 using strmod::unievent::SimpleDispatcher;
 using strmod::unievent::UNIXpollManager;
@@ -281,7 +305,8 @@ using strmod::unievent::UNIXpollManagerImp;
 
 class Listener {
  public:
-   Listener(const SocketAddress &amp;from, const SocketAddress &amp;to);
+   Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+            Dispatcher &amp;disp, UNIXpollManager &amp;pman);
    ~Listener();
 
  private:
@@ -291,7 +316,7 @@ class Listener {
 };
 
 Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
-		   UNIDispatcher &amp;disp, UNIXpollManagerImp &amp;pman)
+		   Dispatcher &amp;disp, UNIXpollManager &amp;pman)
     : listener_(NULL), from_(from.Copy()), to_(to.Copy())
 {
    listener_ = new SockListenModule(*from_, disp, pman, 2);
@@ -307,7 +332,7 @@ Listener::~Listener()
 int main()
 {
    SimpleDispatcher dispatcher;
-   UNIXpollManager pollmanager(&ampl;dispatcher);
+   UNIXpollManagerImp pollmanager(&amp;dispatcher);
    using std::cin;
    using std::cout;
    using std::string;
@@ -318,7 +343,7 @@ int main()
       string outaddr;
       unsigned int outport = 0;
 
-      cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
+      cin >> inport >> outaddr >> outport;
       if (cin)
       {
          InetAddress listenaddr(inport);
