@@ -1,0 +1,91 @@
+#ifndef _EHNET_InetAddress_H_
+
+#ifdef __GNUG__
+#  pragma interface
+#endif
+
+/* $Header$ */
+
+ // $Log$
+ // Revision 1.1  1995/07/23 17:45:30  hopper
+ // Initial revision
+ //
+ // Revision 0.2.0.4.1.1  1995/07/23 03:21:38  hopper
+ // Added #include <string.h> so it would compile correctly used libg++ 2.7.0.
+ // libg++ 2.7.0 is in error.
+ //
+ // Revision 0.2.0.4  1994/08/12 17:07:12  hopper
+ // Changed to use NetString class. The NetString class handles all library
+ // dependencies.
+ //
+ // Revision 0.2.0.3  1994/06/16  02:59:39  hopper
+ // Added #pragma interface for GNU stuff.
+ //
+ // Revision 0.2.0.2  1994/05/08  18:34:52  hopper
+ // Changed to work better with Rogue Wave classes.
+ //
+ // Revision 0.2.0.1  1994/05/08  18:06:21  hopper
+ // Head of WinterFire branch. Changed all instances of String with
+ // RWCString.
+ //
+ // Revision 0.2  1994/05/08  16:11:06  hopper
+ // Shifted declarations and definitions to work better with new libraries.
+ //
+ // Revision 0.1  1994/05/03  03:25:21  hopper
+ // Initial revision
+ //
+
+ // $Revision$
+
+#ifndef _EHNET_SocketAddress_H_
+#   include <EHnet++/SocketAddress.h>
+#endif
+
+#include <EHnet++/NString.h>
+#include <string.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+
+#define _EHNET_InetAddress_H_
+
+typedef unsigned short U2Byte;
+
+class InetAddress : public SocketAddress {
+   NetString hostname;
+   U2Byte port;
+   sockaddr_in inaddr;
+
+ protected:
+   inline virtual SocketAddress *MakeCopy() const;
+
+   void InvalidateAddress();
+   int InvalidNum(unsigned long &num, int &i, int enddot = 1);
+   NetString ToDec(U2Byte num) const;
+
+ public:
+   virtual struct sockaddr *SockAddr(){ return((struct sockaddr *)(&inaddr)); }
+   InetAddress *Copy() const          { return((InetAddress *)MakeCopy()); }
+   virtual int AddressSize() const    { return(sizeof(sockaddr_in)); }
+   virtual NetString AsString();
+
+   NetString GetHostname() const      { return(hostname); }
+   U2Byte GetPort() const             { return(port); }
+
+   const InetAddress &operator =(const InetAddress &b);
+   const InetAddress &operator =(const sockaddr_in &iadr);
+
+   InetAddress(const NetString &h_name, U2Byte prt);
+   InetAddress(U2Byte port);
+   InetAddress(const InetAddress &b);
+   InetAddress(const sockaddr_in &iadr);
+   virtual ~InetAddress()             { }
+};
+
+//--------------------------------inline functions-----------------------------
+
+inline SocketAddress *InetAddress::MakeCopy() const
+{
+   return(new InetAddress(*this));
+}
+
+#endif
