@@ -1,8 +1,11 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/22 04:46:48  hopper
- // Initial revision
+ // Revision 1.2  1996/07/05 19:33:26  hopper
+ // Made some necessary changes to make this work with new StrChunk style.
+ //
+ // Revision 1.1.1.1  1995/07/22 04:46:48  hopper
+ // Imported sources
  //
  // -> Revision 0.12  1995/04/14  16:28:32  hopper
  // -> Combined version 0.11 and 0.11.0.6
@@ -140,8 +143,15 @@ SplitterModule::~SplitterModule()
    delete outputonly;
 }
 
-StrChunk *SplitterPlug::InternalRead()
+#ifdef __GNUG__
+const StrChunkPtr SplitterPlug::InternalRead() return temp;
+#else
+const StrChunkPtr SplitterPlug::InternalRead()
+#endif
 {
+#ifndef __GNUG__
+   StrChunkPtr temp;
+#endif
    SplitterModule *parent = ModuleFrom();
 
 #ifdef TRACING
@@ -155,16 +165,14 @@ StrChunk *SplitterPlug::InternalRead()
       cerr << "*cough* *cough*\n";
       exit(23);
       assert(0 && "Unreachable code!");
-      return(0);  // Control should never reach here. This is just to shut up
-   } else {       //  the compiler.
+      return(temp); // Control should never reach here. This is just to shut up
+   } else {         //  the compiler.
       SplitterPlug *checkplug;
 
       if (PlugType() == SplitterModule::OutputOnlyPlug)
 	 checkplug = parent->combined;
       else
 	 checkplug = parent->inputonly;
-
-      StrChunk *temp = 0;
 
       if (checkplug->PluggedInto() != 0)
 	 temp = checkplug->PluggedInto()->Read();
@@ -207,10 +215,10 @@ bool SplitterPlug::CanWrite() const
    }
 }
 
-bool SplitterPlug::Write(StrChunk *chunk)
+bool SplitterPlug::Write(const StrChunkPtr &chunk)
 {
 #ifdef TRACING
-   cerr << "SplitterPlug::Write(StrChunk *chunk)\n";
+   cerr << "SplitterPlug::Write(const StrChunkPtr &chunk)\n";
    cerr << "PlugType() == " << PlugType() << "\n";
    cerr << "chunk == \"";
    chunk->PutIntoFd(2);
@@ -222,7 +230,6 @@ bool SplitterPlug::Write(StrChunk *chunk)
       if (!parent->created.outputonly)
 	 return(false);
       else {
-	 delete chunk;
 	 return(true);
       }
    } else {
@@ -238,10 +245,10 @@ bool SplitterPlug::Write(StrChunk *chunk)
 	 checkplug = parent->outputonly;
       }
       if (checkplug->PluggedInto() == 0) {
-	 delete chunk;
 	 return(true);
-      } else
+      } else {
 	 return(checkplug->PluggedInto()->Write(chunk));
+      }
    }
 }
 
