@@ -7,6 +7,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/07/07 20:57:27  hopper
+// Fixed bug in StrChunkPtr::i_CheckType
+//
 // Revision 1.2  1996/07/05 19:46:25  hopper
 // Various changed to make implementing StrChunkPtrT template easier and
 // more efficient.
@@ -64,7 +67,7 @@ class StrChunkPtr : public Object {
 
    StrChunk *i_GetPtr() const                          { return(ptr); }
    inline void i_ReleasePtr(bool deleteref);
-   virtual StrChunk *i_CheckType(StrChunk *p) const    { return(0); }
+   virtual StrChunk *i_CheckType(StrChunk *p) const    { return(p); }
    void i_SetPtr(StrChunk *p, bool deleteref = true);
 
  private:
