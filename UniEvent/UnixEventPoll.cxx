@@ -68,6 +68,20 @@ void UnixEventPoll::clearSignal(int signo)
 
 void UnixEventPoll::doPoll(bool wait)
 {
+   impl_.polllist_.clear();
+   {
+      const FDMap::iterator end = impl_.fdmap_.end();
+      for (FDMap::iterator i = impl_.fdmap_.begin(); i != end; )
+      {
+         const int curfd = i->first;
+         FDCondSet condset;
+         for (; (i != end) && (curfd == i->first); ++i)
+         {
+            FDEvent &fdev = i->second;
+            condset |= fdev.condset_;
+         }
+      }
+   }
 }
 
 }
