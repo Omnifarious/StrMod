@@ -603,5 +603,48 @@ int main()
    }</span>
    return 0;
 }</pre>
+<p>Well, that's over with now.  On to picking it apart for what it doesn't
+do.</p>
+
+<p>This program now properly accepts connections.  And, as an added bonus, it
+also tries to resurrect dead listening sockets.  Sadly, every time it gets a
+connection, it just closes it down.  No outbound connections, no data
+forwarding.  It's rather sad, really.</p>
+
+<p>Now, to more explicitly enumerate what the program doesn't do yet, and how
+those things might be accomplished.</p>
+
+<p>It does not make an outgoing connection in response to an incoming one.  It
+doesn't forward data back and forth between the incoming connection and the
+non-existent (so far) outgoing connection.  There is also one last thing it
+should do, and that's closing down the incoming and outgoing connections when
+they are no longer needed.</p>
+
+<p>The first two are actually pretty trivial to solve.  Here is some code that
+can be added into the Listeners::doPoll function that will fix the problem:</p>
+
+<pre class="codeblock">if (incoming)
+{
+   SocketModule *outgoing = new SocketModule(*to_, disp_, pman_, false);
+   incoming->makePlug(0)->plugInto( *(outgoing->makePlug(0)) );
+}</pre>
+
+<p>The magic of the UNIXpollManager and the Dispatcher (which, as you noticed,
+are passed into the SocketModule constructor) keep the data moving between the
+two SocketModules after they've been connected through their plugs.  It is, of
+course, not magic, but a detailed explanation is beyond the scope of ths
+tutorial.</p>
+
+<p>But, this code has some obvious, serious memory leaks.  Nobody manages the
+existence of incoming or outgoing.  And, there is no management of error
+conditions, or what happens when a connection is close somewhere.</p>
+
+<p>In order to make all this happen, we need another data structure that
+represents an active 'forwarding', essentially, an incoming/outgoing connection
+pair.  Since memory management of this entity is also closely tied to error
+handling, which are handled using events, we won't have to do external memory
+management.  In other words, the connection pair object can manage its own
+existence.</p>
+
 </body>
 </html>
