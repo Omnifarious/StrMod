@@ -47,16 +47,16 @@ namespace strmod {
 class GroupVector;
 
 /** \class CharChopper CharChopper.h StrMod/CharChopper.h
- * Chops up the data in chunks delimited by a character.
+ * \brief Chops up the data in chunks delimited by a character.
  *
  * If an object of this class is constructed with a 'g', and you have
  * an incoming stream of data that arrives in the following chunks:
  *
- * \code <This ghost> < went to the gilded post t> <o admire the gold.> \uncode
+ * \code <This ghost> < went to the gilded post t> <o admire the gold.> \endcode
  *
  * You'll end up with an outgoing stream of data that looks like this:
  *
- * \code <This g> <host went to the g> <ilded post to admire the g> \uncode
+ * \code <This g> <host went to the g> <ilded post to admire the g> \endcode
  *
  * It will hold the last few characters <old.>, waiting for another 'g' before
  * it send them off again.
@@ -76,7 +76,7 @@ class CharChopper : public StreamProcessor
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
- protected:
+ private:
    const char chopchar_;
    StrChunkPtrT<GroupChunk> groupdata_;
    StrChunkPtrT<BufferChunk> curdata_;
