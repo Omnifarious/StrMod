@@ -1,3 +1,34 @@
+1998-11-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Changed a couple of comments to better
+	reflect reality.
+
+	* GroupVector.cxx: Fixed small syntax errors that g++ should've
+	caught.
+
+	* GV_Iterator.cxx: Fixed small syntax errors that g++ should've
+	caught.
+
+	* EchoModule.cxx (EchoModule::EchoModule): Changed call of plug
+	constructor in module constructor to conform to new interface.
+
+	* StrMod/StreamModule.h: Changed comments now that I've fixed the
+	perceps multi-line comment bug.
+
+	* StrMod/StrChunkPtr.h (class StrChunkPtr): Changed operator bool
+	to the more proper (with my bool.h) bool_cst.
+
+	* StrMod/EchoModule.h (class EchoModule): Fixes a few things that
+	g++ shoud've caught, but didn't somehow.  Added a destructor and
+	constructor for EchoModule::EPlug.
+
+	* tests/teststrfd.cxx: Added this file for simple StreamFDModule
+	and EchoModule test.
+
+	* StreamFDModule.cxx: 
+	* StrMod/StreamFDModule.h: Initial checkin of StreamFDModule
+	conforming to splendiferous new architecture.
+
 1998-08-23  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/EchoModule.h (class EchoModule): 
