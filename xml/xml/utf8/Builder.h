@@ -129,7 +129,8 @@ class Builder
     * @param celend The buffer position one past the '>'.
     * @param name The name of the element being closed.
     */
-   virtual void closeElementTag(const Position &celbegin, const Position &celend,
+   virtual void closeElementTag(const Position &celbegin,
+                                const Position &celend,
                                 const ::std::string &name) = 0;
 };
 
