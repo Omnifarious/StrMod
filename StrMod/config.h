@@ -1,3 +1,5 @@
 #undef NEED_WRITEV_DECL
 
 #undef NEED_SOCKET_DECL
+
+#undef ACCEPT_NEEDS_INT
