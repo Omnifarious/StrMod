@@ -1,3 +1,9 @@
+Wed Apr 16 13:07:08 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/OSConditionManager.h:
+	* OSConditionManager.cxx: Added new class for managing OS
+	conditions that can trigger events.
+
 Sun Apr  6 10:28:31 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* GNUmakefile.in: Added new library CCs, a framework for tests,
