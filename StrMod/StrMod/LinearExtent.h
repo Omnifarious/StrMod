@@ -7,6 +7,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.4  1999/09/16 01:37:17  hopper
+// Added this function to help write the telnet code.
+//
 // Revision 1.3  1996/09/21 18:40:04  hopper
 // Changed LinearExtent::SubExtent_eq to return const LinearExtent & to
 // be more like x= operators.
@@ -39,6 +42,8 @@ class LinearExtent {
    inline void Offset(off_t new_off);
    inline length_t Length() const;
    inline void Length(length_t new_length);
+
+   inline const LinearExtent intersection(const LinearExtent &other) const;
 
    void LengthenLeft(length_t by);
    void LengthenCenter(length_t by);
@@ -95,6 +100,17 @@ inline LinearExtent::length_t LinearExtent::Length() const
 inline void LinearExtent::Length(LinearExtent::length_t new_length)
 {
    m_length = new_length;
+}
+
+inline const LinearExtent
+LinearExtent::intersection(const LinearExtent &other) const
+{
+   off_t intstart = (Offset() > other.Offset()) ? Offset() : other.Offset();
+   off_t myend = Offset() + Length();
+   off_t otherend = other.Offset() + other.Length();
+   off_t intend = (myend < otherend) ? myend : otherend;
+   return(LinearExtent(intstart,
+		       (intend <= intstart) ? 0 : (intend - intstart)));
 }
 
 inline void LinearExtent::MoveRight(LinearExtent::off_t by)
