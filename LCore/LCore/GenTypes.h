@@ -53,7 +53,7 @@
 #  pragma interface
 #endif
 
-#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define _LCORE_GenTypes_H_
 

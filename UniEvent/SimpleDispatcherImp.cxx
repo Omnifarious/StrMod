@@ -375,7 +375,7 @@ void *interruptBlock()
 {
    sigset_t *oldset = new sigset_t;
    sigset_t newset;
-   ::sigfillset(&newset);
+   sigfillset(&newset);
    ::sigprocmask(SIG_BLOCK, &newset, oldset);
    return oldset;
 }

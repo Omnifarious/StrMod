@@ -345,7 +345,7 @@ inline void StreamFDModule::BufferList::advanceBy(size_t numbytes)
       else
       {
          curvec.iov_base =
-            static_cast<unsigned char *>(curvec.iov_base) + bytestomove;
+            reinterpret_cast<unsigned char *>(curvec.iov_base) + bytestomove;
          curvec.iov_len -= bytestomove;
          bytestomove = 0;
       }
