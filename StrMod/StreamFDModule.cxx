@@ -642,8 +642,7 @@ void StreamFDModule::doReadFD()
       if (size == 0)
       {
          setErrorIn(ErrRead,
-                    UNIXError("read", LCoreError(LCORE_GET_COMPILERINFO()),
-                              true));
+                    UNIXError("read", LCoreError(LCORE_GET_COMPILERINFO())));
 	 // cerr << fd_ << ": read EOF\n";
 	 if (flags_.chunkeof)
 	 {
@@ -782,8 +781,7 @@ void StreamFDModule::writeEOF()
       ureg_.freeFD(fd_);
       fd_ = -1;
       setErrorIn(ErrWrite,
-                 UNIXError("write", LCoreError(LCORE_GET_COMPILERINFO()),
-                           true));
+                  UNIXError("write", LCoreError(LCORE_GET_COMPILERINFO())));
       {
          UNIXError tmp("write", EBADF, LCoreError(LCORE_GET_COMPILERINFO()));
          setErrorIn(ErrFatal, tmp);

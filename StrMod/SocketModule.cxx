@@ -91,15 +91,16 @@ void SocketModule::writeEOF()
          if (shutdown(getFD(), SHUT_WR) != 0)
          {
 //  	 cerr << "Wheee 2\n";
+            const int myerrno = UNIXError::getErrno();
             setErrorIn(ErrWrite,
-                       UNIXError("shutdown",
+                       UNIXError("shutdown", myerrno,
                                  LCoreError(LCORE_GET_COMPILERINFO())));
          }
          else
          {
             setErrorIn(ErrWrite,
                        UNIXError("shutdown",
-                                 LCoreError(LCORE_GET_COMPILERINFO()), true));
+                                 LCoreError(LCORE_GET_COMPILERINFO())));
          }
       }
    }
@@ -121,9 +122,11 @@ static inline void doConnect(int fd, SocketAddress &peer) throw(UNIXError)
 {
    if (connect(fd, peer.SockAddr(), peer.AddressSize()) < 0)
    {
-      if (errno != EINPROGRESS)
+      const int myerrno = UNIXError::getErrno();
+      if (myerrno != EINPROGRESS)
       {
-         throw UNIXError("connect", LCoreError(LCORE_GET_COMPILERINFO()));
+         throw UNIXError("connect", myerrno,
+                         LCoreError(LCORE_GET_COMPILERINFO()));
       }
    }
 }
@@ -138,7 +141,9 @@ int SocketModule::MakeSocket(SocketModule &obj,
 
       if ((fd = socket(peer.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC)) < 0)
       {
-         throw UNIXError("socket", LCoreError(LCORE_GET_COMPILERINFO()));
+         const int myerrno = UNIXError::getErrno();
+         throw UNIXError("socket", myerrno,
+                         LCoreError(LCORE_GET_COMPILERINFO()));
       }
 
       if (blockconnect)
