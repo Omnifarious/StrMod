@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/09/11 23:10:40  hopper
+// Changed class GroupVector to be a little more STL like.  Added
+// SafeToDelete method.
+//
 // Revision 1.2  1996/06/29 06:22:45  hopper
 // Addd stuff to recompute totallength_ when a group changes size.
 //
@@ -30,6 +34,7 @@ class GroupVector : public Object {
  public:
    class Iterator;
    friend class Iterator;
+   typedef Iterator iterator;
 
    struct IOVecDesc {
       iovec *iov;
@@ -43,8 +48,8 @@ class GroupVector : public Object {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   GV_Size NumGroups() const                          { return(numgroups_); }
-   size_t TotalLength() const                         { return(totallength_); }
+   GV_Size NumGroups() const                    { return(numgroups_); }
+   size_t TotalLength() const                   { return(totallength_); }
 
    inline const void *GetCVoidP(GV_Size group_num) const;
    inline const size_t GetLength(GV_Size group_num) const;
@@ -53,14 +58,16 @@ class GroupVector : public Object {
    bool FillIOVecDesc(size_t offset, IOVecDesc &desc);
    void FreeAllIOVecDescs();
 
-   Iterator begin();
-   Iterator end();
+   iterator begin();
+   iterator end();
+
+   bool SafeToDelete() const                    { return(numiterators_ <= 0); }
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
+   virtual const ClassIdent *i_GetIdent() const { return(&identifier); }
 
-   void AddIterator()                                 { numiterators_++; }
-   void RemoveIterator()                              { numiterators_--; }
+   void AddIterator()                           { numiterators_++; }
+   void RemoveIterator()                        { numiterators_--; }
 
  private:
    iovec *groups_;

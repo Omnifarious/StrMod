@@ -1,6 +1,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/09/11 23:10:34  hopper
+// Changed class GroupVector to be a little more STL like.  Added
+// SafeToDelete method.
+//
 // Revision 1.2  1996/06/29 06:39:54  hopper
 // Added initialization for totallength_
 //
@@ -31,7 +35,7 @@ GroupVector::GroupVector(GV_Size size)
 
 GroupVector::~GroupVector()
 {
-   assert(numiterators_ <= 0);
+   assert(SafeToDelete());
 
    if (numgroups_ > 0) {
       delete[] groups_;
