@@ -15,6 +15,9 @@
 namespace strmod {
 namespace unievent {
 
+class Dispatcher;
+class EventPtr;
+
 /** \class UnixEventRegistry UnixEventRegistry.h UniEvent/UnixEventRegistry.h
  * \brief Manages events associated with various file descriptors and/or
  * signals.
@@ -26,7 +29,6 @@ class UnixEventRegistry {
                        FD_Error, FD_Closed, FD_Invalid };
    //! A set of 0 or more FDConditions.
    typedef enum_set<FDConditions, FD_Readable, FD_Invalid> FDCondSet;
-/*   enum SIGConds { SIG_Async = 0x01, SIG_Sync = 0x02 }; */
    static const FDCondSet all_fdconds;
 
    inline UnixEventRegistry(Dispatcher *dispatcher);
@@ -61,7 +63,7 @@ class UnixEventRegistry {
     * parts of the program that are still depending on their events being posted
     * when the signal happening.
     */
-   virtual void clearSignal(int signo, const EventPtr &e) = 0;
+   virtual void clearSignal(int signo) = 0;
 
    //! Actually call the UNIX poll system call, and dispatch resulting events.
    virtual void doPoll(bool wait = true) = 0;
