@@ -3,8 +3,11 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:09:25  hopper
-// Initial revision
+// Revision 1.2  1996/02/12 00:43:48  hopper
+// Added Net library class EH0_Libraries enum in class EH_ClassNum.
+//
+// Revision 1.1.1.1  1995/07/22 04:09:25  hopper
+// Imported sources
 //
 // Revision 0.4  1995/03/08 05:31:50  hopper
 // Added StrMod library to EH0_Libraries enum
@@ -48,7 +51,7 @@ class EH_ClassNum : public ClassNum {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    enum EH0_Libraries { Container = 0, Common, ETurboVis, Accounting,
-			FileIO, RecordID, StrMod,
+			FileIO, RecordID, StrMod, Net,
 			Logger = 4083, MO_Entry, DriverFile, Journals, GMCs,
 			User0, User1, User2, User3,
 			User4, User5, User6, User7 = 4095};
@@ -74,6 +77,8 @@ class EH_ClassIdent : public ClassIdent {
 
    const EH_ClassNum GetClass() const     { return(ClassIdent::GetClass()); }
 
+   inline bool operator ==(const ClassIdent &b) const;
+
    inline EH_ClassIdent(EH_ClassNum cnum);
 };
 
@@ -87,6 +92,8 @@ class EH0_ClassIdent : public EH_ClassIdent {
    static const EH0_ClassIdent identifier;
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
+
+   inline bool operator ==(const ClassIdent &b) const;
 
    inline EH0_ClassIdent(U4Byte cnum);
 };
@@ -136,6 +143,11 @@ inline int EH_ClassIdent::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || ClassIdent::AreYouA(cid));
 }
 
+inline bool EH_ClassIdent::operator ==(const ClassIdent &b) const
+{
+   return(ClassIdent::operator ==(b));
+}
+
 inline EH_ClassIdent::EH_ClassIdent(EH_ClassNum cnum) :
    ClassIdent(EricMHopper_0, cnum)
 {
@@ -151,6 +163,11 @@ inline const ClassIdent *EH0_ClassIdent::i_GetIdent() const
 inline int EH0_ClassIdent::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
+}
+
+inline bool EH0_ClassIdent::operator ==(const ClassIdent &b) const
+{
+   return(EH_ClassIdent::operator ==(b));
 }
 
 inline EH0_ClassIdent::EH0_ClassIdent(U4Byte cnum) :
