@@ -1,7 +1,62 @@
+2001-02-11  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Added new number for class
+	TelnetChunkBuilder
+
+	* StrMod/TelnetParserData.h, StrMod/TelnetChunkerData.h: Replaced
+	TelnetParserData.h with now more appropriately named
+	TelnetChunkerData.h
+
+	* StrMod/TelnetChunker.h, TelnetChunker.cxx: Added TelnetChunker,
+	a StreamProcessor module that chunks up a data stream into telnet
+	protocol objects.
+
+	* StrMod/TelnetChunkBuilder.h: Changed to use definitions from
+	TelnetChars.h instead of redundant internal ones.
+
+2001-01-28  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/ChunkIterator.h, ChunkIterator.cxx (isFor): Added this
+	method both for completeness, and to make TelnetParser easier to
+	implement.
+
+	* StrMod/TelnetChars.h, TelnetChars.cxx: Various constants and
+	routines for determining the meanings of individual characters in
+	a telnet stream.
+
+	* StrMod/TelnetParser.h: Re-implemented the state machine to do
+	nothing besides determine the lexical meaning of each character in
+	the stream.
+
+	* TelnetParser.cxx: Severe changes designed to seperate parsing
+	from the other steps that occur.  Now this class _just_ parses.
+
+2001-01-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetParser.h: Complete refactoring.  TelnetParser now
+	just runs the state machine that parses telnet data and nothing
+	else.
+
+	* StrMod/TelnetChunkBuilder.h: First shot at a Builder interface
+	for streams following the telnet protocol.
+
+2001-01-07  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/STR_ClassIdent.h: Rearranged class sections to conform to
+	newer (post 1995) coding standard.  Also, added some doxygen
+	documentation that will probably be moved a little ways up in the
+	hierarchy later.
+
+2000-12-16  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetParserData.h: Added lots more documentation.
+
 2000-12-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/TelnetParserData.h (TelnetData): Modified documentation
 	slightly.
+	(Suboption::NumSubGroups): Oops, missed the removal of one of
+	these.
 
 	* StrMod/StreamProcessor.h: Converted documentation to doxygen.
 	Added some documentation.
