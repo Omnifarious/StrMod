@@ -1,5 +1,4 @@
 #include <StrMod/LinearExtent.h>
-#include <climits>
 #include <cppunit/TestFixture.h>
 #include <cppunit/SourceLine.h>
 #include <cppunit/TestAssert.h>
