@@ -212,6 +212,7 @@ void StreamFDModule::plugWrite(const StrChunkPtr &ptr)
 {
    assert(!cur_write_);
    cur_write_ = ptr;
+   // cerr << fd_ << ": plugWrite\n";
    doWriteFD();
 }
 
@@ -253,6 +254,9 @@ void StreamFDModule::doReadFD()
       if (size > 0) {
 	 dbchunk->Resize(size);
 	 buffed_read_ = dbchunk;
+	 // cerr << fd_ << ": just read: <";
+	 // cerr.write(dbchunk->GetCharP(), dbchunk->Length());
+	 // cerr << ">\n";
 	 dbchunk = 0;
       } else {
 	 delete dbchunk;
@@ -349,6 +353,9 @@ void StreamFDModule::doWriteFD()
 	 ioveclst.iovcnt = MAXIOVCNT;
       }
       written = ::writev(fd_, ioveclst.iov, ioveclst.iovcnt);
+      // cerr << fd_ << ": just wrote: <";
+      // cerr.write(ioveclst.iov[0].iov_base, ioveclst.iov[0].iov_len);
+      // cerr << ">\n";
       // Save errno for later to make sure it isn't clobbered.
       int myerrno = errno;
 
@@ -453,7 +460,7 @@ void StreamFDModule::maybeShouldWriteFD()
 
 void StreamFDModule::eventRead(unsigned int condbits)
 {
-//     cerr << "eventRead...  condbits == " << condbits << "\n";
+   // cerr << fd_ << ": In eventRead(" << condbits << ")\n";
    flags_.checkingrd = false;
    if (!(condbits & UNIXpollManager::FD_Readable))
    {
@@ -472,7 +479,7 @@ void StreamFDModule::eventRead(unsigned int condbits)
 
 void StreamFDModule::eventWrite(unsigned int condbits)
 {
-//     cerr << "In eventWrite\n";
+   // cerr << fd_ << ": In eventWrite(" << condbits << ")\n";
    flags_.checkingwr = false;
    if (!(condbits & UNIXpollManager::FD_Writeable))
    {
@@ -554,6 +561,10 @@ StreamFDModule::~StreamFDModule()
    readevptr_->parentGone();
    writeevptr_->parentGone();
    errorevptr_->parentGone();
-   ::close(fd_);
-   fd_ = -1;
+   if (fd_ >= 0)
+   {
+      ::close(fd_);
+      pollmgr_.freeFD(fd_);
+      fd_ = -1;
+   }
 }
