@@ -1,3 +1,25 @@
+2000-11-30  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GraphVizVisitor.cxx: Added some cleanup code and made it
+	exception safe.
+
+	* ChunkIterator.cxx: Added some exception cleanup code.
+
+	* StrMod/StrChunkPtrT.h, StrMod/StrChunkPtr.h,
+	StrMod/LinearExtent.h, StrMod/GraphVizVisitor.h,
+	StrMod/ChunkVisitor.h, StrMod/ChunkIterator.h,
+	StrMod/BufferChunk.h: Completely worked over the documentation for
+	Doxygen.
+
+	* StrMod/GraphVizVisitor.h: Added missing i_GetIdent function.
+
+2000-11-28  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamModule.h, StreamModule.cxx, StrChunkPtr.cxx,
+	GraphVizVisitor.cxx, UseTrackingVisitor.cxx,
+	StrMod/UseTrackingVisitor.h: Completely worked over the
+	documentation for Doxygen.
+
 2000-10-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* : libNet-0.1.5 released.
