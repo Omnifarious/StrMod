@@ -35,12 +35,13 @@ DEPDB = @DEPDB@
 MYMAKE := $(MAKE)
 
 #  StreambufModule.cc  HL7Module.cc
-LIBCCS = StrChunkid.cc  EchoModule.cc  StrFDPlug.cc  STR_ClassIdent.cc \
-         StreamFDModule.cc  SockListenModule.cc  StreamModule.cc  \
-         SocketModule.cc  StreamSplitter.cc  StrChunk.cc  StrChunkPtr.cc \
-         LinearExtent.cc  GroupVector.cc  GV_Iterator.cc  StrSubChunk.cc \
-         DBStrChunk.cc  GroupChunk.cc  LinearExtentStrmOp.cc  StrChunkPtrT.cc \
-         SimplePlug.cc  SimpleMulti.cc
+LIBCCS = EchoModule.cc  StrFDPlug.cc  STR_ClassIdent.cc  StreamFDModule.cc \
+         SockListenModule.cc  StreamModule.cc  SocketModule.cc \
+         StreamSplitter.cc  StrChunk.cc  StrChunkPtr.cc  LinearExtent.cc \
+         GroupVector.cc  GV_Iterator.cc  StrSubChunk.cc  DBStrChunk.cc \
+         GroupChunk.cc  LinearExtentStrmOp.cc  StrChunkPtrT.cc  SimplePlug.cc \
+         SimpleMulti.cc  CharChopper.cc  PassThrough.cc  NewlineChopper.cc \
+         StreamProcessor.cc  ProcessorModule.cc
 
 CCNAMES = $(LIBCCS) \
           tests/testchunk.cc  tests/server.cc  tests/testdist.cc \
