@@ -34,13 +34,13 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   21UL	SimpleMultiplexer
   22UL	SimpleMultiplexer::MultiPlug
   23UL	SimpleMultiplexer::SinglePlug
-  24UL  SimplePlug
+  24UL
   25UL	StreamProcessor
   26UL	CharChopper
   27UL	NewlineChopper
   28UL	PassThrough
   29UL	ProcessorModule
-  30UL	ProcessorModule::Plug
+  30UL	ProcessorModule::PMPlug
   31UL	EOFStrChunk
   32UL	SimpleMultiplexer::ScanEvent
 */
