@@ -1,6 +1,10 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.4  1996/07/07 20:56:49  hopper
+ // Added, then commented out some debugging.  I left it there because it
+ // might be useful someday.
+ //
  // Revision 1.3  1996/07/05 19:38:14  hopper
  // Added forgotten StrPlug::WriteableNotify implementation.
  //
@@ -44,6 +48,7 @@ static char _EH_StreamModule_CC_rcsID[] = "$Id$";
 #endif
 
 #include "StrMod/StreamModule.h"
+// #include <iostream.h>
 
 const STR_ClassIdent StreamModule::identifier(1UL);
 const STR_ClassIdent StrPlug::identifier(2UL);
@@ -74,8 +79,17 @@ bool StrPlug::PlugInto(StrPlug *p)
 
 void StrPlug::ReadableNotify()
 {
+//   cerr << "StrPlug::ReadableNotify()\n";
    StrPlug *mate = PluggedInto();
 
+/*   if (!mate) {
+      cerr << "mate failed.\n";
+   } else if (!mate->CanRead()) {
+      cerr << "mate->CanRead() failed.\n";
+   }
+   if (!CanWrite()) {
+      cerr << "CanWrite() failed.\n";
+   } */
    while (mate && mate->CanRead() && CanWrite()) {
       Write(mate->Read());
       mate = PluggedInto();
@@ -84,8 +98,17 @@ void StrPlug::ReadableNotify()
 
 void StrPlug::WriteableNotify()
 {
+//   cerr << "StrPlug::WriteableNotify()\n";
    StrPlug *mate = PluggedInto();
 
+/*   if (!mate) {
+      cerr << "mate failed.\n";
+   } else if (!mate->CanWrite()) {
+      cerr << "mate->CanWrite() failed.\n";
+   }
+   if (!CanRead()) {
+      cerr << "CanRead() failed.\n";
+   } */
    while (mate && mate->CanWrite() && CanRead()) {
       mate->Write(Read());
       mate = PluggedInto();

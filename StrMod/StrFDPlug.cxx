@@ -1,6 +1,10 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.5  1996/07/07 20:56:48  hopper
+ // Added, then commented out some debugging.  I left it there because it
+ // might be useful someday.
+ //
  // Revision 1.4  1996/07/05 18:47:13  hopper
  // Changed to use new StrChunkPtr stuff.
  //
@@ -83,6 +87,8 @@ const StrChunkPtr StrFDPlug::InternalRead() return temp;
 const StrChunkPtr StrFDPlug::InternalRead()
 #endif
 {
+//   cerr << "In StrFDPlug::InternalRead()\n";
+
 #ifndef __GNUG__
    StrChunkPtr temp;
 #endif
@@ -93,6 +99,7 @@ const StrChunkPtr StrFDPlug::InternalRead()
    if (!CanRead()) {
       Dispatcher tempd;
 
+//      cerr << "Here 1\n";
       rdngfrm = 1;
       tempd.link(parent->fd, Dispatcher::ReadMask, this);
       while (parent->fd >= 0 && parent->last_error == 0 && !CanRead())
@@ -105,10 +112,12 @@ const StrChunkPtr StrFDPlug::InternalRead()
       }
       rdngfrm = 0;
    }
+//   cerr << "Here 2\n";
    temp = parent->buffed_read;
    parent->buffed_read.ReleasePtr();
-   if (parent->flags.checkread)
+   if (parent->flags.checkread) {
       Dispatcher::instance().link(parent->fd, Dispatcher::ReadMask, this);
+   }
 
 /*
    if (temp) {
@@ -150,28 +159,28 @@ int StrFDPlug::inputReady(int fd)
 
    {
       DataBlockStrChunk *dbchunk =
-	 new DataBlockStrChunk(parent->max_block_size);
+	 new DataBlockStrChunk(parent->GetMaxBlockSize());
       parent->buffed_read = dbchunk;
 
       errno = 0;
-      size = read(parent->fd, dbchunk->GetVoidP(), parent->max_block_size);
+      size = read(parent->fd, dbchunk->GetVoidP(), parent->GetMaxBlockSize());
       if (size > 0) {
 	 dbchunk->Resize(size);
+//	 cerr << "Reading: \"";
+//	 cerr.write(dbchunk->GetVoidP(), dbchunk->Length());
+//	 cerr << "\"\n";
       }
    }
 
-/*
-   cerr << "Reading: \"";
-   parent->buffed_read->PutIntoFd(2);
-   cerr << "\"\n";
-   cerr << "parent->buffed_read->GetLastErrno() == "
-        << parent->buffed_read->GetLastErrno() << "\"\n";
-*/
-
-   if (size <= 0) {
+   if (size > 0) {
+//      cerr << "size > 0!\n";
+      if (!rdngfrm) {
+//	 cerr << "DoReadableNotify()!\n";
+	 DoReadableNotify();
+      }
+   } else {
       if (size < 0 && errno == EWOULDBLOCK) {
 	 parent->buffed_read.ReleasePtr();
-	 return(0);
       } else {
 	 if (errno != 0)
 	    parent->last_error = errno;
@@ -182,11 +191,8 @@ int StrFDPlug::inputReady(int fd)
 	 }
 	 parent->buffed_read.ReleasePtr();
 	 Dispatcher::instance().unlink(fd, Dispatcher::ReadMask);
-	 return(0);
       }
    }
-   if (!rdngfrm)
-      DoReadableNotify();
    return(0);
 }
 
