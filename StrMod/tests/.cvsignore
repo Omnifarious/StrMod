@@ -12,3 +12,5 @@ testserial
 teststrfd
 testsplit
 testsock
+ttelnet
+testPreAlloc
