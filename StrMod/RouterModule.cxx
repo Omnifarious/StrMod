@@ -20,6 +20,10 @@
 
 // For a log, see ChangeLog
 
+#ifdef __GNUG__
+#  pragma implementation "RouterModule.h"
+#endif
+
 #include "StrMod/RouterModule.h"
 #include <UniEvent/Dispatcher.h>
 #include <UniEvent/Event.h>
@@ -61,6 +65,7 @@ RouterModule::RouterModule(UNIDispatcher &disp)
      : disp_(disp), scan_posted_(false), scan_(new ScanEvent(*this)),
        inroutingdone_(false), outgoingcopies_(0)
 {
+   scan_->AddReference();
 }
 
 RouterModule::~RouterModule()
@@ -140,6 +145,7 @@ void RouterModule::doPost()
 void RouterModule::doScan()
 {
    assert(!inroutingdone_);
+   scan_posted_ = false;
    writeable_.clear();
    nonwriteable_.clear();
    {
@@ -233,6 +239,7 @@ void RouterModule::processIncoming(RPlug &source, const StrChunkPtr &chunk)
                assert(routedchunk_);
                assert(outgoingcopies_ > 0);
                RPlug * const routedto = dests.front();
+               dests.pop_front();
                assert(routedto->getDeleted() || ownsPlug(routedto));
                if (!routedto->getDeleted() && routedto->pluggedInto() != NULL)
                {
@@ -302,5 +309,6 @@ void RouterModule::RPlug::i_Write(const StrChunkPtr &ptr)
    RouterModule &parent = getParent();
    assert(!parent.routedchunk_);
    setWriteable(false);
+   parent.postScan();
    parent.processIncoming(*this, ptr);
 }
