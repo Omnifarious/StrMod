@@ -1,3 +1,9 @@
+1998-08-29  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/UNIXError.h: 
+	* UNIXError.cxx: Added UNIXError class for encapsulating errno
+	values nicely.
+
 Mon May 19 10:51:25 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/OSConditionManager.h
