@@ -38,7 +38,7 @@
 
 #ifndef _LCORE_Object_H_
 #  include <LCore/Object.h>
-#else
+#else  // Already included LCore/Object.h
 
 #define _LCORE_ClassTypes_H_
 
@@ -47,6 +47,9 @@
 #endif
 
 #include <iosfwd>
+
+namespace strmod {
+namespace lcore {
 
 class ClassIdent;
 
@@ -187,6 +190,8 @@ inline int ClassIdent::AreYouA(const ClassIdent &cid) const
    return ((identifier == cid) || Object::AreYouA(cid));
 }
 
-#endif
-#endif
+} // namespace lcore
+} // namespace strmod
 
+#endif  // End of include check for LCore/Object.h
+#endif  // End double inclusion guard ifdef

@@ -67,6 +67,9 @@
 
 #define _LCORE_HopClTypes_H_
 
+namespace strmod {
+namespace lcore {
+
 class LCore_ClassIdent;
 
 class EH_ClassNum : public ClassNum {
@@ -187,5 +190,8 @@ inline LCore_ClassIdent::LCore_ClassIdent(U4Byte cnum) :
      EH_ClassIdent(EH_ClassNum(EH_ClassNum::LCore, cnum))
 {
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

@@ -31,6 +31,9 @@
 
 #define _LCORE_Debugable_H_
 
+namespace strmod {
+namespace lcore {
+
 /** \class Debugable Debugable.h LCore/Debugable.h
  * Interface class for things that have certain common debugging functions.
  * You'll probable need to use a dynamic_cast to use this interface in a
@@ -65,5 +68,8 @@ inline int Debugable::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

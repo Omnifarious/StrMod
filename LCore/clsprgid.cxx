@@ -33,6 +33,9 @@
  /* UNIX:@@:ClassProgID.cc:@@: */
 /* MSDOS:@@:CLSPRGID.CPP:@@: */
 
+namespace strmod {
+namespace lcore {
+
 const ProgrammerNum EricMHopper_0(0UL);
 const ProgrammerNum WinterFire_0(2UL);
 const ProgrammerNum StPaulSoftware_0(3UL);
@@ -70,3 +73,6 @@ RefCountPtr		9UL
 Debugable	       10UL
 
 ** End of class #'s */
+
+} // namespace lcore
+} // namespace strmod

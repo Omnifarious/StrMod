@@ -55,6 +55,9 @@
 
 #define _EH_0_RefCounting_H_
 
+namespace strmod {
+namespace lcore {
+
 class ReferenceCounting : virtual public Protocol {
  public:
    static const LCore_ClassIdent identifier;
@@ -92,5 +95,8 @@ inline void ReferenceCounting::DelReferences(U4Byte num)
    else
       refcounter = 0;
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

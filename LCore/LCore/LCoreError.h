@@ -31,6 +31,9 @@
 
 #include <iosfwd>
 
+namespace strmod {
+namespace lcore {
+
 /** \file LCore/LCoreError.h
  * This file defines LCORE_GET_COMPILERINFO, and contains LCoreError, and
  * LCoreError::CompilerInfo.
@@ -43,14 +46,14 @@
  * the compiler will provide in macros.
  * This is the g++ version, and therefore has the function name available.  */
 #   define LCORE_GET_COMPILERINFO() \
-             ::LCoreError::CompilerInfo(__FILE__, __LINE__, __PRETTY_FUNCTION__)
+             ::strmod::lcore::LCoreError::CompilerInfo(__FILE__, __LINE__, __PRETTY_FUNCTION__)
 # else
 /** \def LCORE_GET_COMPILERINFO()
  * \brief Construct a temporary ::LCoreError::CompilerInfo object with values
  * the compiler will provide in macros.
  * This isn't the g++ version, and so has no function name.  */
 #   define LCORE_GET_COMPILERINFO() \
-             ::LCoreError::CompilerInfo(__FILE__, __LINE__)
+             ::strmod::lcore::LCoreError::CompilerInfo(__FILE__, __LINE__)
 #endif
 
 /** \class LCoreError LCoreError.h LCore/LCoreError.h
@@ -174,5 +177,8 @@ inline LCoreError::CompilerInfo::CompilerInfo(const char *sourcefile,
 
 //! Print out an LCoreError on an iostream.
 std::ostream &operator <<(std::ostream &os, const LCoreError &err);
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

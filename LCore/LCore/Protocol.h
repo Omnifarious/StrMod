@@ -47,6 +47,9 @@
 
 #define _LCORE_Protocol_H_
 
+namespace strmod {
+namespace lcore {
+
 /**
  * \class Protocol Protocol.h LCore/Protocol.h
  * A base class for my own type identification system.
@@ -112,5 +115,8 @@ inline const ClassIdent *Protocol::i_GetIdent() const
 {
    return(&identifier);
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

@@ -31,6 +31,9 @@
 
 #define _LCORE_enum_set_H_
 
+namespace strmod {
+namespace lcore {
+
 /**
  * \class enum_set enum_set.h LCore/enum_set.h
  *
@@ -334,5 +337,8 @@ operator^(const enum_set<enum_t, first, last> &__x,
    result ^= __y;
    return result;
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

@@ -49,9 +49,12 @@
 #ifndef _LCORE_Protocol_H_
 #  include <LCore/Protocol.h>
 #endif
-#include <assert.h>
+#include <cassert>
 
 #define _LCORE_RefCountPtr_H_
+
+namespace strmod {
+namespace lcore {
 
 class ReferenceCounting;
 
@@ -178,5 +181,8 @@ inline const RefCountPtr &RefCountPtr::operator =(RC *b)
 #     undef _LCORE_RefCountPtr_H_NDEBUG_SET
 #   endif
 #endif
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

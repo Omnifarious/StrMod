@@ -45,8 +45,14 @@
 
 #define _LCORE_Programmers_H_
 
+namespace strmod {
+namespace lcore {
+
 extern const ProgrammerNum EricMHopper_0;
 extern const ProgrammerNum WinterFire_0;
 extern const ProgrammerNum StPaulSoftware_0;
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

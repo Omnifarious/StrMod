@@ -40,6 +40,9 @@
 
 #define _LCORE_Object_H_
 
+namespace strmod {
+namespace lcore {
+
 class ClassIdent;
 
 class Object {
@@ -111,5 +114,8 @@ inline std::ostream &operator <<(std::ostream &os, Object &ob)
    ob.PrintOn(os);
    return(os);
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif
