@@ -22,8 +22,6 @@ class UNEVT_ClassIdent : public EH_ClassIdent {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline bool_val operator ==(const ClassIdent &b) const;
-
    inline UNEVT_ClassIdent(U4Byte cnum);
 };
 
@@ -37,11 +35,6 @@ inline const ClassIdent *UNEVT_ClassIdent::i_GetIdent() const
 inline int UNEVT_ClassIdent::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
-}
-
-inline bool_val UNEVT_ClassIdent::operator ==(const ClassIdent &b) const
-{
-   return(EH_ClassIdent::operator ==(b));
 }
 
 inline UNEVT_ClassIdent::UNEVT_ClassIdent(U4Byte cnum) :
