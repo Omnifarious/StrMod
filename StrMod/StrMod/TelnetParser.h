@@ -115,9 +115,14 @@ class TelnetParser : virtual public Protocol {
 
 //-----------------------------inline functions--------------------------------
 
+inline int TelnetParser::AreYouA(const ClassIdent &cid) const
+{
+   return((identifier == cid) || Protocol::AreYouA(cid));
+}
+
 inline void TelnetParser::dropBytes(size_t bytes)
 {
-   if (bytes < regionbegin_)
+   if (bytes <= regionbegin_)
    {
       regionbegin_ -= bytes;
       curpos_ -= bytes;
