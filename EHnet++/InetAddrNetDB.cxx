@@ -20,8 +20,6 @@
 
 // For log, see ChangeLog
 //
-// $Revision$
-//
 // Revision 1.2  1998/06/02 01:08:15  hopper
 // Changed a static_cast to a more correct reinterpret_cast.
 //
@@ -37,12 +35,6 @@
 #include <sys/socket.h>
 #include <sys/param.h>
 #include <string>
-
-/* My UNIX (UnixWare) has no declaration for gethostname in any header
-   file anywhere.  I should get GNU configure to check for this, and
-   only use the declaration below conditionally, but that'll have to
-   wait. */
-extern "C" int gethostname(char *name, int namelen);
 
 namespace strmod {
 namespace ehnet {
