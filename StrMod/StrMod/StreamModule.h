@@ -70,6 +70,7 @@ class StreamModule : public Protocol {
 
    static const STR_ClassIdent identifier;
 
+   StreamModule() : pdstrategy_(NULL)    { }
    virtual ~StreamModule()               { }
 
    inline virtual int AreYouA(const ClassIdent &id) const;
@@ -102,6 +103,7 @@ class StreamModule : public Protocol {
    // <p>The StreamModule does not assume responsibility for deleting the
    // object you pass in.  Of course, if you delete it while the StreamModule
    // has it set, that will probably cause bad things to happen.</p>
+   // <p>Setting the strategy to NULL essentially turns it off.</p>
    inline void setPDStrategy(PlugDisconnectStrategy *pds);
 
  protected:
@@ -161,10 +163,12 @@ class StreamModule::Plug : public Protocol {
    inline bool plugInto(Plug &other, NotifyType ntype = NTFY_Both);
    //: Unplug this plug from any plugs it may be connected to.
    inline void unPlug();
-   //: Which plug (if any) is this plug plugged into?  Returns NULL if not plugged in.
+   //: Which plug (if any) is this plug plugged into?  Returns NULL if not
+   //: plugged in.
    inline Plug *pluggedInto() const;
 
-   //: Set whether or not the other plug is notified when this plug is readable.
+   //: Set whether or not the other plug is notified when this plug is
+   //: readable.
    // Readable notification is a 'rising edge' condition notification.  It's
    // only triggered when the plug goes from a non-readable to a readable
    // state, or when the readable notify flag is set while the plug is in a
@@ -174,7 +178,8 @@ class StreamModule::Plug : public Protocol {
    // See setNotifyOnReadable for better documentation.
    bool getNotifyOnReadable() const           { return(flags_.notifyonread_); }
 
-   //: Set whether or not the other plug is notified when this plug is writeable.
+   //: Set whether or not the other plug is notified when this plug is
+   //: writeable.
    // This works much the same as setNotifyOnReadable.
    inline void setNotifyOnWriteable(bool n);
    //: Is this plug notifying on writeable?
@@ -212,8 +217,12 @@ class StreamModule::Plug : public Protocol {
 
    //: These are so derived classes have access to this flag.
    void setIsReading(bool val)                { flags_.isreading_ = val; }
+   //: These are so derived classes have access to this flag on other plugs.
+   static void setIsReading(Plug &othr, bool v)        { othr.setIsReading(v); }
    //: These are so derived classes have access to this flag.
    void setIsWriting(bool val)                { flags_.iswriting_ = val; }
+   //: These are so derived classes have access to this flag on other plugs.
+   static void setIsWriting(Plug &othr, bool v)        { othr.setIsWriting(v); }
 
    //: This is so derived classes can get read access to the flags of any plug.
    inline static const Flags getFlagsFrom(const Plug &p);
@@ -413,7 +422,11 @@ inline void StreamModule::Plug::setNotifyOnReadable(bool n)
    flags_.notifyonread_ = n;
    if (shouldnotify_)
    {
-      notifyOtherReadable();
+      // Force a call to notifyOtherWriteable, as well as make the pullLoop
+      // happen if it needs to.
+      bool temp = flags_.canread_;
+      flags_.canread_ = false;  // Force a 'rising edge' if it was true before.
+      setReadable(temp);
    }
 }
 
@@ -425,7 +438,11 @@ inline void StreamModule::Plug::setNotifyOnWriteable(bool n)
    flags_.notifyonwrite_ = n;
    if (shouldnotify_)
    {
-      notifyOtherWriteable();
+      // Force a call to notifyOtherWriteable, as well as make the pullLoop
+      // happen if it needs to.
+      bool temp = flags_.canwrite_;
+      flags_.canwrite_ = false;  // Force a 'rising edge' if it was true before.
+      setWriteable(temp);
    }
 }
 
@@ -435,7 +452,11 @@ inline void StreamModule::Plug::setReadable(bool val)
 
    flags_.canread_ = val;
 
-   if (shouldnotify_)
+   if (val && isReadable())
+   {
+      pushLoop();
+   }
+   if (flags_.canread_ && shouldnotify_)
    {
       notifyOtherReadable();
    }
@@ -447,7 +468,11 @@ inline void StreamModule::Plug::setWriteable(bool val)
 
    flags_.canwrite_ = val;
 
-   if (shouldnotify_)
+   if (val && isWriteable())
+   {
+      pullLoop();
+   }
+   if (flags_.canwrite_ && shouldnotify_)
    {
       notifyOtherWriteable();
    }
@@ -477,18 +502,10 @@ inline void StreamModule::Plug::notifyOtherWriteable() const
 
 inline void StreamModule::Plug::otherIsReadable()
 {
-   if (isWriteable())
-   {
-      pullLoop();
-   }
 }
 
 inline void StreamModule::Plug::otherIsWriteable()
 {
-   if (isReadable())
-   {
-      pushLoop();
-   }
 }
 
 #endif
