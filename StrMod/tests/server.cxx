@@ -4,11 +4,9 @@
 #include <EHnet++/InetAddress.h>
 #include <Dispatch/dispatcher.h>
 #include <iostream.h>
-#include <ibmpp/String.h>
+#include <string>
 
 extern "C" int atoi(const char *);
-
-char String::junk = 0;
 
 int main(int argc, char *argv[])
 {
@@ -19,7 +17,7 @@ int main(int argc, char *argv[])
 
    InetAddress      here(atoi(argv[1]));
    SockListenModule slm(here);
-   StreamFDModule   output(1, 0, 1);
+   StreamFDModule   output(1, StreamFDModule::CheckWrite, true);
    ListeningPlug   *slmp = slm.MakePlug();
    StrPlug         *outplug = output.MakePlug(0);
    SocketModule    *cursock = 0;
@@ -40,7 +38,7 @@ int main(int argc, char *argv[])
 	 attemptedchunk->ReleaseModule();
 	 delete attemptedchunk;
 	 cerr << "\nGot connection from: " << *(attempted->GetPeerAddr())
-	      << '\n';
+	      << "\n";
 	 if (cursock != 0) {
 	    cerr << "But there already is a currently active connection, so ";
 	    cerr << "this one is shut down.\n";
