@@ -20,8 +20,7 @@
 
 // For a log, see ChangeLog
 
-#include "UniEvent/UNIXSignalHandler.h"
-#include "UniEvent/UNIXTimer.h"
+#include "UniEvent/UnixEventPoll.h"
 #include "UniEvent/Timer.h"
 #include "UniEvent/SimpleDispatcher.h"
 #include "UniEvent/Event.h"
@@ -36,8 +35,7 @@ using strmod::unievent::Dispatcher;
 using strmod::unievent::SimpleDispatcher;
 using strmod::unievent::Event;
 using strmod::unievent::EventPtr;
-using strmod::unievent::UNIXSignalHandler;
-using strmod::unievent::UNIXTimer;
+using strmod::unievent::UnixEventPoll;
 using strmod::unievent::Timer;
 
 class SimpleEvent : public Event {
@@ -47,6 +45,7 @@ class SimpleEvent : public Event {
 
    virtual void triggerEvent(Dispatcher *dispatcher)
    {
+      using ::std::cerr;
       timeval tv;
       gettimeofday(&tv, 0);
       long double curtime = tv.tv_sec + (tv.tv_usec / 1000000.0L);
@@ -75,16 +74,17 @@ class MyEvent : public Event {
 MyEvent::MyEvent(Timer &timer, const Timer::absolute_t &bot)
      : timer_(timer), bot_(bot), count_(0), lasttime_(0)
 {
-   cerr << "Created MyEvent\n";
+   ::std::cerr << "Created MyEvent\n";
 }
 
 MyEvent::~MyEvent()
 {
-   cerr << "Destroying MyEvent\n";
+   ::std::cerr << "Destroying MyEvent\n";
 }
 
 void MyEvent::triggerEvent(Dispatcher *dispatcher)
 {
+   using ::std::cerr;
    timeval tv;
    gettimeofday(&tv, 0);
    cerr << "In MyEvent::triggerEvent";
@@ -114,58 +114,56 @@ void MyEvent::triggerEvent(Dispatcher *dispatcher)
 class SleepEvent : public Event
 {
  public:
-   inline SleepEvent();
+   inline SleepEvent(::strmod::unievent::UnixEventRegistry *ureg);
    virtual ~SleepEvent();
 
    virtual void triggerEvent(Dispatcher *dispatcher);
+
+ private:
+   ::strmod::unievent::UnixEventRegistry *ureg_;
 };
 
-inline SleepEvent::SleepEvent()
+inline SleepEvent::SleepEvent(::strmod::unievent::UnixEventRegistry *ureg)
+     : ureg_(ureg)
 {
-   cerr << "Created SleepEvent\n";
+   ::std::cerr << "Created SleepEvent\n";
 }
 
 SleepEvent::~SleepEvent()
 {
-   cerr << "Destroying SleepEvent\n";
+   ::std::cerr << "Destroying SleepEvent\n";
 }
 
 void SleepEvent::triggerEvent(Dispatcher *dispatcher)
 {
-   cerr << "in SleepEvent::triggerEvent\n";
-   if (dispatcher->isQueueEmpty())
-   {
-      sigset_t set;
-      sigemptyset(&set);
-      sigsuspend(&set);
-   }
+   ::std::cerr << "in SleepEvent::triggerEvent\n";
    dispatcher->onQueueEmpty(this);
+   ureg_->doPoll(true);
 }
 
 int main(int argc, char *argv[])
 {
    SimpleDispatcher disp;
-   UNIXSignalHandler sighand(disp);
-   UNIXTimer timer(disp, sighand);
-   disp.onQueueEmpty(new SleepEvent);
+   UnixEventPoll upoll(&disp);
+   disp.onQueueEmpty(new SleepEvent(&upoll));
    {
       ::time_t nowtt = ::time(0);
       Timer::absolute_t now(nowtt);
-      EventPtr myev = new MyEvent(timer, now);
+      EventPtr myev = new MyEvent(upoll, now);
       Timer::absolute_t cur = now + 1;
-      timer.postAt(cur, myev);
+      upoll.postAt(cur, myev);
       cur = now + 5;
-      timer.postAt(cur, myev);
+      upoll.postAt(cur, myev);
       cur = now + 10;
-      timer.postAt(cur, myev);
+      upoll.postAt(cur, myev);
       cur = now + 11;
       for (int i = 0; i < 10; ++i)
       {
-         timer.postAt(cur, myev);
+         upoll.postAt(cur, myev);
          cur = cur + Timer::interval_t(7, 500000000U);
       }
    }
-   while (1)
+   while (true)
    {
       disp.dispatchEvent();
    }
