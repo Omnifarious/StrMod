@@ -35,17 +35,19 @@ DEPDB = @DEPDB@
 MYMAKE := $(MAKE)
 
 #  StreambufModule.cxx  HL7Module.cxx
-LIBCCS = EchoModule.cxx  StrFDPlug.cxx  STR_ClassIdent.cxx \
-         StreamFDModule.cxx  SockListenModule.cxx  StreamModule.cxx \
-         SocketModule.cxx  StreamSplitter.cxx  StrChunk.cxx  StrChunkPtr.cxx \
-         LinearExtent.cxx  GroupVector.cxx  GV_Iterator.cxx  StrSubChunk.cxx \
-         DBStrChunk.cxx  GroupChunk.cxx  LinearExtentStrmOp.cxx \
-         StrChunkPtrT.cxx  SimplePlug.cxx  SimpleMulti.cxx  CharChopper.cxx \
-         PassThrough.cxx  NewlineChopper.cxx  StreamProcessor.cxx \
-         ProcessorModule.cxx  OutSerializer.cxx  InSerializer.cxx
+LIBCCS = EchoModule.cxx  STR_ClassIdent.cxx  StreamModule.cxx  \
+         StrChunk.cxx  StrChunkPtr.cxx  LinearExtent.cxx  GroupVector.cxx \
+         GV_Iterator.cxx  StrSubChunk.cxx DBStrChunk.cxx  GroupChunk.cxx \
+         LinearExtentStrmOp.cxx  StrChunkPtrT.cxx  OutSerializer.cxx \
+         InSerializer.cxx  StreamFDModule.cxx  StreamSplitter.cxx \
+         SocketModule.cxx  SockListenModule.cxx  EOFStrChunk.cxx  FDUtil.cxx \
+         SimpleMulti.cxx  
+#         SimplePlug.cxx  CharChopper.cxx \
+#         PassThrough.cxx  NewlineChopper.cxx  StreamProcessor.cxx \
+#         StrFDPlug.cxx  ProcessorModule.cxx
 
 TESTCCS = tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx  \
-          tests/testecho.cxx   tests/teststr.cxx tests/echoserv.cxx  \
+          tests/testecho.cxx   tests/testsock.cxx tests/echoserv.cxx  \
           tests/testextent.cxx tests/testGV.cxx  tests/testmulti.cxx \
 	  tests/testserial.cxx
 
@@ -73,17 +75,17 @@ tests/testserial : tests/testserial.o OutSerializer.o InSerializer.o
 tests/server : tests/server.o
 	$(CXX) tests/server.o $(LDFLAGS) $(LIBS) -o tests/server
 
-tests/echoserv : tests/echoserv.o
-	$(CXX) tests/echoserv.o $(LDFLAGS) $(LIBS) -o tests/echoserv 2>&1 | c++filt
+tests/echoserv : tests/echoserv.o StreamModule.o StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o DBStrChunk.o GroupVector.o LinearExtent.o SocketModule.o EchoModule.o SockListenModule.o EOFStrChunk.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/echoserv 2>&1 | c++filt
 
-tests/multitest : tests/testmulti.o
-	$(CXX) tests/testmulti.o $(LDFLAGS) $(LIBS) -o tests/multitest 2>&1 | c++filt
+tests/multitest : tests/testmulti.o EchoModule.o SimpleMulti.o StreamModule.o SockListenModule.o StrChunkPtr.o StrChunkPtrT.o STR_ClassIdent.o StrChunk.o SocketModule.o LinearExtent.o StreamFDModule.o FDUtil.o DBStrChunk.o EOFStrChunk.o GroupVector.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/multitest 2>&1 | c++filt
 
 tests/testdist : tests/testdist.o
 	$(CXX) tests/testdist.o $(LDFLAGS) -o tests/testdist
 
-tests/teststr : tests/teststr.o
-	$(CXX) tests/teststr.o $(LDFLAGS) -o tests/teststr
+tests/testsock : tests/testsock.o StreamModule.o StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o DBStrChunk.o GroupVector.o LinearExtent.o SocketModule.o StreamSplitter.o EOFStrChunk.o FDUtil.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/testsock 2>&1 | c++filt
 
 tests/testchunk : tests/testchunk.o DBStrChunk.o StrChunk.o GroupVector.o \
                   LinearExtent.o  STR_ClassIdent.o
@@ -91,6 +93,12 @@ tests/testchunk : tests/testchunk.o DBStrChunk.o StrChunk.o GroupVector.o \
 
 tests/testecho : tests/testecho.o
 	$(CXX) tests/testecho.o $(LDFLAGS) $(LIBS) -o tests/testecho 2>&1 | c++filt
+
+tests/teststrfd : tests/teststrfd.o EchoModule.o StreamModule.o StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o DBStrChunk.o GroupVector.o LinearExtent.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/teststrfd 2>&1 | c++filt
+
+tests/testsplit : tests/testsplit.o EchoModule.o StreamModule.o StreamFDModule.o StreamSplitter.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o DBStrChunk.o GroupVector.o LinearExtent.o EOFStrChunk.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/testsplit 2>&1 | c++filt
 
 tests/testextent : tests/testextent.o LinearExtent.o
 	$(CXX) $^ -o $@ 2>&1 | c++filt
