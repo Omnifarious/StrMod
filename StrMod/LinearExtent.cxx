@@ -1,6 +1,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/09/21 18:40:12  hopper
+// Changed LinearExtent::SubExtent_eq to return const LinearExtent & to
+// be more like x= operators.
+//
 // Revision 1.2  1996/06/29 06:42:21  hopper
 // Added const qualifier.
 // New function SubExtent_eq, in place SubExtent calc.
@@ -33,7 +37,7 @@ const LinearExtent LinearExtent::SubExtent(const LinearExtent &extent) const
    }
 }
 
-const LinearExtent LinearExtent::SubExtent_eq(const LinearExtent &extent)
+const LinearExtent &LinearExtent::SubExtent_eq(const LinearExtent &extent)
 {
    if (extent.m_offset > m_length) {
       m_offset += m_length;
@@ -46,6 +50,7 @@ const LinearExtent LinearExtent::SubExtent_eq(const LinearExtent &extent)
 	 m_length = extent.m_length;
       }
    }
+   return(*this);
 }
 
 void LinearExtent::LengthenLeft(length_t by)

@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/09/21 18:40:04  hopper
+// Changed LinearExtent::SubExtent_eq to return const LinearExtent & to
+// be more like x= operators.
+//
 // Revision 1.2  1996/06/29 06:24:25  hopper
 // Added const in places that needed it.
 // Added new SubExtent_eq for in-place sub-extension calculation.
@@ -48,7 +52,7 @@ class LinearExtent {
    inline void MoveLeft(off_t by);
 
    const LinearExtent SubExtent(const LinearExtent &extent) const;
-   const LinearExtent SubExtent_eq(const LinearExtent &extent);
+   const LinearExtent &SubExtent_eq(const LinearExtent &extent);
 
  private:
    off_t m_offset;
