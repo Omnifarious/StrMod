@@ -80,10 +80,10 @@ tests/multitest : tests/testmulti.o
 	$(CXX) tests/testmulti.o $(LDFLAGS) $(LIBS) -o tests/multitest 2>&1 | c++filt
 
 tests/testdist : tests/testdist.o
-	$(CXX) tests/testdist.o $(LDFLAGS) $(LIBS) -o tests/testdist
+	$(CXX) tests/testdist.o $(LDFLAGS) -o tests/testdist
 
 tests/teststr : tests/teststr.o
-	$(CXX) tests/teststr.o $(LDFLAGS) $(LIBS) -o tests/teststr
+	$(CXX) tests/teststr.o $(LDFLAGS) -o tests/teststr
 
 tests/testchunk : tests/testchunk.o DBStrChunk.o StrChunk.o GroupVector.o \
                   LinearExtent.o  STR_ClassIdent.o
@@ -98,7 +98,7 @@ tests/testextent : tests/testextent.o LinearExtent.o
 tests/testGV : tests/testGV.o GroupVector.o GV_Iterator.o StrChunk.o \
                GroupChunk.o DBStrChunk.o StrChunkPtr.o LinearExtent.o \
                StrSubChunk.o LinearExtentStrmOp.o
-	$(CXX) $^ -o $@ -L/home/hopper/lib $(LIBS) 2>&1 | c++filt
+	$(CXX) $^ -o $@ -L/home/hopper/lib -lNet 2>&1 | c++filt
 
 GNUmakefile : depend.stamp
 	$(DEPDB) list --makefiles GNUmakefile GNUmakefile.new
