@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.6  1998/11/03 00:37:05  hopper
+// Changed a couple of comments to better reflect reality.
+//
 // Revision 1.5  1996/09/02 23:15:47  hopper
 // Added new classes to class id comment list.
 //
@@ -44,11 +47,11 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
    1UL	StreamModule
    2UL	StrPlug
    3UL	EchoModule
-   4UL	EchoPlug
+   4UL	EchoModule::EPlug
    6UL	StrChunk
    7UL	DataBlockStrChunk
    8UL	StreamFDModule
-   9UL	StrFDPlug
+   9UL	StreamFDModule::FPlug
   10UL	SplitterModule
   11UL	SplitterPlug
   12UL	SocketModule
