@@ -119,6 +119,8 @@ class RouterModule : public StreamModule {
 class RouterModule::RPlug : public Plug {
    friend class RouterModule;
  public:
+   static const STR_ClassIdent identifier;
+
    inline virtual int AreYouA(const ClassIdent &cid) const {
       return((identifier == cid) || Plug::AreYouA(cid));
    }
