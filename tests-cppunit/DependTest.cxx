@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <cppunit/TestFixture.h>
 #include <cppunit/TestAssert.h>
+#include <cppunit/extensions/HelperMacros.h>
 
 namespace strmod {
 namespace tests {
@@ -39,6 +40,16 @@ using ::std::ostream;
 
 class DependTest : public ::CppUnit::TestFixture
 {
+   CPPUNIT_TEST_SUITE(DependTest);
+   CPPUNIT_TEST(testContents_lcore);
+   CPPUNIT_TEST(testContents_ehnet);
+   CPPUNIT_TEST(testContents_unievent);
+   CPPUNIT_TEST(testContents_strmod);
+   CPPUNIT_TEST(testDepends_lcore);
+   CPPUNIT_TEST(testDepends_ehnet);
+   CPPUNIT_TEST(testDepends_unievent);
+   CPPUNIT_TEST(testDepends_strmod);
+   CPPUNIT_TEST_SUITE_END();
  private:
    static const string S_objectdir;
    static const string S_ls_lcore[21];
@@ -66,6 +77,8 @@ class DependTest : public ::CppUnit::TestFixture
  private:
    void dumpStrings(ostream &os, const string strings[], int size);
 };
+
+CPPUNIT_TEST_SUITE_REGISTRATION(DependTest);
 
 void DependTest::setUp()
 {
@@ -282,35 +295,3 @@ const string DependTest::S_ls_strmod[42] = {
 
 } // namespace strmod::tests
 } // namespace strmod
-
-#include <cppunit/TestCaller.h>
-#include <cppunit/TestResult.h>
-#include <cppunit/TestSuite.h>
-#include <cppunit/ui/text/TestRunner.h>
-
-using namespace strmod::tests;
-
-int main()
-{
-   ::CppUnit::TestSuite *depend = new ::CppUnit::TestSuite("DependTest");
-   depend->addTest(new ::CppUnit::TestCaller<DependTest>("testContents_lcore",
-                                                         &DependTest::testContents_lcore));
-   depend->addTest(new ::CppUnit::TestCaller<DependTest>("testContents_ehnet",
-                                                         &DependTest::testContents_ehnet));
-   depend->addTest(new ::CppUnit::TestCaller<DependTest>("testContents_unievent",
-                                                         &DependTest::testContents_unievent));
-   depend->addTest(new ::CppUnit::TestCaller<DependTest>("testContents_strmod",
-                                                         &DependTest::testContents_strmod));
-   depend->addTest(new ::CppUnit::TestCaller<DependTest>("testDepends_lcore",
-                                                         &DependTest::testDepends_lcore));
-   depend->addTest(new ::CppUnit::TestCaller<DependTest>("testDepends_ehnet",
-                                                         &DependTest::testDepends_ehnet));
-   depend->addTest(new ::CppUnit::TestCaller<DependTest>("testDepends_unievent",
-                                                         &DependTest::testDepends_unievent));
-   depend->addTest(new ::CppUnit::TestCaller<DependTest>("testDepends_strmod",
-                                                         &DependTest::testDepends_strmod));
-   ::CppUnit::TextUi::TestRunner runner;
-   runner.addTest(depend);
-   runner.run();
-   return 0;
-}
