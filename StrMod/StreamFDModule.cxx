@@ -366,11 +366,13 @@ struct StreamFDModule::ErrorInfo {
 
 bool StreamFDModule::hasErrorIn(ErrorType err) const throw ()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::hasErrorIn(ErrorType err).\n";
    return errorinfo_.used_.test(err);
 }
 
 bool StreamFDModule::hasErrorIn(const ErrorSet &set) const throw ()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::hasErrorIn(const ErrorSet &set).\n";
    ErrorSet tmp = errorinfo_.used_;
    tmp &= set;
    return tmp.any();
@@ -379,11 +381,13 @@ bool StreamFDModule::hasErrorIn(const ErrorSet &set) const throw ()
 void StreamFDModule::onErrorIn(ErrorType err,
                                const unievent::EventPtr &ev) throw()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::onErrorIn().\n";
    errorinfo_.events_[err] = ev;
 }
 
 void StreamFDModule::resetErrorIn(ErrorType err) throw ()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::resetErrorIn().\n";
    if ((err != ErrFatal) && errorinfo_.used_.test(err))
    {
       reinterpret_cast<UNIXError *>(errorinfo_.errdata_[err])->~UNIXError();
@@ -437,6 +441,7 @@ void StreamFDModule::resetErrorIn(ErrorType err) throw ()
 
 const UNIXError &StreamFDModule::getErrorIn(ErrorType err) const throw ()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::getErrorIn(ErrorType err).\n";
    if (! errorinfo_.used_.test(err))
    {
       return UNIXError::S_noerror;
@@ -450,6 +455,7 @@ const UNIXError &StreamFDModule::getErrorIn(ErrorType err) const throw ()
 void StreamFDModule::setErrorIn(ErrorType err,
                                 const unievent::UNIXError &errval)
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::setErrorIn(ErrorType err, const unievent::UNIXError &errval).\n";
    void *rawmem = errorinfo_.errdata_[err];
    if (errorinfo_.used_.test(err))
    {
@@ -469,6 +475,7 @@ void StreamFDModule::setErrorIn(ErrorType err,
 
 size_t StreamFDModule::getBestChunkSize() const
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::getBestChunkSize().\n";
    static const size_t default_size = 4096U;
    static const size_t smallest = 128U;
    static const size_t largest = (128U * 1024U);
@@ -498,6 +505,7 @@ size_t StreamFDModule::getBestChunkSize() const
 
 const StrChunkPtr StreamFDModule::plugRead()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::plugRead().\n";
    assert(buffed_read_);
 
    StrChunkPtr retval = buffed_read_;
@@ -518,6 +526,7 @@ const StrChunkPtr StreamFDModule::plugRead()
 
 void StreamFDModule::eventRead()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::eventRead().\n";
    assert(!buffed_read_);
    flags_.checkingrd = false;
    read_since_read_posted_ = 0;
@@ -533,6 +542,7 @@ void StreamFDModule::eventRead()
 
 void StreamFDModule::eventResumeRead()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::eventResumeRead().\n";
    read_since_read_posted_ = 0;
    if (buffed_read_)
    {
@@ -542,6 +552,7 @@ void StreamFDModule::eventResumeRead()
 
 void StreamFDModule::plugWrite(const StrChunkPtr &ptr)
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::plugWrite().\n";
    assert(!cur_write_);
    assert(ptr);
    cur_write_ = ptr;
@@ -560,6 +571,7 @@ void StreamFDModule::plugWrite(const StrChunkPtr &ptr)
 
 void StreamFDModule::eventWrite()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::eventWrite().\n";
    assert(cur_write_);
    flags_.checkingwr = false;
    written_since_write_posted_ = 0;
@@ -580,6 +592,7 @@ void StreamFDModule::eventWrite()
 
 void StreamFDModule::eventResumeWrite()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::eventResumeWrite().\n";
    written_since_write_posted_ = 0;
    if (!cur_write_)
    {
@@ -589,6 +602,7 @@ void StreamFDModule::eventResumeWrite()
 
 void StreamFDModule::eventError()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::eventError().\n";
    setErrorIn(ErrFatal, UNIXError("<none>", EBADF,
                                   LCoreError("Bad FD",
                                              LCORE_GET_COMPILERINFO())));
@@ -596,7 +610,7 @@ void StreamFDModule::eventError()
 
 void StreamFDModule::doReadFD()
 {
-   // cerr << fd_ << ": In doReadFD\n";
+   // ::std::cerr << fd_ << ": In doReadFD\n";
    assert(!buffed_read_);
 
    if ((fd_ < 0) ||
@@ -615,22 +629,22 @@ void StreamFDModule::doReadFD()
       DynamicBuffer *dbchunk = new DynamicBuffer(maxsize);
 
       errno = 0;
-      // cerr << "Reading...\n";
+      // ::std::cerr << "Reading...\n";
       size = ::read(fd_, dbchunk->getVoidP(), maxsize);
       // I may have an error, capture errno to make sure nothing happens to it.
       myerrno = errno;
-      // cerr << fd_ << ": just read " << size << " bytes.\n";
+      // ::std::cerr << fd_ << ": just read " << size << " bytes.\n";
 
       if (size > 0) {
-	 dbchunk->resize(size);
-	 buffed_read_ = dbchunk;
-//  	 cerr << fd_ << ": just read: <";
-//  	 cerr.write(dbchunk->GetCharP(), dbchunk->Length());
-//  	 cerr << ">\n";
-	 dbchunk = 0;
+         dbchunk->resize(size);
+         buffed_read_ = dbchunk;
+//  	 ::std::cerr << fd_ << ": just read: <";
+//  	 ::std::cerr.write(dbchunk->GetCharP(), dbchunk->Length());
+//  	 ::std::cerr << ">\n";
+         dbchunk = 0;
       } else {
-	 delete dbchunk;
-	 dbchunk = 0;
+         delete dbchunk;
+         dbchunk = 0;
       }
 
       assert(dbchunk == 0);
@@ -638,18 +652,18 @@ void StreamFDModule::doReadFD()
 
    if (size <= 0)
    {
-      // cerr << "Handling read error.\n";
+      // ::std::cerr << "Handling read error.\n";
       assert(!buffed_read_);
 
       if (size == 0)
       {
          setErrorIn(ErrRead,
                     UNIXError("read", LCoreError(LCORE_GET_COMPILERINFO())));
-	 // cerr << fd_ << ": read EOF\n";
+         // ::std::cerr << fd_ << ": read EOF\n";
 	 if (flags_.chunkeof)
 	 {
 	    buffed_read_ = new EOFStrChunk;
-	    // cerr << fd_ << ": sending EOF chunk\n";
+	    // ::std::cerr << fd_ << ": sending EOF chunk\n";
 	 }
       }
       else  // size MUST be < 0, and so errno must also be set.
@@ -669,8 +683,8 @@ void StreamFDModule::doReadFD()
 	 {
 	    // EAGAIN just means I need to read later, so it's OK, but anything
 	    // else isn't.
-	    // cerr << "Handling non-EAGAIN error.\n";
-	    // cerr << fd_ << ": setting ErrRead to " << myerrno << "\n";
+	    // ::std::cerr << "Handling non-EAGAIN error.\n";
+	    // ::std::cerr << fd_ << ": setting ErrRead to " << myerrno << "\n";
             setErrorIn(ErrRead,
                        UNIXError("read", myerrno,
                                  LCoreError(LCORE_GET_COMPILERINFO())));
@@ -685,7 +699,7 @@ void StreamFDModule::doReadFD()
 
 void StreamFDModule::doWriteFD()
 {
-   // cerr << fd_ << ": in doWriteFD()\n";
+   // ::std::cerr << fd_ << ": in doWriteFD()\n";
 #ifndef MAXIOVCNT  // UnixWare 7 has this undefined.  *sigh*
 #ifndef _SC_IOV_MAX  // Linux has this undefined.  *bigger sigh*
    static const unsigned int MAXIOVCNT = 16;
@@ -731,12 +745,12 @@ void StreamFDModule::doWriteFD()
       size_t numvecs = curbuflist_.numVecs();
       if (numvecs > MAXIOVCNT)
       {
-	 numvecs = MAXIOVCNT;
+	     numvecs = MAXIOVCNT;
       }
       written = ::writev(fd_, curbuflist_.getIOVec(), numvecs);
-      // cerr << fd_ << ": just wrote: <";
-      // cerr.write(ioveclst.iov[0].iov_base, ioveclst.iov[0].iov_len);
-      // cerr << ">\n";
+      // ::std::cerr << fd_ << ": just wrote: <";
+      // ::std::cerr.write(ioveclst.iov[0].iov_base, ioveclst.iov[0].iov_len);
+      // ::std::cerr << ">\n";
       // Save errno for later to make sure it isn't clobbered.
       int myerrno = errno;
 
@@ -777,6 +791,7 @@ void StreamFDModule::doWriteFD()
 
 void StreamFDModule::writeEOF()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::writeEOF().\n";
    if (fd_ >= 0)
    {
       ::close(fd_);
@@ -790,7 +805,7 @@ void StreamFDModule::writeEOF()
          setErrorIn(ErrRead, tmp);
       }
    }
-//   cerr << fd_ << ": setting ErrRead to " << EBADF << "\n";
+//   ::std::cerr << fd_ << ": setting ErrRead to " << EBADF << "\n";
 //     setErrorIn(ErrRead, EBADF);
 //     setErrorIn(ErrWrite, EBADF);
 //     setErrorIn(ErrFatal, EBADF);
@@ -809,6 +824,8 @@ StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
        disp_(disp),
        ureg_(ureg)
 {
+   // ::std::cerr << " ----> Intializing a new StreamFDModule." << std::endl;
+
    for (unsigned int i = 0;
         i < (sizeof(parenttrackers_) / sizeof(parenttrackers_[0]));
         ++i)
@@ -852,11 +869,13 @@ StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
                    UnixEventRegistry::FD_Closed,
                    UnixEventRegistry::FD_Invalid);
       ureg_.registerFDCond(fd_, allerrors, errorev_);
+      // ::std::cerr << " ----> Registering FD error events.\n";
    }
    if (fd_ >= 0)
    {
       if ((checkmask == CheckBoth) || (checkmask == CheckRead))
       {
+         // ::std::cerr << " ----> Doing a CheckRead.\n";
          flags_.checkingrd = false;
          doReadFD();
          if (buffed_read_)
@@ -866,6 +885,7 @@ StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
       }
       if ((checkmask == CheckBoth) || (checkmask == CheckWrite))
       {
+         // ::std::cerr << " ----> Doing a CheckWrite.\n";
          flags_.checkingwr = false;
          setWriteableFlagFor(&plug_, true);
       }
@@ -874,6 +894,8 @@ StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
 
 StreamFDModule::~StreamFDModule()
 {
+   // ::std::cerr << " ----> Destroying an existing StreamFDModule.\n";
+
    for (unsigned int i = 0;
         i < (sizeof(parenttrackers_) / sizeof(parenttrackers_[0]));
         ++i)
