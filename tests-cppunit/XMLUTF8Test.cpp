@@ -29,10 +29,10 @@ namespace {
 
 struct AttributeData
 {
-   const string name_;
-   const string value_;
-   const string literal_;
-   const char delimiter_;
+   string name_;
+   string value_;
+   string literal_;
+   char delimiter_;
 
    AttributeData(const string &name, const string &value,
                  const string &literal, char delimiter)
@@ -45,8 +45,8 @@ typedef ::std::vector<AttributeData> attrlist_t;
 
 struct ElementData
 {
-   const string name_;
-   const Position elbegin_;
+   string name_;
+   Position elbegin_;
    Position datbegin_;
    Position datend_;
    ::std::vector<AttributeData> attrlist_;
@@ -61,9 +61,9 @@ class TestBuilder : public Builder
 {
  public:
    TestBuilder(const char *buf, size_t blen, size_t chnklen)
-        : buf_(buf), blen_(len), blen2_(len / 2), chnklen_(chnklen)
+        : buf_(buf), blen_(blen), blen2_(blen / 2), chnklen_(chnklen)
    {
-      CPPUNIT_ASSERT(len % 2 == 0);
+      CPPUNIT_ASSERT(blen % 2 == 0);
       {
          unsigned int a = blen, b = chnklen;
          unsigned int rem = a % b;
@@ -93,11 +93,49 @@ class TestBuilder : public Builder
    const size_t blen2_;
    size_t chnklen_;
    elstack_t elements_;
+
+   const string buildString(const Position &begin, const Position &end);
+   void elementFinished(const Position &celend);
 };
 
 void TestBuilder::startElementTag(const Position &selbegin, const string &name)
 {
-   
+   elements_.push(ElementData(name, selbegin));
+}
+
+void TestBuilder::addAttribute(const Position &attrbegin,
+                               const Position &attrend,
+                               const Position &valbegin,
+                               const Position &valend, const string &name)
+{
+   CPPUNIT_ASSERT(elements_.size() > 0);
+   string literal(buildString(valbegin, valend));
+   elements_.top().attrlist_.push_back(
+      AttributeData(name, buildString(valbegin, valend), literal,
+                    literal.at(literal.size() - 1)));
+}
+
+void TestBuilder::endElementTag(const Position &selend, bool wasempty)
+{
+   CPPUNIT_ASSERT(elements_.size() > 0);
+   ElementData &el = elements_.top();
+   el.datbegin_ = selend;
+   if (wasempty)
+   {
+      el.datend_ = selend;
+      elementFinished(selend);
+   }
+}
+
+void TestBuilder::closeElementTag(const Position &celbegin,
+                                  const Position &celend,
+                                  const string &name)
+{
+   CPPUNIT_ASSERT(elements_.size() > 0);
+   ElementData &el = elements_.top();
+   CPPUNIT_ASSERT(el.name_ == name);
+   el.datend_ = celbegin;
+   elementFinished(celend);
 }
 
 }
