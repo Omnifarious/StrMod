@@ -10,18 +10,29 @@
   <title>PortForwader: A Tutorial</title>
   <meta name="AUTHOR" content="Eric Hopper" />
   <meta name="description"
-  content="A Manual describing how to use a                             Dispatcher, and other, related classes."
+  content="A Manual describing how to use a Dispatcher, and other, related classes."
   />
   <meta name="revision" content="$Revision$" />
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <style type="text/css">
 
 h1.title {text-align: center}
-p.centered {text-align: center}</style>
+p.centered {text-align: center}
+pre.codeblock {font-size: 10pt;
+               border-width: thin;
+               border-color: green;
+               border-left: solid;
+               border-right: solid;
+               border-top: solid;
+               border-bottom: solid}
+pre.line { font-size: 12pt;
+           color: green }</style>
 </head>
 
-<body>
+<body bgcolor="white" text="black">
 <h1 class="title">Tutorial</h1>
+
+<h2>Description and requirements</h2>
 
 <p>For a tutorial, we're going to write a program I call a <em>port
 forwarder</em>. Our port forwarder will accept incoming connections on one
@@ -35,8 +46,182 @@ place (like fred.omnifarious.org port 3000).</p>
 I also use it to send IRC connections through an encrypted IP tunnel to my
 computer at home, then forward them to their eventual destination.</p>
 
-<p>Here's a diagram of a typical running PortForward session:</p>
-<p class="centered"><img halign="center" src="PortForward-running.png" alt="A diagram"/></p>
+<p>Here's a diagram (it may not look right in browsers other than Mozilla,
+which is the only browser I've found that correctly alpha channels) of a
+typical running PortForward session:</p>
 
+<p class="centered"><img src="PortForward-running.png" alt="A diagram" /></p>
+
+<p>As you can see, anything I type into my xchat client goes to the port
+forwarder program, then is sent from there to an openprojects.net IRC server.
+Any data coming from the openprojects.net IRC server gets sent to the port
+forwarder program, and it sends it to my xchat client. If, for example, I
+cannot get directly to the irc.openprojects.net server from someplace, I can
+install the port forwarder someplace I can get to, and it will act as a sort
+of proxy and enable me to get there.</p>
+
+<p>I have two other requirements of the port forwarder that make it hard to
+implement in a traditional way. One requirement is that the forwarder be able
+to forward multiple connections at the same time. The other is that I allow
+several different ports to be forwarded with the same executable.</p>
+
+<p>For an example of the first requirement, I may want to allow many people
+to get to irc.openprojects.net from inside my network. Or I may be forwarding
+an HTTP connection, and therefor need to allow several simultaneous
+connections.</p>
+
+<p>For the second requirement, it may be that the firewall blocks all
+connections to port 6667 (the IRC port) and I want to connect to two
+different IRC servers at the same time. Or maybe, I need to do both ssh and
+imaps to my computer at home.</p>
+
+<h2>Design and Code</h2>
+
+<p>This project is small enough that the design can be created along with the
+code, so I won't have a seperate coding step.</p>
+
+<h3>The config</h3>
+
+<p>Looking at the requirements, the configuration information needed to
+implement them is pretty cut and dried. We need a list consisting of (port to
+listen on, address to connect to, port to connect to). These things would
+probably best go in a config file, but for simplicity's sake, I'm going to
+just read them from stdin. Here's a code snippet that will do just that.</p>
+<pre class="codeblock">unsigned int inport = 0;
+string outaddr;
+unsigned int outport = 0;
+
+while (cin)
+{
+   cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
+   cout &lt;&lt; "Accepting connections on port " &lt;&lt; inport
+        &lt;&lt; " and redirecting data to a connection to "
+        &lt;&lt; outaddr &lt;&lt; " port " &lt;&lt; outport &lt;&lt; "\n";
+}</pre>
+
+<p>Of course, this code bucks Unix tradition, and actually prints out what it
+read in, even if it wasn't in error, but no matter. As you can see, this just
+reads in the config file, and does nothing about acting on it. We'll get to
+some of that in a bit.</p>
+
+<h3>The SockListenModule</h3>
+
+<p>Next thing we need is a way to actually listen on the ports we're supposed
+to listen on. Looking through the StreamModule library, it looks like
+SockListenModule from StrMod/SockListenModule.h is what will fit that
+need.</p>
+
+<p>The SockListenModuleModule constructor looks like this:</p>
+<pre class="line">SockListenModule(const SocketAddress &amp;bind_addr, unievent::Dispatcher &amp;disp,
+                 unievent::UNIXpollManager &amp;pmgr, int qlen = 1);</pre>
+<br />
+
+
+<p>It takes some mysterious arguments. The first, <code>SocketAddress
+&amp;bind_addr</code>, is the address to listen on, the address the listening
+socket is 'bound' to. One might think a port number is enough, but sometimes
+you want to listen at a particular IP address (the computer may have several)
+so that only certain things can connect to you.</p>
+
+<p>The second is a Dispacher. The Dispatcher is used to to queue up events
+for dispatching. We should worry about the details of this now, except to not
+that one is needed.</p>
+
+<p>The third is a UNIXpollManager. A UNIXpollManager is used to generate
+StreamModule system events based on operating system events. In this case,
+Unix telling us that a file descriptor we're interested in can now be written
+to or read from without blocking our program. The SockListenModule needs to
+know this for two reasons. One reason is that it needs to tell the
+SocketModule created when it processes an incoming connection. The second
+reason is that the OS tells it that there is an incoming connection to
+accept, by saying the file descriptor can be read without blocking.</p>
+
+<p>The last, <code>int qlen</code> is given directly to the operating system
+as a parameter when creating the listening socket. It tells the operating
+system how many connections it can queue up without the program accepting
+any. Too low, and people will get 'connection refused' errors, even though
+our program is running because it hasn't processed an incoming connection.
+Too high, and we'll get a huge backlog of incoming connections to work
+through. Since we don't expect a very high volume of incoming connections
+(presumably PortForward will be used on a personal basis, and not as a
+frontend for a popular web or IRC server), we will set it at a fairly
+conservative '2'.</p>
+
+<p>Now, of these parameters, the Dispatcher, UNIXpollManager, and
+SocketAddress are abstract base classes. In order to instantiate one of them,
+we have to figure out which derived class we need.</p>
+
+<p>In the case of SocketAddress, it's easy. There is currently only one
+derived classed, and moreover, it make perfect sense given what it's supposed
+to represet. That class is <code>InetAddress</code>. SocketAddress represents
+any address a socket could connect or bind to. These would include IPX
+addresses, Appletalk addresses, IP addresses and so on. InetAddress
+represents an IP address. Since the port forwader is for TCP/IP connections,
+it's the kind of address we need.</p>
+
+<p>InetAddress has several constructors. We will pick the one that best
+represents that data we have, the port to listen on:</p>
+<pre class="line">InetAddress(U2Byte port);</pre>
+<br />
+
+
+<p>For Dispatcher, we will use <code>SimpleDispatcher</code> because we don't
+need any more complicated facilities that may be provided by a more
+sophisticated dispatcher. And, in truth, there is no more sophisticated
+dispatcher written yet.</p>
+
+<p>SimpleDispatcher only has one constructor, and that takes no arguments:</p>
+<pre class="line">SimpleDispatcher();</pre>
+<br />
+
+
+<p>For UNIXpollManager, there is also only the UNIXpollManagerImp derived
+class. This class may actually disappear later, and there will only be a
+UNIXpollManager concrete class, but for now, UNIXpollManagerImp it is.</p>
+
+<p>UNIXpollManagerImp also only has one constructor. That constructor takes a
+Dispatcher as an argument, meaning that the Dispatcher will have to be
+created before the UNIXpollManagerImp:</p>
+<pre class="line">UNIXpollManagerImp(Dispatcher *disp);</pre>
+<br />
+
+
+<p>Putting this all together yields a code that looks something like this:</p>
+<pre class="codeblock">SimpleDispatcher dispatcher;
+UNIXpollManager pollmanager(&ampl;dispatcher);
+
+do
+{
+   U2Byte inport = 0;
+   string outaddr;
+   unsigned int outport = 0;
+
+   cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
+   if (cin)
+   {
+      InetAddress listenaddr(inport);
+      SockListenModule *slm = new SockListenModule(listenaddr, dispatcher,
+                                                   pollmanager, 2);
+      cout &lt;&lt; "Accepting connections on port " &lt;&lt; inport
+           &lt;&lt; " and redirecting data to a connection to "
+           &lt;&lt; outaddr &lt;&lt; " port " &lt;&lt; outport &lt;&lt; "\n";
+   }
+} while (cin);</pre>
+
+<p>This, of course, isn't at all a complete program. Aside from the lack of
+any function (not even <code>main</code>) it has a big memory leak, and will
+also implicitly (because of the memory leak) leave dangling pointers to
+dispatcher and pollmanager. It doesn't even really do anything useful,
+though, if you (under Linux) enclose it in a main, put a long sleep at the
+end, run it, giving a file of port mappings on stdin, then look at netstat
+-aA inet, you'll see that all the ports are being listened to, so it does do
+a little something.</p>
+
+<p>The main things missing if we are to implementing our requirements are
+these. First, we aren't tracking the palce to connect to if we should get an
+incoming connection on any of our listening ports. Second, though we are
+putting out listening sockets, we aren't doing anything with any incoming
+connections. Lastly, we aren't making any outgoing connections in response to
+our incoming ones.</p>
 </body>
 </html>
