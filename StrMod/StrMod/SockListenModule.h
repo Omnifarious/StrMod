@@ -57,7 +57,6 @@
 namespace strmod {
 namespace strmod {
 
-class ListeningPlug;
 class SocketModuleChunk;
 
 /** \class SocketModuleChunk SockListenModule.h StrMod/SockListenModule.h
@@ -309,7 +308,7 @@ SockListenModule::makeSocketModule(int fd, ehnet::SocketAddress *peer,
    return(new SocketModule(fd, peer, disp, ureg));
 }
 
-//----------------------ListeningPlug inline functions-------------------------
+//-----------------SockListenModule::SLPlug inline functions-------------------
 
 inline int SockListenModule::SLPlug::AreYouA(const lcore::ClassIdent &cid) const
 {
