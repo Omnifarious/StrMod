@@ -1,4 +1,4 @@
-#ifndef _STR_EchoModule_H_
+#ifndef _STR_EchoModule_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #pragma interface
@@ -7,8 +7,12 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:51  hopper
-// Initial revision
+// Revision 1.2  1996/07/06 01:23:15  hopper
+// Changed to use new StrChunkPtr interface, and new parent module stuff.
+// Streamlined and buffed up other stuff.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:51  hopper
+// Imported sources
 //
 // Revision 0.8  1995/04/05  04:51:39  hopper
 // Fixed a few stupid mistakes.
@@ -76,7 +80,7 @@ friend class EchoPlug;
    virtual bool DeletePlug(StrPlug *plug);
 
  protected:
-   StrChunk *buffedecho;
+   StrChunkPtr buffedecho;
    EchoPlug *eplug;
    int plugcreated;
    int rdngfrm, wrtngto;
@@ -97,7 +101,7 @@ friend class EchoModule;
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    inline virtual bool CanWrite() const;
-   virtual bool Write(StrChunk *);
+   virtual bool Write(const StrChunkPtr &);
 
    virtual bool CanRead() const;
 
@@ -105,19 +109,12 @@ friend class EchoModule;
    virtual int Side() const                            { return(0); }
 
  protected:
-   EchoModule *parent;
-
    inline EchoPlug(EchoModule *parnt);
    inline virtual ~EchoPlug();
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   virtual StreamModule *ParentModule() const          { return(parent); }
-   virtual StrChunk *InternalRead();
-
-   virtual void ReadableNotify();
-   virtual void WriteableNotify();
-
+   virtual const StrChunkPtr InternalRead();
 };
 
 //-------------------------------inline functions------------------------------
@@ -182,13 +179,12 @@ inline bool EchoPlug::CanRead() const
 
 inline EchoModule *EchoPlug::ModuleFrom() const
 {
-   return((EchoModule *)(ParentModule()));
+   return(static_cast<EchoModule *>(StrPlug::ModuleFrom()));
 }
 
 inline EchoPlug::EchoPlug(EchoModule *parnt)
-  : parent(parnt)
+     : StrPlug(parnt)
 {
-   assert(parent != 0);
 }
 
 inline EchoPlug::~EchoPlug()

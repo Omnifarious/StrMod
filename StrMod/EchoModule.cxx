@@ -5,8 +5,12 @@
 #endif
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:49  hopper
-// Initial revision
+// Revision 1.2  1996/07/06 01:23:22  hopper
+// Changed to use new StrChunkPtr interface, and new parent module stuff.
+// Streamlined and buffed up other stuff.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:49  hopper
+// Imported sources
 //
 // Revision 0.9  1995/04/14  16:44:14  hopper
 // Changed things for integration into the rest of my libraries.
@@ -39,18 +43,14 @@
 // $Revision$
 
 
-#ifndef OS2
-#   include "StrMod/EchoModule.h"
+#include "StrMod/EchoModule.h"
 
-#   ifndef _STR_StrChunk_H_
-#      include "StrMod/StrChunk.h"
-#   endif
-#else
-#   include "echomod.h"
+#ifndef _STR_StrChunk_H_
+#  include "StrMod/StrChunk.h"
+#endif
 
-#   ifndef _STR_StrChunk_H_
-#      include "strchnk.h"
-#   endif
+#ifndef _STR_StrChunk_H_
+#  include "strchnk.h"
 #endif
 
 #include <iostream.h>
@@ -65,14 +65,12 @@ bool EchoModule::DeletePlug(StrPlug *plug)
       plugcreated = 0;
       if (buffedecho) {
 	 cerr << "An EchoPlug was destroyed before some buffered output "
-	    "was written. This is\nwhat should've been witten:\n";
-	 buffedecho->PutIntoFd(2);
-	 delete buffedecho;
-	 buffedecho = 0;
+	    "was written.\n";
+	 buffedecho.ReleasePtr();
       }
-      return(1);
+      return(true);
    } else
-      return(0);
+      return(false);
 }
 
 EchoModule::~EchoModule()
@@ -81,92 +79,68 @@ EchoModule::~EchoModule()
    delete eplug;
 }
 
-StrChunk *EchoPlug::InternalRead()
+#ifdef __GNUG__
+const StrChunkPtr EchoPlug::InternalRead() return temp;
+#else
+const StrChunkPtr EchoPlug::InternalRead()
+#endif
 {
    EchoModule *parent = ModuleFrom();
 
    if (CanRead()) {
-      StrChunk *temp = parent->buffedecho;
+      parent->rdngfrm = 1;
+#ifdef __GNUG__
+      temp = parent->buffedecho;
+#else
+      StrChunkPtr temp = parent->buffedecho;
+#endif
 
-      parent->buffedecho = 0;
+      parent->buffedecho.ReleasePtr();
       if (!(parent->wrtngto)) {
-	 parent->rdngfrm = 1;
 	 DoWriteableNotify();
-	 parent->rdngfrm = 0;
       }
-//      cerr << "Returned " << temp->Length() << " bytes from InternalRead()\n";
+//     cerr << "Returned " << temp->Length() << " bytes from InternalRead()\n";
+      parent->rdngfrm = 0;
       return(temp);
    } else {
 //      cerr << "Returned " << "NULL" << " bytes from InternalRead()\n";
+#ifdef __GNUG__
+      temp = 0;
+      return(temp);
+#else
       return(0);
+#endif
    }
 }
 
-void EchoPlug::ReadableNotify()
-{
-   EchoModule *parent = ModuleFrom();
-
-   if (!(parent->plugcreated))
-      return;
-
-   StrPlug *oplug = PluggedInto();
-
-   while (oplug && CanWrite() && oplug->CanRead()) {
-      StrChunk *curchnk;
-
-      curchnk = oplug->Read();
-      Write(curchnk);
-      oplug = PluggedInto();
-   }
-}
-
-void EchoPlug::WriteableNotify()
-{
-   EchoModule *parent = ModuleFrom();
-
-   if (!(parent->plugcreated))
-      return;
-
-   StrPlug *oplug = PluggedInto();
-
-   while (oplug && CanRead() && oplug->CanWrite()) {
-      StrChunk *curchnk;
-
-      curchnk = Read();
-//      cerr << "oplug->Write(" << curchnk->Length() << " bytes)\n";
-      oplug->Write(curchnk);
-      oplug = PluggedInto();
-   }
-}
-
-bool EchoPlug::Write(StrChunk *chnk)
+bool EchoPlug::Write(const StrChunkPtr &chnk)
 {
    EchoModule *parent = ModuleFrom();
 
    if (!(parent->plugcreated) || parent->wrtngto)
-      return(0);
+      return(false);
 
    if (CanWrite()) {
-      parent->buffedecho = chnk;
       parent->wrtngto = 1;
+      parent->buffedecho = chnk;
       if (parent->buffedecho != 0 && !(parent->rdngfrm))
 	 DoReadableNotify();
       parent->wrtngto = 0;
-      return(1);
+      return(true);
    } else {
-      StrChunk *temp = parent->buffedecho;
+      parent->wrtngto = 1;
+      StrChunkPtr temp = parent->buffedecho;
 
       parent->buffedecho = chnk;
-      parent->wrtngto = 1;
       if (PluggedInto()->Write(temp)) {
 	 if (parent->buffedecho != 0 && !(parent->rdngfrm))
 	    DoReadableNotify();
 	 parent->wrtngto = 0;
-	 return(1);
+	 return(true);
       } else {
 	 parent->buffedecho = temp;
 	 parent->wrtngto = 0;
-	 return(0);
+	 return(false);
       }
    }
 }
