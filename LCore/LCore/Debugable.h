@@ -33,21 +33,28 @@
 
 class ostream;
 
+/** \class Debugable Debugable.h LCore/Debugable.h
+ * Interface class for things that have certain common debugging functions.
+ * You'll probable need to use a dynamic_cast to use this interface in a
+ * generic way in most cases.
+ */
 class Debugable : virtual public Protocol {
  public:
    static const LCore_ClassIdent identifier;
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   //: This should ALWAYS return true.  It says whether the class invariant
-   //: holds or not.
-   // <p>Your class invariant should be as strict as possible.  The class
-   // invariant is used to detect when the class goes into a bad state, so all
-   // possible bad states should be caught by the invariant.</p>
+   /** \brief This should ALWAYS return true.  It says whether the class
+    * invariant holds or not.
+    *
+    * Your class invariant should be as strict as possible.  The class
+    * invariant is used to detect when the class goes into a bad state, so all
+    * possible bad states should be caught by the invariant.  */
    virtual bool invariant() const = 0;
 
-   //: This should print out as much of the internal state of a class as would
-   //: be needed to debug it properly.
+   /** This should print out as much of the internal state of a class as would
+    * be needed to debug it properly.
+    */
    virtual void printState(ostream &os) const = 0;
 
  protected:
