@@ -1,9 +1,29 @@
 2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
 
-	* UniEvent/Timer.h, UniEvent/UNIXTimer.h: I forgot the maxim: Push
-	data down the hierarchy as far as it'll go.  Fixed by putting
-	dispatcher_ in UNIXTimer instead of the Timer interface where it
-	didn't belong.
+	* UnixEventPoll.cxx: Added inheritance from Timer interface
+	because UnixEventPoll is going to implement Timer later.
+	
+	Moved dispatcher_ down here from parent class.
+	
+	Made printState do something useful.
+
+	* UniEvent/UnixEventPoll.h: Added inheritance from Timer interface
+	because UnixEventPoll is going to implement Timer later.
+
+	Moved dispatcher_ down here from parent class.
+
+	* UniEvent/UnixEventRegistry.h: I forgot the maxim: Push data down
+	the hierarchy as far as it'll go.  Fixed by moving dispatcher_ to
+	derived classes.
+
+	* /home/hopper/src/cvs/C++/UniEvent/ChangeLog: Changes!
+
+2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/Timer.h, UniEvent/UNIXTimer.h, UNIXTimer.cxx: I forgot
+	the maxim: Push data down the hierarchy as far as it'll go.  Fixed
+	by putting dispatcher_ in UNIXTimer instead of the Timer interface
+	where it didn't belong.
 
 2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
 
