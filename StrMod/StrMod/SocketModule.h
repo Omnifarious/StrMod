@@ -15,6 +15,7 @@
 #define _STR_SocketModule_H_
 
 class SocketAddress;
+class SockListenModule;
 
 class SocketModule : public StreamFDModule {
    friend class SockListenModule;  // This is so SockListenModule's can access
@@ -37,6 +38,7 @@ class SocketModule : public StreamFDModule {
    int makesock_errno;
 
    //: Create a SocketModule using the given fd
+   // Note that ownership of pr is being passed.
    SocketModule(int fd, SocketAddress *pr, UNIXpollManager &pollmgr);
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
