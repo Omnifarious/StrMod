@@ -45,10 +45,8 @@ class UnixEventRegistry {
    /** On the given signal, post the given event.
     * @param signo The number of the signal to post an event for.
     * @param ev The event to post.
-    * @param oneshot Whether or not the event is removed after it is
-    * posted (defualts to true).
     */
-   virtual void onSignal(int signo, const EventPtr &e, bool oneshot = true) = 0;
+   virtual void onSignal(int signo, const EventPtr &e) = 0;
 
    /** Stop posting the given event for the given signal.
     * @param signo The signal to stop posting the event for.
@@ -67,6 +65,19 @@ class UnixEventRegistry {
 
    //! Actually call the UNIX poll system call, and dispatch resulting events.
    virtual void doPoll(bool wait = false) = 0;
+
+ protected:
+   //! Maximum number of signals the handled_by_S can keep track of
+   static const unsigned int max_handled_by_S = 128;
+   /** Keeps track of which UnixEventRegistry is handling which signal.
+    *
+    * This is so that instances of derived classes (since this is an abstract
+    * class) have a scratchpad to use to communicate with eachother about who's
+    * handling which signal.  This scratchpad is used both to allow actual
+    * signal handlers to know which class to poke when a signal does arrive, and
+    * also so that different handlers don't both try to handle the same signal.
+    */
+   static UnixEventRegistry *handled_by_S[max_handled_by_S];
 };
 
 //-----------------------------inline functions--------------------------------
