@@ -419,10 +419,13 @@ registered with it.</p>
 <p>So, in order to have the SockListenModule wake up and process the event,
 or even have the Dispatcher to call UNIXpollManager when it's 'idle', we have
 to call the Dispatcher somehow.  The Dispatcher has a family of methods for
-this, but we will use this one, for various reasons that will become apparent
-later.</p>
+this, but we will use this one:</p>
 
-<pre class="line">Dispatcher::</pre>
+<pre class="line">Dispatcher::dispatchEvent()</pre>
+
+<p>because our framework is incomplete and requires (ugh) polling for certain
+things.  To periodically regain control to do polling, we need to dispatch
+one event at a time.</p>
 
 </body>
 </html>
