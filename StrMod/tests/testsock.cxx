@@ -73,4 +73,27 @@ int main(int argc, char *argv[])
       disp.DispatchEvents(1);
 //        cerr << "Tick!\n";
    }
+
+   {
+      int temp;
+
+      if ((temp = fcntl(0, F_GETFL, 0)) < 0) {
+	 return(1);
+      }
+      temp &= ~(O_NDELAY | O_NONBLOCK);
+      if (fcntl(0, F_SETFL, temp) < 0) {
+	 return(1);
+      }
+   }
+   {
+      int temp;
+
+      if ((temp = fcntl(1, F_GETFL, 0)) < 0) {
+	 return(1);
+      }
+      temp &= ~(O_NDELAY | O_NONBLOCK);
+      if (fcntl(1, F_SETFL, temp) < 0) {
+	 return(1);
+      }
+   }
 }
