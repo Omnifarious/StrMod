@@ -1,3 +1,19 @@
+Mon Dec  9 19:52:10 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GroupVector.cxx (FillIOVecDesc): Fixed an error involving a
+	misplaced increment.
+
+Wed Oct 23 05:12:12 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamModule.h: Made a number of cosmetic readability
+ 	improvements.
+
+	* StrMod/StreamFDModule.h (CanWrite): Cosmetic change to make
+	operator precedence more obvious.
+
+	* StrFDPlug.cxx (outputReady): Fixed an = vs. == bug that caused
+	StreamFDModule to stop being able to write.
+
 Sat Sep 21 13:35:04 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* GNUmakefile.in: Changed .cc to .cxx to reflect new naming
