@@ -1,3 +1,12 @@
+1999-07-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/UNEVT_ClassIdent.h: Removed a redundant operator ==
+	that was only there because some C++ compilers had a hard time
+	properly resolving the operator == that took base class types.
+
+	* UniEvent/UNIXpollManagerImp.h: Added a #define of __USE_XOPEN to
+	ensure that Linux defines the full set of poll flags.
+
 1999-01-31  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UNIXpollManagerImp.cxx (doPoll): Changed to handle possible
