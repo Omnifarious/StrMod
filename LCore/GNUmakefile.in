@@ -12,10 +12,15 @@ CPPFLAGS = -I/home/hopper/src/include++ -DBYTE_ORDER_DEFINED -DORDER_XINU -pipe 
 
 MYMAKE := $(MAKE)
 
-CCNAMES = classimp.cxx  defproto.cxx  hopclimp.cxx  objctstr.cxx \
-          progrimp.cxx  clsprgid.cxx  cltpsstr.cxx  gentyimp.cxx \
-          objctstd.cxx  objecimp.cxx  protoimp.cxx  defeh_cl.cxx \
-          defspscl.cxx  defrefco.cxx  refcoimp.cxx
+LIBCCS = classimp.cxx  defproto.cxx  hopclimp.cxx  objctstr.cxx \
+         progrimp.cxx  clsprgid.cxx  cltpsstr.cxx  gentyimp.cxx \
+         objctstd.cxx  objecimp.cxx  protoimp.cxx  defeh_cl.cxx \
+         defspscl.cxx  defrefco.cxx  refcoimp.cxx  rfcntptr.cxx \
+         rfcntptt.cxx  debugabl.cxx
+
+TESTCCS = tests/refcnt.cxx
+
+CCNAMES = $(LIBCCS) $(TESTCCS)
 
 SONAMES = $(CCNAMES:.cxx=.s.o)
 
@@ -24,15 +29,16 @@ SONAMES = $(CCNAMES:.cxx=.s.o)
 	ar rv $@ $(?:.cxx=.o)
 	rm -f $(?:.cxx=.o)
 
-/home/hopper/lib/libContainer.so : $(SONAMES)
-	ld -G -s -h $@ $^ -o $@
-#	rm -f $^
-
 $(EXTLIBTAG) : $(CCNAMES)
 	$(MAKE) $(?:.cxx=.o)
 	touch $(EXTLIBTAG)
 	ar rv $(EXTLIB) $(?:.cxx=.o)
 	rm -f $(?:.cxx=.o)
+
+tests/refcnt : tests/refcnt.o rfcntptt.o rfcntptr.o refcoimp.o protoimp.o \
+               hopclimp.o classimp.o defrefco.o defproto.o clsprgid.o \
+               defeh_cl.o cltpsstr.o objctstr.o objecimp.o objctstd.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/refcnt
 
 GNUmakefile : depend.stamp
 	dependdb list --makefiles GNUmakefile GNUmakefile.new
