@@ -1,6 +1,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/06/29 06:43:42  hopper
+// Changed comment style to be more rational and added comments for new
+// classes.
+//
 // Revision 1.2  1996/05/08 11:11:29  hopper
 // Added a couple of new classes to the comments section.
 //
@@ -30,22 +34,24 @@
 const STR_ClassIdent STR_ClassIdent::identifier(0UL);
 
 /*
-   STR_ClassIdent	0UL
-   StreamModule		1UL
-   StrPlug		2UL
-   EchoModule		3UL
-   EchoPlug		4UL
-   StrChunkBuffer	5UL
-   StrChunk		6UL
-   DataBlockStrChunk	7UL
-   StreamFDModule	8UL
-   StrFDPlug		9UL
-   SplitterModule	10UL
-   SplitterPlug		11UL
-   SocketModule		12UL
-   SockListenModule	13UL
-   ListeningPlug	14UL
-   SocketModuleChunk	15UL
-   GroupVector		16UL
-   GroupVector::Iterator 17UL
+   0UL	STR_ClassIdent
+   1UL	StreamModule
+   2UL	StrPlug
+   3UL	EchoModule
+   4UL	EchoPlug
+   6UL	StrChunk
+   7UL	DataBlockStrChunk
+   8UL	StreamFDModule
+   9UL	StrFDPlug
+  10UL	SplitterModule
+  11UL	SplitterPlug
+  12UL	SocketModule
+  13UL	SockListenModule
+  14UL	ListeningPlug
+  15UL	SocketModuleChunk
+  16UL	GroupVector
+  17UL	GroupVector::Iterator
+  18UL	StrSubChunk
+  19UL  StrChunkPtr
+  20UL  GroupChunk
 */
