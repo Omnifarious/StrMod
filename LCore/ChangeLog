@@ -1,3 +1,58 @@
+2002-03-13  hopper  <hopper@omnifarious.org>
+
+	* LCore/simple_bitset.h: Include optimizing specializations.
+
+	* LCore/simple_bitset_optim.h, LCore/simple_bitset.h: Removed lots
+	of debugging prints.
+
+	* LCore/enum_set.h: Fixed a stupid error (I put in *this instead
+	of other :-(.  Removed lots of debugging prints.
+
+	* LCore/simple_bitset.h, LCore/simple_bitset.cxx: Numerous good
+	changes to appease AIX's much stricter compiler.  Now much more
+	tight about exactly where names are accessible.
+
+2002-03-12  hopper  <hopper@omnifarious.org>
+
+	* LCore/LCoreError.h, LCore/simple_bitset.h: Fixed many small
+	things the Solaris compiler doesn't like.  Removed ;'s after the
+	closing } of namespaces.  Removed redeclaration of default
+	argument values in a few places.
+
+	* LCore/enum_set.h, LCore/simple_bitset.h: More attempts to ferret
+	out the problem.  GCC bug?
+
+	* LCore/enum_set.h, LCore/simple_bitset.h,
+	LCore/simple_bitset_optim.h, Makefile.in, simple_bitset.cxx: Added
+	in new simple_bitset class so I have cleaner bitset code in order
+	to debug things.
+
+2002-03-08  hopper  <hopper@omnifarious.org>
+
+	* LCore/enum_set.h: More testing, seems something's wrong with
+	STLs bitset.
+
+	* LCore/enum_set.h: Added operator = to try to fix a bug.
+
+2002-03-07  hopper  <hopper@omnifarious.org>
+
+	* LCore/enum_set.h: Fixed a coupld of errors that never showed up
+	because the bitwise operator functions had never been
+	instantiated.
+
+2002-02-10  hopper  <hopper@omnifarious.org>
+
+	* tests/refcnt.cxx, LCore/enum_set.h, LCore/LCoreError.h,
+	objctstr.cxx: More changes to make work better with standard C++.
+	Also, added a bit of documentation to try to make doxygen happy.
+
+2002-02-05  hopper  <hopper@omnifarious.org>
+
+	* /home/hopper/src/cvs/C++/LCore/ChangeLog, /home/hopper/src/cvs/C++/LCore/cltpsstr.cxx, /home/hopper/src/cvs/C++/LCore/lcerror.cxx, /home/hopper/src/cvs/C++/LCore/LCore/ClassTypes.h, /home/hopper/src/cvs/C++/LCore/LCore/Debugable.h, /home/hopper/src/cvs/C++/LCore/LCore/enum_set.h, /home/hopper/src/cvs/C++/LCore/LCore/LCoreError.h, /home/hopper/src/cvs/C++/LCore/LCore/Object.h:
+	Fixed up things to work with new C++ standard library that insists on
+	the std:: namespace.  Removed RCS id string because it isn't
+	consistently included and of dubious value.
+
 2002-02-05  Eric Hopper  <hopper@omnifarious.org>
 
 	* Everything: Fixed up things to work with new C++ standard
