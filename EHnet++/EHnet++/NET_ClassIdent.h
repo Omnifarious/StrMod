@@ -6,7 +6,8 @@
 
 /* $Header$ */
 
-// $Log$
+// For a log, see ../ChangeLog
+//
 // Revision 1.1  1996/02/12 03:01:54  hopper
 // Added links to my ClassIdent system.
 //
@@ -25,8 +26,6 @@ class NET_ClassIdent : public EH_ClassIdent {
    inline NET_ClassIdent(U4Byte cnum);
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   inline bool operator ==(const ClassIdent &b);
 };
 
 //---------------------------inline functions--------------------------------
@@ -44,11 +43,6 @@ inline const ClassIdent *NET_ClassIdent::i_GetIdent() const
 inline int NET_ClassIdent::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
-}
-
-inline bool NET_ClassIdent::operator ==(const ClassIdent &b)
-{
-   return(EH_ClassIdent::operator ==(b));
 }
 
 #endif
