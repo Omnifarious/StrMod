@@ -28,6 +28,7 @@
 
 #define _STR_TelnetParser_H_
 
+#include <StrMod/TelnetChars.h>
 #include <StrMod/STR_ClassIdent.h>
 #include <LCore/Protocol.h>
 #include <LCore/HopClTypes.h>
@@ -54,13 +55,33 @@ class TelnetParser : virtual public Protocol {
     * function is called, and it may be that no builder function at all is
     * called.
     */
-   virtual void processChar(U1Byte char, TelnetChunkBuilder &builder);
+   virtual void processChar(U1Byte ch, TelnetChunkBuilder &builder);
 
    //! Reset the parser back to the 'start' state.
    virtual void reset(TelnetChunkBuilder &builder);
 
  protected:
+   /** Describes the current state of the parser.
+    *
+    * This state is completely determined by the characters fed into
+    * processChar().
+    */
+   enum ParserState {
+      PS_Normal,  //!< Starting state.  Normal data.
+      PS_Escape,  //!< Saw an IAC character in normal data
+      PS_SubNeg,  //!< Saw an IAC {WILL,WONT,DO,DONT}, expecting option number
+      PS_SuboptNum, //!< Saw an IAC SE and expecting an option number
+      PS_Subopt,  //!< Between IAC SE <num> and IAC SE
+      PS_SuboptEscape  //!< Saw an IAC while in PS_Subopt
+   };
+
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+
+ private:
+   ParserState state_;
+   TelnetChars::OptionNegotiations negtype_;
 };
+
+//-----------------------------inline functions--------------------------------
 
 #endif
