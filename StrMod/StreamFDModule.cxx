@@ -1,8 +1,12 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/22 04:46:48  hopper
- // Initial revision
+ // Revision 1.2  1995/07/23 04:00:34  hopper
+ // Added #include <string.h> in various places to avoid triggering a bug
+ // in libg++ 2.7.0
+ //
+ // Revision 1.1.1.1  1995/07/22 04:46:48  hopper
+ // Imported sources
  //
  // -> Revision 0.17  1995/04/14  16:32:33  hopper
  // -> Combined versions 0.16 and 0.16.0.4
@@ -57,6 +61,7 @@ extern "C" int sys_nerr;
 extern "C" int errno;
 extern "C" int close(int);
 
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>

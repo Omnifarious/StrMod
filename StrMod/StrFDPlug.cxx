@@ -1,8 +1,12 @@
 /* $Header$ */
 
  // $Log$
- // Revision 1.1  1995/07/22 04:46:47  hopper
- // Initial revision
+ // Revision 1.2  1995/07/23 04:00:33  hopper
+ // Added #include <string.h> in various places to avoid triggering a bug
+ // in libg++ 2.7.0
+ //
+ // Revision 1.1.1.1  1995/07/22 04:46:47  hopper
+ // Imported sources
  //
  // -> Revision 0.16  1995/04/14  17:10:13  hopper
  // -> Combined versions 0.15 and 0.15.0.4
@@ -60,6 +64,7 @@ static char _StrFDPlug_CC_rcsID[] = "$Id$";
 #include "StrMod/StreamFDModule.h"
 #include <Dispatch/dispatcher.h>
 #include "StrMod/StrChunk.h"
+#include <string.h>
 #include <unistd.h>
 #include <iostream.h>
 #include <errno.h>

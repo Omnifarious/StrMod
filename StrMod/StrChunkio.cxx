@@ -1,8 +1,12 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:47  hopper
-// Initial revision
+// Revision 1.2  1995/07/23 04:00:32  hopper
+// Added #include <string.h> in various places to avoid triggering a bug
+// in libg++ 2.7.0
+//
+// Revision 1.1.1.1  1995/07/22 04:46:47  hopper
+// Imported sources
 //
  // -> Revision 0.13  1995/04/14  17:07:57  hopper
  // -> Combined revisions 0.12 and 0.12.0.4
@@ -37,6 +41,7 @@
  // ->
 
 #include "StrMod/StrChunk.h"
+#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 
