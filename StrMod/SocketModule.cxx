@@ -1,6 +1,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/09/02 23:09:51  hopper
+// Added a crude attempt at fixing deficiencies in AIX 3.2.5's include
+// files with respect to socket calls.
+//
 // Revision 1.2  1995/07/23 03:58:48  hopper
 // Removed spurious cast to caddr_t in calls to connect.
 //
@@ -50,9 +54,9 @@ static char _SocketModule_CC_rcsID[] =
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <errno.h>
-
-extern "C" int close(int);
-extern "C" int errno;
+#include <unistd.h>
+#include "config.h"
+#include "sockdecl.h"
 
 const STR_ClassIdent SocketModule::identifier(12UL);
 

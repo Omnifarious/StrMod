@@ -1,6 +1,10 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.6  1996/09/02 23:09:52  hopper
+ // Added a crude attempt at fixing deficiencies in AIX 3.2.5's include
+ // files with respect to socket calls.
+ //
  // Revision 1.5  1996/07/07 20:56:48  hopper
  // Added, then commented out some debugging.  I left it there because it
  // might be useful someday.
@@ -80,6 +84,11 @@ static char _StrFDPlug_CC_rcsID[] = "$Id$";
 #include <unistd.h>
 #include <iostream.h>
 #include <errno.h>
+#include "config.h"
+
+#ifdef NEED_WRITEV_DECL
+extern "C" int writev(int FileDescriptor, struct iovec *iov, int iovCount);
+#endif
 
 #ifdef __GNUG__
 const StrChunkPtr StrFDPlug::InternalRead() return temp;

@@ -26,6 +26,8 @@ static char _SockListenModule_CC_rcsID[] =
 #include <string>
 #include <iostream.h>
 #include <unistd.h>
+#include "config.h"
+#include "sockdecl.h"
 
 const STR_ClassIdent SockListenModule::identifier(13UL);
 const STR_ClassIdent ListeningPlug::identifier(14UL);
