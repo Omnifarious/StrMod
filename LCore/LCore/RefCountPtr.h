@@ -155,8 +155,10 @@ inline const RefCountPtr &RefCountPtr::operator =(RC *b)
 }
 
 #if !(defined(_LCORE_RefCountPtr_H_DEBUG) || defined(_LCORE_RefCountPtr_H_CC))
-#  ifndef _LCORE_RefCountPtr_H_NDEBUG_SET
+#  if !defined(_LCORE_RefCountPtr_H_NDEBUG_SET)
 #     undef NDEBUG
+#   else
+#     undef _LCORE_RefCountPtr_H_NDEBUG_SET
 #   endif
 #endif
 
