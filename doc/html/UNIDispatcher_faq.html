@@ -36,11 +36,11 @@ strmod::unievent namespace.</p>
         </dt>
           <dd><p>An Event is the object that the Dispatcher holds in a queue
             and 'fires' by calling its <a
-            href="../doxygen/classUNIEvent.html#a3">TriggerEvent</a> method.
-            It behaves a little like a function pointer that's pointing at a
-            function that takes as an argument the dispatcher that fired the
-            event. Events are supposed to be re-used, and not created
-            individually for each event. That's why they inherit from
+            href="../doxygen/classstrmod_1_1unievent_1_1Event.html#a3">TriggerEvent</a>
+            method.  It behaves a little like a function pointer that's
+            pointing at a function that takes as an argument the dispatcher
+            that fired the event. Events are supposed to be re-used, and not
+            created individually for each event. That's why they inherit from
             strmod::lcore::ReferenceCounting and have the EventPtr type.</p>
           </dd>
         <dt><h3>Why would I use an implementation of Dispatcher?</h3>
