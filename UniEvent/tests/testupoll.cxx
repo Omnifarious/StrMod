@@ -143,10 +143,10 @@ void TimerEvent::triggerEvent(strmod::unievent::Dispatcher *dispatcher)
 
 int main(int argc, const char *argv[])
 {
+   using ::std::cerr;
    try {
       strmod::unievent::SimpleDispatcher dispatcher;
       strmod::unievent::UnixEventPoll upoll(&dispatcher);
-      using ::std::cerr;
 
       using strmod::unievent::UnixEventRegistry;
       upoll.printState(cerr);
