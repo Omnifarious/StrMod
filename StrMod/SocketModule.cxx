@@ -38,6 +38,8 @@
 #include "config.h"
 #include "sockdecl.h"
 
+#include <iostream>
+
 #ifndef SHUT_WR
 #define SHUT_WR 1
 #endif
@@ -93,10 +95,10 @@ void SocketModule::writeEOF()
       }
       else
       {
-//  	 cerr << "Wheee 1\n";
+//         ::std::cerr << "Wheee 1\n";
          if (shutdown(getFD(), SHUT_WR) != 0)
          {
-//  	 cerr << "Wheee 2\n";
+//            ::std::cerr << "Wheee 2\n";
             const int myerrno = UNIXError::getErrno();
             setErrorIn(ErrWrite,
                        UNIXError("shutdown", myerrno,
@@ -115,12 +117,12 @@ void SocketModule::writeEOF()
 static inline void setNonBlock(int fd) throw(UNIXError)
 {
    int errval = 0;
-//     cerr << "In setNonBlock(" << fd << ", " << errval << ")\n";
+//     ::std::cerr << "In setNonBlock(" << fd << ", " << errval << ")\n";
    if (!FDUtil::setNonBlock(fd, errval))
    {
       throw UNIXError("FDUtil::setNonBlock", errval,
                       LCoreError(LCORE_GET_COMPILERINFO()));
-//        cerr << "setNonBlock::errval == " << errval << "\n";
+//        ::std::cerr << "setNonBlock::errval == " << errval << "\n";
    }
 }
 
