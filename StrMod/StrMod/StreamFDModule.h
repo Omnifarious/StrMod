@@ -62,6 +62,7 @@ class StreamFDModule : public StreamModule {
    class FPlug;
    friend class FPlug;
  private:
+   class BufferList;
    class FDPollEv;
    friend class FDPollEv;
    class FDPollRdEv;
@@ -227,11 +228,11 @@ class StreamFDModule : public StreamModule {
    // Also set flags_.checkingwr if this is done. </p>
    void maybeShouldWriteFD();
 
-   //: Called by readev_'s TriggerEvent.
+   //: Called by readev_'s triggerEvent.
    void eventRead(unsigned int condbits);
-   //: Called by writeev_'s TriggerEvent.
+   //: Called by writeev_'s triggerEvent.
    void eventWrite(unsigned int condbits);
-   //: Called by errorev_'s TriggerEvent.
+   //: Called by errorev_'s triggerEvent.
    void eventError(unsigned int condbits);
 
  private:
@@ -248,9 +249,7 @@ class StreamFDModule : public StreamModule {
    FPlug plug_;
    StrChunkPtr buffed_read_;
    StrChunkPtr cur_write_;
-   size_t write_pos_;
-   size_t write_length_;
-   GroupVector *write_vec_;
+   BufferList &curbuflist_;
    unsigned int max_block_size_;
    FDPollEv *readevptr_;
    UNIEventPtrT<UNIXpollManager::PollEvent> readev_;

@@ -31,8 +31,8 @@
 #ifndef _STR_EOFStrChunk_H_
 #   include "StrMod/EOFStrChunk.h"
 #endif
-#ifndef _STR_GroupVector_H_
-#   include "StrMod/GroupVector.h"
+#ifndef _STR_UseTrackingVisitor_H_
+#   include "StrMod/UseTrackingVisitor.h"
 #endif
 
 #include <unistd.h>  // read  (and maybe sysconf)
@@ -42,6 +42,7 @@
 #include <assert.h>
 #include <stddef.h>  // NULL
 #include <errno.h> // ESUCCESS
+#include <vector>
 #ifndef ESUCCESS
 #  define ESUCCESS 0
 #endif
@@ -138,6 +139,132 @@ class StreamFDModule::FDPollErEv : public StreamFDModule::FDPollEv {
 
    virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerError(); }
 };
+
+/**
+ * The ChunkVisitor that gathers data for the writev calls.
+ */
+class StreamFDModule::BufferList : public UseTrackingVisitor {
+ public:
+   //! ChunkVisitors never have very interesting constructors
+   // Do ignore zeros though.  When iterating over data, zero length chunks
+   // and data extents are pointless.
+   BufferList() : UseTrackingVisitor(true)  { }
+   //! And rarely interesting destructors either.
+   virtual ~BufferList()                    { }
+
+   /**
+    * Visit the StrChunk DAG rooted at root, filling up iovecs_ with what I
+    * find.
+    *
+    * @param root The StrChunk to visit.
+    *
+    * @param dataexts A reference to a pointer to a list of data extents.  Set
+    * to point at the new list after it's all ben figured out.
+    *
+    * @param numexts A reference to an int that will be filled with the number
+    * of data extents I found, and therefor how many data extents dataexts now
+    * points at.  */
+   void startChunk(const StrChunkPtr &chunk)
+   {
+      iovecs_.clear();
+      totalbytes_ = curbyte_ = 0;
+      curvec_ = 0;
+      curchunk_ = chunk;
+      try
+      {
+         startVisit(chunk);
+      }
+      catch (...)
+      {
+         curchunk_.ReleasePtr();
+         throw;
+      }
+      if (iovecs_.size() <= 0)
+      {
+         curchunk_.ReleasePtr();
+      }
+      else
+      {
+         curvec_ = iovecs_.begin();
+      }
+   }
+
+   size_t bytesLeft() const                { return totalbytes_ - curbyte_; }
+   inline iovec *getIOVec() const          { return curvec_; }
+   inline size_t numVecs() const           { return iovecs_.end() - curvec_; }
+   void advanceBy(size_t numbytes);
+
+ protected:
+   /*!
+    * I don't care about chunks, just data (because iovecs are all about data)
+    * so do nothing when told about a chunk.
+    */
+   virtual void use_visitStrChunk(const StrChunkPtr &chunk,
+                                  const LinearExtent &used)
+      throw(halt_visitation)               { }
+
+   /*!
+    * Add this new chunk of data to our list.
+    */
+   virtual void use_visitDataBlock(const void *start, size_t len,
+                                   const void *realstart, size_t reallen)
+      throw(halt_visitation)
+   {
+      // Many routines depend on this if statement to ensure that there are no
+      // zero length extents.
+      if (len <= 0)
+      {
+         return;
+      }
+
+      iovec data = {const_cast<void *>(start), len};
+
+      iovecs_.push_back(data);
+   }
+
+ private:
+   typedef vector<iovec> iovecvec;
+   StrChunkPtr curchunk_;
+   size_t totalbytes_;
+   size_t curbyte_;
+   iovecvec::iterator curvec_;
+   iovecvec iovecs_;
+};
+
+inline void StreamFDModule::BufferList::advanceBy(size_t numbytes)
+{
+   if (totalbytes_ <= 0)
+   {
+      assert(curbyte_ == 0);
+      return;
+   }
+   if ((curbyte_ + numbytes) >= totalbytes_)
+   {
+      totalbytes_ = curbyte_ = 0;
+      curchunk_.ReleasePtr();
+      curvec_ = 0;
+      iovecs_.clear();
+      return;
+   }
+
+   for (size_t bytestomove = numbytes; bytestomove > 0; )
+   {
+      if (curvec_->iov_len <= bytestomove)
+      {
+         bytestomove -= curvec_->iov_len;
+         ++curvec_;
+      }
+      else
+      {
+         curvec_->iov_base =
+            static_cast<unsigned char *>(curvec_->iov_base) + bytestomove;
+         curvec_->iov_len -= bytestomove;
+         bytestomove = 0;
+      }
+   }
+   curbyte_ += numbytes;
+   assert(curvec_ != iovecs_.end());
+}
 
 void StreamFDModule::setErrorIn(ErrCategory ecat, int err)
 {
@@ -374,8 +501,9 @@ void StreamFDModule::doWriteFD()
    assert(!hasErrorIn(ErrWrite));
    assert(!hasErrorIn(ErrFatal));
    assert(fd_ >= 0);
+   BufferList mybuflist = curbuflist_;
 
-   if (write_vec_ == NULL)
+   if (mybuflist.bytesLeft() <= 0)
    {
       if (cur_write_->AreYouA(EOFStrChunk::identifier))
       {
@@ -392,33 +520,26 @@ void StreamFDModule::doWriteFD()
       }
       else
       {
-	 write_vec_ = new GroupVector(cur_write_->NumSubGroups());
-	 cur_write_->SimpleFillGroupVec(*write_vec_);
-	 write_pos_ = 0;
-	 write_length_ = write_vec_->TotalLength();
+         curbuflist_.startChunk(cur_write_);
       }
    }
 
-   assert(write_vec_ != NULL);
+   assert(mybuflist.bytesLeft() > 0);
 
    // Tell the compiler how I intend to use this value.
-   const size_t length = write_length_;
+   size_t length = mybuflist.bytesLeft();
 
    // This loop is also broken out of when there's an error writing.
-   while (write_pos_ < length)
+   while (length > 0)
    {
       int written;
       bool result;
-      GroupVector::IOVecDesc ioveclst;
-
-      result = write_vec_->FillIOVecDesc(write_pos_, ioveclst);
-      assert(result == true);
-      assert(ioveclst.iovcnt > 0);
-      if (ioveclst.iovcnt > MAXIOVCNT)
+      size_t numvecs = mybuflist.numVecs();
+      if (numvecs > MAXIOVCNT)
       {
-	 ioveclst.iovcnt = MAXIOVCNT;
+	 numvecs = MAXIOVCNT;
       }
-      written = ::writev(fd_, ioveclst.iov, ioveclst.iovcnt);
+      written = ::writev(fd_, mybuflist.getIOVec(), numvecs);
       // cerr << fd_ << ": just wrote: <";
       // cerr.write(ioveclst.iov[0].iov_base, ioveclst.iov[0].iov_len);
       // cerr << ">\n";
@@ -435,22 +556,14 @@ void StreamFDModule::doWriteFD()
       }
       else
       {
-	 write_pos_ += written;
+         mybuflist.advanceBy(written);
+         length = mybuflist.bytesLeft();
       }
    }
 
-   assert(write_pos_ <= length);
-
-   // i.e. == length, with an attempt to recover from a 'broken axle'
-   if (write_pos_ >= length)
+   if (mybuflist.bytesLeft() <= 0)
    {
-      if (write_vec_ != NULL)
-      {
-	 delete write_vec_;
-	 write_vec_ = NULL;
-      }
       cur_write_.ReleasePtr();
-      write_pos_ = 0;
    }
 
    if (!cur_write_ && !(hasErrorIn(ErrWrite) || hasErrorIn(ErrOther)))
@@ -605,9 +718,7 @@ StreamFDModule::StreamFDModule(int fd, UNIXpollManager &pollmgr,
 			       IOCheckFlags f, bool hangdelete)
      : fd_(fd),
        plug_(*this),
-       write_pos_(0),
-       write_length_(0),
-       write_vec_(NULL),
+       curbuflist_(*(new BufferList)),
        max_block_size_(4096),
        readevptr_(NULL),
        writeevptr_(NULL),
