@@ -14,6 +14,7 @@
 #include <vector>
 #include <iostream>
 #include <cerrno>
+#include <stdexcept>
 #include <sys/poll.h>
 
 namespace strmod {
@@ -34,7 +35,7 @@ struct FDEvent {
    EventPtr ev_;
    FDCondSet condset_;
 
-   FDEvent(const EventPtr ev, FDCondSet condset)
+   FDEvent(const EventPtr ev, const FDCondSet &condset)
         : ev_(ev), condset_(condset) { }
 };
 using ::std::multimap;

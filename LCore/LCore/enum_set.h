@@ -26,7 +26,7 @@
 
 // For a log, see ../ChangeLog
 
-#include <bitset>
+#include <LCore/simple_bitset.h>
 #include <string>
 #include <iostream>
 
@@ -43,12 +43,14 @@
  * \param last The highest valued enum flag.
  */
 template <class enum_t, enum_t first, enum_t last>
-class enum_set : private std::bitset<last - first + 1> {
+//class enum_set : private std::bitset<last - first + 1>
+class enum_set : private simple_bitset<last - first + 1>
+{
   private:
    typedef enum_set<enum_t, first, last> self_t;
    //! Used to refer to private parent type to avoid errors in template parameter.
-   typedef std::bitset<last - first + 1> parent_t;
-   typedef std::bitset<last - first + 1>::reference pref;
+   typedef simple_bitset<last - first + 1> parent_t;
+//     typedef simple_bitset<last - first + 1>::reference pref;
   public:
    //! Construct an enum_set with no bits set.
    inline enum_set();
@@ -87,8 +89,8 @@ class enum_set : private std::bitset<last - first + 1> {
    inline self_t &reset(enum_t __pos);
    //! Flip a bit from 0 to 1 or 1 to 0
    inline self_t &flip(enum_t __pos);
-   //! Allow bitset[enum_val] syntax.
-   inline pref operator[](enum_t __pos);
+//     //! Allow bitset[enum_val] syntax.
+//     inline pref operator[](enum_t __pos);
    //! Allow bitset[enum_val] syntax.
    inline bool operator [](enum_t __pos) const;
    //! How many bits are set?
@@ -194,7 +196,7 @@ inline enum_set<enum_t, first, last>::enum_set(const self_t &other)
      : parent_t(*this)
 {
    ::std::cerr << "Copying(2) an enum_set: this == " << this << " && &other == " << &other << "\n";
-   ::std::cerr << "*this == " << to_string() << " && other == " << other << "\n";
+   ::std::cerr << "*this == " << to_string() << " && other == " << other.to_string() << "\n";
 }
 
 template <class enum_t, enum_t first, enum_t last>
@@ -261,12 +263,12 @@ enum_set<enum_t, first, last>::flip(enum_t __pos)
    return *this;
 }
 
-template <class enum_t, enum_t first, enum_t last>
-inline typename enum_set<enum_t, first, last>::pref
-enum_set<enum_t, first, last>::operator[](enum_t __pos)
-{
-   return parent_t::operator[](__pos - first);
-}
+//  template <class enum_t, enum_t first, enum_t last>
+//  inline typename enum_set<enum_t, first, last>::pref
+//  enum_set<enum_t, first, last>::operator[](enum_t __pos)
+//  {
+//     return parent_t::operator[](__pos - first);
+//  }
 
 template <class enum_t, enum_t first, enum_t last>
 inline bool enum_set<enum_t, first, last>::operator[](enum_t __pos) const
@@ -304,9 +306,10 @@ inline bool enum_set<enum_t, first, last>::test(enum_t __pos) const
 template <class enum_t, enum_t first, enum_t last>
 inline std::string enum_set<enum_t, first, last>::to_string() const
 {
-   std::string fred;
-   parent_t::_M_copy_to_string(fred);
-   return fred;
+//     std::string fred;
+//     parent_t::_M_copy_to_string(fred);
+//     return fred;
+   return parent_t::to_string();
 }
 
 //--
