@@ -4,10 +4,10 @@ static char block[8192];
 
 main()
 {
-   int i;
+   int result;
 
-   for (i = 0; i < 8192; i++)
-      block[i] = 'a';
-   while (1)
-      write(1, block, 8192);
+   memset(block, 'a', 8192);
+   do {
+      result = write(1, block, 8192);
+   } while (result > 0);
 }
