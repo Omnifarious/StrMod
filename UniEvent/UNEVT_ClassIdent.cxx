@@ -39,5 +39,5 @@ const UNEVT_ClassIdent UNEVT_ClassIdent::identifier(0UL);
  *   7UL  UNIXpollManager
  *   8UL  UNIXpollManager::PollEvent
  *   9UL  UNIXpollManagerImp
- *  10UL  UNIXError
+ *  10UL  <nothing, was UNIXError>
  */
