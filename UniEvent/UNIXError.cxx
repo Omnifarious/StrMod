@@ -27,6 +27,8 @@
 #include "UniEvent/UNIXError.h"
 #include <string.h>
 
+const UNIXError UNIXError::S_noerror("<no error>", LCoreError("<no error>"));
+
 void UNIXError::getErrorString(char *buf, size_t buflen) const throw ()
 {
    strerror_r(errnum_, buf, buflen);
