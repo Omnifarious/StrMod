@@ -32,26 +32,34 @@
 
 class UNIEvent;
 
+/** \class UNISimpleDispatcher SimpleDispatcher.h UniEvent/SimpleDispatcher.h
+ * \brief A class that does the minimum necessary to support the UNIDispatcher
+ * interface.
+ */
 class UNISimpleDispatcher : public UNIDispatcher {
    class Imp;
  public:
    static const UNEVT_ClassIdent identifier;
 
+   //! Create one.
    UNISimpleDispatcher();
+   //! Destroy one.
    virtual ~UNISimpleDispatcher();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   virtual void AddEvent(const UNIEventPtr &ev);
+   virtual void addEvent(const UNIEventPtr &ev);
 
-   virtual void DispatchEvents(unsigned int numevents,
+   virtual void dispatchEvents(unsigned int numevents,
 			       UNIDispatcher *enclosing = 0);
-   virtual void DispatchUntilEmpty(UNIDispatcher *enclosing = 0);
-   inline virtual void StopDispatching();
+   virtual void dispatchUntilEmpty(UNIDispatcher *enclosing = 0);
+   inline virtual void stopDispatching();
 
-   virtual bool IsQueueEmpty() const;
+   virtual bool isQueueEmpty() const;
 
-   virtual void onQueueEmpty(const UNIEventPtr &ev);
+   virtual void addBusyPollEvent(const UNIEventPtr &ev);
+
+   virtual bool onQueueEmpty(const UNIEventPtr &ev);
 
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
@@ -59,6 +67,12 @@ class UNISimpleDispatcher : public UNIDispatcher {
  private:
    Imp &imp_;
    bool stop_flag_;
+
+   inline void i_DispatchEvent(Imp &imp, UNIDispatcher *enclosing);
+   unsigned int i_dispatchNEvents(unsigned int n, bool checkbusypoll,
+                                  UNIDispatcher *enclosing);
+   inline unsigned int checkEmptyBusy(Imp &imp, bool &checkbusy);
+   void dispatchNEvents(unsigned int n, UNIDispatcher *enclosing);
 
    // Purposely left undefined.
    UNISimpleDispatcher(const UNISimpleDispatcher &b);
@@ -72,7 +86,7 @@ inline int UNISimpleDispatcher::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || UNIDispatcher::AreYouA(cid));
 }
 
-void UNISimpleDispatcher::StopDispatching()
+void UNISimpleDispatcher::stopDispatching()
 {
    stop_flag_ = true;
 }
