@@ -44,7 +44,8 @@ computer at home, then forward them to their eventual destination.</p>
 which is the only browser I've found that correctly alpha channels) of a
 typical running PortForward session:</p>
 
-<div class="centered"><img src="PortForward-running.png" alt="A diagram" /></div>
+<div class="centered">
+<img src="PortForward-running.png" alt="A diagram" /></div>
 
 <p>As you can see, anything I type into my xchat client goes to the port
 forwarder program, then is sent from there to an openprojects.net IRC server.
@@ -210,12 +211,11 @@ putting out listening sockets, we aren't doing anything with any incoming
 connections. Lastly, we aren't making any outgoing connections in response to
 our incoming ones.</p>
 
-<p>Lets tackle the first thing.  Obviously, we need a data structure that
-tracks the listening socket, and the outgoing address.  It also might be nice
-to remember what the port number we are listening to.  Since we'll need these
+<p>Lets tackle the first thing. Obviously, we need a data structure that
+tracks the listening socket, and the outgoing address. It also might be nice
+to remember what the port number we are listening to. Since we'll need these
 values in the form of SocketAddresses when we use them, we might as well
 store them as SocketAddresses.</p>
-
 <pre class="codeblock">class Listener {
  public:
    Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
@@ -265,41 +265,38 @@ Listener::~Listener()
    delete to_;
 }</pre>
 
-<p>That was pretty straightforward.  One thing that is a bit tricky is the
+<p>That was pretty straightforward. One thing that is a bit tricky is the
 <code>from.Copy()</code> and <code>to.Copy()</code> bits in the
 constructor.</p>
 
-<p>A SocketAddress, as we've said before, is an abstract base class.  You
-can't actually have a SocketAddress.  Also, the SocketAddress objects we are
+<p>A SocketAddress, as we've said before, is an abstract base class. You
+can't actually have a SocketAddress. Also, the SocketAddress objects we are
 being passed are not 'owned' by the Listener, so it needs copies that it owns
-so it can control their lifetime.  This also means that they need to be
+so it can control their lifetime. This also means that they need to be
 destroyed in the destructor.</p>
 
-<p>Hence, the <code>Copy()</code> method.  That method is defined as a
-virtual function on SocketAddress, and its intent is to return a full copy of
-the object.  If the <code>SocketAddress &amp;</code> refers to an
-InetAddress, it returns a copy of the InetAddress.  If it refers to a
-UnixSocketAddress, it returns a UnixSocketAddress and so on.</p>
+<p>Hence, the <code>Copy()</code> method. That method is defined as a virtual
+function on SocketAddress, and its intent is to return a full copy of the
+object. If the <code>SocketAddress &amp;</code> refers to an InetAddress, it
+returns a copy of the InetAddress. If it refers to a UnixSocketAddress, it
+returns a UnixSocketAddress and so on.</p>
 
-<p>Now, to put it all together.  Since we want to create a program here that
+<p>Now, to put it all together. Since we want to create a program here that
 you could compile, this program will contain the proper #include and
 namespace directives.</p>
-
-<pre class="codeblock">#include &lt;StrMod/SockListenModule.h>
-#include &lt;EHnet++/SocketAddress.h>
-#include &lt;EHnet++/InetAddress.h>
-#include &lt;UniEvent/Dispatcher.h>
-#include &lt;UniEvent/SimpleDispatcher.h>
-#include &lt;UniEvent/UNIXpollManager.h>
-#include &lt;UniEvent/UNIXpollManagerImp.h>
-#include &lt;iostream>
-#include &lt;string>
+<pre class="codeblock">#include &lt;StrMod/SockListenModule.h&gt;
+#include &lt;EHnet++/SocketAddress.h&gt;
+#include &lt;EHnet++/InetAddress.h&gt;
+#include &lt;UniEvent/Dispatcher.h&gt;
+#include &lt;UniEvent/SimpleDispatcher.h&gt;
+#include &lt;UniEvent/UNIXpollManager.h&gt;
+#include &lt;UniEvent/UNIXpollManagerImp.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
 
 using strmod::strmod::SockListenModule;
 using strmod::unievent::Dispatcher;
-using strmod::unievent::SimpleDispatcher;
 using strmod::unievent::UNIXpollManager;
-using strmod::unievent::UNIXpollManagerImp;
 
 // The EHnet++ library has not yet been converted to use namespaces.
 
@@ -331,8 +328,8 @@ Listener::~Listener()
 
 int main()
 {
-   SimpleDispatcher dispatcher;
-   UNIXpollManagerImp pollmanager(&amp;dispatcher);
+   strmod::unievent::SimpleDispatcher dispatcher;
+   strmod::unievent::UNIXpollManagerImp pollmanager(&amp;dispatcher);
    using std::cin;
    using std::cout;
    using std::string;
@@ -343,7 +340,7 @@ int main()
       string outaddr;
       unsigned int outport = 0;
 
-      cin >> inport >> outaddr >> outport;
+      cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
       if (cin)
       {
          InetAddress listenaddr(inport);
@@ -357,6 +354,75 @@ int main()
    } while (cin);
    return 0;
 }</pre>
+
+<p>That code should compile if you have the libNet library from StreamModule
+installed somewhere with its include files. It still has a nasty memory leak,
+though it keeps track of the port to connect to. Lets fix the leak by adding
+the following lines in the appriate places:</p>
+<pre class="codeblock">#include &lt;list&gt;
+
+typedef std::list&lt;Listener *&gt; ListenerList;
+
+ListenerList listeners;
+
+listeners.push_front(listener);  // Reverse order so they get deleted in reverse order later.
+
+for (ListenerList::iterator i = listeners.begin(); i != listeners.end(); ++i)
+{
+   delete *i;
+   *i = 0;
+}</pre>
+
+<p>I bet you can figure out where to add those. If you want to see if you're
+right, see the next place where the code is written out in full again.</p>
+
+<p>This fixes the problem of keeping track of where to connect.  The next
+task is to do something with incoming connections.  This gets a bit more
+complicated and involves more of the framework.</p>
+
+<h3>Dispatcher</h3>
+
+<p>A Dispatcher is supposed to provide an implementation of an Event queue.
+Things can add (post) events to the queue, and the main program can tell the
+Dispatcher to trigger them.  This is used for couple of purposes.</p>
+
+<p>One purpose is for callbacks.  Oftentimes, there is a need for things of a
+lower level of abstraction (like buttons on a GUI) to call back to things at a
+higher level to tell them something important has happened.</p>
+
+<p>Another purpose is for cooperative multitasking.  Things can post an event
+when they are only partly done with a task, and that event will be fired so
+it can complete its task sometime later, after some other things have had a
+chance to run.  Since control is voluntarily surrendered, no context
+information needs to be explicitly kept by the event mechanism.  Also control
+flow doesn't involve any interrupts, and is likely to not have an adverse
+effect on CPU caches and such.</p>
+
+<p>In our case, the Dispatcher will mainly be used for callbacks, though we
+won't yet deal directly with events.</p>
+
+<p>One of the more important generators of callback events is the
+UNIXpollManager.  It's job is to get the OS to tell it when some event (like
+a file descriptor becoming readable or writeable) has happened.  It then
+posts this event to the Dispatcher.  That's why the UNIXpollManager needs a
+Dispatcher as a constructor argument, and also why things that work with the
+OS (like SockListenModule) need to know about a UNIXpollManager.</p>
+
+<p>SockListenModule opens up a listening socket in its constructor, and
+registers an interest in whether or not it is 'readable' (the secret Unix
+code meaning that it has an incoming connection) with the UNIXpollManager.
+The UNIXpollManager tells the Dispatcher that it needs to run when things are
+idle to check for OS events.  When it notices that the file descriptor is
+readable, the UNIXpollManager posts the event that the SockListenModule
+registered with it.</p>
+
+<p>So, in order to have the SockListenModule wake up and process the event,
+or even have the Dispatcher to call UNIXpollManager when it's 'idle', we have
+to call the Dispatcher somehow.  The Dispatcher has a family of methods for
+this, but we will use this one, for various reasons that will become apparent
+later.</p>
+
+<pre class="line">Dispatcher::</pre>
 
 </body>
 </html>
