@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/09/21 18:38:21  hopper
+// Added forward declaration of class ProcessorModule::Plug, presumably to
+// work around a compiler bug.
+//
 // Revision 1.1  1996/09/02 23:31:20  hopper
 // Added class that would turn two StreamProcessors into a StreamModule
 // that used one StreamProcessor for the data flowing in each direction.
@@ -25,6 +29,7 @@ class ProcessorModule : public StreamModule {
  public:
    static const STR_ClassIdent identifier;
 
+   class Plug;
    enum PlugSide { OneSide, OtherSide };
    class Plug : public SimplePlugOf<ProcessorModule> {
       friend class ProcessorModule;
