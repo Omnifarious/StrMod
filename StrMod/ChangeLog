@@ -69,8 +69,8 @@
 
 	* StreamFDModule.cxx: Added some commented out debugging.
 	(StreamFDModule::~StreamFDModule): Now calls
-	UNIXpollManager::freeFD being called for the descriptor the
-	StreamFDModule was taking care of.
+	UNIXpollManager::freeFD for the descriptor the StreamFDModule was
+	taking care of.
 
 	* StrMod/StreamFDModule.h: Made more const correct.  Added cop-out
 	getFD method for getting the file descriptor if need be.
