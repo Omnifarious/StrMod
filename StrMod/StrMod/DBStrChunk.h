@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/09/02 23:14:03  hopper
+// Changed inline definition of constructor to take correct type as
+// argument.
+//
 // Revision 1.1  1996/06/29 06:48:54  hopper
 // Moved from StrChunk.h and StrChunk.cc along with re-working for new
 // StrChunk handling.
@@ -59,14 +63,14 @@ class DataBlockStrChunk : public StrChunk {
 
 //--------------------inline functions for DataBlockStrChunk-------------------
 
-inline DataBlockStrChunk::DataBlockStrChunk(unsigned int length)
+inline DataBlockStrChunk::DataBlockStrChunk(size_t length)
      : buf_(0), buflen_(0)
 {
    Resize(length);
 }
 
 inline DataBlockStrChunk::DataBlockStrChunk(const void *mem,
-					    unsigned int length)
+					    size_t length)
      : buf_(0), buflen_(0)
 {
    Resize(length);
