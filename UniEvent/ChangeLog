@@ -1,3 +1,30 @@
+Mon May 19 10:51:25 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/OSConditionManager.h
+	(OSConditionManager::WaitConditions): Realized that WaitConditions
+ 	needed to know which dispatcher to post events to.
+
+	* UniEvent/StandCondManager.h:
+	* UniEvent/StandObConditions.h:
+	* StandCondManager.cxx:
+	* StandObConditions.cxx: Added new classes to implement some
+ 	standard ConditionManger and ObjectConditions functionality.
+
+
+Sun May 18 18:28:35 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/OSObjectConditions.h: 
+	* UniEvent/Dispatcher.h: 
+	* UniEvent/OSConditionManager.h: Firmed up interface for
+ 	OSConditionManager, and OSObjectConditions classes, and related
+ 	member functions in other classes.
+
+	* OSObjectConditions.cxx: Added to make place for inline member
+ 	functions and identifier constant to be.
+
+	* UNEVT_ClassIdent.cxx: Added new comment for OSObjectConditions
+	class.
+
 Mon May 12 19:58:59 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/EventPtr.h:
