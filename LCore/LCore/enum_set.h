@@ -28,6 +28,7 @@
 
 #include <bitset>
 #include <string>
+#include <iostream>
 
 #define _LCORE_enum_set_H_
 
@@ -52,7 +53,7 @@ class enum_set : private std::bitset<last - first + 1> {
    //! Construct an enum_set with no bits set.
    inline enum_set();
    //! Construct a copy of a different enum_set.
-   inline enum_set(const enum_set<enum_t, first, last> &b);
+//     inline enum_set(const enum_set<enum_t, first, last> &b);
    //! Construct an enum_set with at most one bit set.
    explicit inline enum_set(enum_t val);
    //! Construct an enum_set with at most two bits set.
@@ -68,7 +69,7 @@ class enum_set : private std::bitset<last - first + 1> {
    inline enum_set(enum_t val1, enum_t val2, enum_t val3, enum_t val4,
                    enum_t val5, enum_t val6);
    //! Copy an enum_set.
-   inline enum_set(self_t &other);
+   inline enum_set(const self_t &other);
 
    //! Compute bit1 & bit2 for all corresponding bits in both bitsets.
    inline self_t &operator &=(const self_t &__rhs);
@@ -121,13 +122,15 @@ class enum_set : private std::bitset<last - first + 1> {
 template <class enum_t, enum_t first, enum_t last>
 inline enum_set<enum_t, first, last>::enum_set()
 {
+   ::std::cerr << "Creating an empty enum_set: this == " << this << "\n";
 }
 
-template <class enum_t, enum_t first, enum_t last> inline
-enum_set<enum_t, first, last>::enum_set(const enum_set<enum_t, first, last> &b)
-     : parent_t(*this)
-{
-}
+//  template <class enum_t, enum_t first, enum_t last> inline
+//  enum_set<enum_t, first, last>::enum_set(const enum_set<enum_t, first, last> &b)
+//       : parent_t(*this)
+//  {
+//     ::std::cerr << "Copying(1) an enum_set: this == " << this << " && &other == " << &b << "\n";
+//  }
 
 template <class enum_t, enum_t first, enum_t last>
 inline enum_set<enum_t, first, last>::enum_set(enum_t val)
@@ -187,9 +190,11 @@ inline enum_set<enum_t, first, last>::enum_set(enum_t val1, enum_t val2,
 }
 
 template <class enum_t, enum_t first, enum_t last>
-inline enum_set<enum_t, first, last>::enum_set(self_t &other)
+inline enum_set<enum_t, first, last>::enum_set(const self_t &other)
      : parent_t(*this)
 {
+   ::std::cerr << "Copying(2) an enum_set: this == " << this << " && &other == " << &other << "\n";
+   ::std::cerr << "*this == " << to_string() << " && other == " << other << "\n";
 }
 
 template <class enum_t, enum_t first, enum_t last>
@@ -273,6 +278,7 @@ template <class enum_t, enum_t first, enum_t last>
 inline const enum_set<enum_t, first, last> &
 enum_set<enum_t, first, last>::operator =(const enum_set<enum_t, first, last> &b)
 {
+   ::std::cerr << "Copying(3) an enum_set: this == " << this << " && &b == " << &b << "\n";
    parent_t::operator =(b);
    return *this;
 }
@@ -312,8 +318,8 @@ operator&(const enum_set<enum_t, first, last> &__x,
           const enum_set<enum_t, first, last> &__y)
 {
    enum_set<enum_t, first, last> result(__x);
-  result &= __y;
-  return result;
+   result &= __y;
+   return result;
 }
 
 //! Return bitset containing result of bit1 | bit2 for all corresponding bits.
@@ -323,8 +329,8 @@ operator|(const enum_set<enum_t, first, last> &__x,
           const enum_set<enum_t, first, last> &__y)
 {
    enum_set<enum_t, first, last> result(__x);
-  result |= __y;
-  return result;
+   result |= __y;
+   return result;
 }
 
 //! Return bitset containing result of bit1 ^ bit2 for all corresponding bits.
@@ -334,8 +340,8 @@ operator^(const enum_set<enum_t, first, last> &__x,
           const enum_set<enum_t, first, last> &__y)
 {
    enum_set<enum_t, first, last> result(__x);
-  result ^= __y;
-  return result;
+   result ^= __y;
+   return result;
 }
 
 #endif

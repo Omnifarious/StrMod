@@ -11,7 +11,9 @@
 #include "UniEvent/Dispatcher.h"
 #include <utility>
 #include <map>
+#include <vector>
 #include <iostream>
+#include <cerrno>
 #include <sys/poll.h>
 
 namespace strmod {
@@ -35,8 +37,10 @@ struct FDEvent {
    FDEvent(const EventPtr ev, FDCondSet condset)
         : ev_(ev), condset_(condset) { }
 };
-typedef ::std::multimap<int, FDEvent> FDMap;
-typedef ::std::vector<pollstruct> PollList;
+using ::std::multimap;
+using ::std::vector;
+typedef multimap<int, FDEvent> FDMap;
+typedef vector<pollstruct> PollList;
 
 
 struct UnixEventPoll::Imp
@@ -181,7 +185,9 @@ void UnixEventPoll::doPoll(bool wait)
             while (fdcur != fdend)
             {
                const FDEvent &curfdev = fdcur->second;
-               if (curfdev.condset_ & condset)
+               FDCondSet tmp = curfdev.condset_;
+               tmp &= condset;
+               if (tmp)
                {
                   getDispatcher()->addEvent(curfdev.ev_);
                   impl_.fdmap_.erase(fdcur++);
