@@ -21,8 +21,7 @@ class XMLBuilder
    };
 
    //! Just set up some initial defaults.
-   XMLBuilder() : elmntok_(true),
-                        wantattrs_(true), wantentities_(true) { }
+   XMLBuilder() { }
    virtual ~XMLBuilder() {}
 
    virtual void startElementTag(size_t begin, const ::std::string &name) = 0;
@@ -33,18 +32,10 @@ class XMLBuilder
    virtual void closeElementTag(size_t begin, size_t end,
                                 const ::std::string &name) = 0;
 
-   virtual const Cookie makeCookie(size_t index) = 0;
-   virtual void destroyCookie(const Cookie &cookie) = 0;
-
-   bool isElementOK() const { return elmntok_; }
-   bool wantAttributes() const { return wantattrs_; }
-   bool wantEntities() const { return wantentities_; }
+//   virtual const Cookie makeCookie(size_t index) = 0;
+//   virtual void destroyCookie(const Cookie &cookie) = 0;
 
  protected:
-   bool elmntok_;
-   bool wantattrs_;
-   bool wantentities_;
-
    Cookie i_makeCookie(unsigned int val) { Cookie c; c.val_ = val; return c; }
    unsigned int i_valFromCookie(const Cookie &cookie) { return cookie.val_; }
 };
@@ -488,6 +479,9 @@ class XMLUTF8Lexer
 };
 
 // $Log$
+// Revision 1.6  2002/12/11 18:52:02  hopper
+// More steps towards parsing attributes.
+//
 // Revision 1.5  2002/12/11 13:42:36  hopper
 // Moving towards handling attributes, and multi-buffer parsing.
 //

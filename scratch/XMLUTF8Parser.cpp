@@ -12,6 +12,20 @@ namespace {
 
 using ::std::cout;
 
+struct AttributeData
+{
+   const ::std::string name_;
+   const ::std::string value_;
+   const ::std::string literal_;
+   const char delimiter_;
+
+   AttributeData(const ::std::string &name, const ::std::string &value,
+                 const ::std::string &literal, char delimiter)
+        : name_(name), value_(value), literal_(literal), delimiter_(delimiter)
+   {
+   }
+};
+
 struct ElementData
 {
    const ::std::string name_;
@@ -31,10 +45,18 @@ class TestBuilder : public XMLBuilder
    TestBuilder(const char *buf, XMLUTF8Lexer &lexer) : buf_(buf), lexer_(lexer) { }
    virtual ~TestBuilder() { }
 
-   virtual void startElementTag(size_t begin, const ::std::string &name) {
+   virtual void startElementTag(size_t begin, const ::std::string &name)
+   {
       elstack_.push(ElementData(name, begin));
    }
-   virtual void endElementTag(size_t end, bool wasempty) {
+   virtual void addAttribute(size_t attrbegin, size_t attrend,
+                             size_t valbegin, size_t valend,
+                             const ::std::string &name)
+   {
+      return;
+   }
+   virtual void endElementTag(size_t end, bool wasempty)
+   {
       ElementData &eldata = elstack_.top();
       eldata.datbegin_ = end;
 //       ::std::cerr << "eldata.elbegin_ == " << eldata.elbegin_
@@ -59,7 +81,8 @@ class TestBuilder : public XMLBuilder
          }
       }
    }
-   virtual void closeElementTag(size_t begin, size_t end, const ::std::string &name) {
+   virtual void closeElementTag(size_t begin, size_t end, const ::std::string &name)
+   {
       ElementData &eldata = elstack_.top();
       eldata.datend_ = begin;
       ::std::string data = ::std::string(buf_ + eldata.datbegin_,
@@ -131,6 +154,9 @@ int main()
 }
 
 // $Log$
+// Revision 1.5  2002/12/11 18:52:02  hopper
+// More steps towards parsing attributes.
+//
 // Revision 1.4  2002/12/10 22:46:02  hopper
 // Renamed the XMLParserStrategy to the more appropriate XMLBuilder from
 // Design Patterns.
