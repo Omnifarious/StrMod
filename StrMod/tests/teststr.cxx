@@ -12,8 +12,6 @@ extern "C" exit(int);
 extern "C" void perror(const char *);
 extern "C" int atoi(const char *);
 
-char String::junk = 0;
-
 int main(int argc, char *argv[])
 {
    int fd1, fd2;
