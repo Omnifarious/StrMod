@@ -3,6 +3,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/07/08 02:26:47  hopper
+// Added include of byteorder file on 386 architectures.
+// Added const in a lot of places that needed it.
+//
 // Revision 1.2  1996/03/26 16:22:59  hopper
 // Moved ReferenceCounting class over from Container library.
 // Fixed up class numbering system so LCore uses a seperate library number
@@ -23,6 +27,10 @@
 
 #ifdef __GNUG__
 #  pragma interface
+#endif
+
+#ifdef __i386__
+#  include <sys/byteorder.h>
 #endif
 
 #define _LCORE_GenTypes_H_
@@ -85,7 +93,7 @@
    }
    inline void ntoh(const U1Byte *c, S1Byte &n)
    {
-      n = *((S1Byte *)(c));
+      n = *((const S1Byte *)(c));
    }
 
    #ifdef ORDER_UNIX
@@ -154,7 +162,7 @@
       }
       inline void ntoh(const U1Byte *c, U4Byte &n)
       {
-	 n = ntohl(*((U4Byte *)(c)));
+	 n = ntohl(*((const U4Byte *)(c)));
       }
       inline void hton(const S4Byte n, U1Byte *c)
       {
@@ -162,7 +170,7 @@
       }
       inline void ntoh(const U1Byte *c, S4Byte &n)
       {
-	 n = ntohl(*((S4Byte *)(c)));
+	 n = ntohl(*((const S4Byte *)(c)));
       }
 
       inline void hton(const U2Byte n, U1Byte *c)
@@ -171,7 +179,7 @@
       }
       inline void ntoh(const U1Byte *c, U2Byte &n)
       {
-	 n = ntohs(*((U2Byte *)(c)));
+	 n = ntohs(*((const U2Byte *)(c)));
       }
       inline void hton(const S2Byte n, U1Byte *c)
       {
@@ -179,7 +187,7 @@
       }
       inline void ntoh(const U1Byte *c, S2Byte &n)
       {
-	 n = ntohs(*((S2Byte *)(c)));
+	 n = ntohs(*((const S2Byte *)(c)));
       }
 #else
       inline void hton(const U4Byte n, U1Byte *c)
