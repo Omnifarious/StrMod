@@ -85,8 +85,8 @@ TimerEventTracker::postExpired(const absolute_t &now, Dispatcher *postto)
    {
       const timerheap_t::iterator curend = theheap.upper_bound(now - current_base_);
       const timerheap_t::iterator oldend = (theoldheap.size() <= 0) ?
-      theoldheap.begin() :
-      theoldheap.upper_bound(now - old_base_);
+         theoldheap.begin() :
+         theoldheap.upper_bound(now - old_base_);
       timerheap_t::iterator curi = theheap.begin();
       timerheap_t::iterator oldi = theoldheap.begin();
       while ((curi != curend) || (oldi != oldend))
@@ -131,6 +131,49 @@ TimerEventTracker::postExpired(const absolute_t &now, Dispatcher *postto)
       impl_.map1_current_ = !impl_.map1_current_;
    }
    return numposted;
+}
+
+Timer::interval_t
+TimerEventTracker::nextExpirationIn(const absolute_t &now,
+                                    const interval_t &maxtime) const
+{
+   if (now < current_base_)
+   {
+      throw ::std::range_error("TimerEventTracker::nextExpirationIn: The now "
+                               "parameter is not >= than all previous now "
+                               "parameters.");
+   }
+   timerheap_t &curheap = impl_.map1_current_ ? impl_.map1_ : impl_.map2_;
+   timerheap_t &oldheap = impl_.map1_current_ ? impl_.map2_ : impl_.map1_;
+   absolute_t earliest = now;
+   if (curheap.size() > 0)
+   {
+      earliest = absolute_t(current_base_, curheap.begin()->second);
+      if (oldheap.size() > 0)
+      {
+         absolute_t contender = absolute_t(old_base_, oldheap.begin()->second);
+         if (contender < earliest)
+         {
+            earliest = contender;
+         }
+      }
+   }
+   else if (oldheap.size() > 0)
+   {
+      earliest = absolute_t(old_base_, oldheap.begin()->second);
+   }
+   else
+   {
+      return maxtime;
+   }
+   if (now < earliest)
+   {
+      return earliest - now;
+   }
+   else
+   {
+      return interval_t(0, 0);
+   }
 }
 
 } // namespace unievent
