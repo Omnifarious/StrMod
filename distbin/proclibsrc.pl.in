@@ -78,8 +78,8 @@ elsif ($ARGV[0] eq '-m')
 	$outstr .= "\$(OBJDIR)/$temp%.o : $key%.cxx\n";
 	$outstr .= "\tmkdir -p \$(OBJDIR)\n";
 	$outstr .= "\t\$(CXX) \$(CPPFLAGS) \$(CXXFLAGS) -MD -c \$< -o \$@\n";
-	$outstr .= "\t\$(PROCLIBSRC) -d \$*.d \$(RULESDIR)/$temp\$*.d \$(OBJDIR)/$temp\$*.o\n";
-	$outstr .= "\trm -f \$*.d\n";
+	$outstr .= "\t\$(PROCLIBSRC) -d \$(OBJDIR)/$temp\$*.d \$(RULESDIR)/$temp\$*.d \$(OBJDIR)/$temp\$*.o\n";
+	$outstr .= "\trm -f \$(OBJDIR)/$temp\$*.d\n";
 	foreach $file (@$val)
 	{
 	    $base = $file;
