@@ -1,6 +1,9 @@
 /* $Header$ */
 
-// $Log$
+// $Revision$
+
+// For a change log, see ChangeLog
+//
 // Revision 1.3  1996/09/21 18:40:12  hopper
 // Changed LinearExtent::SubExtent_eq to return const LinearExtent & to
 // be more like x= operators.
@@ -39,15 +42,22 @@ const LinearExtent LinearExtent::SubExtent(const LinearExtent &extent) const
 
 const LinearExtent &LinearExtent::SubExtent_eq(const LinearExtent &extent)
 {
-   if (extent.m_offset > m_length) {
-      m_offset += m_length;
-      m_length = 0;
-   } else {
-      m_offset += extent.m_offset;
-      if ((extent.m_offset + extent.m_length) > m_length) {
-	 m_length -= extent.m_offset;
+   if (this == &extent)
+   {
+      *this = SubExtent(extent);
+   }
+   else
+   {
+      if (extent.m_offset > m_length) {
+	 m_offset += m_length;
+	 m_length = 0;
       } else {
-	 m_length = extent.m_length;
+	 m_offset += extent.m_offset;
+	 if ((extent.m_offset + extent.m_length) > m_length) {
+	    m_length -= extent.m_offset;
+	 } else {
+	    m_length = extent.m_length;
+	 }
       }
    }
    return(*this);
