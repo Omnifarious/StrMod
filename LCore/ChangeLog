@@ -1,0 +1,13 @@
+1999-01-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/RefCountPtrT.h: Removed puzzling use of virtual inheritance.
+	Added/changes constructors and assignment operators so the class
+	works better and is more complete.
+
+	* LCore/RefCountPtr.h: Seperated out default constructor because
+	setting the pointer initially to NULL can be optimized.
+
+
+	* LCore/HopClTypes.h: Removed pragmas that only made sense to
+	Borland's compiler.
+
