@@ -8,6 +8,9 @@
 
 
 // $Log$
+// Revision 1.4  1996/07/06 01:24:47  hopper
+// Added assert for error checking.
+//
 // Revision 1.3  1996/07/05 18:49:56  hopper
 // Changed to use new StrChunkPtr interface.  Also changed to implement
 // new parent module handling in StrPlug base class.
@@ -113,6 +116,8 @@ static char _STR_StreamModule_H_rcsID[] = "$Id$";
 #  include <StrMod/StrChunkPtr.h>
 #endif
 
+#include <assert.h>
+
 #define _STR_StreamModule_H_
 
 class StrPlug;
@@ -198,6 +203,7 @@ inline int StreamModule::AreYouA(const ClassIdent &cid) const
 inline StrPlug::StrPlug(StreamModule *parent)
      : ConnPlug(0), notify_flags(0), parent_(parent)
 {
+   assert(parent_ != 0);
 }
 
 inline StrPlug::~StrPlug()
