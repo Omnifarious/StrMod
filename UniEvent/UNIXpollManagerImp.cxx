@@ -1,6 +1,12 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1999/02/01 05:13:14  hopper
+// Changed to handle possible EINTR return code, indicating that the poll
+// was interrupted by a signal.  Some operating systems (AIX v.? and DGUX
+// v.4.0D) interrupt poll with a signal, even if the signal handler has the
+// SA_RESTART flag set.
+//
 // Revision 1.2  1998/05/01 11:54:34  hopper
 // Made various changes so that the UNIXpollManager could automatically
 // register itself to be run when the event queue was empty.
@@ -18,6 +24,7 @@
 #include "UniEvent/Event.h"
 #include "UniEvent/UNIXpollManagerImp.h"
 #include "UniEvent/Dispatcher.h"
+#include <errno.h>
 #include <stddef.h>
 
 const UNEVT_ClassIdent UNIXpollManagerImp::identifier(9UL);
@@ -122,62 +129,67 @@ void UNIXpollManagerImp::doPoll()
 
    fillPollList();
 
-   int result = ::poll(poll_list_, used_entries_, -1);
+   int pollresult = ::poll(poll_list_, used_entries_, -1);
+   int myerrno = errno;  // Save any error that might have happened.
 
-   if (result <= 0)
+   if (pollresult >= 0)
    {
-      return;
-   }
-
-   for (int i = 0; i < used_entries_; ++i)
-   {
-      FDInfo &info = fdmap_[poll_list_[i].fd];
-      unsigned long condmask = pevMaskToFDMask(poll_list_[i].revents);
-      EVList::iterator j = info.evlist_.begin();
-      EVList::iterator last = info.evlist_.end();
-
-      while (j != last)
+      for (int i = 0; i < used_entries_; ++i)
       {
-	 if ((*j).condmask_ & condmask)
-	 {
-	    if ((*j).isPoll_)
-	    {
-	       UNIEventPtrT<PollEvent> p;
+	 FDInfo &info = fdmap_[poll_list_[i].fd];
+	 unsigned long condmask = pevMaskToFDMask(poll_list_[i].revents);
+	 EVList::iterator j = info.evlist_.begin();
+	 EVList::iterator last = info.evlist_.end();
 
-	       p = static_cast<PollEvent *>((*j).ev_.GetPtr());
-	       if (p)
+	 while (j != last)
+	 {
+	    if ((*j).condmask_ & condmask)
+	    {
+	       if ((*j).isPoll_)
 	       {
-		  p->setCondBits(condmask & (*j).condmask_);
+		  UNIEventPtrT<PollEvent> p;
+
+		  p = static_cast<PollEvent *>((*j).ev_.GetPtr());
+		  if (p)
+		  {
+		     p->setCondBits(condmask & (*j).condmask_);
+		  }
 	       }
+	       getDispatcher()->AddEvent((*j).ev_);
+	       j = info.evlist_.erase(j);
 	    }
-	    getDispatcher()->AddEvent((*j).ev_);
-	    j = info.evlist_.erase(j);
+	    else
+	    {
+	       ++j;
+	    }
+	 }
+	 if ((condmask & FD_Invalid) || (info.evlist_.size() <= 0))
+	 {
+	    freeFD(poll_list_[i].fd);
 	 }
 	 else
 	 {
-	    ++j;
-	 }
-      }
-      if ((condmask & FD_Invalid) || (info.evlist_.size() <= 0))
-      {
-	 freeFD(poll_list_[i].fd);
-      }
-      else
-      {
-	 info.condmask_ = 0;
+	    info.condmask_ = 0;
 
-	 j = info.evlist_.begin();
-	 last = info.evlist_.end();
-	 for (; j != last; ++j)
-	 {
-	    info.condmask_ |= (*j).condmask_;
+	    j = info.evlist_.begin();
+	    last = info.evlist_.end();
+	    for (; j != last; ++j)
+	    {
+	       info.condmask_ |= (*j).condmask_;
+	    }
 	 }
       }
    }
-   if (fdmap_.size() > 0 && !isregistered_)
+   // Only re-register if things were OK, or I got an error I can deal with.
+   // Currently, the only error I deal with is being interrupted by a system
+   // call.
+   if ((pollresult >= 0) || (myerrno == EINTR))
    {
-      getDispatcher()->onQueueEmpty(pollev_);
-      isregistered_ = true;
+      if (fdmap_.size() > 0 && !isregistered_)
+      {
+	 getDispatcher()->onQueueEmpty(pollev_);
+	 isregistered_ = true;
+      }
    }
 }
 
