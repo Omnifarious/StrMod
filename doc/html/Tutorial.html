@@ -376,25 +376,25 @@ for (ListenerList::iterator i = listeners.begin(); i != listeners.end(); ++i)
 <p>I bet you can figure out where to add those. If you want to see if you're
 right, see the next place where the code is written out in full again.</p>
 
-<p>This fixes the problem of keeping track of where to connect.  The next
-task is to do something with incoming connections.  This gets a bit more
+<p>This fixes the problem of keeping track of where to connect. The next task
+is to do something with incoming connections. This gets a bit more
 complicated and involves more of the framework.</p>
 
 <h3>Dispatcher</h3>
 
 <p>A Dispatcher is supposed to provide an implementation of an Event queue.
 Things can add (post) events to the queue, and the main program can tell the
-Dispatcher to trigger them.  This is used for couple of purposes.</p>
+Dispatcher to trigger them. This is used for couple of purposes.</p>
 
-<p>One purpose is for callbacks.  Oftentimes, there is a need for things of a
-lower level of abstraction (like buttons on a GUI) to call back to things at a
-higher level to tell them something important has happened.</p>
+<p>One purpose is for callbacks. Oftentimes, there is a need for things of a
+lower level of abstraction (like buttons on a GUI) to call back to things at
+a higher level to tell them something important has happened.</p>
 
-<p>Another purpose is for cooperative multitasking.  Things can post an event
+<p>Another purpose is for cooperative multitasking. Things can post an event
 when they are only partly done with a task, and that event will be fired so
 it can complete its task sometime later, after some other things have had a
-chance to run.  Since control is voluntarily surrendered, no context
-information needs to be explicitly kept by the event mechanism.  Also control
+chance to run. Since control is voluntarily surrendered, no context
+information needs to be explicitly kept by the event mechanism. Also control
 flow doesn't involve any interrupts, and is likely to not have an adverse
 effect on CPU caches and such.</p>
 
@@ -402,9 +402,9 @@ effect on CPU caches and such.</p>
 won't yet deal directly with events.</p>
 
 <p>One of the more important generators of callback events is the
-UNIXpollManager.  It's job is to get the OS to tell it when some event (like
-a file descriptor becoming readable or writeable) has happened.  It then
-posts this event to the Dispatcher.  That's why the UNIXpollManager needs a
+UNIXpollManager. It's job is to get the OS to tell it when some event (like a
+file descriptor becoming readable or writeable) has happened. It then posts
+this event to the Dispatcher. That's why the UNIXpollManager needs a
 Dispatcher as a constructor argument, and also why things that work with the
 OS (like SockListenModule) need to know about a UNIXpollManager.</p>
 
@@ -412,20 +412,66 @@ OS (like SockListenModule) need to know about a UNIXpollManager.</p>
 registers an interest in whether or not it is 'readable' (the secret Unix
 code meaning that it has an incoming connection) with the UNIXpollManager.
 The UNIXpollManager tells the Dispatcher that it needs to run when things are
-idle to check for OS events.  When it notices that the file descriptor is
+idle to check for OS events. When it notices that the file descriptor is
 readable, the UNIXpollManager posts the event that the SockListenModule
 registered with it.</p>
 
 <p>So, in order to have the SockListenModule wake up and process the event,
 or even have the Dispatcher to call UNIXpollManager when it's 'idle', we have
-to call the Dispatcher somehow.  The Dispatcher has a family of methods for
-this, but we will use this one:</p>
-
+to call the Dispatcher somehow. The Dispatcher has a family of methods for
+this, but we will use this one:<br />
 <pre class="line">Dispatcher::dispatchEvent()</pre>
+<br />
+because our framework is incomplete and requires (ugh) polling for certain
+things. We will need to dispatch one event at a time to periodically regain
+control to do out polling.</p>
 
-<p>because our framework is incomplete and requires (ugh) polling for certain
-things.  To periodically regain control to do polling, we need to dispatch
-one event at a time.</p>
+<p>Here is how the dispatching loop will be added into the code:</p>
+<pre class="codeblock">        }                                   // in reverse order later.
+     } while (cin);
 
++    while (!dispatcher.isQueueEmpty())
++    {
++       dispatcher.dispatchEvent();
++    }
+
+     for (ListenerList::iterator i = listeners.begin(); i != listeners.end(); ++i)
+   {</pre>
+
+<p>Now, we are calling the Dispatcher, which in turn calls UNIXpollManager,
+which in turn posts other events to the Dispatcher on behalf of our various
+SockListenModules when an incoming connection can be accepted. But, we're
+still not doing anything with any of these incoming connections. Now, it's
+time to tackle that problem.</p>
+
+<h3>Ugh, polling!</h3>
+
+<p>Sadly, this is probably the most complicated part of the program, and
+where you actually have to do polling.</p>
+
+<p>The basic mechanism by which acceped connections are retrieved from the
+SockListenModule is through its 'plug'. The plug has to be asked if there's a
+connection to read, and then the connection has to be read from it. Also, the
+only way to check for errors that may have occured on the listening socket is
+to ask the SockListenModule if any errors have occured. It has no way of
+signalling error conditions through events.</p>
+
+<p>Both of these things require various parts of the SockListenModule to be
+polled periodically. This will have to happen in the dispatching loop. There
+will also be a method added to the Listener so that all the actual polling
+can happen in that method, keeping the dispatching loop fairly clean.</p>
+
+<p>First though, you should go <a href="StreamModule.html#Plug">over here</a>
+and read <a href="StreamModule.html#Plug">what a plug is</a>.</p>
+
+<p>There, now that you've done that, it should be apparent why we need to
+'pull a plug' from SockListenModule and read connections from it. The added
+method is named <code>Listener::doPoll</code>, and it requires a new member
+variable, <code>lplug_</code> to be added to the Listener class.
+<code>lplug_</code> must initialied in the <code>Listener::Listener</code>
+constructor. And finally, the code to scan through the listening modules and
+poll each of them is added to the dispatching loop. Here is the final
+code:</p>
+<pre class="codeblock"></pre>
 </body>
 </html>
