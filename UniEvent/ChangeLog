@@ -1,5 +1,12 @@
 2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
 
+	* UniEvent/Timer.h, UniEvent/UNIXTimer.h: I forgot the maxim: Push
+	data down the hierarchy as far as it'll go.  Fixed by putting
+	dispatcher_ in UNIXTimer instead of the Timer interface where it
+	didn't belong.
+
+2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
+
 	* UnixEventPoll.cxx: Fixed a big bug which would cause doPoll to
 	fail if ever more than one file descriptor was registered.
 	(Forgot to increment i at the end of a while loop.)
