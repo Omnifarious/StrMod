@@ -54,7 +54,7 @@ class SockListenModule::FDPollEv : public UNIXpollManager::PollEvent {
    inline void triggerError();
 
  private:
-   bool_val hasparent_;
+   bool hasparent_;
    SockListenModule &parent_;
 };
 

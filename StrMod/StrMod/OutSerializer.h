@@ -20,7 +20,6 @@
 #include <LCore/GenTypes.h>
 #include <string.h>
 #include <string>
-#include <bool.h>
 
 #define _STR_OutSerializer_H_
 

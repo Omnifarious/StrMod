@@ -19,7 +19,6 @@
 #ifndef _STR_StreamModule_H_
 #   include <StrMod/StreamModule.h>
 #endif
-#include <bool.h>
 #include <stddef.h>  // NULL
 
 #define _STR_StreamSplitter_H_
@@ -57,11 +56,11 @@ class StreamSplitterModule : public StreamModule {
    enum Sides { SideIn, SideOut, SideBiDir };
 
    //: See base class.
-   inline virtual bool_val canCreate(int side) const;
+   inline virtual bool canCreate(int side) const;
    //: See base class.
-   virtual bool_val deletePlug(Plug *plug);
+   virtual bool deletePlug(Plug *plug);
    //: See base class.
-   inline virtual bool_val ownsPlug(const Plug *p) const;
+   inline virtual bool ownsPlug(const Plug *p) const;
 
  protected:
    class SPPlug;
@@ -128,7 +127,7 @@ class StreamSplitterModule : public StreamModule {
 
 //-----------------------------inline functions--------------------------------
 
-bool_val StreamSplitterModule::canCreate(int side) const
+bool StreamSplitterModule::canCreate(int side) const
 {
    switch (side) {
     case SideIn:
@@ -142,7 +141,7 @@ bool_val StreamSplitterModule::canCreate(int side) const
    }
 }
 
-inline bool_val StreamSplitterModule::ownsPlug(const Plug *p) const
+inline bool StreamSplitterModule::ownsPlug(const Plug *p) const
 {
    return((flags_.inmade && (&inplug_ == p))
 	  || (flags_.outmade && (&outplug_ == p))

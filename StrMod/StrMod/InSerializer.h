@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1999/10/21 02:09:10  hopper
+// Removed all references to <bool.h> and changed all references to
+// bool_val and bool_cst to bool.
+//
 // Revision 1.1  1997/04/14 23:55:14  hopper
 // Added class to aid in serialization of simple data tyes.
 //
@@ -14,7 +18,6 @@
 #include <LCore/GenTypes.h>
 #include <string.h>
 #include <string>
-#include <bool.h>
 
 #define _STR_InSerializer_H_
 

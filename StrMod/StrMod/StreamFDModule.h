@@ -22,7 +22,6 @@
 #include <UniEvent/UNIXpollManager.h>
 #include <UniEvent/UNIXError.h>
 
-#include <bool.h> // bool_val
 #include <stddef.h>  // size_t
 
 #define _STR_StreamFDModule_H_
@@ -80,11 +79,11 @@ class StreamFDModule : public StreamModule {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    //: See base class StreamModule
-   inline virtual bool_val canCreate(int side) const;
+   inline virtual bool canCreate(int side) const;
    //: See base class StreamModule
-   inline virtual bool_val ownsPlug(const Plug *p) const;
+   inline virtual bool ownsPlug(const Plug *p) const;
    //: See base class StreamModule
-   inline virtual bool_val deletePlug(Plug *p);
+   inline virtual bool deletePlug(Plug *p);
 
    //: Is this category in an error state?
    inline bool hasErrorIn(ErrCategory ecat) const;
@@ -92,7 +91,7 @@ class StreamFDModule : public StreamModule {
    inline const UNIXError getErrorIn(ErrCategory ecat) const;
    //: Sets this category to a non-error state.
    // Doesn't work on the ErrFatal category.
-   bool_val resetErrorIn(ErrCategory ecat);
+   bool resetErrorIn(ErrCategory ecat);
    //: Do any categories have an error?
    inline bool hasError() const;
 
@@ -251,17 +250,17 @@ inline int StreamFDModule::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
 
-inline bool_val StreamFDModule::canCreate(int side) const
+inline bool StreamFDModule::canCreate(int side) const
 {
    return (side == 0 && !flags_.plugmade);
 }
 
-inline bool_val StreamFDModule::ownsPlug(const Plug *p) const
+inline bool StreamFDModule::ownsPlug(const Plug *p) const
 {
    return(flags_.plugmade && (p == &plug_));
 }
 
-inline bool_val StreamFDModule::deletePlug(Plug *p)
+inline bool StreamFDModule::deletePlug(Plug *p)
 {
    if (ownsPlug(p)) {
       flags_.plugmade = 0;
@@ -270,7 +269,7 @@ inline bool_val StreamFDModule::deletePlug(Plug *p)
       return(false);
 }
 
-inline bool_val StreamFDModule::hasErrorIn(ErrCategory ecat) const
+inline bool StreamFDModule::hasErrorIn(ErrCategory ecat) const
 {
    return(errvals[ecat] != 0);
 }

@@ -26,7 +26,7 @@ StreamSplitterModule::~StreamSplitterModule()
 {
 }
 
-bool_val StreamSplitterModule::deletePlug(Plug *plug)
+bool StreamSplitterModule::deletePlug(Plug *plug)
 {
    // If I don't own the plug, I can't delete it.
    if (!ownsPlug(plug))

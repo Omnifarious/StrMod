@@ -52,7 +52,7 @@ class StreamFDModule::FDPollEv : public UNIXpollManager::PollEvent {
    inline void triggerError();
 
  private:
-   bool_val hasparent_;
+   bool hasparent_;
    StreamFDModule &parent_;
 };
 
@@ -130,7 +130,7 @@ void StreamFDModule::setErrorIn(ErrCategory ecat, int err)
    errvals[ecat] = err;
 }
 
-bool_val StreamFDModule::resetErrorIn(ErrCategory ecat)
+bool StreamFDModule::resetErrorIn(ErrCategory ecat)
 {
    if (ecat == ErrFatal)
    {
@@ -141,7 +141,7 @@ bool_val StreamFDModule::resetErrorIn(ErrCategory ecat)
       return(false);
    }
 
-   bool_val retval = false;
+   bool retval = false;
 
    switch (ecat)
    {
@@ -390,7 +390,7 @@ void StreamFDModule::doWriteFD()
    while (write_pos_ < length)
    {
       int written;
-      bool_val result;
+      bool result;
       GroupVector::IOVecDesc ioveclst;
 
       result = write_vec_->FillIOVecDesc(write_pos_, ioveclst);
@@ -584,7 +584,7 @@ void StreamFDModule::eventError(unsigned int condbits)
 }
 
 StreamFDModule::StreamFDModule(int fd, UNIXpollManager &pollmgr,
-			       IOCheckFlags f, bool_val hangdelete)
+			       IOCheckFlags f, bool hangdelete)
      : fd_(fd),
        plug_(*this),
        write_pos_(0),

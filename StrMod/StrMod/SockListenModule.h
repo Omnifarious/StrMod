@@ -30,7 +30,6 @@
 #include <UniEvent/UNIXpollManager.h>
 #include <UniEvent/UNIXError.h>
 
-#include <bool.h>
 #include <string>
 
 #define _STR_SockListenModule_H_
