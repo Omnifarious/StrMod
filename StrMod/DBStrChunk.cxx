@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1998/12/18 22:56:24  hopper
+// Removed a couple of lines that were used for debugging.
+//
 // Revision 1.1  1996/06/29 06:49:13  hopper
 // Moved from StrChunk.h and StrChunk.cc along with re-working for new
 // StrChunk handling.
@@ -13,7 +16,6 @@
 #include <stdlib.h>
 #include "StrMod/DBStrChunk.h"
 #include "StrMod/GroupVector.h"
-// #include <iostream.h>
 
 const STR_ClassIdent DataBlockStrChunk::identifier(7UL);
 
@@ -30,7 +32,6 @@ void DataBlockStrChunk::FillGroupVec(GroupVector &vec,
 				     unsigned int &start_index)
 {
    if (buflen_ > 0) {
-//      cerr << "start_index == " << start_index << '\n';
       vec.SetVec(start_index, GetVoidP(), buflen_);
       start_index++;
    }
