@@ -1,6 +1,6 @@
 /* $Header$ */
 
-// $Log$
+// See ChangLog for log.
 // Revision 1.2  1998/08/24 02:08:39  hopper
 // Changed to return the value it's supposed to return.
 //
