@@ -7,6 +7,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1997/05/12 16:28:33  hopper
+// Fixed operator = to only check type of non-NULL pointers.
+//
 // Revision 1.1  1997/05/12 14:32:55  hopper
 // Added new RefCountPtr class, and RefCountPtrT class to aid in using
 // the ReferenceCounting mixin class.
@@ -56,7 +59,7 @@ class RefCountPtr : virtual public Protocol {
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   virtual RC *i_CheckType(RC *p) const                { return(ptr_); }
+   virtual RC *i_CheckType(RC *p) const                { return(p); }
    void i_SetPtr(RC *p, bool deleteref = true);
 
  private:
@@ -133,7 +136,9 @@ inline const RefCountPtr &RefCountPtr::operator =(const RefCountPtr &b)
 inline const RefCountPtr &RefCountPtr::operator =(RC *b)
 {
    if (GetPtr() != b) {
-      b = i_CheckType(b);
+      if (b) {
+	 b = i_CheckType(b);
+      }
       i_SetPtr(b);
    }
    return(*this);
