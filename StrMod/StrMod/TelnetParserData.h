@@ -72,10 +72,29 @@ class TelnetParser::TelnetData : public StrChunk {
  */
 class TelnetParser::SingleChar : public TelnetParser::TelnetData {
  public:
-   //! The names and octet values of the various single character telnet commands.
-   enum Specials { TEOF = 236, SUSP = 237, ABORT = 238, EOR = 239, NOP = 241,
-		   DM = 242, BRK = 243, IP = 244, AO = 245, AYT = 246,
-		   EC = 247, EL = 248, GA = 249 };
+   /** The names and octet values of the various single character telnet commands.
+    * These are defined in RFCs <a
+    * href="http://info.internet.isi.edu/in-notes/rfc/files/rfc854.txt">854</a>,
+    * <a
+    * href="http://info.internet.isi.edu/in-notes/rfc/files/rfc885.txt">885</a>,
+    * and <a
+    * href="http://info.internet.isi.edu/in-notes/rfc/files/rfc1184.txt">1184</a>
+    */
+   enum Specials {
+      TEOF = 236, //!< End Of File, called TEOF to avoid conflicting with EOF macro
+      SUSP = 237, //!< Suspend process
+      ABORT = 238, //!< Abort process
+      EOR = 239, //!< End of record
+      NOP = 241, //!< No operation
+      DM = 242, //!< Data mark, use with Synch option, requires out-of-band data support
+      BRK = 243, //!< Break  (often a long string of 0 bits in RS232)
+      IP = 244, //!< Interrupt process
+      AO = 245, //!< Abort output
+      AYT = 246, //!< Are you there?  Remote side expected to reply with 'Yes'
+      EC = 247, //!< Erase character (like backspace)
+      EL = 248, //!< Erase line
+      GA = 249  //!< Go ahead (for half duplex (the default) connections)
+   };
 
    static const STR_ClassIdent identifier;
 
@@ -154,11 +173,15 @@ class TelnetParser::Suboption : public TelnetParser::TelnetData {
  */
 class TelnetParser::OptionNegotiation : public TelnetParser::TelnetData {
  public:
-   //! The kind of negotiation being made.
-   enum Requests { WILL = 251,  //!< Other side will support option
-                   WONT = 252,  //!< Other side won't support option
-                   DO = 253,   //!< Requests the other side to use option
-                   DONT = 254  //!< Requests the other side to not use option
+   /** The kind of negotiation being made.
+    * The telnet protocol is designed as a peer-to-peer protocol, and so
+    * either side can initiate an option negotiation to enable or disable an
+    * option for either half (or direction) of the conversation.
+    */
+   enum Requests { WILL = 251,  //!< Sender wants to enable option for itself
+                   WONT = 252,  //!< Sender wants to disable option for itself
+                   DO = 253,   //!< Sender wants receiver to enable option
+                   DONT = 254  //!< Sender wants receiver to disable option
    };
 
    static const STR_ClassIdent identifier;
