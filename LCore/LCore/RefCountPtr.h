@@ -31,7 +31,6 @@
 #ifndef _LCORE_Protocol_H_
 #  include <LCore/Protocol.h>
 #endif
-#include <bool.h>
 #include <assert.h>
 
 #define _LCORE_RefCountPtr_H_
@@ -54,10 +53,10 @@ class RefCountPtr : virtual public Protocol {
    inline RC *operator ->() const;
 
    inline RC *GetPtr() const                           { return(ptr_); }
-   inline void ReleasePtr(bool_val deleteref = true);
+   inline void ReleasePtr(bool deleteref = true);
 
-   inline operator bool_cst() const;
-   inline bool_val operator !() const;
+   inline operator bool() const;
+   inline bool operator !() const;
 
    inline const RefCountPtr &operator =(const RefCountPtr &b);
    inline const RefCountPtr &operator =(RC *b);
@@ -66,7 +65,7 @@ class RefCountPtr : virtual public Protocol {
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
    virtual RC *i_CheckType(RC *p) const                { return(p); }
-   void i_SetPtr(RC *p, bool_val deleteref = true);
+   void i_SetPtr(RC *p, bool deleteref = true);
 
  private:
    RC *ptr_;
@@ -118,17 +117,17 @@ inline ReferenceCounting *RefCountPtr::operator ->() const
 }
 #endif
 
-inline void RefCountPtr::ReleasePtr(bool_val deleteref)
+inline void RefCountPtr::ReleasePtr(bool deleteref)
 {
    i_SetPtr(0, deleteref);
 }
 
-inline RefCountPtr::operator bool_cst() const
+inline RefCountPtr::operator bool() const
 {
    return((GetPtr() != 0) ? true : false);
 }
 
-inline bool_val RefCountPtr::operator !() const
+inline bool RefCountPtr::operator !() const
 {
    return(GetPtr() == 0);
 }

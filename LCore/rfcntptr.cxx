@@ -1,6 +1,7 @@
 /* $Header$ */
 
-// $Log$
+// For a log, see ChangeLog
+//
 // Revision 1.3  1998/05/01 11:58:44  hopper
 // Cleaned DelReference up a little.
 //
@@ -28,7 +29,7 @@
 
 const LCore_ClassIdent RefCountPtr::identifier(9UL);
 
-void RefCountPtr::i_SetPtr(ReferenceCounting *p, bool_val deleteref)
+void RefCountPtr::i_SetPtr(ReferenceCounting *p, bool deleteref)
 {
    if (p) {
       p->AddReference();

@@ -39,8 +39,6 @@
 #  pragma interface
 #endif
 
-#include <bool.h>
-
 #ifndef _LCORE_ClassTypes_H_
 #  include <LCore/ClassTypes.h>
 #endif

@@ -25,7 +25,6 @@
 #ifndef _LCORE_RefCountPtr_H_
 #  include <LCore/RefCountPtr.h>
 #endif
-#include <bool.h>
 
 #define _LCORE_RefCountPtrT_H_
 
