@@ -1,5 +1,21 @@
 Fri Jul  5 13:19:20 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* EchoModule.cc: Killed OS2 garbage.
+	(DeletePlug): Removed reference to obsolete PutIntoFd funtion.
+	(InternalRead): Changed to use new StrChunkPtr system.
+	(ReadableNotify):
+	(WriteableNotify): Removed because default implementation is
+	correct.
+	(Write): Changed to use new StrChunkPtr interface.
+
+	* StrMod/EchoModule.h (class EchoModule): Changed to use new
+	StrChunkPtr system.
+	(class EchoPlug): Change to use new StrChunkPtr system, and new
+	parent module system.
+
+	* StrMod/StreamModule.h (StrPlug): Added assert to check for bad
+	parent pointers.
+
 	* StrChunkPtr.cc (StrChunkPtr::i_SetPtr): Removed unused addref
 	parameter,
 
