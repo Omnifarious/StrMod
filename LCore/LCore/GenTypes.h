@@ -35,9 +35,7 @@
 #  pragma interface
 #endif
 
-#ifdef __i386__
-#  include <sys/byteorder.h>
-#endif
+#include <netinet/in.h>
 
 #define _LCORE_GenTypes_H_
 
@@ -98,8 +96,14 @@
 #   error No one has defined a byte ordering.
 #endif
 
-   inline void hton(const U1Byte n, U1Byte *c)   { c[0] = n; }
-   inline void ntoh(const U1Byte *c, U1Byte &n)  { n = c[0]; }
+   inline void hton(const U1Byte n, U1Byte *c)
+   {
+      c[0] = n;
+   }
+   inline void ntoh(const U1Byte *c, U1Byte &n)
+   {
+      n = c[0];
+   }
 
    inline void hton(const S1Byte n, U1Byte *c)
    {
@@ -249,7 +253,7 @@
 
       inline void hton(const IEEE_Float32 &n, U1Byte *c)
       {
-	 const U1Byte *from = ((const U1Byte *)(&n));
+	 const U1Byte * const from = ((const U1Byte *)(&n));
 
 	 c[3] = from[0];
 	 c[2] = from[1];
@@ -258,7 +262,7 @@
       }
       inline void ntoh(const U1Byte *c, IEEE_Float32 &n)
       {
-	 U1Byte *to = ((U1Byte *)(&n));
+	 U1Byte * const to = ((U1Byte *)(&n));
 
 	 to[0] = c[3];
 	 to[1] = c[2];
@@ -268,7 +272,7 @@
 
       inline void hton(const IEEE_Float64 &n, U1Byte *c)
       {
-	 const U1Byte *from = ((const U1Byte *)(&n));
+	 const U1Byte * const from = ((const U1Byte *)(&n));
 
 	 c[7] = from[0];
 	 c[6] = from[1];
@@ -281,7 +285,7 @@
       }
       inline void ntoh(const U1Byte *c, IEEE_Float64 &n)
       {
-	 U1Byte *to = ((U1Byte *)(&n));
+	 U1Byte * const to = ((U1Byte *)(&n));
 
 	 to[0] = c[7];
 	 to[1] = c[6];
