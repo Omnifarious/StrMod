@@ -15,7 +15,11 @@
 #include <string>
 #include <cstddef>
 
-/** \class XMLBuilder XMLUTF8Builder.h XMLUTF8Builder.h
+namespace strmod {
+namespace xml {
+namespace utf8 {
+
+/** \class Builder Builder.h xml/Builder.h
  * An interface class for an XMLUTF8Lexer to use to put tokens together into
  * some other structure.
  *
@@ -87,14 +91,14 @@ class XMLBuilder
    //! It's an interface, so this doesn't do anything.
    virtual ~XMLBuilder() {}
 
-   /** Encountered an element open tag, atributes may follow
+   /** The lexer encountered an element open tag, atributes may follow
     *
     * @param selbegin The buffer position of the '<' of the tag.
     * @param name The name of the element being opened.
     */
    virtual void startElementTag(const Position &selbegin,
                                 const ::std::string &name) = 0;
-   /** Encountered an attribute of an element open tag.
+   /** The lexer encountered an attribute of an element open tag.
     *
     * @param attrbegin	The buffer position of the first character of the tag name.
     *
@@ -112,13 +116,13 @@ class XMLBuilder
    virtual void addAttribute(const Position &attrbegin, const Position &attrend,
                              const Position &valbegin, const Position &valend,
                              const ::std::string &name) = 0;
-   /** Encountered the closing '>' of an element open tag.
+   /** The lexer encountered the closing '>' of an element open tag.
     *
     * @param selend The buffer position one past the '>'.
     * @param wasempty Was the tag of the form &lt;br/>?
     */
    virtual void endElementTag(const Position &selend, bool wasempty) = 0;
-   /** Encountered the close element tag (a tag of the form &lt;/p>
+   /** The lexer encountered the close element tag (a tag of the form &lt;/p>
     *
     * @param celbegin The buffer position of the '<'.
     * @param celend The buffer position one past the '>'.
@@ -130,4 +134,6 @@ class XMLBuilder
 
 #endif
 
-// $Log$
+} // namespace utf8
+} // namespace xml
+} // namespace strmod
