@@ -1,0 +1,318 @@
+---------------------------------------------------------
+-- StreamModules                     Object Behavioral --
+---------------------------------------------------------
+
+Intent
+    Encapsulating filtering and protocol behviors in a way that allows you
+to string them together easily.
+
+Motivation
+    A communications system should work essentially the same, no matter what
+the underlying transport layer is. Reblocking incoming messages according to
+certain rules should be independent of what happened to the message before,
+or what happens to it afterwards, but it should cooperate enough to make
+sure that messages keep moving through it.
+
+    A good solution to this problem is to treat the messages as a stream of
+data passing through a series of objects (modules). Each object has the
+option to do it's own thing with the data passing through it, and the other
+objects don't have to care what it's doing as long as it keeps the data
+flowing.
+
+    A few of the modules you might define:
+
+SocketModule -- Handles sending and receiving data over Berkely Sockets.
+
+HL7Module -- Re-blocks messages so that a single message corresponds to a
+             single request in the HL7 Hospital Communications protocol.
+
+RPCModule -- Turns incoming messages into messages sent to an object. Turns
+             messages sent to an object into messages on a Stream.
+
+	I don't have enough ability with ASCII art to put a diagram here..
+
+class StreamModule
+class StrPlug
+
+class SocketModule, derived from StreamModule.
+class SocketPlug, derived from StrPlug.
+
+class HL7Module, derived from StreamModule.
+class HL7Plug, derived from StrPlug.
+
+etc...
+
+	The various module objects each only know about the plugs that the
+individual objects own. aSocketModule knows ONLY about the one SocketPlug
+that it owns.
+
+	Each plug know about the plug it is plugged into. It knows that the
+plug it's plugged into is derived from StrPlug, nothing more. Each plug also
+knows about the module that owns it.
+
+	Some modules (like HL7Module) have more than one plug. Modules like
+this aren't endpoints. They are designed to sit in a stream and filter, or
+transform it in some manner.
+
+	There needs to be a way to disginguish which plug you want when you
+ask a module for a plug to plug into. In this implementation, one and two
+sided modules act like they have a 0 side, and a non-zero side. For a one
+sided module, either the non-zero, or the zero side give an error when you
+try ask for a plug on that side.
+
+	Some modules with more sides have an explicit enumeration saying
+which, and how many sides they have. Some other modules will be
+multi-plexing/de-multi-plexing modules and will have one plug on one side,
+and many plugs on another side.
+
+	For the HL7Module example, all re-blocking of messages occurs for
+data flowing from the 0 side to the non-zero side. Data flowing in the other
+direction is untouched.
+
+	In order to keep data flowing, the plugs are equipped to be able to
+tell each-other when they have data, or when they're ready to receive data.
+
+//*************************-StreamModule functions-****************************
+
+	Explanation of StreamModule public functions...
+
+//-----------------------int CanCreate(int side) const-------------------------
+
+int CanCreate(int side) const
+
+	This function is for asking whether or not a plug can be created on
+a particular side. It should be returning bool, but that wasn't supported at
+the time I write this class.
+
+	Reasons a plug might not be able to be created are: A plug was
+already created on that side, or the specified side doesn't exist for this
+module. There may be other reasons as well, but those are the two most
+common.
+
+//------------------------StrPlug *MakePlug(int side)--------------------------
+
+StrPlug *MakePlug(int side)
+
+	This function is for creating a plug on a particular side. NULL (aka
+0) is returned if a plug can't be created on that side. See CanCreate for
+reasons a plug might not be able to be created.
+
+Strplug *CreatePlug(int side)
+
+	This is the virtual function that MakePlug calls. I have a good
+reason for the MakePlug/CreatePlug combination. It's just hard to explain
+right now. :-) It has to do with the return type of the function.
+
+
+//---------------------int OwnsPlug(StrPlug *plug) const-----------------------
+
+int OwnsPlug(StrPlug *plug) const
+
+	This function is for asking a StreamModule if it owns a particular
+plug or not.
+
+	I haven't found a lot of use for this function, but I included it
+for completeness, and because there's not a lot of ways to get this
+information if you need it.
+
+//-----------------------int DeletePlug(StrPlug *plug)-------------------------
+
+int DeletePlug(StrPlug *plug)
+
+	This function is for returning a plug to the StreamModule that
+spawned it. A StreamModule usually never actually delete's a plug. The
+DeletePlug method is just a way of telling the StreamModule you're no longer
+using it, and that it can delete it if it wants to.
+
+	A multi-plexing StreamModule that handles a lot of plugs may
+actually delete a plug.
+
+	Deleting a plug allows it to be created again.
+
+	This function returns non-zero (true) if it succeeds, and 0 (false)
+if it fails. It might fail because the module really doesn't own the plug,
+and can't delete it.
+
+//--------------------------int ModuleType() const-----------------------------
+
+int ModuleType() const
+
+	This function is for asking a StreamModule what type it really
+is. This should be replaced by the identifier system I use for all my other
+classes.
+
+//-----------------------int AreYouA(int mtype) const--------------------------
+
+int AreYouA(int mtype) const
+
+	This function is for asking a StreamModule if it is of a particular
+type. Again, this should be replaced by the identifier system I use for all
+my other classes.
+
+//****************************-StrPlug functions-******************************
+
+//---------------------------int PlugType() const------------------------------
+
+int PlugType() const
+
+	This function is for asking a StrPlug what type it really is. This
+should be replaced by the identifier system I use for all my other classes.
+
+//-----------------------int AreYouA(int ptype) const--------------------------
+
+int AreYouA(int ptype) const
+
+	This function is for asking a StrPlug what type it really is. This
+should be replaced by the identifier system I use for all my other classes.
+
+//---------------------------int CanWrite() const------------------------------
+
+int CanWrite() const
+
+	This function is for asking a StrPlug if it can be written to. If
+this function returns true (non-zero) a subsequent Write request will be
+guaranteed to succeed without blocking the sender of the request.
+
+//-------------------------void NotifyOnWriteable()----------------------------
+
+void NotifyOnWriteable()
+
+	This function tells this StrPlug that the StrPlug it's connected to
+wants to be notified when this StrPlug's CanWrite() method would return
+true. When this condition happens, the other StrPlug'd WriteableNotify()
+method will be called.
+
+	The StrPlug shouldn't call the other StrPlug's WriteableNotify
+method if this StrPlug is in the middle of it's own write method. That means
+the other StrPlug already knows your writeable because it's in the proccess
+of writing to you.
+
+//---------------------------int Write(StrChunk *)-----------------------------
+
+int Write(StrChunk *)
+
+	This function is used to send a StrChunk to the plug the function is
+called on. The Write request should only fail under the most dire
+circumstances. If the request would block, the write is allowed to
+block. Blocking means not returning until the write can be completed.
+
+	If a previous call to CanWrite returned true, Write is guaranteed to
+be able to write without blocking.
+
+//----------------------------int CanRead() const------------------------------
+
+int CanRead() const
+
+	This function is used for asking a StrPlug if it can be read
+from. If this function returns true (non-zero) a subsequent Read request
+will be guaranteed to succeed without blocking the sender of the request.
+
+//--------------------------void NotifyOnReadable()----------------------------
+
+void NotifyOnReadable()
+
+	This function tells this StrPlug that the StrPlug it's connected to
+wants to be notified when this StrPlug's CanRead() method would return
+true. When this condition happens, the other StrPlug'd ReadableNotify()
+method will be called.
+
+	The StrPlug shouldn't call the other StrPlug's ReadableNotify method
+if this StrPlug is in the middle of it's own read method. That means the
+other StrPlug already knows your readable because it's in the proccess of
+reading from you.
+
+//-----------------------------StrChunk *Read()--------------------------------
+
+StrChunk *Read()
+
+	This function is used to get a StrChunk from the plug the function
+is called on. The Read request should only fail (return NULL (aka 0)) if
+there's an unrecoverable error. EOF would constitute an unrecoverable error.
+
+	If the read request would block, it is allowed to block. Blockiung
+means that the read request will not return until there is something to be
+read.
+
+	If a previous call to CanRead() returned true, Read is guaranteed to
+complete without blocking.
+
+//---------------------StreamModule *ModuleFrom() const------------------------
+
+StreamModule *ModuleFrom() const
+StreamModule *ParentModule() const
+
+	This function is used to ask a StrPlug who it's parent, or owner
+module is. This function simply casts the return value of the virtual
+function ParentModule().
+
+//-----------------------------int Side() const--------------------------------
+
+int Side() const
+
+	This function is used to ask a StrPlug which side of a StreamModule
+it came out of. The return value of this can be subject to different
+interpretations for different StrPlug/StreamModule pairs.
+
+	Generally, every StrPlug obtained from a given StreamModule will
+return a different value for the Side() function.
+
+//--------------------------void ReadableNotify()------------------------------
+//--------------------------void WriteableNotify()-----------------------------
+
+void ReadableNotify()
+void WriteableNotify()
+
+	These functions are used by other StrPlug's to notify this StrPlug
+that they are readable, or writeable.
+
+	Typical code a plug might use for the readable notify function:
+
+void HL7plug::ReadableNotify()
+{
+   StrPlug *oplug = PluggedInto();
+
+   while (oplug && CanWrite() && oplug->CanRead()) {  // Push through all we
+      StrChunk *curchnk;                              // can.
+
+      curchnk = oplug->Read();  // Guaranteed not to block because of
+                                // oplug->CanRead() up there.
+
+      Write(curchnk);  // Guaranteed not to block because of CanWrite() up
+                       // there.
+      oplug = PluggedInto();  // Just in case the PluggedInto state was
+                              // changed somehow by all the other stuff.
+   }
+}
+
+	Typical code a plug might use for the writeable notify function:
+
+void HL7Plug::WriteableNotify()
+{
+   StrPlug *oplug = PluggedInto();
+
+   while (oplug && CanRead() && oplug->CanWrite()) {  // Push through all we
+      StrChunk *curchnk;                              // can.
+
+      curchnk = Read();  // Guaranteed not to block because of CanRead() up
+                         // there.
+      oplug->Write(curchnk);  // Guaranteed not to bo because of
+                              // oplug->CanWrite() up there.
+      oplug = PluggedInto();  // Just in case the PluggedInto state was
+                              // changed somehow by all the other stuff.
+   }
+}
+
+	In practive the code will be a little more complicated than this. It
+will mostly contain checks for the side the plug is on, and whether or not
+the plug has been actually created.
+
+	Since I want this system to be VERY robust, and survive a large
+number of minor misuses, my general policy has been to make the plug
+desensitive, and unresponsive when functions are called under conditions
+they shouldn't be.
+
+	To the same end, assert's have only been used to test for internal
+state inconsistencies rather than errors in usage.
+
+	There is some more documentation on rules to follow when writing
+StrModule's, and StrPlug's in the file "Principles".
