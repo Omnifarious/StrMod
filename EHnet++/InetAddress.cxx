@@ -1,6 +1,9 @@
 /* $Header$ */
 
- // $Log$
+// For log, see ./ChangeLog
+//
+// $Revision$
+//
  // Revision 1.2  1996/02/12 00:32:36  hopper
  // Fixed to use the new C++ standard library string class instead of all the
  // 'NetString' silliness.
@@ -39,8 +42,6 @@
  // Revision 0.1  1994/05/03  03:23:38  hopper
  // Initial revision.
  //
-
- // $Revision$
 
 #ifdef __GNUG__
 #  pragma implementation "InetAddress.h"
@@ -173,7 +174,7 @@ void InetAddress::InvalidateAddress()
    inaddr.sin_addr.s_addr = INADDR_ANY;
 }
 
-bool InetAddress::ParseNumeric(const char *numeric_addr, unsigned long &num)
+bool InetAddress::ParseNumeric(const char *numeric_addr, unsigned int &num)
 {
    if (isdigit(numeric_addr[0])) {
       unsigned long num1, num2, num3, num4;

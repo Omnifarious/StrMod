@@ -6,7 +6,10 @@
 
 /* $Header$ */
 
- // $Log$
+ // For log, see ../ChangeLog
+
+ // $Revision$
+
  // Revision 1.3  1996/02/12 03:01:53  hopper
  // Added links to my ClassIdent system.
  //
@@ -41,8 +44,6 @@
  // Revision 0.1  1994/05/03  03:25:21  hopper
  // Initial revision
  //
-
- // $Revision$
 
 #ifndef _EHNET_SocketAddress_H_
 #   include <EHnet++/SocketAddress.h>
@@ -88,8 +89,8 @@ class InetAddress : public SocketAddress {
    inline virtual SocketAddress *MakeCopy() const;
 
    void InvalidateAddress();
-   static bool ParseNumeric(const char *numeric_addr, unsigned long &num);
-   static bool NameToIaddr(const char *name_addr, unsigned long &num);
+   static bool ParseNumeric(const char *numeric_addr, unsigned int &num);
+   static bool NameToIaddr(const char *name_addr, unsigned int &num);
    static string IaddrToName(const sockaddr_in &inaddr);
 
  private:
