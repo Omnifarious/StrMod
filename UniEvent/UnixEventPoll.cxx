@@ -67,11 +67,7 @@ void UnixEventPoll::registerFDCond(int fd,
                                    const FDCondSet &condbits,
                                    const EventPtr &ev)
 {
-   ::std::cerr << "condbits == " << condbits.to_string() << "\n";
-   FDEvent tmp(ev, condbits);
-   ::std::cerr << "tmp.condset_ == " << tmp.condset_.to_string() << "\n";
-   FDMap::iterator i = impl_.fdmap_.insert(FDMap::value_type(fd, tmp));
-   ::std::cerr << "i->second.condset_ == " << i->second.condset_.to_string() << "\n";
+   impl_.fdmap_.insert(FDMap::value_type(fd, FDEvent(ev, condbits)));
 }
 
 void UnixEventPoll::freeFD(int fd)
@@ -96,7 +92,6 @@ inline short condmask_to_pollmask(const FDCondSet &condset)
 {
    short pollmask = 0;
 
-   ::std::cerr << "condset == " << condset.to_string() << "\n";
    if (condset.test(UnixEventRegistry::FD_Readable))
    {
       pollmask |= POLLIN;
@@ -161,16 +156,11 @@ void UnixEventPoll::doPoll(bool wait)
             FDEvent &fdev = i->second;
             condset |= fdev.condset_;
          }
-         ::std::cerr << "Adding item to poll list: ("
-                     << curfd << ", "
-                     << condmask_to_pollmask(condset) << ")\n";
          impl_.polllist_.push_back(pollstruct(curfd,
                                               condmask_to_pollmask(condset),
                                               0));
       }
    }
-   ::std::cerr << "poll list contains "
-               << impl_.polllist_.size() << " elements.\n";
    int pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
                                  wait ? -1 : 0);
    const int myerrno = errno;
