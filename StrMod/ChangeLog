@@ -8,6 +8,8 @@
 	the telnet protocol messages are discreet chunks that can be
 	easily identified by other stream modules using a simple type
 	test.
+	(TelnetParser::processChar): Added a state transition that I
+	forgot about.
 
 	* tests/TelnetToAscii.h: 
 	* tests/TelnetToAscii.cxx: 
