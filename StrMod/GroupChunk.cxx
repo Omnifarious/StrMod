@@ -306,3 +306,13 @@ void GroupChunk::GroupVecAccumulator::operator ()(StrChunk &chnk,
 {
    chnk.FillGroupVec(ext, vec_, index_);
 }
+
+void GroupChunk::acceptVisitor(ChunkVisitor &visitor)
+   throw(ChunkVisitor::halt_visitation)
+{
+   for (ChunkList::const_iterator i = chnklist_.begin(),
+                            listend = chnklist_.end(); i != listend; ++i)
+   {
+      call_visitStrChunk(visitor, *i);
+   }
+}

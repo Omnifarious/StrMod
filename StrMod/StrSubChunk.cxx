@@ -36,7 +36,8 @@
 #include "StrMod/StrSubChunk.h"
 #include "StrMod/StrChunkPtrT.h"
 #include "StrMod/StrChunkPtr.h"
-#include <assert.h>
+#include "StrMod/ChunkVisitor.h"
+#include <cassert>
 // #include <iostream.h>
 
 const STR_ClassIdent StrSubChunk::identifier(18UL);
@@ -67,4 +68,10 @@ StrSubChunk::StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent)
 //      cerr << "subext_ == " << subext_ << "\n";
       }
    }
+}
+
+void StrSubChunk::acceptVisitor(ChunkVisitor &visitor)
+   throw(ChunkVisitor::halt_visitation)
+{
+   call_visitStrChunk(visitor, subchunk_, subext_);
 }

@@ -26,6 +26,7 @@
 
 // For a log, see ../ChangeLog
 
+#include <StrMod/ChunkVisitor.h>
 #include <StrMod/StrChunk.h>
 #include <StrMod/STR_ClassIdent.h>
 #include <StrMod/LinearExtent.h>
@@ -97,6 +98,10 @@ class BufferChunk : public StrChunk, virtual public Debugable {
    //: See the base class StrChunk.
    virtual void i_DropUnused(const LinearExtent &usedextent,
 			     KeepDir keepdir) = 0;
+
+   //: Accept a ChunkVisitor, and maybe lead it through your children.
+   virtual void acceptVisitor(ChunkVisitor &visitor)
+      throw(ChunkVisitor::halt_visitation);
 
  protected:
    //: <code>buf_</code> is expected to be maintained by the derived class.

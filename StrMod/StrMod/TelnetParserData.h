@@ -61,6 +61,10 @@ class TelnetParser::TelnetData : public StrChunk {
    //: No child will need to implement this.
    virtual void i_DropUnused(const LinearExtent &usedextent,
 			     KeepDir keepdir)           { }
+
+   //: Accept a ChunkVisitor, and maybe lead it through your children.
+   virtual void acceptVisitor(ChunkVisitor &visitor)
+      throw(ChunkVisitor::halt_visitation) { extern void fred();  fred(); }
 };
 
 //---

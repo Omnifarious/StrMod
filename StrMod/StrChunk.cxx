@@ -26,6 +26,7 @@
 
 #include "StrMod/StrChunk.h"
 #include "StrMod/LinearExtent.h"
+#include "StrMod/StrChunkPtr.h"
 
 const STR_ClassIdent StrChunk::identifier(6UL);
 

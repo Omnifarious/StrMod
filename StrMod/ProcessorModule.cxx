@@ -78,7 +78,7 @@ const StrChunkPtr ProcessorModule::PMPlug::i_Read()
 
 void ProcessorModule::PMPlug::i_Write(const StrChunkPtr &chnk)
 {
-   assert(getFlagsFrom(*this).canrite_);
+   assert(getFlagsFrom(*this).canwrite_);
    assert(writeproc_.canWriteTo());
    writeproc_.writeTo(chnk);
    getParent().setReadableFlagFor(&sibling_, writeproc_.canReadFrom());

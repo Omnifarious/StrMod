@@ -61,6 +61,10 @@ class StrSubChunk : public StrChunk {
    inline virtual void i_DropUnused(const LinearExtent &usedextent,
 				    KeepDir keepdir);
 
+   //: Accept a ChunkVisitor, and maybe lead it through your children.
+   virtual void acceptVisitor(ChunkVisitor &visitor)
+      throw(ChunkVisitor::halt_visitation);
+
  private:
    StrChunkPtr subchunk_;
    LinearExtent subext_;
@@ -87,7 +91,7 @@ inline unsigned int StrSubChunk::NumSubGroups(const LinearExtent &extent) const
 {
    return(subchunk_->NumSubGroups(subext_.SubExtent(extent)));
 }
-   
+
 inline void StrSubChunk::i_DropUnused(const LinearExtent &usedextent,
 				      KeepDir keepdir)
 {

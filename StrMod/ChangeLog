@@ -1,3 +1,35 @@
+2000-09-08  Eric Mathew Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/BufferChunk.h: 
+	* BufferChunk.cxx (acceptVisitor): Added new method to allow
+	BufferChunks to be visited by the ChunkVisitor.
+
+	* StrMod/ChunkVisitor.h: Fixed interface for visitDataBlock
+	because void * + length is enough information.  No LinearExtent is
+	needed.
+
+2000-09-07  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/ChunkVisitor.h: Added the visitZeroLength method so a
+	visitor could choose to include or skip chunks of zero length
+	which are sometimes special stream control chunks.
+
+	* StrMod/StrSubChunk.h (class StrSubChunk): 
+	* StrSubChunk.cxx (acceptVisitor): 
+	* StrMod/GroupChunk.h (class GroupChunk): 
+	* GroupChunk.cxx (acceptVisitor): Added the acceptVisitor method
+	in order to support ChunkVisitors.
+
+2000-09-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Added listing for new ChunkVisitor class.
+
+	* StrMod/ChunkVisitor.h: 
+	* ChunkVisitor.cxx: 
+	* StrMod/StrChunk.h: 
+	* StrChunk.cxx: First crack at adding an interface for visitors to
+	the StrChunk class.
+
 2000-01-27  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/StreamFDModule.h:
