@@ -48,18 +48,11 @@ class UNIXError : public LCoreError {
    /** Create from a system call name, the global 'errno' value, and an
     * LCoreError.
     */
-   inline UNIXError(const char *syscallname, const LCoreError &lcerr) throw ();
-   //! Create from a system call name, an errno value, and an LCoreError.
    inline UNIXError(const char *syscallname,
-                    int errnum, const LCoreError &lcerr) throw ();
-
-   //! Create a new UNIXError that is an EOF error.
-   inline static const UNIXError makeEOFError(const char *syscallname,
-                                              const char *desc = 0) throw ();
-
-   //! Create a new UNIXError that is an EOF error.
-   inline static const UNIXError makeEOFError(const char *syscallname,
-                                              const LCoreError &lcerr) throw ();
+                    const LCoreError &lcerr, bool iseof = false) throw ();
+   //! Create from a system call name, an errno value, and an LCoreError.
+   inline UNIXError(const char *syscallname, int errnum,
+                    const LCoreError &lcerr) throw ();
 
    //! Return name of system call that caused error.
    const char *getSyscallName() const throw ()          { return syscallname_; }
@@ -81,9 +74,13 @@ class UNIXError : public LCoreError {
     */
    void getErrorString(char *buf, size_t buflen) const throw ();
 
+   //! Is this an End-Of-File error?
+   bool isEOF() const throw()                           { return iseof_; }
+
  private:
    const char *syscallname_;
    const int errnum_;
+   const bool iseof_;
 };
 
 //-----------------------------inline functions--------------------------------
@@ -94,8 +91,10 @@ class UNIXError : public LCoreError {
  * The actual Unix error number is grabbed from the global 'errno' value.
  */
 inline
-UNIXError::UNIXError(const char *syscallname, const LCoreError &lcerr) throw ()
-     : LCoreError(lcerr), syscallname_(syscallname), errnum_(errno)
+UNIXError::UNIXError(const char *syscallname,
+                     const LCoreError &lcerr, bool iseof) throw ()
+     : LCoreError(lcerr), syscallname_(syscallname),
+       errnum_(iseof ? errno : 0), iseof_(iseof)
 {
 }
 
@@ -108,7 +107,8 @@ inline
 UNIXError::UNIXError(const char *syscallname,
                      int errnum, const LCoreError &lcerr)
    throw ()
-     : LCoreError(lcerr), syscallname_(syscallname), errnum_(errnum)
+     : LCoreError(lcerr), syscallname_(syscallname),
+       errnum_(errnum), iseof_(false)
 {
 }
 
