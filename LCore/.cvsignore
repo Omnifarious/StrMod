@@ -1,0 +1,6 @@
+*.tar.gz
+*.flc
+GNUmakefile~
+lib*.stamp
+depend.stamp
+dependdb.gdbm

@@ -1,0 +1,88 @@
+CXX = g++ -m486 -pipe
+CPPFLAGS = -I/home/hopper/src/include++ -DBYTE_ORDER_DEFINED -DORDER_XINU -pipe -O2
+
+%.o : %.cc
+	$(CXX) -c $(@:.o=.cc) $(CPPFLAGS) $(CXXFLAGS) -o $@
+
+%.s.o : %.cc
+	$(CXX) -c $(@:.s.o=.cc) $(CPPFLAGS) $(CXXFLAGS) -fPIC -o $@
+
+%.cc.d : %.cc
+	+$(CXX) -c $< $(CPPFLAGS) $(CXXFLAGS) -MM | sed "s;$<;;" | sed 's;^$(notdir $*)\.o;$*.cc;' | dependdb update --addtouch $< $<
+
+MYMAKE := $(MAKE)
+
+CCNAMES = classimp.cc  defproto.cc  hopclimp.cc  objctstr.cc  progrimp.cc \
+          clsprgid.cc  cltpsstr.cc  gentyimp.cc  objctstd.cc  objecimp.cc \
+          protoimp.cc  defeh_cl.cc  defspscl.cc
+
+SONAMES = $(CCNAMES:.cc=.s.o)
+
+/home/hopper/lib/libLCore.a : $(CCNAMES)
+	$(MAKE) $(?:.cc=.o)
+	ar rv $@ $(?:.cc=.o)
+	rm -f $(?:.cc=.o)
+
+/home/hopper/lib/libContainer.so : $(SONAMES)
+	ld -G -s -h $@ $^ -o $@
+#	rm -f $^
+
+$(EXTLIBTAG) : $(CCNAMES)
+	$(MAKE) $(?:.cc=.o)
+	touch $(EXTLIBTAG)
+	ar rv $(EXTLIB) $(?:.cc=.o)
+	rm -f $(?:.cc=.o)
+
+GNUmakefile : depend.stamp
+	dependdb list --makefiles GNUmakefile GNUmakefile.new
+	mv GNUmakefile GNUmakefile~
+	mv GNUmakefile.new GNUmakefile
+
+depend.stamp : $(CCNAMES)
+	rm -f GNUmakefile.old
+	ln GNUmakefile GNUmakefile.old
+	$(MYMAKE) -f GNUmakefile.old $(?:.cc=.cc.d)
+	rm -f GNUmakefile.old
+	touch depend.stamp
+
+##Do not delete this line, or the line after...
+##Heh, heh, heh.
+
+defeh_cl.cc:  LCore/HopClTypes.h
+	touch defeh_cl.cc
+
+progrimp.cc:  LCore/Programmers.h
+	touch progrimp.cc
+
+classimp.cc:  LCore/ClassTypes.h
+	touch classimp.cc
+
+defproto.cc:  LCore/Protocol.h
+	touch defproto.cc
+
+defspscl.cc:  LCore/SPSClTypes.h
+	touch defspscl.cc
+
+protoimp.cc:  LCore/Protocol.h
+	touch protoimp.cc
+
+objecimp.cc:  LCore/Object.h
+	touch objecimp.cc
+
+objctstd.cc:  LCore/Object.h
+	touch objctstd.cc
+
+hopclimp.cc:  LCore/HopClTypes.h
+	touch hopclimp.cc
+
+clsprgid.cc:  LCore/Object.h LCore/Programmers.h LCore/HopClTypes.h
+	touch clsprgid.cc
+
+cltpsstr.cc:  LCore/ClassTypes.h
+	touch cltpsstr.cc
+
+gentyimp.cc:  LCore/GenTypes.h
+	touch gentyimp.cc
+
+objctstr.cc:  LCore/Object.h
+	touch objctstr.cc

@@ -1,0 +1,66 @@
+/* $Header$ */
+
+ // $Log$
+ // Revision 1.1  1995/07/22 04:46:49  hopper
+ // Initial revision
+ //
+ // -> Revision 0.12  1995/04/14  16:42:55  hopper
+ // -> Combined versions 0.11 and 0.11.0.4
+ // ->
+ // -> Revision 0.11.0.4  1995/04/14  16:41:23  hopper
+ // -> Added declarations for StreamModule identifiers.
+ // ->
+ // -> Revision 0.11.0.3  1995/04/05  01:48:34  hopper
+ // -> Changed things for integration into the rest of my libraries.
+ // ->
+ // -> Revision 0.11.0.2  1994/07/18  03:44:56  hopper
+ // -> Added #pragma implementation thing so this would work better with gcc 2.6.0
+ // ->
+ // -> Revision 0.11.0.1  1994/05/16  06:12:19  hopper
+ // -> No changes, but I needed a head for the inevitable WinterFire-OS/2
+ // -> branch.
+ // ->
+ // -> Revision 0.11  1994/05/07  03:24:53  hopper
+ // -> Changed header files stuff around to be aprroximately right with
+ // -> new libraries, and new names & stuff.
+ // ->
+ // -> Revision 0.10  1992/04/14  20:47:39  hopper
+ // -> Genesis!
+ // ->
+
+#ifndef NO_RcsID
+static char _EH_StreamModule_CC_rcsID[] = "$Id$";
+#endif
+
+#ifdef __GNUG__
+#  pragma implementation "StreamModule.h"
+#endif
+
+#include "StrMod/StreamModule.h"
+
+const STR_ClassIdent StreamModule::identifier(1UL);
+const STR_ClassIdent StrPlug::identifier(2UL);
+
+bool StrPlug::PlugInto(StrPlug *p)
+{
+   StrPlug *tempcon = PluggedInto();
+
+   if (p == tempcon)  // If we're already plugged in... (Recursive call)
+      return(1);
+   else {
+      if (p == 0 || p == this)  // If we're being plugged into ourselves, or
+	 return(0);             // nothing.
+      else if (tempcon != 0)  // If we're already plugged in, and are trying to
+	 return(0);          // be plugged into somewhere else.
+      else {
+	 ConnPlug = p;
+	 if (!p->PlugInto(this)) {  // If we didn't succeed in plugging the
+	    ConnPlug = tempcon;    // other guy into us....
+	    return(0);
+	 } else {
+	    notify_flags = 0;
+	    return(1);
+	 }
+      }
+   }
+}

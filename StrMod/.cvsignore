@@ -1,0 +1,9 @@
+*.tar.gz
+*.flc
+GNUmakefile~
+GNUmakefile.iris~
+echoserv
+testecho
+lib*.stamp
+depend.stamp
+dependdb.gdbm
