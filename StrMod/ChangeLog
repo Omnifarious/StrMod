@@ -1,3 +1,24 @@
+2002-09-15  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* LinearExtent.cxx, StrMod/LinearExtent.h: Lots of cleanups
+	related to writing CppUnit tests.
+
+	Changed comments to clearly state that behavior is undefined in
+	certain cases.
+
+	Changed all of the Lengthen, Shorten and Move methods to check
+	bounds to avoid putting the LinearExtent into an undefined state
+	if it wasn't there before.
+
+	Removed LengthenCenter and ShortenCenter because they had a number
+	of difficult to define cases, and few uses I could think of.
+
+	Added operator == to test for extents with the exact same offset
+	and length.  I don't think extent comparisons have a lot of value
+	in general, but they are extremely useful for testing.
+
+	Changed definition of full_extent to use new LENGTH_MAX constant.
+
 2002-09-09  Eric M. Hopper  <hopper@omnifarious.org>
 
 	* ChunkIterator.cxx: Fixed syntax error in assert that hadn't been
