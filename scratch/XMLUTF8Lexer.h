@@ -14,15 +14,27 @@
 class XMLBuilder
 {
  public:
+   struct Cookie {
+      friend class XMLBuilder;
+    private:
+      unsigned int val_;
+   };
+
    //! Just set up some initial defaults.
    XMLBuilder() : elmntok_(true),
                         wantattrs_(true), wantentities_(true) { }
    virtual ~XMLBuilder() {}
 
    virtual void startElementTag(size_t begin, const ::std::string &name) = 0;
+   virtual void addAttribute(size_t attrbegin, size_t attrend,
+                             size_t valbegin, size_t valend,
+                             const ::std::string &name) = 0;
    virtual void endElementTag(size_t end, bool wasempty) = 0;
    virtual void closeElementTag(size_t begin, size_t end,
                                 const ::std::string &name) = 0;
+
+   virtual const Cookie makeCookie(size_t index) = 0;
+   virtual void destroyCookie(const Cookie &cookie) = 0;
 
    bool isElementOK() const { return elmntok_; }
    bool wantAttributes() const { return wantattrs_; }
@@ -32,6 +44,9 @@ class XMLBuilder
    bool elmntok_;
    bool wantattrs_;
    bool wantentities_;
+
+   Cookie i_makeCookie(unsigned int val) { Cookie c; c.val_ = val; return c; }
+   unsigned int i_valFromCookie(const Cookie &cookie) { return cookie.val_; }
 };
 
 class XMLUTF8Lexer
@@ -41,11 +56,13 @@ class XMLUTF8Lexer
                  XCommentExcl, XCommentExclDash, XInComment, XDashInComment,
                  XDashDashInComment,
                  XOpenElement, XInOpenElement, XEmptyElementEnd,
-                 XCloseElement, XInCloseElement };
+                 XCloseElement, XInCloseElement,
+                 XAttr, XAttrAfterEq, XAttrSQ, XAttrDQ };
 
-   enum XSubState { XSNone, XSBad, XSStartName, XSInName, XSEntity,
-                    XSNamedEntity, XSCharEntity, XSDecEntity, XSHexEntityStart,
-                    XSHexEntity, XSEndEntity };
+   enum XSubState { XSNone, XSBad,
+                    XSStartName, XSInName,
+                    XSEntity, XSNamedEntity, XSCharEntity, XSDecEntity,
+                    XSHexEntityStart, XSHexEntity, XSEndEntity };
 
  public:
    XMLUTF8Lexer()
@@ -359,6 +376,12 @@ class XMLUTF8Lexer
             {
                state_ = XEmptyElementEnd;
             }
+            else if (isnamestart(c))
+            {
+               state_ = XAttr;
+               namepos_ = 0;
+               substate_ = XSInName;
+            }
             else if (!iswhite(c))
             {
                state_ = XBad;
@@ -402,6 +425,54 @@ class XMLUTF8Lexer
             }
             break;
 
+          case XAttr:
+            if (c == equals)
+            {
+               state_ = XAttrAfterEq;
+            }
+            else if (!iswhite(c))
+            {
+               state_ = XBad;
+            }
+            break;
+
+          case XAttrAfterEq:
+            if (c == doublequote)
+            {
+               state_ = XAttrDQ;
+            }
+            else if (c == singlequote)
+            {
+               state_ = XAttrSQ;
+            }
+            else if (!iswhite(c))
+            {
+               state_ = XBad;
+            }
+            break;
+
+          case XAttrSQ:
+            if (c == singlequote)
+            {
+               state_ = XInOpenElement;
+            }
+            else if (c == lessthan)  // Don't ask me, amaya thinks it's evil.
+            {
+               state_ = XBad;
+            }
+            break;
+
+          case XAttrDQ:
+            if (c == doublequote)
+            {
+               state_ = XInOpenElement;
+            }
+            else if (c == lessthan)  // Don't ask me, amaya thinks it's evil.
+            {
+               state_ = XBad;
+            }
+            break;
+
           case XBad:
             break;
          }
@@ -410,10 +481,16 @@ class XMLUTF8Lexer
 
    static void throw_out_of_range();
    void call_startElementTag(size_t begin, XMLBuilder &parser);
+   void call_addAttribute(size_t attrbegin, size_t attrend,
+                          size_t valbegin, size_t valend,
+                          XMLBuilder &parser);
    void call_closeElementTag(size_t begin, size_t end, XMLBuilder &parser);
 };
 
 // $Log$
+// Revision 1.5  2002/12/11 13:42:36  hopper
+// Moving towards handling attributes, and multi-buffer parsing.
+//
 // Revision 1.4  2002/12/10 22:46:02  hopper
 // Renamed the XMLParserStrategy to the more appropriate XMLBuilder from
 // Design Patterns.
