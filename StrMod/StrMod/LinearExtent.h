@@ -7,16 +7,25 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/06/29 06:24:25  hopper
+// Added const in places that needed it.
+// Added new SubExtent_eq for in-place sub-extension calculation.
+// Added declaration for stream output operator.
+//
 // Revision 1.1  1996/05/08 11:16:53  hopper
 // First functional revision
 //
 
 #define _STR_LinearExtent_H_
 
+class ostream;
+
 class LinearExtent {
  public:
    typedef unsigned int off_t;
    typedef unsigned int length_t;
+
+   static const LinearExtent full_extent;
 
    inline LinearExtent();
    inline LinearExtent(off_t offset, length_t length);
@@ -24,7 +33,7 @@ class LinearExtent {
 
    inline off_t Offset() const;
    inline void Offset(off_t new_off);
-   inline length_t Length();
+   inline length_t Length() const;
    inline void Length(length_t new_length);
 
    void LengthenLeft(length_t by);
@@ -38,13 +47,16 @@ class LinearExtent {
    inline void MoveRight(off_t by);
    inline void MoveLeft(off_t by);
 
-   const LinearExtent SubExtent(const LinearExtent &extent);
+   const LinearExtent SubExtent(const LinearExtent &extent) const;
+   const LinearExtent SubExtent_eq(const LinearExtent &extent);
 
  private:
    off_t m_offset;
    length_t m_length;
 
 };
+
+ostream &operator <<(ostream &os, const LinearExtent &ext);
 
 //-----------------------------inline functions--------------------------------
 
@@ -71,7 +83,7 @@ inline void LinearExtent::Offset(LinearExtent::off_t new_off)
    m_offset = new_off;
 }
 
-inline LinearExtent::length_t LinearExtent::Length()
+inline LinearExtent::length_t LinearExtent::Length() const
 {
    return(m_length);
 }
