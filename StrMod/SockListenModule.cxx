@@ -46,7 +46,8 @@ static char _SockListenModule_CC_rcsID[] =
 #include <errno.h>
 #include <unistd.h>
 #include <netinet/in.h>
-#include <assert.h>
+#include <cassert>
+#include <new>
 #include "config.h"
 #include "sockdecl.h"
 
@@ -125,7 +126,7 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
                                    UNIDispatcher &disp,
 				   UNIXpollManager &pmgr,
 				   int qlen)
-      : sockfd_(-1), last_err_(0), lplug_(*this),
+      : sockfd_(-1), has_error_(false), lplug_(*this),
         plug_pulled_(false), checking_read_(false), newmodule_(0),
 	myaddr_(*(bind_addr.Copy())),
 	disp_(disp), pmgr_(pmgr), readevptr_(0), errorevptr_(0)
@@ -133,7 +134,9 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
    sockfd_ = socket(myaddr_.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC);
    if (sockfd_ < 0)
    {
-      last_err_ = errno;
+      setError(UNIXError("socket",
+                         LCoreError("Creating listening socket",
+                                    LCORE_GET_COMPILERINFO())));
       return;
    }
    {
@@ -141,29 +144,37 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
 
       if (temp < 0)
       {
-	 last_err_ = errno;
+         setError(UNIXError("fcntl",
+                            LCoreError("Setting non-blocking mode",
+                                       LCORE_GET_COMPILERINFO())));
 	 close(sockfd_);
 	 sockfd_ = -1;
 	 return;
       }
-      temp &= O_NDELAY;
+      temp &= ~O_NDELAY;
       if (fcntl(sockfd_, F_SETFL, temp | O_NONBLOCK) < 0)
       {
-	 last_err_ = errno;
+         setError(UNIXError("fcntl",
+                            LCoreError("Setting non-blocking mode",
+                                       LCORE_GET_COMPILERINFO())));
 	 close(sockfd_);
 	 sockfd_ = -1;
 	 return;
       }
    }
    if (bind(sockfd_, myaddr_.SockAddr(), myaddr_.AddressSize()) < 0) {
-      last_err_ = errno;
+      setError(UNIXError("fcntl",
+                         LCoreError("Binding listening socket",
+                                    LCORE_GET_COMPILERINFO())));
       close(sockfd_);
       sockfd_ = -1;
       return;
    }
    if (listen(sockfd_, qlen) < 0)
    {
-      last_err_ = errno;
+      setError(UNIXError("listen",
+                         LCoreError("Listening on listening socket",
+                                    LCORE_GET_COMPILERINFO())));
       close(sockfd_);
       sockfd_ = -1;
       return;
@@ -202,7 +213,9 @@ void SockListenModule::eventRead(unsigned int condbits)
    checking_read_ = false;
    if (!(condbits & UNIXpollManager::FD_Readable))
    {
-      last_err_ = -1;
+      setError(UNIXError("<none>", 0,
+                         LCoreError("Got fd condition other than readable",
+                                    LCORE_GET_COMPILERINFO())));
    }
    else if (newmodule_ == 0)
    {
@@ -212,7 +225,9 @@ void SockListenModule::eventRead(unsigned int condbits)
 
 void SockListenModule::eventError(unsigned int condbits)
 {
-   last_err_ = -1;
+   setError(UNIXError("<none>", 0,
+                      LCoreError("Got error condition",
+                                 LCORE_GET_COMPILERINFO())));
 }
 
 void SockListenModule::doAccept()
@@ -240,7 +255,9 @@ void SockListenModule::doAccept()
    {
       if (errno != EAGAIN)
       {
-	 last_err_ = errno;
+         setError(UNIXError("accept",
+                            LCoreError("Error accepting connection",
+                                       LCORE_GET_COMPILERINFO())));
       }
       else if (!checking_read_)
       {
@@ -255,7 +272,9 @@ void SockListenModule::doAccept()
       if (saddr->sa_family != AF_INET)
       {
 	 close(tempfd);
-	 last_err_ = -1;
+         setError(UNIXError("<none>", 0,
+                            LCoreError("Got connection from non-AF_INET peer",
+                                       LCORE_GET_COMPILERINFO())));
       }
       else
       {
@@ -264,16 +283,20 @@ void SockListenModule::doAccept()
 
 	    if (temp < 0)
 	    {
-	       last_err_ = errno;
+               setError(UNIXError("fcntl",
+                                  LCoreError("Setting accepted connection non-blocking",
+                                             LCORE_GET_COMPILERINFO())));
 	       close(tempfd);
 	       tempfd = -1;
 	    }
 	    else
 	    {
-	       temp &= O_NDELAY;
+	       temp &= ~O_NDELAY;
 	       if (fcntl(tempfd, F_SETFL, temp | O_NONBLOCK) < 0)
 	       {
-		  last_err_ = errno;
+                  setError(UNIXError("fcntl",
+                                     LCoreError("Setting accepted connection non-blocking",
+                                                LCORE_GET_COMPILERINFO())));
 		  close(tempfd);
 		  tempfd = -1;
 		  return;
@@ -301,6 +324,29 @@ void SockListenModule::doAccept()
    }
 }
 
+void SockListenModule::clearError() throw()
+{
+   if (has_error_)
+   {
+      (reinterpret_cast<UNIXError *>(errorstore_))->~UNIXError();
+      has_error_ = false;
+   }
+}
+
+void SockListenModule::setError(const UNIXError &err) throw()
+{
+   void *raw = errorstore_;
+   UNIXError *store = reinterpret_cast<UNIXError *>(raw);
+   if (has_error_)
+   {
+      store->~UNIXError();
+   }
+   else
+   {
+      has_error_ = true;
+   }
+   new(raw) UNIXError(err);
+}
 
 SocketModule *SockListenModule::getNewModule()
 {
