@@ -6,46 +6,9 @@
 
 /* $Header$ */
 
-// $Log$
-// Revision 1.3  1996/07/05 18:32:36  hopper
-// Changed to use new StrChunkPtr style interface.  Also changed to use new
-// parent module handling.
-//
-// Revision 1.2  1996/02/12 05:49:34  hopper
-// Changed to use new ANSI string class instead of RWCString.
-//
-// Revision 1.1.1.1  1995/07/22 04:46:51  hopper
-// Imported sources
-//
-// Revision 0.12  1995/04/18  03:39:29  hopper
-// Merged revisions 0.11 and 0.11.0.3
-//
-// Revision 0.11.0.3  1994/07/18  04:00:09  hopper
-// Fixed minor syntax error that gcc 2.5.8 didn't catch, but 2.6.0 did.
-//
-// Revision 0.11.0.2  1994/06/16  02:40:45  hopper
-// Implemented changes neccessary to work with new StrChunk class.
-// Added RCS Revision thing.
-// Added #pragma interfeace for GNU stuff.
-//
-// Revision 0.11.0.1  1994/05/16  01:50:01  hopper
-// Changed String to RWCString to work with Rogue Wave classes.
-//
-// Revision 0.11  1994/05/07  03:40:55  hopper
-// Move enclosing #ifndef ... #define bits around. Changed names of some
-// non-multiple include constants. Changed directories for certain
-// type of include files.
-//
-// Revision 0.10  1992/05/17  22:40:28  hopper
-// Genesis!
-//
+// For a log, see ../ChangeLog
 
 // $Revision$
-
-#ifndef NO_RcsID
-static char _SockListenModule_H_rcsID[] =
-      "$Id$";
-#endif
 
 #ifndef _STR_SocketModule_H_
 #  include <StrMod/SocketModule.h>
@@ -55,8 +18,6 @@ static char _SockListenModule_H_rcsID[] =
 #   include <StrMod/StreamModule.h>
 #endif
 
-#include <Dispatch/iohandler.h>
-
 #ifndef _STR_StrChunk_H_
 #  include <StrMod/StrChunk.h>
 #endif
@@ -65,6 +26,11 @@ static char _SockListenModule_H_rcsID[] =
 #  include <StrMod/StrChunkPtrT.h>
 #endif
 
+#include <UniEvent/EventPtrT.h>
+#include <UniEvent/UNIXpollManager.h>
+#include <UniEvent/UNIXError.h>
+
+#include <bool.h>
 #include <string>
 
 #define _STR_SockListenModule_H_
@@ -73,13 +39,14 @@ class ListeningPlug;
 class SocketModuleChunk;
 class SocketAddress;
 
-// This class is sort of a fake class to shove the listening socket into the
-// standard StreamModule framework. The SockListenModule mints SocketModule's,
-// but all the plug definitions require that StrChunk's be passed between the
-// plugs. This class wraps a SocketModule in a StrChunk. SocketModule's really
-// can't be passed to anywhere outside the process, so all the methods for this
-// class are going to act like this SockModuleChunk is empty.
-
+//: A special 'zero length' chunk that contains a SocketModule.
+// This class is sort of a fake class to shove the listening socket
+// into the standard StreamModule framework. The SockListenModule
+// mints SocketModule's, but all the plug definitions require that
+// StrChunk's be passed between the plugs. This class wraps a
+// SocketModule in a StrChunk. SocketModule's really can't be passed
+// to anywhere outside the process, so all the methods for this class
+// are going to act like this SockModuleChunk is empty.
 class SocketModuleChunk : public StrChunk {
  public:
    static const STR_ClassIdent identifier;
@@ -112,162 +79,121 @@ class SocketModuleChunk : public StrChunk {
 typedef StrChunkPtrT<SocketModuleChunk> SocketModuleChunkPtr;
 
 //--------------------------SockListenModule class-----------------------------
-   
+
+//: A class that accepts connections on a particular socket.
+// This class creates SocketModule s and wraps them up in SocketModuleChunk s.
 class SockListenModule : public StreamModule {
-   friend class ListeningPlug;
+   class FDPollEv;
+   friend class FDPollEv;
+   class FDPollRdEv;
+   class FDPollErEv;
 
  public:
+   class SLPlug;  // Declared at end of public section for clarity.
+   friend class SLPlug;
    static const STR_ClassIdent identifier;
 
-   SockListenModule(const SocketAddress &bind_addr, int qlen = 1);
+   //: What address am I going to listen on, and what's the length of the
+   //: pending connection queue?
+   SockListenModule(const SocketAddress &bind_addr, UNIXpollManager &pmgr,
+		    int qlen = 1);
    virtual ~SockListenModule();
 
+   //: See base class
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline virtual bool CanCreate(int side = 1) const;
-   inline ListeningPlug *MakePlug(int side = 1);
-   inline virtual bool OwnsPlug(StrPlug *plug) const;
-   inline virtual bool DeletePlug(StrPlug *plug);
+   //: See base class - Only 1 side, side 0.
+   inline virtual bool canCreate(int side = 0) const;
+   //: See base class - Only 1 side, side 0.
+   inline SLPlug *makePlug(int side = 0);
+   //: See base class
+   inline virtual bool ownsPlug(const Plug *plug) const;
+   //: See base class
+   inline virtual bool deletePlug(Plug *plug);
 
-   bool HasError() const                           { return(last_error != 0); }
-   int ErrorNum() const                            { return(last_error); }
-   void ClearError()                               { last_error = 0; }
-   string ErrorString() const;
-   const SocketAddress *GetBoundAddress() const    { return(myaddr); }
+   //: Has there been an error of any kind?
+   bool hasError() const                       { return(last_err_ != 0); }
+   //: What was the error, if any?
+   const UNIXError getError() const            { return(UNIXError(last_err_)); }
+   //: Pretend no error happened.
+   void clearError();
+
+   //: What's the local address for this socket?
+   const SocketAddress &GetBoundAddress() const { return(myaddr_); }
+
+   class SLPlug : public Plug {
+      friend class SockListenModule;
+
+    public:
+      static const STR_ClassIdent identifier;
+
+      //: Not that this can ONLY be constructed using a SockListenModule
+      SLPlug(SockListenModule &parent) : Plug(parent)   { }
+      virtual ~SLPlug()                                 { }
+
+      //: See base class.
+      inline virtual int AreYouA(const ClassIdent &cid) const;
+
+      //: Grab Plug::getParent, and cast it to the real type of the parent.
+      inline SockListenModule &getParent() const;
+
+      //: This plug is always on side 0.
+      virtual int side() const                          { return(0); }
+
+      //: Read a socket module chunk, if there is one.
+      const SocketModuleChunkPtr getConnection();
+
+    protected:
+      //: See base class.
+      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+
+      //: Forwards to getParent()->plugRead()
+      virtual const StrChunkPtr i_Read();
+      //: A dead operation.  It either assert fails, or is a no-op that throws
+      //: away its data.
+      virtual void i_Write(const StrChunkPtr &ptr);
+   };
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const    { return(&identifier); }
+   //: See base cass
+   virtual const ClassIdent *i_GetIdent() const { return(&identifier); }
 
-   inline virtual StrPlug *CreatePlug(int side);
-   inline SocketModule *MakeSocketModule(int fd, SocketAddress *peer);
+   //: See base class - The only side is 0.
+   inline virtual Plug *i_MakePlug(int side);
 
-   int sockfd, last_error;
-   ListeningPlug *lplug;
-   bool plug_pulled;
-   SocketModule *newmodule;
-   SocketAddress *myaddr;
-};
+   //: Make a socket module once I've done the accept.
+   // Note, ownership of peer is being passed here.
+   inline SocketModule *makeSocketModule(int fd, SocketAddress *peer,
+					 UNIXpollManager &pmgr);
 
-//----------------------------ListeningPlug class------------------------------
-
-class ListeningPlug : public StrPlug, public IOHandler {
- public:
-   static const STR_ClassIdent identifier;
-
-   ListeningPlug(SockListenModule *p);
-   virtual ~ListeningPlug();
-
-   inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   virtual bool CanWrite() const                       { return(false); }
-   virtual bool Write(const StrChunkPtr &); // Calling this will cause
-                                            // unpredictable things to happen.
-   inline virtual bool CanRead() const;
-   inline const SocketModuleChunkPtr Read();
-
-   inline SockListenModule *ModuleFrom() const;
-   virtual int Side() const                            { return(1); }
-
- protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   SocketModule *getNewModule();
 
  private:
-   inline virtual const StrChunkPtr InternalRead();
-   const SocketModuleChunkPtr my_InternalRead();
+   int sockfd_, last_err_;
+   SLPlug lplug_;
+   bool plug_pulled_;
+   bool checking_read_;
+   SocketModule *newmodule_;
+   SocketAddress &myaddr_;
+   UNIXpollManager &pmgr_;
+   FDPollEv *readevptr_;
+   UNIEventPtrT<UNIXpollManager::PollEvent> readev_;
+   FDPollEv *errorevptr_;
+   UNIEventPtrT<UNIXpollManager::PollEvent> errorev_;
 
-   virtual void WriteableNotify();
-   virtual void ReadableNotify()                       { }
-
-   virtual int inputReady(int fd);
-// virtual int outputReady(int fd);      // We will really only care about the
-// virtual int exceptionRaised(int fd);  // inputReady condition. If any of the
-// virtual void timerExpired(long, usec);// other ones are triggered, we'll
-                                         // trust the default implementation to
-};                                       // do the right thing.
-
-
-// ---------------------SockListenModule inline functions----------------------
-
-inline int SockListenModule::AreYouA(const ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamModule::AreYouA(cid));
-}
-
-inline bool SockListenModule::CanCreate(int side) const
-{
-   return((side == 1) && !plug_pulled);
-}
-
-inline ListeningPlug *SockListenModule::MakePlug(int side)
-{
-   return((ListeningPlug *)(CreatePlug(side)));
-}
-
-inline bool SockListenModule::OwnsPlug(StrPlug *plug) const
-{
-   return(plug_pulled && (plug == lplug));
-}
-
-inline bool SockListenModule::DeletePlug(StrPlug *plug)
-{
-   if (OwnsPlug(plug)) {
-      plug_pulled = false;
-      return(true);
-   } else
-      return(false);
-}
-
-inline StrPlug *SockListenModule::CreatePlug(int side)
-{
-   if (lplug == 0 || side == 0 || plug_pulled)
-      return(0);
-   else {
-      plug_pulled = true;
-      return(lplug);
-   }
-}
-
-inline SocketModule *SockListenModule::MakeSocketModule(int fd,
-							SocketAddress *peer)
-{
-   return (new SocketModule(fd, peer));
-}
-
-//----------------------ListeningPlug inline functions-------------------------
-
-inline int ListeningPlug::AreYouA(const ClassIdent &cid) const
-{
-   return((identifier == cid) || StrPlug::AreYouA(cid));
-}
-
-inline bool ListeningPlug::CanRead() const
-{
-   SockListenModule *parent = ModuleFrom();
-
-   return(parent->plug_pulled && (parent->newmodule != 0));
-}
-
-inline const SocketModuleChunkPtr ListeningPlug::Read()
-{
-   return(my_InternalRead());
-}
-
-inline SockListenModule *ListeningPlug::ModuleFrom() const
-{
-   return(static_cast<SockListenModule *>(StrPlug::ModuleFrom()));
-}
-
-inline const StrChunkPtr ListeningPlug::InternalRead()
-{
-   return(my_InternalRead());
-}
+   void eventRead(unsigned int condbits);
+   void eventError(unsigned int condbits);
+   void doAccept();
+};
 
 //--------------------SocketModuleChunk inline functions-----------------------
 
 inline SocketModuleChunk::~SocketModuleChunk()
 {
    if (module)
+   {
       delete module;
+   }
 }
 
 inline int SocketModuleChunk::AreYouA(const ClassIdent &cid) const
@@ -292,6 +218,73 @@ inline void SocketModuleChunk::FillGroupVec(const LinearExtent &,
 
 inline void SocketModuleChunk::i_DropUnused(const LinearExtent &, KeepDir)
 {
+}
+
+// ---------------------SockListenModule inline functions----------------------
+
+inline int SockListenModule::AreYouA(const ClassIdent &cid) const
+{
+   return((identifier == cid) || StreamModule::AreYouA(cid));
+}
+
+inline bool SockListenModule::canCreate(int side) const
+{
+   return((side == 0) && !plug_pulled_ && !hasError());
+}
+
+inline SockListenModule::SLPlug *SockListenModule::makePlug(int side)
+{
+   return((SLPlug *)(i_MakePlug(side)));
+}
+
+inline bool SockListenModule::ownsPlug(const Plug *plug) const
+{
+   return(plug_pulled_ && (plug == &lplug_));
+}
+
+inline bool SockListenModule::deletePlug(Plug *plug)
+{
+   if (ownsPlug(plug))
+   {
+      lplug_.unPlug();
+      plug_pulled_ = false;
+      return(true);
+   }
+   else
+   {
+      return(false);
+   }
+}
+
+inline StreamModule::Plug *SockListenModule::i_MakePlug(int side)
+{
+   if (side != 0 || plug_pulled_ || hasError())
+   {
+      return(0);
+   } else {
+      plug_pulled_ = true;
+      return(&lplug_);
+   }
+}
+
+inline SocketModule *SockListenModule::makeSocketModule(int fd,
+							SocketAddress *peer,
+							UNIXpollManager &pmgr)
+{
+   // Ownership of peer is passed here.
+   return(new SocketModule(fd, peer, pmgr));
+}
+
+//----------------------ListeningPlug inline functions-------------------------
+
+inline int SockListenModule::SLPlug::AreYouA(const ClassIdent &cid) const
+{
+   return((identifier == cid) || Plug::AreYouA(cid));
+}
+
+inline SockListenModule &SockListenModule::SLPlug::getParent() const
+{
+   return(static_cast<SockListenModule &>(Plug::getParent()));
 }
 
 #endif
