@@ -78,12 +78,13 @@ inline void UNIXpollManagerImp::DoPollEvent::managerDeleted()
 
 UNIXpollManagerImp::UNIXpollManagerImp(UNIDispatcher *disp)
      : UNIXpollManager(disp),
-       poll_list_(NULL),
-       num_entries_(0),
        isregistered_(false),
        isbusyregistered_(false),
+       poll_list_(NULL),
        pollev_(new DoPollEvent(*this, true)),
-       busypollev_(new DoPollEvent(*this, false))
+       busypollev_(new DoPollEvent(*this, false)),
+       num_entries_(0),
+       used_entries_(0)
 {
 }
 
@@ -159,7 +160,7 @@ void UNIXpollManagerImp::doPoll(bool wait)
 
    if (pollresult >= 0)
    {
-      for (int i = 0; i < used_entries_; ++i)
+      for (unsigned int i = 0; i < used_entries_; ++i)
       {
 	 FDInfo &info = fdmap_[poll_list_[i].fd];
 	 unsigned long condmask = pevMaskToFDMask(poll_list_[i].revents);
