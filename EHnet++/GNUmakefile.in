@@ -21,29 +21,29 @@ RANLIB = @RANLIB@
 
 DEPDB = @DEPDB@
 
-%.o : %.cc
-	$(CXX) -c $(@:.o=.cc) $(CPPFLAGS) $(CXXFLAGS) -o $@
+%.o : %.cxx
+	$(CXX) -c $(@:.o=.cxx) $(CPPFLAGS) $(CXXFLAGS) -o $@
 
-%.s.o : %.cc
-	$(CXX) -c $(@:.s.o=.cc) $(CPPFLAGS) $(CXXFLAGS) -fPIC -o $@
+%.s.o : %.cxx
+	$(CXX) -c $(@:.s.o=.cxx) $(CPPFLAGS) $(CXXFLAGS) -fPIC -o $@
 
-%.cc.d : %.cc
-	+$(CXX) -c $< $(CPPFLAGS) $(CXXFLAGS) -M | sed "s;$<;;" | sed 's;^$(notdir $*)\.o;$*.cc;' | $(DEPDB) update --addtouch $< $<
+%.cxx.d : %.cxx
+	+$(CXX) -c $< $(CPPFLAGS) $(CXXFLAGS) -M | sed "s;$<;;" | sed 's;^$(notdir $*)\.o;$*.cxx;' | $(DEPDB) update --addtouch $< $<
 
 %.c.d : %.c
 	+$(CC) -c $< $(CPPFLAGS) $(CFLAGS) -M | sed "s;$<;;" | sed 's;^$(notdir $*)\.o;$*.c;' | $(DEPDB) update --addtouch $< $<
 
 MYMAKE := $(MAKE)
 
-CCNAMES = InetAddress.cc  SocketAddress.cc  InetAddrNetDB.cc \
-          NET_ClassIdent.cc  tests/morejunk.cc  SocketAddressDef.cc \
-          InetAddrDef.cc
+CCNAMES = InetAddress.cxx  SocketAddress.cxx  InetAddrNetDB.cxx \
+          NET_ClassIdent.cxx  tests/morejunk.cxx  SocketAddressDef.cxx \
+          InetAddrDef.cxx
 
-LIBCCS = InetAddress.cc  SocketAddress.cc  InetAddrNetDB.cc  NET_ClassIdent.cc\
-         SocketAddressDef.cc  InetAddrDef.cc
+LIBCCS = InetAddress.cxx  SocketAddress.cxx  InetAddrNetDB.cxx \
+         NET_ClassIdent.cxx  SocketAddressDef.cxx  InetAddrDef.cxx
 
-DEPSUB = $(patsubst %.c,%.o,$(?:.cc=.o))
-DEPSUBDD = $(patsubst %.c,%.c.d,$(?:.cc=.cc.d))
+DEPSUB = $(patsubst %.c,%.o,$(?:.cxx=.o))
+DEPSUBDD = $(patsubst %.c,%.c.d,$(?:.cxx=.cxx.d))
 
 $(libdir)/libEHnet++.a : $(LIBCCS)
 	$(MAKE) $(DEPSUB)
