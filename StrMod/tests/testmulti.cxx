@@ -2,9 +2,9 @@
 #include "StrMod/SocketModule.h"
 #include "StrMod/EchoModule.h"
 #include "StrMod/SimpleMulti.h"
-// #include "StrMod/ProcessorModule.h"
-// #include "StrMod/NewlineChopper.h"
-// #include "StrMod/PassThrough.h"
+#include "StrMod/ProcessorModule.h"
+#include "StrMod/NewlineChopper.h"
+#include "StrMod/PassThrough.h"
 #include <EHnet++/InetAddress.h>
 #include <UniEvent/SimpleDispatcher.h>
 #include <UniEvent/UNIXpollManagerImp.h>
@@ -13,40 +13,27 @@
 
 extern "C" int atoi(const char *);
 
-//  class MyProcessor : public ProcessorModule {
-//   public:
-//     enum Sides { ToNet, ToMulti };
+class MyProcessor : public ProcessorModule {
+ public:
+   enum Sides { ToNet = OneSide, ToMulti = OtherSide};
 
-//     inline MyProcessor();
+   inline MyProcessor();
 
-//     inline bool CanCreate(Sides side) const;
-//     inline Plug *MakePlug(Sides side);
+ private:
+   NewlineChopper chopper_;
+   PassThrough passthrough_;
+};
 
-//   private:
-//     NewlineChopper chopper_;
-//     PassThrough passthrough_;
-//  };
-
-//  MyProcessor::MyProcessor() : ProcessorModule(&chopper_, &passthrough_)
-//  {
-//  }
-
-//  inline bool MyProcessor::CanCreate(Sides side) const
-//  {
-//     return(ProcessorModule::CanCreate((side == ToNet) ? OneSide : OtherSide));
-//  }
-
-//  inline MyProcessor::Plug *MyProcessor::MakePlug(Sides side)
-//  {
-//     return(ProcessorModule::MakePlug((side == ToNet) ? OneSide : OtherSide));
-//  }
+MyProcessor::MyProcessor() : ProcessorModule(chopper_, passthrough_, false)
+{
+}
 
 struct EchoConnection {
    static SimpleMultiplexer *multip;
    static UNISimpleDispatcher disp;
 
    SocketModule *socket;
-//   MyProcessor proc;
+   MyProcessor proc;
    StreamModule::Plug *multiplug;
 
    inline SimpleMultiplexer *multiplexer();
@@ -71,12 +58,15 @@ inline SimpleMultiplexer *EchoConnection::multiplexer()
 
 inline EchoConnection::EchoConnection(SocketModule *sock) : socket(sock)
 {
-   cerr << "Here 1!\n";
    StreamModule::Plug *p1 = socket->makePlug(0);
    StreamModule::Plug *p2
-      = multiplexer()->makePlug(SimpleMultiplexer::MultiSide);
+      = proc.makePlug(MyProcessor::ToNet);
    p1->plugInto(*p2);
-   cerr << "Here 2!\n";
+
+   p1 = proc.makePlug(MyProcessor::ToMulti);
+   p2 = multiplexer()->makePlug(SimpleMultiplexer::MultiSide);
+   p1->plugInto(*p2);
+
    multiplug = p2;
 }
 
