@@ -40,6 +40,8 @@
 #include <algorithm>
 #include <cassert>
 
+/** A private class for StrPlugs on the 'many' side of a SimpleMultiplexer.
+ */
 class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
    friend class SimpleMultiplexer;
    friend class SinglePlug;
@@ -48,52 +50,47 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   //: Which module owns this plug?
    inline SimpleMultiplexer &getParent() const;
 
    virtual int side() const                           { return(MultiSide); }
 
-   //: Get the 'has_written_' flag of this plug.
+   //! Get the 'has_written_' flag of this plug.
    bool getHasWritten() const                         { return(has_written_); }
 
-   //: Set the 'has_written_' flag of this plug.
+   //! Set the 'has_written_' flag of this plug.
    void setHasWritten(bool nval)                      { has_written_ = nval; }
 
  protected:
+   //! A constructor.
    inline MultiPlug(SimpleMultiplexer &parent);
+   //! A destructor.  Calls unPlug()
    inline virtual ~MultiPlug();
 
    virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
 
-   //: See base class.
    virtual const StrChunkPtr i_Read();
 
-   //: See base class.
    virtual void i_Write(const StrChunkPtr &ptr); 
 
-   //: Because I try to be a 'pass-through' module.
    virtual bool needsNotifyWriteable() const        { return(true); }
-   //: Because I try to be a 'pass-through' module.
    virtual bool needsNotifyReadable() const         { return(true); }
 
-   //: Rather complicated, see the long explanation.
    virtual void otherIsReadable();
 
-   //: Rather complicated, see the long explanation.
    virtual void otherIsWriteable();
 
-   //: Set the list position of this plug.
-   //
-   // <p>This function is to set the listpos_ iterator that's used for quick
-   // list operations.  In fact, the primary purpose of this variable is to
-   // set it up so the list doesn't have to be scanned to find this plug when
-   // the plug needs to be moved to the bottom of the list.</p>
-   //
-   // <p>Of course, this means that the data structure the plugs are stored in
-   // needs to preserve iterators through list operations.</p>
+   /** Set the list position of this plug.
+    * This function is to set the listpos_ iterator that's used for quick list
+    * operations.  In fact, the primary purpose of this variable is to set it up
+    * so the list doesn't have to be scanned to find this plug when the plug
+    * needs to be moved to the bottom of the list.
+    *
+    * Of course, this means that the data structure the plugs are stored in
+    * needs to preserve iterators through list operations.
+    */
    void setListPos(const MPlugList::iterator &newpos) { listpos_ = newpos; }
 
-   //: Get the list position of this plug.  See setListPos for more details.
+   //! Get the list position of this plug.  See setListPos for more details.
    const MPlugList::iterator &getListPos() const    { return(listpos_); }
 
  private:
