@@ -12,6 +12,7 @@
 #include <map>
 #include <ctime>
 #include <stdexcept>
+#include <iostream>
 
 namespace strmod {
 namespace unievent {
@@ -28,7 +29,8 @@ struct compare_intervals
 inline bool
 compare_intervals::operator ()(const interval_t &a, const interval_t &b) const
 {
-   return (a.seconds < b.seconds) || (a.nanoseconds < b.nanoseconds);
+   return (a.seconds < b.seconds) ||
+      ((a.seconds == b.seconds) && (a.nanoseconds < b.nanoseconds));
 }
 
 }
@@ -148,10 +150,10 @@ TimerEventTracker::nextExpirationIn(const absolute_t &now,
    absolute_t earliest = now;
    if (curheap.size() > 0)
    {
-      earliest = absolute_t(current_base_, curheap.begin()->second);
+      earliest = absolute_t(current_base_, curheap.begin()->first);
       if (oldheap.size() > 0)
       {
-         absolute_t contender = absolute_t(old_base_, oldheap.begin()->second);
+         absolute_t contender = absolute_t(old_base_, oldheap.begin()->first);
          if (contender < earliest)
          {
             earliest = contender;
@@ -160,7 +162,7 @@ TimerEventTracker::nextExpirationIn(const absolute_t &now,
    }
    else if (oldheap.size() > 0)
    {
-      earliest = absolute_t(old_base_, oldheap.begin()->second);
+      earliest = absolute_t(old_base_, oldheap.begin()->first);
    }
    else
    {
@@ -182,6 +184,19 @@ TimerEventTracker::nextExpirationIn(const absolute_t &now,
    {
       return interval_t(0, 0);
    }
+}
+
+void TimerEventTracker::printState(::std::ostream &os) const
+{
+   os << "TimerEventTracker - Base time: " << absolute_t(current_base_)
+      << " (\n";
+   const timerheap_t &curheap = impl_.map1_current_ ? impl_.map1_ : impl_.map2_;
+   const timerheap_t::const_iterator end = curheap.end();
+   for (timerheap_t::const_iterator i = curheap.begin(); i != end; ++i)
+   {
+      os << "   [" << i->first << ", " << i->second.GetPtr() << "]\n";
+   }
+   os << ")";
 }
 
 } // namespace unievent
