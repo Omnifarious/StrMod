@@ -43,13 +43,14 @@ LIBCCS = EchoModule.cxx  STR_ClassIdent.cxx  StreamModule.cxx  \
          SimpleMulti.cxx  StreamProcessor.cxx  ProcessorModule.cxx \
          CharChopper.cxx  PassThrough.cxx  NewlineChopper.cxx  BufferChunk.cxx \
          PreAllocBuffer.cxx  DynamicBuffer.cxx  BufferChunkFactory.cxx \
-         InfiniteModule.cxx
+         InfiniteModule.cxx  TelnetParser.cxx  SimpleTelnetClient.cxx
 
 TESTCCS = tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx  \
           tests/testecho.cxx   tests/testsock.cxx tests/echoserv.cxx  \
           tests/testextent.cxx tests/testGV.cxx  tests/testmulti.cxx \
 	  tests/testserial.cxx tests/TelnetToAscii.cxx tests/ttelnet.cxx \
-          tests/testPreAlloc.cxx tests/testinfinite.cxx
+          tests/testPreAlloc.cxx tests/testinfinite.cxx  tests/tstelnet.cxx
+
 
 CCNAMES = $(LIBCCS) $(TESTCCS)
 
@@ -101,6 +102,16 @@ tests/testsock : tests/testsock.o StreamModule.o StreamFDModule.o STR_ClassIdent
 
 tests/testPreAlloc : tests/testPreAlloc.o PreAllocBuffer.o StrChunk.o BufferChunk.o LinearExtent.o STR_ClassIdent.o GroupVector.o DynamicBuffer.o
 	$(CXX) $^ $(LDFLAGS) $(LIBS) -o $@ 2>&1 | c++filt
+
+tests/tstelnet : tests/tstelnet.o tests/TelnetToAscii.o SimpleTelnetClient.o \
+                 StreamModule.o SimpleMulti.o \
+                 ProcessorModule.o PassThrough.o StreamProcessor.o \
+                 DynamicBuffer.o BufferChunk.o PreAllocBuffer.o \
+                 StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o \
+                 GroupVector.o LinearExtent.o SocketModule.o \
+                 StreamSplitter.o EOFStrChunk.o FDUtil.o TelnetParser.o \
+                 GroupChunk.o GV_Iterator.o StrSubChunk.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/tstelnet 2>&1 | c++filt
 
 tests/ttelnet : tests/ttelnet.o tests/TelnetToAscii.o StreamModule.o \
                 StreamFDModule.o STR_ClassIdent.o StrChunkPtr.o StrChunk.o \
