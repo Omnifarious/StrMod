@@ -1,4 +1,3 @@
-#pragma hdrstop
 #include "LCore/HopClTypes.h"
 
  /* UNIX:@@:defs/EH_ClassIdent.cc:@@: */

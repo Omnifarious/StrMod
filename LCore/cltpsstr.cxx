@@ -1,5 +1,4 @@
 #include <iostream.h>
-#pragma hdrstop
 #include "LCore/ClassTypes.h"
 
  /* UNIX:@@:ClassTypesSTR.cc:@@: */

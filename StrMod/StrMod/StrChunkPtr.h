@@ -70,7 +70,7 @@ inline StrChunkPtr::StrChunkPtr(const super1 &b) : super1(b)
 {
 }
 
-inline StrChunkPtr::StrChunkPtr(StrChunk *stptr = 0) : super1(stptr)
+inline StrChunkPtr::StrChunkPtr(StrChunk *stptr) : super1(stptr)
 {
 }
 

@@ -52,7 +52,7 @@ class EchoModule : public StreamModule {
  private:
    //: This is the magical plug that does most of EchoModule's work.
    // <p>See the parent class for descriptions of these member functions.</p>
-   class EchoModule::EPlug : public Plug {
+   class EPlug : public Plug {
       friend class EchoModule;
     public:
       static const STR_ClassIdent identifier;

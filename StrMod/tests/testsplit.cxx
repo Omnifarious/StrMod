@@ -39,22 +39,22 @@ int main(int argc, char *argv[])
    }
    UNISimpleDispatcher disp;
    UNIXpollManagerImp pm(&disp);
-   StreamFDModule stdin(0, pm, StreamFDModule::CheckRead, false);
-   StreamFDModule stdout(1, pm, StreamFDModule::CheckWrite, false);
+   StreamFDModule sin(0, pm, StreamFDModule::CheckRead, false);
+   StreamFDModule sout(1, pm, StreamFDModule::CheckWrite, false);
    StreamSplitterModule splitter;
    EchoModule echo;
 
-   stdin.makePlug(0)->plugInto(
+   sin.makePlug(0)->plugInto(
       *(splitter.makePlug(StreamSplitterModule::SideIn))
       );
-   stdout.makePlug(0)->plugInto(
+   sout.makePlug(0)->plugInto(
       *(splitter.makePlug(StreamSplitterModule::SideOut))
       );
    echo.makePlug(0)->plugInto(
       *(splitter.makePlug(StreamSplitterModule::SideBiDir))
       );
 
-   while (!stdin.readEOF())
+   while (!sin.readEOF())
    {
       disp.DispatchEvents(1);
 //        cerr << "Tick!\n";

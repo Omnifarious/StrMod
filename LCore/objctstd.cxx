@@ -1,4 +1,3 @@
-#pragma hdrstop
 #include "LCore/Object.h"
 
  /* UNIX:@@:ObjectSTD.cc:@@: */

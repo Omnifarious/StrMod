@@ -70,7 +70,11 @@ inline T *RefCountPtrT<T>::operator ->() const
 template <class T>
 inline T *RefCountPtrT<T>::GetPtr() const
 {
+#ifndef NO_STATIC_CAST
    return(static_cast<T *>(RefCountPtr::GetPtr()));
+#else
+   return((T *)(RefCountPtr::GetPtr()));
+#endif
 }
 
 template <class T>

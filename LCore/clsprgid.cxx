@@ -1,4 +1,3 @@
-#pragma hdrstop
 #include "LCore/Object.h"
 
 #ifndef _LCORE_ClassTypes_H_

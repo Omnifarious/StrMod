@@ -1,3 +1,8 @@
+1999-01-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StrChunk.h: 
+	* StrMod/DBStrChunk.h: Added better comments.
+
 1998-12-30  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* tests/testsplit.cxx: A new test that tests StreamFDModules,

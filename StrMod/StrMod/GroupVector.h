@@ -108,7 +108,8 @@ inline void GroupVector::SetVec(GV_Size group_num,
    assert(group_num < NumGroups());
    assert(length > 0);
 
-   groups_[group_num].iov_base = static_cast<caddr_t>(data);
+   groups_[group_num].iov_base =
+      static_cast<caddr_t>(const_cast<void *>(data));
    if (groups_[group_num].iov_len < length) {
       totallength_ += (length - groups_[group_num].iov_len);
    } else {

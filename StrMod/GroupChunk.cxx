@@ -158,8 +158,8 @@ static inline bool upper_compare(const StrChunk::KeepDir &keepdir,
 
 void GroupChunk::i_DropUnused(const LinearExtent &usedextent, KeepDir keepdir)
 {
-   assert((keepdir == KeepLeft) ||
-	  (keepdir == KeepRight) || (keepdir = KeepNone));
+   assert((KeepLeft == keepdir)
+	  || (KeepRight == keepdir) || (KeepNone == keepdir));
 
    if ((usedextent.Offset() == 0) && (usedextent.Length() > totalsize_)) {
       return;

@@ -1,6 +1,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1999/01/12 04:13:40  hopper
+// All kinds of changes to make the code more portable and compile
+// properly with the DEC compiler.
+//
 // Revision 1.2  1998/11/03 00:32:40  hopper
 // Fixed small syntax errors that g++ should've caught.
 //
@@ -93,7 +97,7 @@ GroupVector::Iterator GroupVector::begin()
    return(Iterator(*this));
 }
 
-GroupVector::Iterator GroupVector::end() return r(*this);
+GroupVector::Iterator GroupVector::end()
 {
    Iterator r(*this);
 

@@ -1,4 +1,3 @@
-#pragma hdrstop
 #include "LCore/Protocol.h"
 
  /* UNIX:@@:defs/Protocol.cc:@@: */

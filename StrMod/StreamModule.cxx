@@ -18,12 +18,11 @@ const STR_ClassIdent StreamModule::Plug::identifier(2UL);
 
 void StreamModule::Plug::pushLoop()
 {
-   assert(isReadable() && (getIsReading() == false));
+   assert(isReadable() && (flags_.isreading_ == false));
 
    Plug *other = pluggedInto();
 
    assert(other != NULL);
-   assert(other != NULL && other->isWriteable());
 
    if (other != NULL && other->isWriteable())
    {
@@ -55,12 +54,11 @@ void StreamModule::Plug::pushLoop()
 
 void StreamModule::Plug::pullLoop()
 {
-   assert(isWriteable() && (getIsWriting() == false));
+   assert(isWriteable() && (flags_.iswriting_ == false));
 
    Plug *other = pluggedInto();
 
    assert(other != NULL);
-   assert(other != NULL && other->isReadable());
 
    setIsWriting(true);
    if (other != NULL && other->isReadable())

@@ -34,7 +34,7 @@ class UNIEventPtr : public RefCountPtrT<UNIEvent> {
 
 //-----------------------------inline functions--------------------------------
 
-inline UNIEventPtr::UNIEventPtr(UNIEvent *eptr = 0)
+inline UNIEventPtr::UNIEventPtr(UNIEvent *eptr)
 {
    if (eptr) {
       i_SetPtr(eptr);

@@ -3,6 +3,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.6  1999/01/12 04:01:46  hopper
+// All kinds of changes to make the code more portable and compile
+// properly with the DEC compiler.
+//
 // Revision 1.5  1998/05/01 11:59:33  hopper
 // Changed bool to bool_val or bool_cst as appropriate so it will be easier to
 // port to platforms that don't support bool.
@@ -110,12 +114,10 @@ inline int SPS_ClassNum::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || ClassNum::AreYouA(cid));
 }
 
-#pragma warn -sig
 inline U2Byte SPS_ClassNum::GetLibNum() const
 {
    return((0xfff00000UL & ClassNum::GetClNum()) >> 20);
 }
-#pragma warn .sig
 
 inline U4Byte SPS_ClassNum::GetClNum() const
 {

@@ -228,7 +228,7 @@ const StrChunkPtr StreamFDModule::plugRead()
 void StreamFDModule::doReadFD()
 {
    // cerr << "In doReadFD\n";
-   assert(!buffed_read);
+   assert(!buffed_read_);
    assert(!hasErrorIn(ErrRead));
    assert(!hasErrorIn(ErrFatal));
    assert(!readEOF());
@@ -265,7 +265,7 @@ void StreamFDModule::doReadFD()
    if (size <= 0)
    {
       // cerr << "Handling read error.\n";
-      assert(!buffed_read);
+      assert(!buffed_read_);
 
       if (size == 0)
       {
@@ -508,7 +508,7 @@ void StreamFDModule::eventError(unsigned int condbits)
 }
 
 StreamFDModule::StreamFDModule(int fd, UNIXpollManager &pollmgr,
-			       IOCheckFlags f, bool_val hangdelete = true)
+			       IOCheckFlags f, bool_val hangdelete)
      : fd_(fd),
        plug_(*this),
        write_pos_(0),

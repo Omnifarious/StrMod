@@ -118,7 +118,7 @@ inline ReferenceCounting *RefCountPtr::operator ->() const
 }
 #endif
 
-inline void RefCountPtr::ReleasePtr(bool_val deleteref = true)
+inline void RefCountPtr::ReleasePtr(bool_val deleteref)
 {
    i_SetPtr(0, deleteref);
 }

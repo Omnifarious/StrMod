@@ -1,5 +1,4 @@
 #include <iostream.h>
-#pragma hdrstop
 #include "LCore/Object.h"
 
  /* UNIX:@@:ObjectSTR.cc:@@: */

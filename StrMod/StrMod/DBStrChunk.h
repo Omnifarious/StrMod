@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.4  1999/01/12 04:17:44  hopper
+// All kinds of changes to make the code more portable and compile
+// properly with the DEC compiler.
+//
 // Revision 1.3  1999/01/08 07:21:33  hopper
 // Added better comments.
 //
@@ -19,6 +23,7 @@
 // StrChunk handling.
 //
 
+#include <string.h>  // memcpy
 #include <sys/types.h>
 #include <StrMod/StrChunk.h>
 #include <StrMod/LinearExtent.h>
@@ -97,8 +102,8 @@ inline DataBlockStrChunk::DataBlockStrChunk(const void *mem,
 					    size_t length)
      : buf_(0), buflen_(0)
 {
-   Resize(length);
    if (buflen_ > 0) {
+      Resize(length);
       memcpy(buf_, mem, buflen_);
    }
 }

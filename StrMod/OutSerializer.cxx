@@ -1,6 +1,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1999/01/12 04:13:40  hopper
+// All kinds of changes to make the code more portable and compile
+// properly with the DEC compiler.
+//
 // Revision 1.1  1997/04/11 17:44:04  hopper
 // Added OutSerializer class for simple serialization of basic data types.
 //
@@ -60,7 +64,7 @@ void OutSerializer::AddString(const char *str)
 
 DataBlockStrChunk *OutSerializer::TakeChunk()
 {
-   assert(cur_chunk_);
+   assert(cur_chunk_ != 0);
 
    DataBlockStrChunk *temp = cur_chunk_;
 
@@ -74,7 +78,7 @@ DataBlockStrChunk *OutSerializer::TakeChunk()
 
 void OutSerializer::ResizeChunk(size_t newsize)
 {
-   assert(cur_chunk_);
+   assert(cur_chunk_ != 0);
 
    cur_chunk_->Resize(newsize + newsize / 16);
    buf_ = cur_chunk_->GetCharP();

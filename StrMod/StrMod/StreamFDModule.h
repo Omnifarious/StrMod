@@ -41,8 +41,10 @@ class UNIXError;
 // <p>See StreamModule (the parent class) for descriptions of any member
 // functions not described here.</p>
 class StreamFDModule : public StreamModule {
+ protected:
    class FPlug;
    friend class FPlug;
+ private:
    class FDPollEv;
    friend class FDPollEv;
    class FDPollRdEv;
