@@ -95,6 +95,9 @@ class enum_set : private std::bitset<last - first + 1> {
    //! How many total bits?
    size_t size() const                             { return parent_t::size(); }
 
+   //! Copy one bitset into another
+   inline const self_t &operator =(const self_t &b);
+
    //! Do all corresponding bits match in both bitsets?
    inline bool operator==(const self_t &__rhs) const; 
    //! Do any corresponding bits differ in both bitsets?
@@ -264,6 +267,14 @@ template <class enum_t, enum_t first, enum_t last>
 inline bool enum_set<enum_t, first, last>::operator[](enum_t __pos) const
 {
    return parent_t::operator [](__pos - first);
+}
+
+template <class enum_t, enum_t first, enum_t last>
+inline const enum_set<enum_t, first, last> &
+enum_set<enum_t, first, last>::operator =(const enum_set<enum_t, first, last> &b)
+{
+   parent_t::operator =(b);
+   return *this;
 }
 
 template <class enum_t, enum_t first, enum_t last>
