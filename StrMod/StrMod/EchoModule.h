@@ -6,195 +6,122 @@
 
 /* $Header$ */
 
-// $Log$
-// Revision 1.3  1996/08/31 15:50:21  hopper
-// Changed to use StrChunkPtr::operator bool a little more explicity.  Used
-// to compare pointer values to 0.
-//
-// Revision 1.2  1996/07/06 01:23:15  hopper
-// Changed to use new StrChunkPtr interface, and new parent module stuff.
-// Streamlined and buffed up other stuff.
-//
-// Revision 1.1.1.1  1995/07/22 04:46:51  hopper
-// Imported sources
-//
-// Revision 0.8  1995/04/05  04:51:39  hopper
-// Fixed a few stupid mistakes.
-//
-// Revision 0.7  1995/04/05  01:49:00  hopper
-// Changed things for integration into the rest of my libraries.
-//
-// Revision 0.6  1994/06/16  02:43:10  hopper
-// Added #pragma interface declaration.
-//
-// Revision 0.5  1994/06/13  13:24:36  hopper
-// Changed EchoModule::MakePlug(int side) to return an EchoPlug *, like it's
-// supposed to, not a StrPlug *.
-//
-// Revision 0.4  1994/06/12  04:42:09  hopper
-// Made major changes so EchoModule would work.
-//
-// Revision 0.3  1994/06/10  14:13:05  hopper
-// Fixed a syntax error, and made changes so it would work better under OS2.
-//
-// Revision 0.2  1994/06/08  17:27:22  hopper
-// Fixed lots of stupid errors.
-// Moved EchoModule::DeletePlug to EchoModule.cc because it became too
-// complicated to be inline.
-//
-// Revision 0.1  1994/06/08  17:05:32  hopper
-// Genesis!
-//
+// For log information, see ChangeLog
 
 // $Revision$
 
-#ifdef OS2
-#   ifndef _STR_StreamModule_H_
-#      include "strmod.h"
-#   endif
-#else
-#   ifndef _STR_StreamModule_H_
-#      include <StrMod/StreamModule.h>
-#   endif
+#ifndef _STR_StreamModule_H_
+#   include <StrMod/StreamModule.h>
+#endif
+
+#ifndef _STR_StrChunkPtr_H_
+#   include <StrMod/StrChunkPtr.h>
 #endif
 
 #include <assert.h>
 
 #define _STR_EchoModule_H_
 
-class EchoPlug;
 class StrChunk;
 
-//----class EchoModule
-
+//: This module echoes everything that comes in.
+// <p>Everything that is written to its one plug is read from that same
+// plug.</p>
+// <p>See the parent class for any member functions not described here.</p>
 class EchoModule : public StreamModule {
-friend class EchoPlug;
-
+   class EPlug;
+   friend class EPlug;
  public:
    static const STR_ClassIdent identifier;
 
-   inline EchoModule();
+   EchoModule();
    virtual ~EchoModule();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline virtual bool CanCreate(int side = 0) const;
-   inline EchoPlug *MakePlug(int side = 0);
-   inline virtual bool OwnsPlug(StrPlug *plug) const;
-   virtual bool DeletePlug(StrPlug *plug);
+   inline virtual bool canCreate(int side = 0) const;
+   inline Plug *makePlug(int side = 0);
+   virtual bool ownsPlug(Plug *plug) const         { return(i_OwnsPlug(plug)); }
+   virtual bool deletePlug(Plug *plug);
 
  protected:
-   StrChunkPtr buffedecho;
-   EchoPlug *eplug;
-   int plugcreated;
-   int rdngfrm, wrtngto;
+   virtual const ClassIdent *i_GetIdent() const    { return(&identifier); }
 
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   inline virtual Plug *i_MakePlug(int side);
 
-   inline virtual StrPlug *CreatePlug(int side);
-};
+ private:
+   //: This is the magical plug that does most of EchoModule's work.
+   // <p>See the parent class for descriptions of these member functions.</p>
+   class EchoModule::EPlug : public Plug {
+      friend class EchoModule;
+    public:
+      static const STR_ClassIdent identifier;
 
-//----class EchoPlug
+      inline virtual int AreYouA(const ClassIdent &cid) const;
 
-class EchoPlug : public StrPlug {
-friend class EchoModule;
+      inline EchoModule &getParent() const;
 
- public:
-   static const STR_ClassIdent identifier;
+      virtual int side() const                          { return(0); }
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+    protected:
+      inline EPlug(EchoModule *parnt);
+      inline virtual ~EPlug();
 
-   inline virtual bool CanWrite() const;
-   virtual bool Write(const StrChunkPtr &);
+      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
 
-   virtual bool CanRead() const;
+      virtual void otherIsReadable();
+      virtual void otherIsWriteable();
 
-   inline EchoModule *ModuleFrom() const;
-   virtual int Side() const                            { return(0); }
+      virtual const StrChunkPtr i_Read();
+      virtual void i_Write(const StrChunkPtr &ptr);
+   };
 
- protected:
-   inline EchoPlug(EchoModule *parnt);
-   inline virtual ~EchoPlug();
+   inline bool i_OwnsPlug(Plug *plug) const;
 
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-
-   virtual const StrChunkPtr InternalRead();
+   bool plugcreated_;
+   EPlug eplug_;
 };
 
 //-------------------------------inline functions------------------------------
 
-inline EchoModule::EchoModule()
-  : buffedecho(0), eplug(0), plugcreated(0), rdngfrm(0), wrtngto(0)
-{
-   eplug = new EchoPlug(this);
-}
-   
 inline int EchoModule::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
 
-bool EchoModule::CanCreate(int side) const
+bool EchoModule::canCreate(int side) const
 {
-   return(side == 0 && !plugcreated);
+   return(side == 0 && !plugcreated_);
 }
 
-inline EchoPlug *EchoModule::MakePlug(int side)
+inline StreamModule::Plug *EchoModule::makePlug(int side)
 {
-   return((EchoPlug *)(CreatePlug(side)));
+   return(StreamModule::makePlug(side));
 }
 
-inline bool EchoModule::OwnsPlug(StrPlug *plug) const
+inline EchoModule::Plug *EchoModule::i_MakePlug(int side)
 {
-   return(plugcreated && (plug == eplug));
+   assert(side == 0 && !plugcreated_);
+   plugcreated_ = true;
+   return(&eplug_);
 }
 
-inline StrPlug *EchoModule::CreatePlug(int side)
+inline bool EchoModule::i_OwnsPlug(Plug *plug) const
 {
-   if (side == 0 && !plugcreated) {
-      plugcreated = 1;
-      return(eplug);
-   } else
-      return(0);
+   const Plug *silly = plug;
+   return(plugcreated_ && (silly == &eplug_));
 }
 
-//=========EchoPlug inlines========
+//=========EchoModule::EPlug inlines========
 
-inline int EchoPlug::AreYouA(const ClassIdent &cid) const
+inline int EchoModule::EPlug::AreYouA(const ClassIdent &cid) const
 {
-   return((identifier == cid) || StrPlug::AreYouA(cid));
+   return((identifier == cid) || Plug::AreYouA(cid));
 }
 
-inline bool EchoPlug::CanWrite() const
+inline EchoModule &EchoModule::EPlug::getParent() const
 {
-   EchoModule *parent = ModuleFrom();
-
-   return(parent->plugcreated &&
-	  !(parent->wrtngto) && !(parent->buffedecho));
-}
-
-inline bool EchoPlug::CanRead() const
-{
-   EchoModule *parent = ModuleFrom();
-
-   return(parent->plugcreated &&
-	  !(parent->rdngfrm) && parent->buffedecho);
-}
-
-inline EchoModule *EchoPlug::ModuleFrom() const
-{
-   return(static_cast<EchoModule *>(StrPlug::ModuleFrom()));
-}
-
-inline EchoPlug::EchoPlug(EchoModule *parnt)
-     : StrPlug(parnt)
-{
-}
-
-inline EchoPlug::~EchoPlug()
-{
-   if (PluggedInto())
-      PluggedInto()->UnPlug();
+   return(static_cast<EchoModule &>(Plug::getParent()));
 }
 
 #endif
