@@ -17,7 +17,7 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
    3UL	EchoModule
    4UL	EchoModule::EPlug
    6UL	StrChunk
-   7UL	DataBlockStrChunk
+   7UL
    8UL	StreamFDModule
    9UL	StreamFDModule::FPlug
   10UL	StreamSplitterModule
@@ -51,4 +51,6 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   38UL	PreAllocBufferBase
   39UL	DynamicBuffer
   40UL	BufferChunk::Factory
+  41UL	InfiniteModule
+  42UL	InfiniteModule::IPlug
 */
