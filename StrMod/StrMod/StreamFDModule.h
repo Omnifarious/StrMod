@@ -97,9 +97,12 @@ class StreamFDModule : public StreamModule {
    inline bool hasError() const;
 
    //: Have I read the EOF marker?
-   bool_val readEOF() const                         { return(flags_.readeof); }
+   bool readEOF() const                             { return(flags_.readeof); }
    //: Reset the EOF marker so I'll attempt to read more.
    void resetReadEOF();
+
+   bool getSendChunkOnEOF() const                   { return(flags_.chunkeof); }
+   inline void setSendChunkOnEOF(bool newval);
 
    //: Get the file descriptor associated with this module.
    inline int getFD()                               { return(fd_); }
@@ -182,6 +185,13 @@ class StreamFDModule : public StreamModule {
    // things.  UTSL (Use The Source (StrFDPlug.cc) Luke)</p>
    virtual void doWriteFD();
 
+   //: An EOF indication has been written.  This function has to handle it.
+   // This function follows the template method pattern from Design Patterns.
+   // Return true if the fd can now be written to, and return false if it
+   // can't.  It would probably also be best to set some kind of error
+   // condition if it can't be written to.
+   virtual bool writeEOF();
+
    //: Set an error flag to <code>errnum</code> in the category
    //:<code>ecat</code>.
    void setErrorIn(ErrCategory ecat, int errnum);
@@ -215,6 +225,7 @@ class StreamFDModule : public StreamModule {
       unsigned int checkingrd : 1;
       unsigned int checkingwr : 1;
       unsigned int readeof    : 1;
+      unsigned int chunkeof   : 1;
    } flags_;
    int errvals[ErrFatal + 1];
    FPlug plug_;
@@ -273,6 +284,11 @@ inline bool StreamFDModule::hasError() const
 {
    return(hasErrorIn(ErrRead) || hasErrorIn(ErrWrite)
 	  || hasErrorIn(ErrOther) || hasErrorIn(ErrFatal));
+}
+
+inline void StreamFDModule::setSendChunkOnEOF(bool newval)
+{
+   flags_.chunkeof = newval;
 }
 
 inline void StreamFDModule::setMaxChunkSize(size_t mbs)

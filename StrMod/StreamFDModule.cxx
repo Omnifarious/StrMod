@@ -10,6 +10,9 @@
 #ifndef _STR_DBStrChunk_H_
 #   include "StrMod/DBStrChunk.h"
 #endif
+#ifndef _STR_EOFStrChunk_H_
+#   include "StrMod/EOFStrChunk.h"
+#endif
 #ifndef _STR_GroupVector_H_
 #   include "StrMod/GroupVector.h"
 #endif
@@ -222,7 +225,15 @@ const StrChunkPtr StreamFDModule::plugRead()
 
    StrChunkPtr retval = buffed_read_;
    buffed_read_.ReleasePtr();
-   doReadFD();
+   if (!hasErrorIn(ErrRead) && !hasErrorIn(ErrFatal) && !readEOF() && fd_ >= 0)
+   {
+      doReadFD();
+   }
+   else
+   {
+      setReadableFlagFor(&plug_, false);
+      maybeShouldReadFD();
+   }
    return(retval);
 }
 
@@ -274,6 +285,12 @@ void StreamFDModule::doReadFD()
       if (size == 0)
       {
 	 setReadEOF(true);  // We've read the EOF marker.
+	 // cerr << fd_ << ": read EOF\n";
+	 if (flags_.chunkeof)
+	 {
+	    buffed_read_ = new EOFStrChunk;
+	    // cerr << fd_ << ": sending EOF chunk\n";
+	 }
       }
       else  // size MUST be < 0, and so errno must also be set.
       {
@@ -327,10 +344,26 @@ void StreamFDModule::doWriteFD()
 
    if (write_vec_ == NULL)
    {
-      write_vec_ = new GroupVector(cur_write_->NumSubGroups());
-      cur_write_->SimpleFillGroupVec(*write_vec_);
-      write_pos_ = 0;
-      write_length_ = write_vec_->TotalLength();
+      if (cur_write_->AreYouA(EOFStrChunk::identifier))
+      {
+	 cur_write_.ReleasePtr();
+	 if (writeEOF())
+	 {
+	    setWriteableFlagFor(&plug_, true);
+	 }
+	 else
+	 {
+	    setWriteableFlagFor(&plug_, false);
+	 }
+	 return;
+      }
+      else
+      {
+	 write_vec_ = new GroupVector(cur_write_->NumSubGroups());
+	 cur_write_->SimpleFillGroupVec(*write_vec_);
+	 write_pos_ = 0;
+	 write_length_ = write_vec_->TotalLength();
+      }
    }
 
    assert(write_vec_ != NULL);
@@ -396,6 +429,20 @@ void StreamFDModule::doWriteFD()
       setWriteableFlagFor(&plug_, false);
       maybeShouldWriteFD();
    }
+}
+
+bool StreamFDModule::writeEOF()
+{
+   if (fd_ >= 0)
+   {
+      ::close(fd_);
+      pollmgr_.freeFD(fd_);
+      fd_ = -1;
+   }
+   setErrorIn(ErrRead, EBADF);
+   setErrorIn(ErrWrite, EBADF);
+   setErrorIn(ErrFatal, EBADF);
+   return(false);
 }
 
 void StreamFDModule::maybeShouldReadFD()
@@ -531,7 +578,8 @@ StreamFDModule::StreamFDModule(int fd, UNIXpollManager &pollmgr,
       = errvals[ErrOther] = errvals[ErrFatal] = ESUCCESS;
    setMaxToBest();
    flags_.hangdelete = hangdelete;
-   flags_.plugmade = flags_.hangdelete = flags_.readeof = false;
+   flags_.plugmade = flags_.hangdelete =
+      flags_.readeof = flags_.chunkeof = false;
    // This seems a bit odd, but if you claim to be checking read and
    // write when you really aren't, then the class will never get
    // around to doing it.
