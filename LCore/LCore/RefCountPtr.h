@@ -5,7 +5,7 @@
 #endif
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -37,14 +37,6 @@
 // Added new RefCountPtr class, and RefCountPtrT class to aid in using
 // the ReferenceCounting mixin class.
 //
-
-#if !(defined(_LCORE_RefCountPtr_H_DEBUG) || defined(_LCORE_RefCountPtr_H_CC))
-#  ifndef NDEBUG
-#     define NDEBUG
-#  else
-#     define _LCORE_RefCountPtr_H_NDEBUG_SET
-#  endif
-#endif
 
 #ifndef _LCORE_Protocol_H_
 #  include <LCore/Protocol.h>
@@ -122,19 +114,23 @@ inline int RefCountPtr::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
 
-#if defined(NDEBUG) || defined(_LCORE_RefCountPtr_H_CC)
+#if !defined(_LCORE_RefCountPtr_H_DEBUG) || defined(_LCORE_RefCountPtr_H_CC)
 inline ReferenceCounting &RefCountPtr::operator *() const
 {
+#ifdef _LCORE_RefCountPtr_H_CC
    assert(GetPtr() != 0);
+#endif
 
-   return(*GetPtr());
+   return *GetPtr();
 }
 
 inline ReferenceCounting *RefCountPtr::operator ->() const
 {
+#ifdef _LCORE_RefCountPtr_H_CC
    assert(GetPtr() != 0);
+#endif
 
-   return(GetPtr());
+   return GetPtr();
 }
 #endif
 
@@ -173,14 +169,6 @@ inline const RefCountPtr &RefCountPtr::operator =(RC *b)
    }
    return(*this);
 }
-
-#if !(defined(_LCORE_RefCountPtr_H_DEBUG) || defined(_LCORE_RefCountPtr_H_CC))
-#  if !defined(_LCORE_RefCountPtr_H_NDEBUG_SET)
-#     undef NDEBUG
-#   else
-#     undef _LCORE_RefCountPtr_H_NDEBUG_SET
-#   endif
-#endif
 
 } // namespace lcore
 } // namespace strmod
