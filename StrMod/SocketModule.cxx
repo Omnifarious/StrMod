@@ -14,6 +14,7 @@ static char _SocketModule_CC_rcsID[] =
 
 #include <EHnet++/SocketAddress.h>
 #include "StrMod/SocketModule.h"
+#include "StrMod/FDUtil.h"
 #include <string.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -60,7 +61,9 @@ bool SocketModule::writeEOF()
       }
       else
       {
+//  	 cerr << "Wheee 1\n";
 	 shutdown(getFD(), SHUT_WR);
+//  	 cerr << "Wheee 2\n";
 	 setErrorIn(ErrWrite, EBADF);
       }
    }
@@ -69,23 +72,14 @@ bool SocketModule::writeEOF()
 
 static inline int setNonBlock(int fd, int &errval)
 {
-   int temp = 0;
+//     cerr << "In setNonBlock(" << fd << ", " << errval << ")\n";
+   if (!FDUtil::setNonBlock(fd, errval))
+   {
+      close(fd);
+      fd = -1;
+//        cerr << "setNonBlock::errval == " << errval << "\n";
+   }
 
-   if ((temp = fcntl(fd, F_GETFL, 0)) < 0) {
-      errval = errno;
-      close(fd);
-      fd = -1;
-      return(fd);
-   }
-   // Remove the deprecated (because of confusing semantics) O_NDELAY flag.
-   temp &= ~O_NDELAY;
-   // Add the POSIX.1 O_NONBLOCK flag.
-   if (fcntl(fd, F_SETFL, temp | O_NONBLOCK) < 0) {
-      errval = errno;
-      close(fd);
-      fd = -1;
-      return(fd);
-   }
    return(fd);
 }
 
