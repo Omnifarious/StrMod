@@ -67,9 +67,9 @@
 #  include "sockaddr.h"
 #endif
 
-#include <iostream.h>
+#include <iostream>
 
-void SocketAddress::PrintOn(ostream &os)
+void SocketAddress::PrintOn(std::ostream &os)
 {
    os << AsString();
 }

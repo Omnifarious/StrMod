@@ -27,11 +27,11 @@
 #include "UniEvent/SimpleDispatcher.h"
 #include "UniEvent/UNIXpollManagerImp.h"
 #include "UniEvent/EventPtrT.h"
-#include <iostream.h>
-#include <string.h>
-#include <stdio.h>
+#include <iostream>
+#include <cstring>
+#include <cstdio>
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
 
 class MyEvent : public UNIXpollManager::PollEvent {
@@ -39,7 +39,7 @@ class MyEvent : public UNIXpollManager::PollEvent {
    inline MyEvent(int fd, UNIXpollManager &pollman);
    virtual ~MyEvent();
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher);
+   virtual void triggerEvent(UNIDispatcher *dispatcher);
 
  private:
    int fd_;
@@ -63,12 +63,12 @@ MyEvent::~MyEvent()
 	<< ")  (counter_ == " << counter_ << ")\n";
 }
 
-void MyEvent::TriggerEvent(UNIDispatcher *dispatcher)
+void MyEvent::triggerEvent(UNIDispatcher *dispatcher)
 {
    unsigned int condbits = getCondBits();
    unsigned int newcondbits = 0;
 
-   cerr << "MyEvent("<< fd_ << ")::TriggerEvent\n";
+   cerr << "MyEvent("<< fd_ << ")::triggerEvent\n";
 
    if (condbits & UNIXpollManager::FD_Writeable)
    {

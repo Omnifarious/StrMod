@@ -136,7 +136,7 @@ class UNIXpollManager {
 
 inline int UNIXpollManager::PollEvent::AreYouA(const ClassIdent &cid) const
 {
-   return(identifier == cid);
+   return (identifier == cid) || Event::AreYouA(cid);
 }
 
 inline UNIXpollManager::PollEvent::PollEvent()

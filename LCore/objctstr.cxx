@@ -16,13 +16,13 @@
  *     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <iostream.h>
+#include <iostream>
 #include "LCore/Object.h"
 
  /* UNIX:@@:ObjectSTR.cc:@@: */
 /* MSDOS:@@:OBJCTSTR.CPP:@@: */
 
-void Object::PrintOn(ostream &os) const
+void Object::PrintOn(std::ostream &os) const
 {
    if (Object::identifier == GetIdent())
       os << "an Object (why someone created just an object is beyond me)";

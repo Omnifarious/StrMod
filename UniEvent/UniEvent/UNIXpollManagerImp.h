@@ -55,7 +55,6 @@
 #endif
 #include <map>
 #include <list>
-#include <stropts.h>
 #define __USE_XOPEN
 #include <poll.h>
 #undef __USE_XOPEN

@@ -139,6 +139,7 @@ class LinearExtent {
    length_t m_length;
 };
 
+//! Print out a LinearExtent on an iostream.
 std::ostream &operator <<(std::ostream &os, const LinearExtent &ext);
 
 //-----------------------------inline functions--------------------------------

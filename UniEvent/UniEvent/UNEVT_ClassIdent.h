@@ -35,7 +35,7 @@ namespace strmod {
 namespace unievent {
 
 /** \class UNEVT_ClassIdent UNEVT_ClassIdent.h UniEvent/UNEVT_ClassIdent.h
- * \brief The global identifier class for class in strmod::unievent.
+ * \brief The global identifier class for classes in strmod::unievent.
  */
 class UNEVT_ClassIdent : public EH_ClassIdent, virtual public Protocol {
  public:

@@ -172,6 +172,7 @@ inline LCoreError::CompilerInfo::CompilerInfo(const char *sourcefile,
 
 //--
 
+//! Print out an LCoreError on an iostream.
 std::ostream &operator <<(std::ostream &os, const LCoreError &err);
 
 #endif

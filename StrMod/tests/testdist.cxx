@@ -21,7 +21,7 @@
 // #include "AudHandle.h"
 // #include <ibmpp/String.h>
 #include <string>
-#include <iostream.h>
+#include <iostream>
 
 class CoutHandler : public IOHandler {
    Dispatcher *dist;

@@ -22,8 +22,8 @@
 
 #include "UniEvent/SimpleDispatcher.h"
 #include "testdisp.h"
-#include <iostream.h>
-#include <stdlib.h>
+#include <iostream>
+#include <cstdlib>
 
 int main(int argc, char *argv[])
 {

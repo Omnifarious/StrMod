@@ -23,7 +23,9 @@
 #include <UniEvent/UNIXpollManagerImp.h>
 #include <UniEvent/SimpleDispatcher.h>
 #include <vector>
-#include <iostream.h>
+#include <iostream>
+
+using std::cerr;
 
 extern "C" int atoi(const char *);
 

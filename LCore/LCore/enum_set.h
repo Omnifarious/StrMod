@@ -106,6 +106,7 @@ class enum_set : private std::bitset<last - first + 1> {
    //! Are all bits clear (0, false)?
    bool none() const                               { return parent_t::none(); }
 
+   //! Return an ASCII representation of the bitset.
    inline std::string to_string() const;
 
    //! Are any bits set (1, true)?

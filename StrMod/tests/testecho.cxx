@@ -21,7 +21,7 @@
 #include "StrMod/StreamSplitter.h"
 #include <Dispatch/dispatcher.h>
 #include <EHnet++/InetAddress.h>
-#include <iostream.h>
+#include <iostream>
 #include <assert.h>
 
 int main(int argc, char *argv[])

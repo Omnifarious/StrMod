@@ -35,7 +35,7 @@
 #include <StrMod/GroupVector.h>
 #include <StrMod/GV_Iterator.h>
 #include <unistd.h>
-#include <iostream.h>
+#include <iostream>
 
 struct testdata {
    char *data;

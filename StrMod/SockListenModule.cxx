@@ -45,6 +45,7 @@
 #include <new>
 #include "config.h"
 #include "sockdecl.h"
+#include <iostream>
 
 namespace strmod {
 namespace strmod {
@@ -179,8 +180,12 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
       sockfd_ = -1;
       return;
    }
-   readev_ = readevptr_ = new FDPollRdEv(*this);
-   errorev_ = errorevptr_ = new FDPollErEv(*this);
+   readevptr_ = new FDPollRdEv(*this);
+   std::cerr << "readevptr_ == " << readevptr_ << "\n";
+   readev_ = readevptr_;
+   errorevptr_ = new FDPollErEv(*this);
+   std::cerr << "errorevptr_ == " << errorevptr_ << "\n";
+   errorev_ = errorevptr_;
    checking_read_ = true;
    pmgr_.registerFDCond(sockfd_,
 			UNIXpollManager::FD_Error
