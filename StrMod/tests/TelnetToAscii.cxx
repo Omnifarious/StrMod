@@ -25,9 +25,11 @@
 #endif
 
 #include "TelnetToAscii.h"
-#include <StrMod/TelnetParserData.h>
+#include <StrMod/TelnetChars.h>
+#include <StrMod/TelnetChunkerData.h>
 #include <StrMod/StrChunkPtrT.h>
 #include <StrMod/GroupChunk.h>
+#include <StrMod/DynamicBuffer.h>
 #include <cctype>
 #include <cassert>
 
@@ -50,10 +52,10 @@ TelnetToAscii::TelnetToAscii(const string &name, bool stripdata)
 void TelnetToAscii::processIncoming()
 {
    assert(incoming_ && !outgoing_ready_);
-   typedef TelnetParser::TelnetData TelnetData;
-   typedef TelnetParser::SingleChar SingleChar;
-   typedef TelnetParser::Suboption Suboption;
-   typedef TelnetParser::OptionNegotiation OptionNegotiation;
+   typedef TelnetChunker::TelnetData TelnetData;
+   typedef TelnetChunker::SingleChar SingleChar;
+   typedef TelnetChunker::Suboption Suboption;
+   typedef TelnetChunker::OptionNegotiation OptionNegotiation;
 
    if (!incoming_->AreYouA(TelnetData::identifier))
    {
@@ -72,45 +74,45 @@ void TelnetToAscii::processIncoming()
 	    static_cast<SingleChar *>(incoming_.GetPtr());
 	 const char *asciiopt = 0;
 
-	 switch (chnk->getType())
+	 switch (chnk->getCommand())
 	 {
-	  case SingleChar::TEOF:
+	  case TelnetChars::C_EOF:
 	    asciiopt = "\nSC:<EOF>\n";
 	    break;
-	  case SingleChar::SUSP:
+	  case TelnetChars::C_SUSP:
 	    asciiopt = "\nSC:<SUSP>\n";
 	    break;
-	  case SingleChar::ABORT:
+	  case TelnetChars::C_ABORT:
 	    asciiopt = "\nSC:<ABORT>\n";
 	    break;
-	  case SingleChar::EOR:
+	  case TelnetChars::C_EOR:
 	    asciiopt = "\nSC:<EOR>\n";
 	    break;
-	  case SingleChar::NOP:
+	  case TelnetChars::C_NOP:
 	    asciiopt = "\nSC:<NOP>\n";
 	    break;
-	  case SingleChar::DM:
+	  case TelnetChars::C_DM:
 	    asciiopt = "\nSC:<DM>\n";
 	    break;
-	  case SingleChar::BRK:
+	  case TelnetChars::C_BRK:
 	    asciiopt = "\nSC:<BRK>\n";
 	    break;
-	  case SingleChar::IP:
+	  case TelnetChars::C_IP:
 	    asciiopt = "\nSC:<IP>\n";
 	    break;
-	  case SingleChar::AO:
+	  case TelnetChars::C_AO:
 	    asciiopt = "\nSC:<AO>\n";
 	    break;
-	  case SingleChar::AYT:
+	  case TelnetChars::C_AYT:
 	    asciiopt = "\nSC:<AYT>\n";
 	    break;
-	  case SingleChar::EC:
+	  case TelnetChars::C_EC:
 	    asciiopt = "\nSC:<EC>\n";
 	    break;
-	  case SingleChar::EL:
+	  case TelnetChars::C_EL:
 	    asciiopt = "\nSC:<EL>\n";
 	    break;
-	  case SingleChar::GA:
+	  case TelnetChars::C_GA:
 	    asciiopt = "\nSC:<GA>\n";
 	    break;
 	 }
@@ -193,16 +195,16 @@ void TelnetToAscii::processIncoming()
 
 	 switch (optneg->getRequest())
 	 {
-	  case OptionNegotiation::WILL:
+	  case TelnetChars::O_WILL:
 	    reqtype = "\nWILL ";
 	    break;
-	  case OptionNegotiation::WONT:
+	  case TelnetChars::O_WONT:
 	    reqtype = "\nWONT ";
 	    break;
-	  case OptionNegotiation::DO:
+	  case TelnetChars::O_DO:
 	    reqtype = "\nDO ";
 	    break;
-	  case OptionNegotiation::DONT:
+	  case TelnetChars::O_DONT:
 	    reqtype = "\nDONT ";
 	    break;
 	 }

@@ -21,7 +21,7 @@
 // For a list of changes, see ../ChangeLog
 
 #include "TelnetToAscii.h"
-#include <StrMod/TelnetParser.h>
+#include <StrMod/TelnetChunker.h>
 #include <StrMod/PassThrough.h>
 #include <StrMod/ProcessorModule.h>
 #include <StrMod/SocketModule.h>
@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
    }
    InetAddress echoaddr(host, port);
    int error = 0;
+   cerr << echoaddr << '\n';
 
    if (FDUtil::setNonBlock(0, error))
    {
@@ -74,9 +75,9 @@ int main(int argc, char *argv[])
    StreamFDModule sin(0, pm, StreamFDModule::CheckRead, false);
    StreamFDModule sout(1, pm, StreamFDModule::CheckWrite, false);
    StreamSplitterModule splitter;
-   ProcessorModule prmd1(*(new TelnetParser), *(new PassThrough));
-   ProcessorModule prmd2(*(new TelnetToAscii("REMOTE")),
-			 *(new TelnetToAscii("LOCAL")));
+   ProcessorModule prmd1(*(new TelnetChunker), *(new PassThrough));
+   ProcessorModule prmd2(*(new TelnetToAscii(string("REMOTE"))),
+			 *(new TelnetToAscii(string("LOCAL"))));
    SocketModule sock(echoaddr, pm);
 
    sin.setSendChunkOnEOF(true);
@@ -99,7 +100,7 @@ int main(int argc, char *argv[])
 
    while (!sout.hasError())
    {
-      disp.DispatchEvents(1);
+      disp.dispatchEvents(1);
 //        cerr << "Tick!\n";
    }
 
