@@ -12,82 +12,83 @@ h1.title {text-align: center}</style>
 
 <body>
 <h1 class="title">The StreamModule Subsystem</h1>
-
-<dl><dt><h2>General Description</h2></dt>
-
-<dd><p>StreamModule's provide a facility For building a program out of small
-components that are connected by a bidirectional streams of data. There are
-many programs that fit this model, or have large pieces that fit this model.
-One example is the <em>tokenizer -&gt; preprocessor -&gt; compiler -&gt;
-optimizer -&gt; assembler</em> chain for traditional compilation of a C
-program. Another is the <em>wire &lt;-&gt; ethernet &lt;-&gt; IP &lt;-&gt;
-TCP &lt;-&gt; socket &lt;-&gt; apache</em> chain for an http connnection to a
-webserver.</p>
-
-<p>Though the entire StreamModule system is designed such that many of its
-individual pieces can be used independently, the StreamModule subsystem is
-its heart. The other pieces are mainly designed to provide a supporting
-framework for this piece.</p></dd>
-
-<dt><h2>Overview</h2></dt>
-
-<dd><dl><dt><h3>StreamModules and StreamModule::Plugs</h3></dt>
-
-<dd><p>StreamModule's are connected by StreamModule::Plug objects. These objects
-are created by a StreamModule, and are owned by that module. They can be
-plugged into other plugs from other modules. Each plug is created on a 'side'
-of the StreamModule.</p></dd>
-
-<dt><h3>Sides</h3></dt>
-
-<dd><p>A side is always identified by an integer. Usually only a small range of
-integer values are valued, and a StreamModule class will usually have an enum
-inside it detailing all the valid values side may take.</p>
-
-<p>A side represents a protocol role. Now, that's kind of an airy
-description, and here's what it really means.</p>
-
-<p>A StreamModule can be thought of as a processor of data with multiple
-inputs and outputs and its own internal state. A side represets a distinct IO
-stream for this data processor. Some processors have the job of taking in one
-copy of the data on one side, and making many copies on the other side. The
-side on which many copies are made is just one side because the copies are
-indistinguishable, but there are still multiple plugs on that side because
-there are multiple outputs, even if any given output is indistinguishable
-from another.</p>
-
-<p>Since a StreamModule bears a strong resemblance to a component in a Unix
-pipeline, here are a few examples from the Unix world: <dl>
-  <dt><code>grep</code></dt>
-    <dd><code>grep</code> has three sides. One side takes a file, and the
-      other spits out the matching lines, and the last spits out error
-      messages.</dd>
-  <dt><code>sh</code></dt>
-    <dd><code>sh</code>, when used to run a shellscript, has four sides. The
-      first side is <code>stdin</code>, the second, <code>stdout</code>, the
-      third <code>stderr</code>, and the last is the file containing the
-      shellscript.</dd>
-  <dt><code>tee</code></dt>
-    <dd><code>tee</code> has three sides. The first is the input side, the
-      second, the output side (which has multiple 'plugs' because tee writes
-      its output to multiple places) and the error side on which tee write
-      error messages.</dd>
+<dl>
+  <dt><h2>General Description</h2>
+  </dt>
+    <dd><p>StreamModule's provide a facility For building a program out of
+      small components that are connected by a bidirectional streams of data.
+      There are many programs that fit this model, or have large pieces that
+      fit this model. One example is the <em>tokenizer -&gt; preprocessor
+      -&gt; compiler -&gt; optimizer -&gt; assembler</em> chain for
+      traditional compilation of a C program. Another is the <em>wire
+      &lt;-&gt; ethernet &lt;-&gt; IP &lt;-&gt; TCP &lt;-&gt; socket
+      &lt;-&gt; apache</em> chain for an http connnection to a webserver.</p>
+      <p>Though the entire StreamModule system is designed such that many of
+      its individual pieces can be used independently, the StreamModule
+      subsystem is its heart. The other pieces are mainly designed to provide
+      a supporting framework for this piece.</p>
+    </dd>
+  <dt><h2>Overview</h2>
+  </dt>
+    <dd><dl>
+        <dt><h3>StreamModules and StreamModule::Plugs</h3>
+        </dt>
+          <dd><p>StreamModule's are connected by StreamModule::Plug objects.
+            These objects are created by a StreamModule, and are owned by
+            that module. They can be plugged into other plugs from other
+            modules. Each plug is created on a 'side' of the StreamModule.</p>
+          </dd>
+        <dt><h3>Sides</h3>
+        </dt>
+          <dd><p>A side is always identified by an integer. Usually only a
+            small range of integer values are valued, and a StreamModule
+            class will usually have an enum inside it detailing all the valid
+            values side may take.</p>
+            <p>A side represents a protocol role. Now, that's kind of an airy
+            description, and here's what it really means.</p>
+            <p>A StreamModule can be thought of as a processor of data with
+            multiple inputs and outputs and its own internal state. A side
+            represets a distinct IO stream for this data processor. Some
+            processors have the job of taking in one copy of the data on one
+            side, and making many copies on the other side. The side on which
+            many copies are made is just one side because the copies are
+            indistinguishable, but there are still multiple plugs on that
+            side because there are multiple outputs, even if any given output
+            is indistinguishable from another.</p>
+            <p>Since a StreamModule bears a strong resemblance to a component
+            in a Unix pipeline, here are a few examples from the Unix world:
+            <dl>
+              <dt><code>grep</code></dt>
+                <dd><code>grep</code> has three sides. One side takes a file,
+                  and the other spits out the matching lines, and the last
+                  spits out error messages.</dd>
+              <dt><code>sh</code></dt>
+                <dd><code>sh</code>, when used to run a shellscript, has four
+                  sides. The first side is <code>stdin</code>, the second,
+                  <code>stdout</code>, the third <code>stderr</code>, and the
+                  last is the file containing the shellscript.</dd>
+              <dt><code>tee</code></dt>
+                <dd><code>tee</code> has three sides. The first is the input
+                  side, the second, the output side (which has multiple
+                  'plugs' because tee writes its output to multiple places)
+                  and the error side on which tee write error messages.</dd>
+            </dl>
+            </p>
+          </dd>
+        <dt><h3>Moving data between StreamModules</h3>
+        </dt>
+          <dd><p>StreamModule::Plugs move <a
+            href="StrChunk.html">StrChunk</a>s around using eachothers <a
+            href="../doxygen/classstrmod_1_1strmod_1_1StreamModule_1_1Plug.html#b11">i_Read</a>
+            and <a
+            href="../doxygen/classstrmod_1_1strmod_1_1StreamModule_1_1Plug.html#b12">i_Write</a>
+            methods to pull data from, and push data into another
+            StreamModule. These methods are protected. StreamModule::Plugs
+            use their internal 'readable' and 'writeable' state to determine
+            when these methods are called.</p>
+          </dd>
+      </dl>
+    </dd>
 </dl>
-</p></dd>
-
-<dt><h3>Moving data between StreamModules</h3></dt>
-
-<dd><p>StreamModule::Plugs move <a href="StrChunk.html">StrChunk</a>s around using
- eachothers <a
- href="../doxygen/classstrmod_1_1strmod_1_1StreamModule_1_1Plug.html#b11">i_Read</a>
- and <a
- href="../doxygen/classstrmod_1_1strmod_1_1StreamModule_1_1Plug.html#b12">i_Write</a>
- methods to pull data from, and push data into another StreamModule.  These
- methods are protected.  StreamModule::Plugs use their internal 'readable' and
- 'writeable' state to determine when these methods are called.</p></dd>
-</dl>
-</dd>
-</dl>
-
 </body>
 </html>
