@@ -49,5 +49,6 @@ EH_ClassIdent		6UL
 Protocol		7UL
 ReferenceCounting	8UL
 RefCountPtr		9UL
+Debugable	       10UL
 
 ** End of class #'s */
