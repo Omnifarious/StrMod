@@ -36,7 +36,7 @@ MYMAKE := $(MAKE)
 
 #  StreambufModule.cxx  HL7Module.cxx
 LIBCCS = UNEVT_ClassIdent.cxx  Dispatcher.cxx  Event.cxx \
-         SimpleDispatcher.cxx  SimpleDispatcherImp.cxx
+         SimpleDispatcher.cxx  SimpleDispatcherImp.cxx  UNIXError.cxx
 
 TESTCCS = tests/testdisp.cxx  tests/testsimple.cxx
 
