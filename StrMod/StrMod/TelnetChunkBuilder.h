@@ -27,6 +27,7 @@
 // For a log, see ../ChangeLog
 
 #include <StrMod/STR_ClassIdent.h>
+#include <StrMod/TelnetChars.h>
 #include <LCore/Protocol.h>
 #include <LCore/HopClTypes.h>
 #include <stdexcept>
@@ -45,21 +46,10 @@ class TelnetChunkBuilder : virtual public Protocol {
    /** \class bad_call_order TelnetChunkBuilder.h StrMod/TelnetChunkBuilder.h
     * Exception used to indicate functions being called in the wrong order.
     */
-    class bad_call_order : public logic_error {
+    class bad_call_order : public std::logic_error {
     public:
        //! Just calls the logic_error constructor.
        bad_call_order(const string &what) : logic_error(what)     { }
-   };
-   /** Used in the addNegotiationCommand() function.
-    * The integer values are set to the actual character values found in the
-    * stream for the sake of convenience.  They are guaranteed to always be
-    * that way.
-    */
-   enum NegotiationTypes {
-      NT_WILL = 251,  //!< Sender wants to enable option for itself
-      NT_WONT = 252,  //!< Sender wants to disable option for itself
-      NT_DO = 253,    //!< Sender wants receiver to enable option
-      NT_DONT = 254   //!< Sender wants receiver to disable option
    };
 
    static const STR_ClassIdent identifier;
@@ -79,7 +69,8 @@ class TelnetChunkBuilder : virtual public Protocol {
    /** Add a single character telnet command to the stream.
     * Can't be called while isInSuboption() returns true.
     */
-   virtual void addCharCommand(U1Byte command) throw(bad_call_order) = 0;
+   virtual void addCharCommand(TelnetChars::Commands command)
+      throw(bad_call_order) = 0;
    /** Add a negotiation command to the stream.
     * Can't be called while isInSuboption() returns true.
     *
@@ -87,13 +78,13 @@ class TelnetChunkBuilder : virtual public Protocol {
     * an option off or on.  Sometimes turning an option on merely means being
     * willing to communicate more about it through suboption negotiation.
     */
-   virtual void addNegotiationCommand(NegotiationTypes negtype,
+   virtual void addNegotiationCommand(TelnetChars::OptionNegotiations negtype,
                                       U1Byte opt_type)
       throw(bad_call_order) = 0;
 
    /** Whether the builder thinks it's currently processing suboption daa.
     * If this function returns true, the meaning of addCharacter(), and
-    * addIACAndCharacter() are changed slightly, and it becomes illegale to
+    * addIACAndCharacter() are changed slightly, and it becomes illegal to
     * call addCharCommand(), addNegotiationCommand(), and initSuboption().
     *
     * If this function returns false, it's illegal to call finishSuboption().
