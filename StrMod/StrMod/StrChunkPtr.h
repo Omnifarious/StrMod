@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.4  1996/08/24 13:01:39  hopper
+// Added new operator ! method as a counterpart to the operator bool
+// conversion.
+//
 // Revision 1.3  1996/07/07 20:57:27  hopper
 // Fixed bug in StrChunkPtr::i_CheckType
 //
@@ -58,6 +62,7 @@ class StrChunkPtr : public Object {
    inline void ReleasePtr(bool deleteref = true);
 
    inline operator bool() const;
+   inline bool operator !() const;
 
    inline const StrChunkPtr &operator =(const StrChunkPtr &b);
    inline const StrChunkPtr &operator =(StrChunk *b);
@@ -127,6 +132,11 @@ inline void StrChunkPtr::ReleasePtr(bool deleteref = true)
 inline StrChunkPtr::operator bool() const
 {
    return(i_GetPtr() != 0);
+}
+
+inline bool StrChunkPtr::operator !() const
+{
+   return(i_GetPtr() == 0);
 }
 
 inline const StrChunkPtr &StrChunkPtr::operator =(const StrChunkPtr &b)
