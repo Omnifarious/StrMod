@@ -42,7 +42,7 @@
    file anywhere.  I should get GNU configure to check for this, and
    only use the declaration below conditionally, but that'll have to
    wait. */
-extern "C" int gethostname(char *name, int namelen);
+extern "C" int gethostname(char *name, unsigned int namelen);
 
 namespace strmod {
 namespace ehnet {
