@@ -2,7 +2,8 @@
 
 /* $Header$ */
 
-// $Log$
+// For a log, see ../ChangeLog
+//
 // Revision 1.2  1996/03/26 16:23:01  hopper
 // Moved ReferenceCounting class over from Container library.
 // Fixed up class numbering system so LCore uses a seperate library number
@@ -29,9 +30,6 @@
 #define _LCORE_Protocol_H_
 
 class Protocol {
- protected:
-   inline virtual const ClassIdent *i_GetIdent() const;
-
  public:
    static const LCore_ClassIdent identifier;
 
@@ -42,6 +40,9 @@ class Protocol {
 
    Protocol()                                       {}
    virtual ~Protocol()                              {}
+
+ protected:
+   inline virtual const ClassIdent *i_GetIdent() const;
 };
 
 inline const ClassIdent *Protocol::i_GetIdent() const
