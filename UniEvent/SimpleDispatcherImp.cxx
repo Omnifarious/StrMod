@@ -27,20 +27,28 @@
 #include "UniEvent/SimpleDispatcher.h"
 #include "UniEvent/Event.h"
 #include "UniEvent/EventPtr.h"
-#include <iostream.h>
+#include <iostream>
 #include <deque>
+#include <signal.h>
+//  #include <unistd.h>
 
-typedef deque<UNIEvent *> EVListBase;
+namespace strmod {
+namespace unievent {
+namespace {
 
-class UNISimpleDispatcher::Imp {
+void *interruptBlock();
+void interruptUnblock(void *data);
+
+class SimpleDispatcher::Imp {
  public:
+   typedef std::deque<Event *> EVListBase;
    class EVList : private EVListBase {
     public:
-      inline void addElement(UNIEvent *ev);
+      inline void addElement(Event *ev);
       inline bool qEmpty();
       inline size_t size() const { return EVListBase::size(); }
       inline void moveFrontTo(EVList &b);
-      inline UNIEvent *noref_pop_front();
+      inline Event *noref_pop_front();
 
       inline ~EVList();
    };
@@ -48,25 +56,28 @@ class UNISimpleDispatcher::Imp {
    EVList mainq_;
    EVList busypoll_;
    size_t internalevnum_;
-   UNIEventPtr onempty_;
+   EventPtr onempty_;
+   EventPtr oninterrupt_;
+   volatile sig_atomic_t interrupted_;
+   Event *curevt_;
 };
 
-inline void UNISimpleDispatcher::Imp::EVList::addElement(UNIEvent *ev)
+inline void SimpleDispatcher::Imp::EVList::addElement(Event *ev)
 {
    ev->AddReference();
    push_back(ev);
 }
 
-inline bool UNISimpleDispatcher::Imp::EVList::qEmpty()
+inline bool SimpleDispatcher::Imp::EVList::qEmpty()
 {
    return(size() <= 0);
 }
 
-inline UNISimpleDispatcher::Imp::EVList::~EVList()
+inline SimpleDispatcher::Imp::EVList::~EVList()
 {
    while (!qEmpty())
    {
-      UNIEvent *ev = front();
+      Event *ev = front();
 
       pop_front();
       if (ev->NumReferences() > 0)
@@ -80,57 +91,82 @@ inline UNISimpleDispatcher::Imp::EVList::~EVList()
    }
 }
 
-inline void UNISimpleDispatcher::Imp::EVList::moveFrontTo(EVList &b)
+inline void SimpleDispatcher::Imp::EVList::moveFrontTo(EVList &b)
 {
    assert(size() > 0);
-   UNIEvent *ev = front();
+   Event *ev = front();
    pop_front();
    b.push_back(ev);
 }
 
 //! Remove and return the front element without altering the reference count.
-inline UNIEvent *UNISimpleDispatcher::Imp::EVList::noref_pop_front()
+inline Event *SimpleDispatcher::Imp::EVList::noref_pop_front()
 {
    assert(size() > 0);
-   UNIEvent *ev = front();
+   Event *ev = front();
    pop_front();
    return ev;
 }
 
-UNISimpleDispatcher::UNISimpleDispatcher()
+SimpleDispatcher::SimpleDispatcher()
      : imp_(*(new Imp)), stop_flag_(false)
 {
    imp_.internalevnum_ = 0;
 }
 
-UNISimpleDispatcher::~UNISimpleDispatcher()
+SimpleDispatcher::~SimpleDispatcher()
 {
 #ifndef NDEBUG
    if (!imp_.mainq_.qEmpty()) {
-      cerr << "Warning!\a  Deleting a UNISimpleDispatcher that isn't empty!\n";
+      std::cerr << "Warning!\a  Deleting a SimpleDispatcher that isn't empty!\n";
    }
 #endif
    delete &imp_;
 }
 
-void UNISimpleDispatcher::addEvent(const UNIEventPtr &ev)
+void SimpleDispatcher::addEvent(const EventPtr &ev)
 {
    imp_.mainq_.addElement(ev.GetPtr());
 }
 
-void UNISimpleDispatcher::addBusyPollEvent(const UNIEventPtr &ev)
+void SimpleDispatcher::addBusyPollEvent(const EventPtr &ev)
 {
    imp_.busypoll_.addElement(ev.GetPtr());
 }
 
-inline void UNISimpleDispatcher::i_DispatchEvent(Imp &imp,
-                                                 UNIDispatcher *enclosing)
+inline void SimpleDispatcher::i_DispatchEvent(Imp &imp,
+                                              Dispatcher *enclosing)
 {
    assert(!imp.mainq_.qEmpty());
    assert(enclosing != 0);
 
-   UNIEvent *ev = imp.mainq_.noref_pop_front();
+   Event *ev = 0;
+
+   {
+      void *tmp = interruptBlock();
+      if (imp_.interrupted_)
+      {
+         imp_.interrupted_ = 0;
+         ev = imp_.oninterrupt_.GetPtr();
+         if (ev)
+         {
+            ev->AddReference();
+            imp_.oninterrupt_.ReleasePtr();
+         }
+      }
+      if (!ev)
+      {
+         ev = imp.mainq_.noref_pop_front();
+      }
+      imp_.curevt_ = ev;
+      interruptUnblock(tmp);
+   }
    ev->triggerEvent(enclosing);
+   {
+      void *tmp = interruptBlock();
+      imp_.curevt_ = 0;
+      interruptUnblock(tmp);
+   }
    if (ev->NumReferences() > 0)
    {
       ev->DelReference();
@@ -141,9 +177,9 @@ inline void UNISimpleDispatcher::i_DispatchEvent(Imp &imp,
    }
 }
 
-unsigned int UNISimpleDispatcher::i_dispatchNEvents(unsigned int n,
-                                                    bool checkbusypoll,
-                                                    UNIDispatcher *enclosing)
+unsigned int SimpleDispatcher::i_dispatchNEvents(unsigned int n,
+                                                 bool checkbusypoll,
+                                                 Dispatcher *enclosing)
 {
    assert(imp_.mainq_.size() >= n);
    assert(enclosing != 0);
@@ -163,7 +199,7 @@ unsigned int UNISimpleDispatcher::i_dispatchNEvents(unsigned int n,
 }
 
 inline unsigned int
-UNISimpleDispatcher::checkEmptyBusy(Imp &imp, bool &checkbusy)
+SimpleDispatcher::checkEmptyBusy(Imp &imp, bool &checkbusy)
 {
    assert(imp.internalevnum_ <= imp.mainq_.size());
    unsigned int retval = imp.internalevnum_;
@@ -203,8 +239,8 @@ UNISimpleDispatcher::checkEmptyBusy(Imp &imp, bool &checkbusy)
    return retval;
 }
 
-void UNISimpleDispatcher::dispatchNEvents(unsigned int numevents,
-                                          UNIDispatcher *enclosing)
+void SimpleDispatcher::dispatchNEvents(unsigned int numevents,
+                                       Dispatcher *enclosing)
 {
    assert(numevents > 0);
    assert(enclosing != 0);
@@ -240,8 +276,8 @@ void UNISimpleDispatcher::dispatchNEvents(unsigned int numevents,
    }
 }
 
-void UNISimpleDispatcher::dispatchEvents(unsigned int numevents,
-					 UNIDispatcher *enclosing)
+void SimpleDispatcher::dispatchEvents(unsigned int numevents,
+                                      Dispatcher *enclosing)
 {
    if (numevents <= 0)
    {
@@ -261,7 +297,7 @@ void UNISimpleDispatcher::dispatchEvents(unsigned int numevents,
    }
 }
 
-void UNISimpleDispatcher::dispatchUntilEmpty(UNIDispatcher *enclosing)
+void SimpleDispatcher::dispatchUntilEmpty(Dispatcher *enclosing)
 {
    if (enclosing == 0)
    {
@@ -277,12 +313,12 @@ void UNISimpleDispatcher::dispatchUntilEmpty(UNIDispatcher *enclosing)
    }
 }
 
-bool UNISimpleDispatcher::isQueueEmpty() const
+bool SimpleDispatcher::isQueueEmpty() const
 {
    return(imp_.mainq_.qEmpty());
 }
 
-bool UNISimpleDispatcher::onQueueEmpty(const UNIEventPtr &ev)
+bool SimpleDispatcher::onQueueEmpty(const EventPtr &ev)
 {
    if (imp_.onempty_)
    {
@@ -294,3 +330,58 @@ bool UNISimpleDispatcher::onQueueEmpty(const UNIEventPtr &ev)
       return true;
    }
 }
+
+bool SimpleDispatcher::onInterrupt(const EventPtr &ev)
+{
+   if (imp_.oninterrupt_)
+   {
+      return false;
+   }
+   else
+   {
+      imp_.oninterrupt_ = ev;
+      return true;
+   }
+}
+
+//  static const char mesg1[] = "In interrupt\n";
+//  static const char mesg2[] = "Not interrupted\n";
+
+void SimpleDispatcher::interrupt()
+{
+//     ::write(2, mesg1, sizeof(mesg1) - 1);
+   if (!imp_.interrupted_)
+   {
+//        ::write(2, mesg2, sizeof(mesg2) - 1);
+      void *tmp = interruptBlock();
+      if (!imp_.interrupted_)
+      {
+         imp_.interrupted_ = 1;
+         if (imp_.curevt_)
+         {
+            imp_.curevt_->interrupt();
+         }
+      }
+      interruptUnblock(tmp);
+   }
+}
+
+void *interruptBlock()
+{
+   sigset_t *oldset = new sigset_t;
+   sigset_t newset;
+   ::sigfillset(&newset);
+   ::sigprocmask(SIG_BLOCK, &newset, oldset);
+   return oldset;
+}
+
+void interruptUnblock(void *data)
+{
+   sigset_t *origset = static_cast<sigset_t *>(data);
+   ::sigprocmask(SIG_SETMASK, origset, NULL);
+   delete origset;
+}
+
+}; // anonymous namespace
+}; // namespace unievent
+}; // namespace strmod

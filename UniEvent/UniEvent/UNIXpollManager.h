@@ -52,21 +52,30 @@
 
 #define _UNEVT_UNIXpollManager_H_
 
-//: Manages events associated with various file descriptors and/or signals.
+namespace strmod {
+namespace unievent {
+
+/** \class UNIXpollManager UNIXpollManager.h UniEvent/UNIXpollManager.h
+ * \brief Manages events associated with various file descriptors and/or
+ * signals.
+ */
 class UNIXpollManager {
  public:
-   // These enums are intended to be used as bitmasks.
+   //! These enums are intended to be used as bitmasks.
    enum FDConds { FD_Readable = 0x01, FD_Writeable = 0x02, FD_Error = 0x04,
 		  FD_Closed = 0x08, FD_Invalid = 0x10 };
 /*   enum SIGConds { SIG_Async = 0x01, SIG_Sync = 0x02 }; */
    static const unsigned int all_conds = FD_Readable | FD_Writeable
                                         | FD_Error | FD_Closed | FD_Invalid;
 
-   //: Event that passes back info about what conditions triggered the event.
-   // Note that if you use the same event object for more than one set of
-   // conditions, the information returned by getCondBits is going to be
-   // spurious.
-   class PollEvent : public UNIEvent {
+   /** \class PollEvent UNIXpollManager.h UniEvent/UNIXpollManager.h
+    * \brief Event that passes back info about what conditions triggered the
+    * event.
+    * Note that if you use the same event object for more than one set of
+    * conditions, the information returned by getCondBits is going to be
+    * spurious.
+    */
+   class PollEvent : public Event {
     public:
       static const UNEVT_ClassIdent identifier;
 
@@ -75,15 +84,15 @@ class UNIXpollManager {
 
       inline virtual int AreYouA(const ClassIdent &cid) const;
 
-      //: Sets the condition bit(s) that triggered this event.
+      //! Sets the condition bit(s) that triggered this event.
       void setCondBits(unsigned int condbits)          { bits_ = condbits; }
 
-      virtual void triggerEvent(UNIDispatcher *dispatcher = 0) = 0;
+      virtual void triggerEvent(Dispatcher *dispatcher = 0) = 0;
 
     protected:
       virtual const ClassIdent *i_GetIdent() const     { return(&identifier); }
 
-      //: What condition triggered this event?
+      //! What condition triggered this event?
       unsigned int getCondBits() const                 { return(bits_); }
 
     private:
@@ -92,34 +101,35 @@ class UNIXpollManager {
 
    static const UNEVT_ClassIdent identifier;
 
-   inline UNIXpollManager(UNIDispatcher *dispatcher);
+   inline UNIXpollManager(Dispatcher *dispatcher);
    inline virtual ~UNIXpollManager();
 
-   //: Register the event '*ev' to be fired on file descriptor condition true.
+   //! Register the event '*ev' to be fired on file descriptor condition true.
    virtual bool registerFDCond(int fd,
 			       unsigned int condbits,
-			       const UNIEventPtr &ev) = 0;
-   //: Register '*ev' to be fired when file descriptor condition true.
-   // This function promises to fill in the poll event with information about
-   // the conditions causing the event to be triggered.
+			       const EventPtr &ev) = 0;
+   /** Register '*ev' to be fired when file descriptor condition true.
+    * This function promises to fill in the poll event with information about
+    * the conditions causing the event to be triggered.
+    */
    virtual bool registerFDCond(int fd,
 			       unsigned int condbits,
-			       const UNIEventPtrT<PollEvent> &ev) = 0;
+			       const EventPtrT<PollEvent> &ev) = 0;
 /*   // Register the event '*ev' to be fired when a signal happens.
-   bool_val registerSIGCond(int sig, unsigned int condbits, const UNIEventPtr &ev);
+   bool_val registerSIGCond(int sig, unsigned int condbits, const EventPtr &ev);
 */
 
-   //: Removes all entries associated with a particular file descriptor.
+   //! Removes all entries associated with a particular file descriptor.
    virtual void freeFD(int fd) = 0;
 
-   //: Actually call the UNIX poll system call, and dispatch resulting events.
+   //! Actually call the UNIX poll system call, and dispatch resulting events.
    virtual void doPoll(bool wait = true) = 0;
 
  protected:
-   UNIDispatcher *getDispatcher() const                { return(disp_); }
+   Dispatcher *getDispatcher() const                { return(disp_); }
 
  private:
-   UNIDispatcher *disp_;
+   Dispatcher *disp_;
 };
 
 //-----------------------------inline functions--------------------------------
@@ -134,7 +144,7 @@ inline UNIXpollManager::PollEvent::PollEvent()
 {
 }
 
-inline UNIXpollManager::UNIXpollManager(UNIDispatcher *dispatcher)
+inline UNIXpollManager::UNIXpollManager(Dispatcher *dispatcher)
    : disp_(dispatcher)
 {
 }
@@ -143,4 +153,6 @@ inline UNIXpollManager::~UNIXpollManager()
 {
 }
 
+}; // namespace unievent
+}; // namespace strmod
 #endif

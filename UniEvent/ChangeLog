@@ -1,3 +1,43 @@
+2001-09-04  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/UNIXSignalHandler.hm UNIXSignalHandler.cxx: This class
+	is now semi-finished.  In the spirit of extreme programming, it's
+	only as complicated as it has to be to get just what I want out of
+	signals right now.
+
+	* SimpleDispatcherImp.cxx: Added a few commented out debugging
+	messages to debug signal handling.  Making signals work has made
+	me realize this code needs rewriting yet again.  :-(
+
+2001-08-24  Eric Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/UNIXSignalHandler.h: Initial cut of interface for
+	signal handling.
+
+2001-08-23  Eric Hopper  <hopper@omnifarious.mn.org>
+
+	* SimpleDispatcherImp.cxx: Added support for the interrupt method
+	in Dispatcher.
+
+2001-08-18  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* Lots of files: More changes to add namespace support to at least
+	the UniEvent section.  Also, updated the doxygen documentation
+	both for namespaces, and to make it more complete.
+
+2001-08-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Event.cxx, EventPtr.cxx, SimpleDispatcher.cxx,
+	SimpleDispatcherImp.cxx, UniEvent/Dispatcher.h, UniEvent/Event.h,
+	UniEvent/EventPtr.h, UniEvent/EventPtrT.h,
+	UniEvent/UNEVT_ClassIdent.h: First pass at adding namespace
+	support to libNet.  Also, spruced up the documentation a bit.
+
+2001-07-16  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/Event.h, UniEvent/Dispatcher.h: Added preliminary
+	interface changes for interrupt method.  Spruced up documentation.
+
 2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UNIXpollManagerImp.cxx (doPoll): Fixed likely error.

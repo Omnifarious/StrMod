@@ -46,11 +46,14 @@ static char _SocketModule_CC_rcsID[] =
 #define SHUT_WR 1
 #endif
 
+using strmod::unievent::UNIXError;
+
 const STR_ClassIdent SocketModule::identifier(12UL);
 
 // MakeSocket sets makesock_errno_.
 SocketModule::SocketModule(const SocketAddress &addr,
-                           UNIDispatcher &disp, UNIXpollManager &pollmgr,
+                           strmod::unievent::Dispatcher &disp,
+                           strmod::unievent::UNIXpollManager &pollmgr,
                            bool blockconnect)
    throw(UNIXError)
      : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, pollmgr,
@@ -66,7 +69,8 @@ SocketModule::~SocketModule()  // This might be changed later to add
 }                              // connection.
 
 SocketModule::SocketModule(int fd, SocketAddress *pr,
-                           UNIDispatcher &disp, UNIXpollManager &pollmgr)
+                           strmod::unievent::Dispatcher &disp,
+                           strmod::unievent::UNIXpollManager &pollmgr)
      : StreamFDModule(fd, disp, pollmgr, StreamFDModule::CheckBoth),
        peer_(*pr)
 {

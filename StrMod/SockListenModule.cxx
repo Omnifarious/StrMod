@@ -43,13 +43,15 @@ static char _SockListenModule_CC_rcsID[] =
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <errno.h>
+#include <cerrno>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <cassert>
 #include <new>
 #include "config.h"
 #include "sockdecl.h"
+
+using strmod::unievent::UNIXError;
 
 const STR_ClassIdent SockListenModule::identifier(13UL);
 const STR_ClassIdent SockListenModule::SLPlug::identifier(14UL);
@@ -64,7 +66,7 @@ class SockListenModule::FDPollEv : public UNIXpollManager::PollEvent {
    inline FDPollEv(SockListenModule &parent);
    virtual ~FDPollEv()                                 { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) = 0;
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) = 0;
 
    inline void parentGone()                            { hasparent_ = false; }
 
@@ -110,7 +112,7 @@ class SockListenModule::FDPollRdEv : public SockListenModule::FDPollEv {
    inline FDPollRdEv(SockListenModule &parent) : FDPollEv(parent)   { }
    virtual ~FDPollRdEv()                                          { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerRead(); }
+   virtual void triggerEvent(Dispatcher *dispatcher = 0)  { triggerRead(); }
 };
 
 //: This is one of the three helper classes for SockListenModule::FDPollEv
@@ -119,12 +121,12 @@ class SockListenModule::FDPollErEv : public SockListenModule::FDPollEv {
    inline FDPollErEv(SockListenModule &parent) : FDPollEv(parent)   { }
    virtual ~FDPollErEv()                                          { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerError(); }
+   virtual void triggerEvent(Dispatcher *dispatcher = 0)  { triggerError(); }
 };
 
 SockListenModule::SockListenModule(const SocketAddress &bind_addr,
-                                   UNIDispatcher &disp,
-				   UNIXpollManager &pmgr,
+                                   strmod::unievent::Dispatcher &disp,
+				   strmod::unievent::UNIXpollManager &pmgr,
 				   int qlen)
       : sockfd_(-1), has_error_(false), lplug_(*this),
         plug_pulled_(false), checking_read_(false), newmodule_(0),

@@ -55,7 +55,6 @@
 class ListeningPlug;
 class SocketModuleChunk;
 class SocketAddress;
-class UNIDispatcher;
 
 /** \class SocketModuleChunk SockListenModule.h StrMod/SockListenModule.h
  * \brief A special 'zero length' chunk that contains a SocketModule.
@@ -122,7 +121,8 @@ class SockListenModule : public StreamModule {
     * the pending connection queue?
     */
    SockListenModule(const SocketAddress &bind_addr,
-                    UNIDispatcher &disp, UNIXpollManager &pmgr,
+                    strmod::unievent::Dispatcher &disp,
+                    strmod::unievent::UNIXpollManager &pmgr,
 		    int qlen = 1);
    //! Closes the socket being listened to.
    virtual ~SockListenModule();
@@ -137,7 +137,7 @@ class SockListenModule : public StreamModule {
    //! Has there been an error of any kind?
    bool hasError() const throw()               { return has_error_; }
    //! What was the error, if any?
-   const UNIXError &getError() const throw();
+   const strmod::unievent::UNIXError &getError() const throw();
    //! Pretend no error happened.
    void clearError() throw();
 
@@ -186,30 +186,33 @@ class SockListenModule : public StreamModule {
     * Note, ownership of <code>peer</code> is being passed here.
     */
    inline SocketModule *makeSocketModule(int fd, SocketAddress *peer,
-					 UNIDispatcher &disp,
-                                         UNIXpollManager &pmgr);
+					 strmod::unievent::Dispatcher &disp,
+                                         strmod::unievent::UNIXpollManager &pmgr);
 
    //! Set an error so that hasError and getError return something.
-   inline void setError(const UNIXError &err) throw();
+   inline void setError(const strmod::unievent::UNIXError &err) throw();
 
    //! Return the new module (if any) and try to 'accept' another connection.
    SocketModule *getNewModule();
 
  private:
+   typedef strmod::unievent::Dispatcher Dispatcher;
+   typedef strmod::unievent::UNIXpollManager UNIXpollManager;
+
    int sockfd_;
-   unsigned char errorstore_[sizeof(UNIXError)];
+   unsigned char errorstore_[sizeof(strmod::unievent::UNIXError)];
    bool has_error_;
    SLPlug lplug_;
    bool plug_pulled_;
    bool checking_read_;
    SocketModule *newmodule_;
    SocketAddress &myaddr_;
-   UNIDispatcher &disp_;
+   Dispatcher &disp_;
    UNIXpollManager &pmgr_;
    FDPollEv *readevptr_;
-   UNIEventPtrT<UNIXpollManager::PollEvent> readev_;
+   strmod::unievent::EventPtrT<UNIXpollManager::PollEvent> readev_;
    FDPollEv *errorevptr_;
-   UNIEventPtrT<UNIXpollManager::PollEvent> errorev_;
+   strmod::unievent::EventPtrT<UNIXpollManager::PollEvent> errorev_;
 
    void eventRead(unsigned int condbits);
    void eventError(unsigned int condbits);
@@ -280,8 +283,8 @@ inline StreamModule::Plug *SockListenModule::i_MakePlug(int side)
 
 inline SocketModule *SockListenModule::makeSocketModule(int fd,
 							SocketAddress *peer,
-                                                        UNIDispatcher &disp,
-							UNIXpollManager &pmgr)
+                                                        strmod::unievent::Dispatcher &disp,
+							strmod::unievent::UNIXpollManager &pmgr)
 {
    // Ownership of peer is passed here.
    return(new SocketModule(fd, peer, disp, pmgr));

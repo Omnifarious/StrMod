@@ -36,4 +36,10 @@
 
 #include <UniEvent/EventPtrT.h>
 
-const UNEVT_ClassIdent UNIEventPtr::identifier(5UL);
+namespace strmod {
+namespace unievent {
+
+const UNEVT_ClassIdent EventPtr::identifier(5UL);
+
+}; // namespace unievent
+}; // namespace strmod

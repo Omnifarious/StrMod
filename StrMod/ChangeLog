@@ -1,3 +1,11 @@
+2001-08-18  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/RouterModule.h, RouterModule.cxx, StrMod/SimpleMulti.h,
+	SimpleMulti.cxx, StrMod/SockListenModule.h, SockListenModule.cxx,
+	StrMod/SocketModule.h, SocketModule.cxx, StrMod/StreamFDModule.h,
+	StreamFDModule.cxx: Lots of fixups to make work with namespace
+	changes in the UniEvent headers.
+
 2001-08-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StreamFDModule.cxx: More support for error events.  Filled on

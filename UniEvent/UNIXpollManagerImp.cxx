@@ -29,17 +29,20 @@
 #include "UniEvent/Event.h"
 #include "UniEvent/UNIXpollManagerImp.h"
 #include "UniEvent/Dispatcher.h"
-#include <errno.h>
-#include <stddef.h>
+#include <cerrno>
+#include <cstddef>
+
+namespace strmod {
+namespace unievent {
 
 const UNEVT_ClassIdent UNIXpollManagerImp::identifier(9UL);
 
-class UNIXpollManagerImp::DoPollEvent : public UNIEvent
+class UNIXpollManagerImp::DoPollEvent : public Event
 {
  public:
    inline DoPollEvent(UNIXpollManagerImp &parent, bool wait);
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
+   virtual void triggerEvent(Dispatcher *dispatcher = 0);
 
    inline void managerDeleted();
 
@@ -54,7 +57,7 @@ UNIXpollManagerImp::DoPollEvent::DoPollEvent(UNIXpollManagerImp &parent,
 {
 }
 
-inline void UNIXpollManagerImp::DoPollEvent::triggerEvent(UNIDispatcher *dis)
+inline void UNIXpollManagerImp::DoPollEvent::triggerEvent(Dispatcher *dis)
 {
    if (parent_ != NULL)
    {
@@ -76,7 +79,7 @@ inline void UNIXpollManagerImp::DoPollEvent::managerDeleted()
    parent_ = NULL;
 }
 
-UNIXpollManagerImp::UNIXpollManagerImp(UNIDispatcher *disp)
+UNIXpollManagerImp::UNIXpollManagerImp(Dispatcher *disp)
      : UNIXpollManager(disp),
        isregistered_(false),
        isbusyregistered_(false),
@@ -100,7 +103,7 @@ UNIXpollManagerImp::~UNIXpollManagerImp()
 }
 
 bool UNIXpollManagerImp::registerFDCond(int fd, unsigned int condbits,
-					const UNIEventPtr &ev)
+					const EventPtr &ev)
 {
    if ((condbits & all_conds) != 0)
    {
@@ -117,7 +120,7 @@ bool UNIXpollManagerImp::registerFDCond(int fd, unsigned int condbits,
 }
 
 bool UNIXpollManagerImp::registerFDCond(int fd, unsigned int condbits,
-					const UNIEventPtrT<PollEvent> &ev)
+					const EventPtrT<PollEvent> &ev)
 {
    if ((condbits & all_conds) != 0)
    {
@@ -173,7 +176,7 @@ void UNIXpollManagerImp::doPoll(bool wait)
 	    {
 	       if ((*j).isPoll_)
 	       {
-		  UNIEventPtrT<PollEvent> p;
+		  EventPtrT<PollEvent> p;
 
 		  p = static_cast<PollEvent *>((*j).ev_.GetPtr());
 		  if (p)
@@ -277,3 +280,6 @@ void UNIXpollManagerImp::fillPollList()
       used_entries_ = j;
    }
 }
+
+}; // namespace unievent
+}; // namespace strmod

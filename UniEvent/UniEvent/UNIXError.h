@@ -32,6 +32,9 @@
 
 #define _UNEVT_UNIXError_H_
 
+namespace strmod {
+namespace unievent {
+
 /** \class UNIXError UNIXError.h UniEvent/UNIXError.h
  * \brief Holds a UNIX errno value.
  *
@@ -111,5 +114,8 @@ UNIXError::UNIXError(const char *syscallname,
        errnum_(errnum), iseof_(false)
 {
 }
+
+}; // namespace unievent
+}; // namespace strmod
 
 #endif

@@ -33,14 +33,17 @@
 const STR_ClassIdent RouterModule::identifier(52UL);
 const STR_ClassIdent RouterModule::RPlug::identifier(53UL);
 
-class RouterModule::ScanEvent : public UNIEvent {
+using strmod::unievent::Dispatcher;
+using strmod::unievent::Event;
+
+class RouterModule::ScanEvent : public Event {
  public:
    static const STR_ClassIdent identifier;
 
    //: This keeps a reference to parent.
    ScanEvent(RouterModule &parent) : parent_(&parent)   { }
 
-   inline virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
+   inline virtual void triggerEvent(Dispatcher *dispatcher = 0);
 
    void parentGone()                                    { parent_ = 0; }
 
@@ -51,7 +54,7 @@ class RouterModule::ScanEvent : public UNIEvent {
    RouterModule *parent_;
 };
 
-inline void RouterModule::ScanEvent::triggerEvent(UNIDispatcher *dispatcher)
+inline void RouterModule::ScanEvent::triggerEvent(Dispatcher *dispatcher)
 {
    if (parent_)
    {
@@ -61,7 +64,7 @@ inline void RouterModule::ScanEvent::triggerEvent(UNIDispatcher *dispatcher)
 
 const STR_ClassIdent RouterModule::ScanEvent::identifier(54UL);
 
-RouterModule::RouterModule(UNIDispatcher &disp)
+RouterModule::RouterModule(Dispatcher &disp)
      : disp_(disp), scan_posted_(false), scan_(new ScanEvent(*this)),
        inroutingdone_(false), outgoingcopies_(0)
 {

@@ -31,7 +31,11 @@
 
 #define _STR_SimpleMulti_H_
 
-class UNIDispatcher;
+namespace strmod {
+namespace unievent {
+class Dispatcher;
+};
+};
 
 /** \class SimpleMultiplexer SimpleMulti.h StrMod/SimpleMulti.h
  * \brief Use this module of you need one source copied to many
@@ -65,16 +69,16 @@ class SimpleMultiplexer : public StreamModule {
 
    /** Construct a SimpleMultiplexer
     *
-    * The UNIDispatcher is needed for making sure data from all MultiSide plugs
-    * is handled fairly.  Whenever the SimpleMultiplexer gets data from a
-    * MultiPlug, it flags that plug as non-writeable and posts an event to a
-    * UNIDispatcher.  When that event is fired, it resets all MultiPlugs to
-    * being writeable again.  The prevens any MultiPlug from monopolizing the
-    * SinglePlug.
+    * The strmod::unievent::Dispatcher is needed for making sure data from all
+    * MultiSide plugs is handled fairly.  Whenever the SimpleMultiplexer gets
+    * data from a MultiPlug, it flags that plug as non-writeable and posts an
+    * event to a strmod::unievent::Dispatcher.  When that event is fired, it
+    * resets all MultiPlugs to being writeable again.  The prevens any MultiPlug
+    * from monopolizing the SinglePlug.
     *
-    * @param disp The UNIDispatcher to post to.
-    */
-   SimpleMultiplexer(UNIDispatcher &disp);
+    * @param disp The strmod::unievent::Dispatcher to post to.  */
+
+   SimpleMultiplexer(strmod::unievent::Dispatcher &disp);
    //! Also destroys all Plug's and any unsent data.
    virtual ~SimpleMultiplexer();
 
@@ -212,7 +216,7 @@ class SimpleMultiplexer : public StreamModule {
    bool scan_posted_;
    StrChunkPtr mchunk_;
    ScanEvent * const scan_;
-   UNIDispatcher &dispatcher_;
+   strmod::unievent::Dispatcher &dispatcher_;
    unsigned int readable_multis_;
    unsigned int readable_multiothers_;
    unsigned int writeable_multiothers_;

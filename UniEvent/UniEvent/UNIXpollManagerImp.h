@@ -62,6 +62,9 @@
 
 #define _UNEVT_UNIXpollManagerImp_H_
 
+namespace strmod {
+namespace unievent {
+
 //: The implementation of UNIXpollManager.
 // This is seperated out like this so the implementation can change without
 // having to recompile the clients of UNIXpollManager.
@@ -69,17 +72,17 @@ class UNIXpollManagerImp : public UNIXpollManager {
  public:
    static const UNEVT_ClassIdent identifier;
 
-   UNIXpollManagerImp(UNIDispatcher *disp);
+   UNIXpollManagerImp(Dispatcher *disp);
    virtual ~UNIXpollManagerImp();
 
    //: See base class
    virtual bool registerFDCond(int fd,
 			       unsigned int condbits,
-			       const UNIEventPtr &ev);
+			       const EventPtr &ev);
    //: See base class
    virtual bool registerFDCond(int fd,
 			       unsigned int condbits,
-			       const UNIEventPtrT<PollEvent> &ev);
+			       const EventPtrT<PollEvent> &ev);
    //: See base class
    virtual void freeFD(int fd);
 
@@ -90,10 +93,10 @@ class UNIXpollManagerImp : public UNIXpollManager {
    struct EVEntry {
       unsigned int condmask_;
       bool isPoll_;
-      UNIEventPtr ev_;
+      EventPtr ev_;
 
       inline EVEntry(unsigned int condmask,
-		     bool isPoll, const UNIEventPtr &ev);
+		     bool isPoll, const EventPtr &ev);
    };
    typedef list<EVEntry> EVList;
    struct FDInfo {
@@ -122,8 +125,8 @@ class UNIXpollManagerImp : public UNIXpollManager {
    bool isregistered_;
    bool isbusyregistered_;
    pollfd *poll_list_;
-   UNIEventPtrT<DoPollEvent> pollev_;
-   UNIEventPtrT<DoPollEvent> busypollev_;
+   EventPtrT<DoPollEvent> pollev_;
+   EventPtrT<DoPollEvent> busypollev_;
    unsigned int num_entries_;
    unsigned int used_entries_;
 };
@@ -132,7 +135,7 @@ class UNIXpollManagerImp : public UNIXpollManager {
 
 inline UNIXpollManagerImp::EVEntry::EVEntry(unsigned int condmask,
 					    bool isPoll,
-					    const UNIEventPtr &ev)
+					    const EventPtr &ev)
      : condmask_(condmask), isPoll_(isPoll), ev_(ev)
 {
 }
@@ -183,5 +186,8 @@ inline unsigned int UNIXpollManagerImp::pevMaskToFDMask(short revents)
    }
    return(condmask);
 }
+
+}; // namesapce unievent
+}; // namespace strmod
 
 #endif

@@ -34,8 +34,6 @@
 
 class SocketAddress;
 class SockListenModule;
-class UNIDispatcher;
-class UNIXError;
 
 class SocketModule : public StreamFDModule {
    friend class SockListenModule;  // This is so SockListenModule's can access
@@ -45,8 +43,9 @@ class SocketModule : public StreamFDModule {
 
    //! Create a SocketModule connected to the given address.
    SocketModule(const SocketAddress &addr,
-                UNIDispatcher &disp, UNIXpollManager &pollmgr,
-		bool blockconnect = true) throw(UNIXError);
+                strmod::unievent::Dispatcher &disp,
+                strmod::unievent::UNIXpollManager &pollmgr,
+		bool blockconnect = true) throw(strmod::unievent::UNIXError);
    virtual ~SocketModule();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
@@ -61,12 +60,13 @@ class SocketModule : public StreamFDModule {
     * Note that ownership of peer is being passed.
     */
    SocketModule(int fd, SocketAddress *peer,
-                UNIDispatcher &disp, UNIXpollManager &pollmgr);
+                strmod::unievent::Dispatcher &disp,
+                strmod::unievent::UNIXpollManager &pollmgr);
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
    static int MakeSocket(SocketModule &obj, const SocketAddress &addr,
-                         bool blockconnect) throw(UNIXError);
+                         bool blockconnect) throw(strmod::unievent::UNIXError);
 
  private:
    SocketAddress &peer_;

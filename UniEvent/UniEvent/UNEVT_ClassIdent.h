@@ -1,4 +1,4 @@
-#ifndef _UNEVT_UNEVT_ClassIdent_H_
+#ifndef _UNEVT_UNEVT_ClassIdent_H_  // -*-c++-*-
 
 /*
  * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
@@ -27,19 +27,27 @@
 // For log see ../ChangeLog
 
 #include <LCore/HopClTypes.h>
+#include <LCore/Protocol.h>
 
 #define _UNEVT_UNEVT_ClassIdent_H_
 
-class UNEVT_ClassIdent : public EH_ClassIdent {
- protected:
-   inline virtual const ClassIdent *i_GetIdent() const;
+namespace strmod {
+namespace unievent {
 
+/** \class UNEVT_ClassIdent UNEVT_ClassIdent.h UniEvent/UNEVT_ClassIdent.h
+ * \brief The global identifier class for class in strmod::unievent.
+ */
+class UNEVT_ClassIdent : public EH_ClassIdent, virtual public Protocol {
  public:
    static const UNEVT_ClassIdent identifier;
 
+   //! Construct a UNEVT from a class number private to strmod::unievent
+   inline explicit UNEVT_ClassIdent(U4Byte cnum);
+
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline UNEVT_ClassIdent(U4Byte cnum);
+ protected:
+   inline virtual const ClassIdent *i_GetIdent() const;
 };
 
 //---------------------------inline functions--------------------------------
@@ -58,5 +66,8 @@ inline UNEVT_ClassIdent::UNEVT_ClassIdent(U4Byte cnum) :
      EH_ClassIdent(EH_ClassNum(EH_ClassNum::User3, cnum))
 {
 }
+
+}; // namespace unievent
+}; // namespace strmod
 
 #endif

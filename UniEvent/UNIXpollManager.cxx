@@ -36,5 +36,11 @@
 
 #include "UniEvent/UNIXpollManager.h"
 
+namespace strmod {
+namespace unievent {
+
 const UNEVT_ClassIdent UNIXpollManager::identifier(7UL);
 const UNEVT_ClassIdent UNIXpollManager::PollEvent::identifier(8UL);
+
+};
+};

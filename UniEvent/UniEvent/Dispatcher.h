@@ -31,53 +31,36 @@
 
 #define _UNEVT_Dispatcher_H_
 
-class UNIEventPtr;
-class OSConditionManager;
+namespace strmod {
+namespace unievent {
 
-/** \class UNIDispatcher Dispatcher.h UniEvent/Dispatcher.h
+class EventPtr;
+
+/** \class Dispatcher Dispatcher.h UniEvent/Dispatcher.h
  * \brief An interface for a simple queuer and dispatcher of events.
  *
  * This provides an interface for classes that want to implement a queue of
- * UNIEvent objects that are removed from the queue in FIFO order and 'fired' by
+ * Event objects that are removed from the queue in FIFO order and 'fired' by
  * calling their triggerEvent methods.
  */
-class UNIDispatcher : virtual public Protocol {
+class Dispatcher : virtual public Protocol {
  public:
    static const UNEVT_ClassIdent identifier;
 
    //! Because every class (even abstract ones) should have a constructor.
-   UNIDispatcher()                                     { }
+   Dispatcher()                                     { }
    //! Because abstract classes should have a virtual destructor.
-   virtual ~UNIDispatcher()                            { }
+   virtual ~Dispatcher()                            { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    //! Add an event to the queue.
-   virtual void addEvent(const UNIEventPtr &ev) = 0;
-
-   //! Dispatch a single event.
-   inline void dispatchEvent(UNIDispatcher *enclosing = 0);
-
-   /**
-    * \brief Dispatch until a certain number of events have been dispatched, or
-    * the queue is empty.
-   */
-   virtual void dispatchEvents(unsigned int numevents,
-			       UNIDispatcher *enclosing = 0) = 0;
-   //! Dispatch until the queue is empty.
-   virtual void dispatchUntilEmpty(UNIDispatcher *enclosing = 0) = 0;
-   /**
-    * Cause the multiple event dispatch methods to halt before they normally
-    * would.
-    */
-   virtual void stopDispatching() = 0;
-   //! Does the queue have any events in it?
-   virtual bool isQueueEmpty() const = 0;
+   virtual void addEvent(const EventPtr &ev) = 0;
 
    /**
     * Add an event that will be posted to poll something if the queue is busy.
     *
-    * The UNIDispatcher maintains the concept of <em>external</em>
+    * The Dispatcher maintains the concept of <em>external</em>
     * and <em>internal</em> events.  External events are those posted by the
     * addEvent function.  Internal events are those posted in response to some
     * internal condition.
@@ -92,34 +75,89 @@ class UNIDispatcher : virtual public Protocol {
     * through addEvent.</strong> Doing this would just propogate the bad busy
     * loop behavior.
     */
-   virtual void addBusyPollEvent(const UNIEventPtr &ev) = 0;
+   virtual void addBusyPollEvent(const EventPtr &ev) = 0;
 
    /**
     * \brief This event is only triggered whenever an event dispatch is
     * attempted when there's an empty queue.
+    *
+    * @param ev The event to fire when the queue is empty.
+    * @return <code>true</code> if the event was successfully set,
+    * <code>false</code> if the event was not set because some other event was
+    * already set.
+    */
+   virtual bool onQueueEmpty(const EventPtr &ev) = 0;
+
+   /**
+    * \brief This event is only triggered when interrupt() is called.
+    *
+    * When interrupt() is called, a flag is set so this event is put onto the
+    * front of the queue as soon as the Dispatcher's event loop gets control
+    * again.
+    *
+    * @param ev The event to fire when interrupt() is called.
+    * @return <code>true</code> if the event was successfully set,
+    * <code>false</code> if the event was not set because some other event was
+    * already set.
+    */
+   virtual bool onInterrupt(const EventPtr &ev) = 0;
+
+   //! Dispatch a single event.
+   inline void dispatchEvent(Dispatcher *enclosing = 0);
+
+   /**
+    * \brief Dispatch until a certain number of events have been dispatched, or
+    * the queue is empty.
    */
-   virtual bool onQueueEmpty(const UNIEventPtr &ev) = 0;
+   virtual void dispatchEvents(unsigned int numevents,
+			       Dispatcher *enclosing = 0) = 0;
+   //! Dispatch until the queue is empty.
+   virtual void dispatchUntilEmpty(Dispatcher *enclosing = 0) = 0;
+
+   /**
+    * \brief Interrupts the dispatcher to execute a high priority event.
+    *
+    * This sets a flag so that as soon as the Dispatcher's event loop gets
+    * control, the event set by onInterrupt() will be put on the front of the
+    * queue.  It will also call the Event::interrupt() method of any
+    * currently executing event.
+    *
+    * \note Implementations of this method should be safe to call from a thread
+    * or a signal handling context.
+    */
+   virtual void interrupt() = 0;
+
+   /**
+    * Cause the multiple event dispatch methods to halt before they normally
+    * would.
+    */
+   virtual void stopDispatching() = 0;
+   //! Does the queue have any events in it?
+   virtual bool isQueueEmpty() const = 0;
 
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
  private:
    //! Purposely left undefined.
-   UNIDispatcher(const UNIDispatcher &b);
+   Dispatcher(const Dispatcher &b);
    //! Purposely left undefined.
-   const UNIDispatcher &operator =(const UNIDispatcher &b);
+   const Dispatcher &operator =(const Dispatcher &b);
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline int UNIDispatcher::AreYouA(const ClassIdent &cid) const
+inline int Dispatcher::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
 
-inline void UNIDispatcher::dispatchEvent(UNIDispatcher *enclosing)
+inline void Dispatcher::dispatchEvent(Dispatcher *enclosing)
 {
    dispatchEvents(1, enclosing);
 }
+
+}; // namespace unievent
+}; // namespace strmod
 
 #endif

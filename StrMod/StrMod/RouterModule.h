@@ -34,7 +34,11 @@
 
 #define _STR_RouterModule_H_
 
-class UNIDispatcher;
+namespace strmod {
+namespace unievent {
+class Dispatcher;
+};
+};
 
 /** \class RouterModule RouterModule.h StrMod/RouterModule.h
  * \brief Provides an abstract base for classes that route chunks from a plug to
@@ -52,8 +56,8 @@ class RouterModule : public StreamModule {
  public:
    static const STR_ClassIdent identifier;
 
-   //! Construct given UNIDispatcher to use to post scan events.
-   explicit RouterModule(UNIDispatcher &disp);
+   //! Construct, given the strmod::unievent::Dispatcher to use to post scan events.
+   explicit RouterModule(strmod::unievent::Dispatcher &disp);
    //! Destroy the RouterModule and all of its plugs.
    virtual ~RouterModule();
 
@@ -100,7 +104,7 @@ class RouterModule : public StreamModule {
  private:
    class ScanEvent;
    friend class ScanEvent;
-   UNIDispatcher &disp_;
+   strmod::unievent::Dispatcher &disp_;
    bool scan_posted_;
    ScanEvent * const scan_;
    bool inroutingdone_;

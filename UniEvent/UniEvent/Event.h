@@ -34,20 +34,24 @@
 
 #define _UNEVT_Event_H_
 
-class UNIDispatcher;
-class UNIEventPtr;
 
-/** \class UNIEvent Event.h UniEvent/Event.h
+namespace strmod {
+namespace unievent {
+
+class Dispatcher;
+class EventPtr;
+
+/** \class Event Event.h UniEvent/Event.h
  * \brief An event to be queued up in a UNIDispatcher.
  */
-class UNIEvent : virtual public Protocol, public ReferenceCounting {
+class Event : virtual public Protocol, public ReferenceCounting {
  public:
    static const UNEVT_ClassIdent identifier;
 
    //! Nothing exciting here.
-   UNIEvent() : ReferenceCounting(0)                   { }
+   Event() : ReferenceCounting(0)                      { }
    //! This is an interface class, of course it has a virtual destructor.
-   virtual ~UNIEvent()                                 { }
+   virtual ~Event()                                    { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
@@ -56,10 +60,21 @@ class UNIEvent : virtual public Protocol, public ReferenceCounting {
     * it is expected to be passed in.  Otherwise NULL (aka 0) can be passed in.
     * A dispatcher will only call ONE triggerEvent method at a time.
     */
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) = 0;
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) = 0;
+
+   /** Interrupt the current event if possible.
+    * <b>MUST be thread-safe, signal-safe, and otherwise prepared to be called
+    * in very strange contexts!</b>
+    *
+    * This method should cause the currently executing event to return as
+    * quickly as possible.  This may not be possible to do for all kinds of
+    * events.  This method will only be called just before, during, or just
+    * after the triggerEvent() method is called.
+    */
+   virtual void interrupt()                            { }
 
    //! Alternate form of TriggerEvent
-   inline void operator ()(UNIDispatcher *dispatcher);
+   inline void operator ()(Dispatcher *dispatcher);
    //! Alternate form of TriggerEvent
    inline void operator ()()                           { (*this)(0); }
 
@@ -68,20 +83,23 @@ class UNIEvent : virtual public Protocol, public ReferenceCounting {
 
  private:
    // Purposely left undefined.
-   UNIEvent(const UNIEvent &b);
-   const UNIEvent &operator =(const UNIEvent &b);
+   Event(const Event &b);
+   const Event &operator =(const Event &b);
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline int UNIEvent::AreYouA(const ClassIdent &cid) const
+inline int Event::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
 
-inline void UNIEvent::operator ()(UNIDispatcher *dispatcher)
+inline void Event::operator ()(Dispatcher *dispatcher)
 {
    triggerEvent(dispatcher);
 }
+
+}; // namespace unievent
+}; // namespace strmod
 
 #endif
