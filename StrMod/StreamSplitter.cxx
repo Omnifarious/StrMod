@@ -1,6 +1,10 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.3  1998/06/02 00:33:30  hopper
+ // Removed GNU specific return value optimization stuff.  A good compiler
+ // should do it automagically.
+ //
  // Revision 1.2  1996/07/05 19:33:26  hopper
  // Made some necessary changes to make this work with new StrChunk style.
  //
@@ -143,15 +147,9 @@ SplitterModule::~SplitterModule()
    delete outputonly;
 }
 
-#ifdef __GNUG__
-const StrChunkPtr SplitterPlug::InternalRead() return temp;
-#else
 const StrChunkPtr SplitterPlug::InternalRead()
-#endif
 {
-#ifndef __GNUG__
    StrChunkPtr temp;
-#endif
    SplitterModule *parent = ModuleFrom();
 
 #ifdef TRACING

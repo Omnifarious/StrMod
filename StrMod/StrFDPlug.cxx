@@ -1,6 +1,10 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.9  1998/06/02 00:33:12  hopper
+ // Removed GNU specific return value optimization stuff.  A good compiler
+ // should do it automagically.
+ //
  // Revision 1.8  1996/10/23 10:12:53  hopper
  // Fixed an = vs. == bug that caused StreamFDModule to stop being able to
  // write.
@@ -103,17 +107,11 @@ extern "C" int writev(int fd, const struct iovec *iov, int iovCount);
 #  define MAXIOVCNT (16U)
 #endif
 
-#ifdef __GNUG__
-const StrChunkPtr StrFDPlug::InternalRead() return temp;
-#else
 const StrChunkPtr StrFDPlug::InternalRead()
-#endif
 {
 //   cerr << "In StrFDPlug::InternalRead()\n";
 
-#ifndef __GNUG__
    StrChunkPtr temp;
-#endif
    StreamFDModule *parent = ModuleFrom();
 
    if (parent->fd < 0)
