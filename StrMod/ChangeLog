@@ -1,3 +1,18 @@
+1999-01-12  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testsplit.cxx: Removed spurious include.  Added check for
+	an empty write buffer so we don't die prematurely.
+
+	* tests/testsock.cxx: A new test for the SocketModule class.
+
+	* SocketModule.cxx: 
+	* StrMod/SocketModule.h: Various changes to clean up the interface
+	a little.  No changes really needed to make it part of the new
+	StreamModule system.
+
+	* StrMod/StreamFDModule.h: Various small changes designed to make
+	the interface more generally useful.
+
 1999-01-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/StrChunk.h: 
