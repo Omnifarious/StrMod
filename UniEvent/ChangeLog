@@ -1,6 +1,15 @@
+2001-09-23  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/Timer.h, Timer.cxx, UniEvent/UNIXTimer.h,
+	UNIXTimer.cxx, tests/testtimer.cxx, UNEVT_ClassIdent.cxx,
+	Makefile.in: Added a new interface, Timer, and an implementation
+	of the Timer interface, UNIXTimer.  These classes are used to
+	schedule events at particular times.  Currently, UNIXTimer relies
+	on a UNIXSignalHandler and uses the SIGALRM signal.
+
 2001-09-04  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
-	* UniEvent/UNIXSignalHandler.hm UNIXSignalHandler.cxx: This class
+	* UniEvent/UNIXSignalHandler.h, UNIXSignalHandler.cxx: This class
 	is now semi-finished.  In the spirit of extreme programming, it's
 	only as complicated as it has to be to get just what I want out of
 	signals right now.
