@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.4  1996/12/10 01:53:59  hopper
+// Fixed an error in FillIOVecDesc involving a misplaced increment.
+//
 // Revision 1.3  1996/09/11 23:10:34  hopper
 // Changed class GroupVector to be a little more STL like.  Added
 // SafeToDelete method.
@@ -68,8 +71,8 @@ bool GroupVector::FillIOVecDesc(size_t offset, GroupVector::IOVecDesc &desc)
       }
       while ((group_num < numgroups_)
 	     && (offset >= (current_off + groups_[group_num].iov_len))) {
-	 group_num++;
 	 current_off += groups_[group_num].iov_len;
+	 ++group_num;
       }
       if (group_num < numgroups_) {
 	 assert(current_off <= offset);
