@@ -1,38 +1,6 @@
 /* $Header$ */
 
-// $Log$
-// Revision 1.6  1998/11/03 00:37:05  hopper
-// Changed a couple of comments to better reflect reality.
-//
-// Revision 1.5  1996/09/02 23:15:47  hopper
-// Added new classes to class id comment list.
-//
-// Revision 1.4  1996/08/24 12:59:53  hopper
-// Added comments for new SimplePlug, and SimpleMultiplexer classes.
-//
-// Revision 1.3  1996/06/29 06:43:42  hopper
-// Changed comment style to be more rational and added comments for new
-// classes.
-//
-// Revision 1.2  1996/05/08 11:11:29  hopper
-// Added a couple of new classes to the comments section.
-//
-// Revision 1.1.1.1  1995/07/22 04:46:49  hopper
-// Imported sources
-//
-// Revision 1.4  1995/04/18  18:37:57  hopper
-// Added comments for new class numbers
-//
-// Revision 1.3  1995/04/17  22:56:51  hopper
-// Added comment for SocketModule class.
-//
-// Revision 1.2  1995/04/14  16:45:19  hopper
-// Changed to use new include scheme for libraries.
-// Added comments about the numbers used for other classes in the library.
-//
-// Revision 1.1  1995/03/08  05:37:00  hopper
-// Initial revision
-//
+// For changes, see ChangeLog
 
 #ifdef __GNUG__
 #  pragma implementation "STR_ClassIdent.h"
@@ -52,8 +20,8 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
    7UL	DataBlockStrChunk
    8UL	StreamFDModule
    9UL	StreamFDModule::FPlug
-  10UL	SplitterModule
-  11UL	SplitterPlug
+  10UL	StreamSplitterModule
+  11UL	StreamSplitterModule::SPPlug
   12UL	SocketModule
   13UL	SockListenModule
   14UL	ListeningPlug
