@@ -55,11 +55,12 @@ int main(int argc, char *argv[])
       }
 
       if (slmp->CanRead()) {
-	 SocketModuleChunk *attemptedchunk = slmp->Read();
+	 SocketModuleChunkPtr attemptedchunk = slmp->Read();
 	 SocketModule *attempted = attemptedchunk->GetModule();
 
+	 cerr << "Got connection from " << *(attempted->GetPeerAddr()) << "\n";
 	 attemptedchunk->ReleaseModule();
-	 delete attemptedchunk;
+	 attemptedchunk.ReleasePtr();
 
 	 connections.push_back(new EchoConnection(attempted));
       }
