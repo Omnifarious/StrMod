@@ -22,7 +22,8 @@ pre.codeblock {margin-left: 1cm;
                background: #c0c0c0}
 pre.line {margin-left: 1cm }
 span.new {color: green }
-span.changed {color: red }</style>
+span.changed {color: red }
+span.input {color: blue }</style>
 </head>
 
 <body bgcolor="#d0d0d0" text="black">
@@ -851,6 +852,261 @@ it's going away. Deleting the SocketModules has the effect of closing
 them.</p>
 
 <p>If you put all this together now, you should have a largely functional
-port forwarder.</p>
+port forwarder:</p>
+<pre class="codeblock">#include &lt;StrMod/SockListenModule.h&gt;
+#include &lt;StrMod/SocketModule.h&gt;
+#include &lt;EHnet++/SocketAddress.h&gt;
+#include &lt;EHnet++/InetAddress.h&gt;
+#include &lt;UniEvent/Dispatcher.h&gt;
+#include &lt;UniEvent/SimpleDispatcher.h&gt;
+#include &lt;UniEvent/UNIXpollManager.h&gt;
+#include &lt;UniEvent/UNIXpollManagerImp.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;list&gt;
+
+using strmod::strmod::SockListenModule;
+using strmod::strmod::SocketModule;
+using strmod::unievent::Dispatcher;
+using strmod::unievent::UNIXpollManager;
+
+// The EHnet++ library has not yet been converted to use namespaces,
+// so SocketAddress and InetAddress can be used 'bare'.
+
+class ForwardedConnection {
+ public:
+   ForwardedConnection(SocketModule &amp;incoming, SocketModule &amp;outgoing);
+   ~ForwardedConnection();
+
+ private:
+   class ErrorEvent : public strmod::unievent::Event {
+    public:
+      ErrorEvent(ForwardedConnection &amp;parent)
+           : parent_(parent), parentgood_(true)
+      {
+      }
+      virtual ~ErrorEvent() {}
+
+      virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+         if (parentgood_)
+         {
+            parent_.errorOccurred();
+         }
+      }
+
+      void parentGone() { parentgood_ = false; }
+
+    private:
+      ForwardedConnection &amp;parent_;
+      bool parentgood_;
+   };
+   friend class ErrorEvent;
+
+   SocketModule &amp;incoming_;
+   SocketModule &amp;outgoing_;
+   strmod::unievent::EventPtrT&lt;ErrorEvent&gt; errev_;
+
+   void errorOccurred();
+};
+
+ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
+                                         SocketModule &amp;outgoing)
+     : incoming_(incoming), outgoing_(outgoing), errev_(new ErrorEvent(*this))
+{
+   using strmod::strmod::StreamFDModule;
+
+   incoming_.makePlug(0)-&gt;plugInto( *(outgoing_.makePlug(0)) );
+
+   incoming_.onErrorIn(StreamFDModule::ErrRead, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrWrite, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrGeneral, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrFatal, errev_);
+
+   outgoing_.onErrorIn(StreamFDModule::ErrRead, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrWrite, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrGeneral, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrFatal, errev_);
+}
+
+ForwardedConnection::~ForwardedConnection()
+{
+   delete &amp;incoming_;
+   delete &amp;outgoing_;
+   errev_-&gt;parentGone();
+}
+
+void ForwardedConnection::errorOccurred()
+{
+   std::cerr &lt;&lt; "Closing down a connection due to an error!\n";
+   delete this;
+}
+
+//----
+
+class Listener {
+ public:
+   Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+            Dispatcher &amp;disp, UNIXpollManager &amp;pman);
+   ~Listener();
+
+   //! Called once a loop from the event dispatching loop.
+   void doPoll();
+
+ private:
+   SockListenModule *listener_;
+   SockListenModule::SLPlug *lplug_;
+   SocketAddress * const from_;
+   SocketAddress * const to_;
+   Dispatcher &amp;disp_;
+   UNIXpollManager &amp;pman_;
+};
+
+Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+                   Dispatcher &amp;disp, UNIXpollManager &amp;pman)
+     : listener_(NULL), lplug_(NULL), from_(from.Copy()), to_(to.Copy()),
+       disp_(disp), pman_(pman)
+{
+   listener_ = new SockListenModule(*from_, disp, pman, 2);
+   lplug_ = listener_-&gt;makePlug();
+}
+
+Listener::~Listener()
+{
+   if (lplug_)
+   {
+      listener_-&gt;deletePlug(lplug_);
+      lplug_ = NULL;
+   }
+   delete listener_;
+   delete from_;
+   delete to_;
+}
+
+void Listener::doPoll()
+{
+   if (listener_ &amp;&amp; listener_-&gt;hasError())
+   {
+      // If the listener has an error, print the error.
+      {
+         using std::cerr;
+         char errbuf[256];  // Magic number!
+         listener_-&gt;getError().getErrorString(errbuf, sizeof(errbuf) - 1);
+         cerr &lt;&lt; "Listening socket has this error: ("
+              &lt;&lt; listener_-&gt;getError().getSyscallName()
+              &lt;&lt; ") " &lt;&lt; errbuf &lt;&lt; "\n";
+      }
+
+      // Then tear down the listening socket and try to rebuild it.
+      if (lplug_)
+      {
+         listener_-&gt;deletePlug(lplug_);
+         lplug_ = NULL;
+      }
+      delete listener_;
+      listener_ = NULL;
+   }
+   if (!listener_)
+   {
+      listener_ = new SockListenModule(*from_, disp_, pman_, 2);
+      lplug_ = listener_-&gt;makePlug();
+   }
+   if (lplug_ &amp;&amp; lplug_-&gt;isReadable())
+   {
+      strmod::strmod::SocketModuleChunkPtr smcp = lplug_-&gt;getConnection();
+      SocketModule *incoming = smcp-&gt;getModule();
+      if (incoming)
+      {
+         SocketModule *outgoing = new SocketModule(*to_, disp_, pman_, false);
+         new ForwardedConnection(*incoming, *outgoing);
+      }
+   }
+}
+
+typedef std::list&lt;Listener *&gt; ListenerList;
+
+int main()
+{
+   strmod::unievent::SimpleDispatcher dispatcher;
+   strmod::unievent::UNIXpollManagerImp pollmanager(&amp;dispatcher);
+   ListenerList listeners;
+   using std::cin;
+   using std::cout;
+   using std::string;
+
+   do
+   {
+      U2Byte inport = 0;
+      string outaddr;
+      unsigned int outport = 0;
+
+      cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
+      if (cin)
+      {
+         InetAddress listenaddr(inport);
+         InetAddress destaddr(outaddr, outport);
+         Listener *listener = new Listener(listenaddr, destaddr,
+                                          dispatcher, pollmanager);
+         cout &lt;&lt; "Accepting connections on port " &lt;&lt; inport
+              &lt;&lt; " and redirecting data to a connection to "
+              &lt;&lt; outaddr &lt;&lt; " port " &lt;&lt; outport &lt;&lt; "\n";
+         listeners.push_front(listener);  // Reverse order so they get deleted
+      }                                   // in reverse order later.
+   } while (cin);
+
+   while (1)
+   {
+      dispatcher.dispatchEvent();
+      {
+         // This is a technique for lowering the cost of the i != end statement
+         const ListenerList::iterator end = listeners.end();
+         for (ListenerList::iterator i = listeners.begin(); i != end; ++i)
+         {
+            (*i)-&gt;doPoll();
+         }
+      }
+   }
+
+   {
+      // This is a technique for lowering the cost of the i != end statement
+      const ListenerList::iterator end = listeners.end();
+      for (ListenerList::iterator i = listeners.begin(); i != end; ++i)
+      {
+         delete *i;
+         *i = NULL;
+      }
+   }
+   return 0;
+}</pre>
+
+<p>Now, it might be nice to test this out on a Linux box.  Here are some tests
+you can run.  Commands here will be preceeded by '%' signs.  Things you type
+will be in blue, and the output will be in black.</p>
+
+<pre class="codeblock">% <span class="input">g++3 -I ../libNet/include PortForward.cxx -o portforward -L ../libNet/generated/lib -lNet</span>
+% <span class="input">(echo '7000 localhost 22' ; echo '7001 irc.openprojects.net 6667')</span>
+7000 localhost 22
+7001 irc.openprojects.net 6667
+% <span class="input">(echo '7000 localhost 22' ; echo '7001
+irc.openprojects.net 6667') | ./portforward</span>
+readevptr_ == 0x808f760
+errorevptr_ == 0x8090118
+Accepting connections on port 7000 and redirecting data to a connection to localhost port 22
+readevptr_ == 0x8090f70
+errorevptr_ == 0x8090f88
+Accepting connections on port 7001 and redirecting data to a connection to
+irc.openprojects.net port 6667</pre>
+
+<p>In another window type:</p>
+
+<pre class="line">% <span class="input">ssh -p 7000 localhost</span></pre>
+
+<p>You'll get an ssh session to your own computer (provided you are running an
+ssh daemon).  If you start up an IRC client and point it to localhost, port
+7001 as your server, it will act like it connects to irc.openprojects.net
+(provided of course, that you are connected to the Internet at large).  You'll
+be able to start up multiple ssh sessions, and use them simultaneously with
+your IRC session.</p>
+
+</pre>
 </body>
 </html>
