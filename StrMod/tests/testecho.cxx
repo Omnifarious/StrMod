@@ -4,7 +4,6 @@
 #include <Dispatch/dispatcher.h>
 #include <EHnet++/InetAddress.h>
 #include <iostream.h>
-#include <rw/cstring.h>
 #include <assert.h>
 
 int main(int argc, char *argv[])

@@ -6,7 +6,6 @@
 #include <iostream.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <ibmpp/String.h>
 
 extern "C" exit(int);
 extern "C" void perror(const char *);
