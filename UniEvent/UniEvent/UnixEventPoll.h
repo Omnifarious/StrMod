@@ -30,17 +30,22 @@ class UnixEventPoll : public UnixEventRegistry {
 
    virtual bool registerFDCond(int fd,
                                const FDCondSet &condbits,
-                               const EventPtr &ev) = 0;
+                               const EventPtr &ev);
 
-   virtual void freeFD(int fd) = 0;
+   virtual void freeFD(int fd);
 
-   virtual void onSignal(int signo, const EventPtr &e, bool oneshot = true) = 0;
+   virtual void onSignal(int signo, const EventPtr &e, bool oneshot = true);
 
-   virtual void clearSignal(int signo, const EventPtr &e) = 0;
+   virtual void clearSignal(int signo, const EventPtr &e);
 
-   virtual void clearSignal(int signo) = 0;
+   virtual void clearSignal(int signo);
 
-   virtual void doPoll(bool wait = true) = 0;
+   virtual void doPoll(bool wait = false);
+
+ private:
+   class Imp;
+
+   Imp &impl_;
 };
 
 } // namespace unievent
