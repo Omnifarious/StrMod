@@ -11,7 +11,7 @@
 #include "UniEvent/Event.h"
 #include "UniEvent/EventPtr.h"
 #include "UniEvent/Dispatcher.h"
-#include <multimap.h>
+#include <map>
 #include <functional>
 #include <ctime>
 #include <sys/time.h>
@@ -19,7 +19,6 @@
 
 namespace strmod {
 namespace unievent {
-namespace {
 
 const UNEVT_ClassIdent UNIXTimer::identifier(13UL);
 
@@ -29,6 +28,8 @@ inline bool norm_lessthan(const Timer::interval_t &a,
    return (a.seconds < b.seconds) ||
       ((a.seconds == b.seconds) && (a.nanoseconds < b.nanoseconds));
 }
+
+namespace {
 
 class norm_int_lessthan : public std::binary_function<const Timer::interval_t &,
                           const Timer::interval_t &, bool>
@@ -41,7 +42,11 @@ class norm_int_lessthan : public std::binary_function<const Timer::interval_t &,
    }
 };
 
+}
+
 typedef std::multimap<Timer::interval_t, EventPtr, norm_int_lessthan> SortedIntervals;
+
+namespace {
 
 class TimerEvent : public Event {
    friend class UNIXTimer;
@@ -72,6 +77,8 @@ void TimerEvent::triggerEvent(Dispatcher *dispatcher)
    {
       parent_->checkAlarms();
    }
+}
+
 }
 
 typedef ::timeval timeval;
@@ -232,6 +239,5 @@ void UNIXTimer::resetAlarm(const interval_t &asofthis)
    setitimer(ITIMER_REAL, &ittv, 0);
 }
 
-};  // Anonymous namespace
-};  // namespace unievent
-};  // namespace strmod
+}  // namespace unievent
+}  // namespace strmod

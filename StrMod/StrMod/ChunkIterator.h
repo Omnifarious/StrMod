@@ -38,14 +38,19 @@ namespace strmod {
 /** \clsss StrChunk::__iterator ChunkIterator.h StrMod/ChunkIterator.h
  * The const_iterator class for StrChunk.
  */
-class StrChunk::__iterator :
-   public std::bidirectional_iterator<const U1Byte, int>
+class StrChunk::__iterator
 {
  private:
    class shared;
    friend class shared;
 
  public:
+   typedef ::std::bidirectional_iterator_tag iterator_category;
+   typedef U1Byte value_type;
+   typedef int difference_type;
+   typedef const U1Byte *pointer;
+   typedef const U1Byte &reference;
+
    //! Creates an iterator that's always at the end()
    __iterator();
    //! Creates an interator pointat the beginning of a StrChunk.
@@ -99,6 +104,7 @@ class StrChunk::__iterator :
 
  private:
    class ExtVisitor;
+   friend class ExtVisitor;
    shared *shared_;
    unsigned int abspos_;
    unsigned int extpos_;

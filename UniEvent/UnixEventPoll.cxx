@@ -19,9 +19,10 @@
 
 namespace strmod {
 namespace unievent {
-namespace {
 
 typedef UnixEventPoll::FDCondSet FDCondSet;
+
+namespace {
 
 struct pollstruct : public ::pollfd
 {
@@ -38,6 +39,9 @@ struct FDEvent {
    FDEvent(const EventPtr ev, const FDCondSet &condset)
         : ev_(ev), condset_(condset) { }
 };
+
+}
+
 using ::std::multimap;
 using ::std::vector;
 typedef multimap<int, FDEvent> FDMap;
@@ -213,6 +217,5 @@ void UnixEventPoll::printState(::std::ostream &os) const
    os << "Map contains " << impl_.fdmap_.size() << " entries.\n";
 }
 
-} // Anonymous namespace
 } // namespace unievent
 } // namespace strmod

@@ -127,7 +127,7 @@ class RouterModule : public StreamModule {
 
 //---
 
-class RouterModule::RPlug : public Plug {
+class RouterModule::RPlug : public StreamModule::Plug {
    friend class RouterModule;
  public:
    static const STR_ClassIdent identifier;

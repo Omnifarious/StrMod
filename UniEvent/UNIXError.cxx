@@ -26,6 +26,9 @@
 
 #include "UniEvent/UNIXError.h"
 #include <cstring>
+#include <cstddef>
+
+extern "C" char *strerror_r (int __errnum, char *__buf, size_t __buflen);
 
 namespace strmod {
 namespace unievent {

@@ -125,7 +125,9 @@ class SockListenModule : public StreamModule {
    class FDPollEv;
    friend class FDPollEv;
    class FDPollRdEv;
+   friend class FDPollRdEv;
    class FDPollErEv;
+   friend class FDPollErEv;
 
  public:
    class SLPlug;  // Declared at end of public section for clarity.

@@ -38,7 +38,7 @@ namespace strmod {
 namespace strmod {
 
 class TelnetChunkBuilder;
-template <int n> class PreAllocBuffer;
+template <unsigned int n> class PreAllocBuffer;
 
 /** \class TelnetParser TelnetParser.h StrMod/TelnetParser.h
  * Class for parsing out a stream of characters into telnet protocol

@@ -76,6 +76,7 @@ class TelnetChunker : public StreamProcessor {
  private:
    class DataFunctor;
    class Internals;
+   friend class Internals;
    Internals &data_;
 };
 

@@ -50,8 +50,6 @@
 namespace strmod {
 namespace strmod {
 
-using unievent::UNIXError;
-
 const STR_ClassIdent SockListenModule::identifier(13UL);
 const STR_ClassIdent SockListenModule::SLPlug::identifier(14UL);
 const STR_ClassIdent SocketModuleChunk::identifier(15UL);
@@ -60,7 +58,7 @@ const STR_ClassIdent SocketModuleChunk::identifier(15UL);
 // <p>The sub event classes don't do anything except call parent class
 // protected functions.  The only reason they exist is to avoid having
 // a switch statement in the parent.</p>
-class SockListenModule::FDPollEv : public UNIXpollManager::PollEvent {
+class SockListenModule::FDPollEv : public unievent::UNIXpollManager::PollEvent {
  public:
    inline FDPollEv(SockListenModule &parent);
    virtual ~FDPollEv()                                 { }
@@ -132,6 +130,7 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
 	myaddr_(*(bind_addr.Copy())),
 	disp_(disp), pmgr_(pmgr), readevptr_(0), errorevptr_(0)
 {
+   using unievent::UNIXError;
    sockfd_ = socket(myaddr_.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC);
    if (sockfd_ < 0)
    {
@@ -215,6 +214,7 @@ SockListenModule::~SockListenModule()
 
 void SockListenModule::eventRead(unsigned int condbits)
 {
+   using unievent::UNIXError;
    checking_read_ = false;
    if (!(condbits & UNIXpollManager::FD_Readable))
    {
@@ -230,6 +230,7 @@ void SockListenModule::eventRead(unsigned int condbits)
 
 void SockListenModule::eventError(unsigned int condbits)
 {
+   using unievent::UNIXError;
    setError(UNIXError("<none>", 0,
                       LCoreError("Got error condition",
                                  LCORE_GET_COMPILERINFO())));
@@ -237,6 +238,7 @@ void SockListenModule::eventError(unsigned int condbits)
 
 void SockListenModule::doAccept()
 {
+   using unievent::UNIXError;
    assert(newmodule_ == 0);
 
    if (newmodule_ != 0)
@@ -331,6 +333,7 @@ void SockListenModule::doAccept()
 
 void SockListenModule::clearError() throw()
 {
+   using unievent::UNIXError;
    if (has_error_)
    {
       (reinterpret_cast<UNIXError *>(errorstore_))->~UNIXError();
@@ -338,14 +341,16 @@ void SockListenModule::clearError() throw()
    }
 }
 
-const UNIXError &SockListenModule::getError() const throw()
+const unievent::UNIXError &SockListenModule::getError() const throw()
 {
+   using unievent::UNIXError;
    const void *raw = errorstore_;
    return *reinterpret_cast<const UNIXError *>(raw);
 }
 
-void SockListenModule::setError(const UNIXError &err) throw()
+void SockListenModule::setError(const unievent::UNIXError &err) throw()
 {
+   using unievent::UNIXError;
    void *raw = errorstore_;
    UNIXError *store = reinterpret_cast<UNIXError *>(raw);
    if (has_error_)

@@ -72,10 +72,15 @@ class StreamFDModule : public StreamModule {
    class EvMixin;
    friend class EvMixin;
    class FDPollRdEv;
+   friend class FDPollRdEv;
    class FDPollWrEv;
+   friend class FDPollWrEv;
    class FDPollErEv;
+   friend class FDPollErEv;
    class ResumeReadEv;
+   friend class ResumeReadEv;
    class ResumeWriteEv;
+   friend class ResumeWriteEv;
 
  public:
    /** What directions is IO checked in?

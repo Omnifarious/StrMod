@@ -206,9 +206,12 @@ class SimpleMultiplexer : public StreamModule {
  private:
    typedef std::list<MultiPlug *> MPlugList;
    class mpother_readable_p;
+   friend class mpother_readable_p;
    class mp_notpluggedin_p;
    class mp_written_p;
+   friend class mp_written_p;
    class auto_mpptr;
+   friend class auto_mpptr;
    class ScanEvent;
    friend class ScanEvent;
 

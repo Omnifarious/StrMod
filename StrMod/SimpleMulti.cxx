@@ -324,7 +324,7 @@ class SimpleMultiplexer::auto_mpptr
 //: Find MultiPlugs that are plugged in.
 class SimpleMultiplexer::mp_notpluggedin_p {
  public:
-   bool operator ()(MultiPlug *p) {
+   bool operator ()(Plug *p) {
       return(p->pluggedInto() == 0);
    }
 };

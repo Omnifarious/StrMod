@@ -34,10 +34,6 @@
 
 namespace strmod {
 namespace unievent {
-namespace {
-
-void *interruptBlock();
-void interruptUnblock(void *data);
 
 class SimpleDispatcher::Imp {
  public:
@@ -61,6 +57,13 @@ class SimpleDispatcher::Imp {
    volatile sig_atomic_t interrupted_;
    Event *curevt_;
 };
+
+namespace {
+
+void *interruptBlock();
+void interruptUnblock(void *data);
+
+}
 
 inline void SimpleDispatcher::Imp::EVList::addElement(Event *ev)
 {
@@ -382,6 +385,5 @@ void interruptUnblock(void *data)
    delete origset;
 }
 
-}; // anonymous namespace
-}; // namespace unievent
-}; // namespace strmod
+} // namespace unievent
+} // namespace strmod

@@ -98,7 +98,10 @@ class UNIXpollManagerImp : public UNIXpollManager {
 		     bool isPoll, const EventPtr &ev);
    };
    typedef std::list<EVEntry> EVList;
-   struct FDInfo {
+   struct FDInfo;
+   friend struct FDInfo;
+   struct FDInfo
+   {
       unsigned int condmask_;
       EVList evlist_;
 

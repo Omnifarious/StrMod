@@ -40,7 +40,6 @@ typedef struct sigaction i_sigaction;
 
 namespace strmod {
 namespace unievent {
-namespace {
 
 typedef ::i_sigaction local_sigaction;
 
@@ -335,6 +334,5 @@ void UNIXSignalHandler::sigOccured(int signo)
    disp_.interrupt();
 }
 
-};  // anonymous namespace
-};  // namespace unievent
-};  // namespace strmod
+}  // namespace unievent
+}  // namespace strmod
