@@ -258,6 +258,6 @@ simple_bitset<Tsize>::to_string() const
    return _base_simple_bitset::to_string(bits_, bitslen_, topmask_);
 }
 
-// #include <LCore/simple_bitset_optim.h>
+#include <LCore/simple_bitset_optim.h>
 
 #endif
