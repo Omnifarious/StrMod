@@ -20,7 +20,6 @@
 namespace strmod {
 namespace unievent {
 
-class Dispatcher;
 class EventPtr;
 
 /** \class Timer Timer.h UniEvent/Timer.h
@@ -104,8 +103,10 @@ class Timer : public Protocol {
       return (identifier == cid) || Protocol::AreYouA(cid);
    }
 
-   virtual void postAt(const absolute_t &t, const unievent::EventPtr &ev) = 0;
-   virtual void postIn(const interval_t &off, const unievent::EventPtr &ev) = 0;
+   //! Post an event at a particular time
+   virtual void postAt(const absolute_t &t, const EventPtr &ev) = 0;
+   //! Post an event after a certain amount of time has expired.
+   virtual void postIn(const interval_t &off, const EventPtr &ev) = 0;
 
  protected:
    inline virtual const ClassIdent *i_GetIdent() const   { return &identifier; }
