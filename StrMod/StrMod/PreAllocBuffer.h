@@ -31,7 +31,7 @@ class PreAllocBufferBase : public BufferChunk {
    //: See class Debugable
    virtual void printState(ostream &os) const = 0;
 
-   virtual void Resize(unsigned int newsize) throw(bad_alloc) = 0;
+   virtual void resize(unsigned int newsize) throw(bad_alloc) = 0;
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
@@ -60,6 +60,9 @@ class PreAllocBufferBase : public BufferChunk {
 template <unsigned int TInitialAlloc>
 class PreAllocBuffer : public PreAllocBufferBase {
  public:
+   // There isn't any identifier here because there's no good way (in the
+   // identifier system) to generate a unique identifier for every template
+   // instantiation.
    inline PreAllocBuffer();
    inline virtual ~PreAllocBuffer();
 
@@ -67,11 +70,9 @@ class PreAllocBuffer : public PreAllocBufferBase {
 
    inline virtual void printState(ostream &os) const;
 
-   inline virtual void Resize(unsigned int newsize) throw(bad_alloc);
+   inline virtual void resize(unsigned int newsize) throw(bad_alloc);
 
  private:
-   // Made private and left undefined on purpose.
-   static const STR_ClassIdent identifier;
    U1Byte preallocbuf_[TInitialAlloc];
 };
 
@@ -109,7 +110,7 @@ inline void PreAllocBuffer<TInitialAlloc>::printState(ostream &os) const
 
 template <unsigned int TInitialAlloc>
 inline void
-PreAllocBuffer<TInitialAlloc>::Resize(unsigned int newsize) throw(bad_alloc)
+PreAllocBuffer<TInitialAlloc>::resize(unsigned int newsize) throw(bad_alloc)
 {
    i_resize(newsize, TInitialAlloc, preallocbuf_);
 }
