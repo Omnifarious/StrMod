@@ -29,6 +29,8 @@
 //! Anti-double inclusion macro.
 #define _LCORE_LCoreError_H_
 
+#include <iosfwd>
+
 /** \file LCore/LCoreError.h
  * This file defines LCORE_GET_COMPILERINFO, and contains LCoreError, and
  * LCoreError::CompilerInfo.
@@ -170,8 +172,6 @@ inline LCoreError::CompilerInfo::CompilerInfo(const char *sourcefile,
 
 //--
 
-class ostream;
-
-ostream &operator <<(ostream &os, const LCoreError &err);
+std::ostream &operator <<(std::ostream &os, const LCoreError &err);
 
 #endif

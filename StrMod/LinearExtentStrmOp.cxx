@@ -32,7 +32,7 @@
 namespace strmod {
 namespace strmod {
 
-ostream &operator <<(ostream &os, const LinearExtent &ext)
+std::ostream &operator <<(std::ostream &os, const LinearExtent &ext)
 {
 #ifdef __GNUG__
    unsigned long long end;

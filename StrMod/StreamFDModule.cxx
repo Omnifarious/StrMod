@@ -242,8 +242,8 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    void startChunk(const StrChunkPtr &chunk)
    {
       iovecs_.clear();
+      curvecidx_ = 0;
       totalbytes_ = curbyte_ = 0;
-      curvec_ = 0;
       curchunk_ = chunk;
       try
       {
@@ -260,16 +260,16 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
       }
       else
       {
-         curvec_ = iovecs_.begin();
+         curvecidx_ = 0;
       }
    }
 
    //! How many bytes are left in the currently visited StrChunk?
-   size_t bytesLeft() const                { return totalbytes_ - curbyte_; }
+   size_t bytesLeft() const              { return totalbytes_ - curbyte_; }
    //! What iovec should be passed to the writev call?
-   inline iovec *getIOVec() const          { return curvec_; }
+   inline const iovec *getIOVec() const  { return &iovecs_[curvecidx_]; }
    //! How many iovec structures are left?
-   inline size_t numVecs() const           { return iovecs_.end() - curvec_; }
+   inline size_t numVecs() const         { return iovecs_.size() - curvecidx_; }
    //! Move forward by numbytes, setting it up so the other functions return the right values.
    void advanceBy(size_t numbytes);
 
@@ -280,7 +280,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
     */
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
-      throw(halt_visitation)               { }
+      throw(halt_visitation)             { }
 
    /*!
     * Add this new chunk of data to our list.
@@ -307,7 +307,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    StrChunkPtr curchunk_;
    size_t totalbytes_;
    size_t curbyte_;
-   iovecvec::iterator curvec_;
+   size_t curvecidx_;
    iovecvec iovecs_;
 
    // Private and left undefined on purpose.
@@ -316,7 +316,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
 };
 
 inline StreamFDModule::BufferList::BufferList()
-     : UseTrackingVisitor(true), totalbytes_(0), curbyte_(0), curvec_(0)
+     : UseTrackingVisitor(true), totalbytes_(0), curbyte_(0), curvecidx_(0)
 {
 }
 
@@ -331,28 +331,29 @@ inline void StreamFDModule::BufferList::advanceBy(size_t numbytes)
    {
       totalbytes_ = curbyte_ = 0;
       curchunk_.ReleasePtr();
-      curvec_ = 0;
+      curvecidx_ = 0;
       iovecs_.clear();
       return;
    }
 
    for (size_t bytestomove = numbytes; bytestomove > 0; )
    {
-      if (curvec_->iov_len <= bytestomove)
+      iovec &curvec = iovecs_[curvecidx_];
+      if (curvec.iov_len <= bytestomove)
       {
-         bytestomove -= curvec_->iov_len;
-         ++curvec_;
+         bytestomove -= curvec.iov_len;
+         ++curvecidx_;
       }
       else
       {
-         curvec_->iov_base =
-            static_cast<unsigned char *>(curvec_->iov_base) + bytestomove;
-         curvec_->iov_len -= bytestomove;
+         curvec.iov_base =
+            static_cast<unsigned char *>(curvec.iov_base) + bytestomove;
+         curvec.iov_len -= bytestomove;
          bytestomove = 0;
       }
    }
    curbyte_ += numbytes;
-   assert(curvec_ != iovecs_.end());
+   assert(curvecidx_ < iovecs_.size());
 }
 
 //---

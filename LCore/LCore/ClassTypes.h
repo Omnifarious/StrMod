@@ -46,6 +46,8 @@
 #  include <LCore/GenTypes.h>
 #endif
 
+#include <iosfwd>
+
 class ClassIdent;
 
 class ProgrammerNum : public Object {
@@ -91,8 +93,8 @@ class ClassIdent : public Object {
    ClassNum clnum;
 
  protected:
-   virtual void PrintOn(ostream &os) const;
-   virtual void PrintOn(ostream &os)                  { Object::PrintOn(os); }
+   virtual void PrintOn(std::ostream &os) const;
+   virtual void PrintOn(std::ostream &os)               { Object::PrintOn(os); }
    inline virtual int IsEqual(const Object &b) const;
    inline virtual const ClassIdent *i_GetIdent() const;
 

@@ -21,11 +21,6 @@
 // For a log, see ./ChangeLog
 // $Revision$
 
-#ifndef NO_RcsID
-static char _SocketModule_CC_rcsID[] =
-      "$Id$";
-#endif
-
 #ifdef __GNUG__
 #  pragma implementation "SocketModule.h"
 #endif

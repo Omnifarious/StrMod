@@ -41,7 +41,7 @@ void BufferChunk::acceptVisitor(ChunkVisitor &visitor)
    call_visitDataBlock(visitor, getVoidP(), buflen_);
 }
 
-void BufferChunk::printState(ostream &os) const
+void BufferChunk::printState(std::ostream &os) const
 {
    os << "BufferChunk(buf_ == " << buf_ << ", buflen_ == " << buflen_ << ")";
 }

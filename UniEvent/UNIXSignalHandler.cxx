@@ -36,9 +36,13 @@
 #include <signal.h>
 #include <unistd.h>
 
+typedef struct sigaction i_sigaction;
+
 namespace strmod {
 namespace unievent {
 namespace {
+
+typedef ::i_sigaction local_sigaction;
 
 const UNEVT_ClassIdent UNIXSignalHandler::identifier(11UL);
 
@@ -298,11 +302,11 @@ void UNIXSignalHandler::signalHandler(int signo)
 
 void UNIXSignalHandler::handleSignal(int signo)
 {
-   struct ::sigaction act;
+   local_sigaction act;
    act.sa_handler = signalHandler;
    sigemptyset(&act.sa_mask);
    act.sa_flags = 0;
-   if (sigaction(signo, &act, 0) != 0)
+   if (::sigaction(signo, &act, 0) != 0)
    {
       throw UNIXError("sigaction", errno, LCoreError(LCORE_GET_COMPILERINFO()));
    }
@@ -311,11 +315,11 @@ void UNIXSignalHandler::handleSignal(int signo)
 
 void UNIXSignalHandler::unHandleSignal(int signo)
 {
-   struct ::sigaction act;
+   local_sigaction act;
    act.sa_handler = SIG_DFL;
    sigemptyset(&act.sa_mask);
    act.sa_flags = 0;
-   sigaction(signo, &act, 0);
+   ::sigaction(signo, &act, 0);
    sigdelset(&imp_.handled_, signo);
 }
 

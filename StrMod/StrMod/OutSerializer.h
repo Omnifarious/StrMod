@@ -36,7 +36,7 @@
 
 #include <StrMod/BufferChunk.h>
 #include <LCore/GenTypes.h>
-#include <string.h>
+#include <cstring>
 #include <string>
 
 #define _STR_OutSerializer_H_
@@ -77,7 +77,7 @@ class OutSerializer {
 
    void addBool(bool val)                            { addU1Byte(U1Byte(val)); }
 
-   void addString(const string &str);
+   void addString(const std::string &str);
    void addString(const char *str);  // C style string.
 
    inline void addRaw(const void *data, size_t len);
@@ -217,7 +217,7 @@ inline OutSerializer &operator <<(OutSerializer &os, U4Byte num)
    return(os);
 }
 
-inline OutSerializer &operator <<(OutSerializer &os, const string &str)
+inline OutSerializer &operator <<(OutSerializer &os, const std::string &str)
 {
    os.addString(str);
    return(os);

@@ -66,14 +66,14 @@
 #endif
 
 #include <EHnet++/InetAddress.h>
-#include <ctype.h>
+#include <cctype>
 #include <sys/socket.h>
-#include <stdlib.h>
+#include <cstdlib>
 
-string InetAddress::AsString()
+std::string InetAddress::AsString()
 {
-   string portnum = ToDec(port);
-   string temp = hostname;
+   std::string portnum = ToDec(port);
+   std::string temp = hostname;
 
    /* I've seen a few alternative repesentations.  I guess the most common
       is the same as this, except with no "port ". */
@@ -84,7 +84,7 @@ string InetAddress::AsString()
    return(temp);
 }
 
-string InetAddress::GetHostname(bool forcelookup)
+std::string InetAddress::GetHostname(bool forcelookup)
 {
    if (forcelookup) {
       hostname = IaddrToName(inaddr);
@@ -127,7 +127,7 @@ const InetAddress &InetAddress::operator =(const sockaddr_in &iadr)
    return(*this);
 }
 
-InetAddress::InetAddress(const string &h_name, U2Byte prt) :
+InetAddress::InetAddress(const std::string &h_name, U2Byte prt) :
         hostname(h_name), port(prt)
 {
    const char *c_hostname;
@@ -184,7 +184,7 @@ InetAddress::InetAddress(const sockaddr_in &iadr) : port(0)
 
 void InetAddress::InvalidateAddress()
 {
-   hostname = string("invalid.host.name");
+   hostname = std::string("invalid.host.name");
 
    inaddr.sin_addr.s_addr = INADDR_ANY;
 }
@@ -241,10 +241,10 @@ bool InetAddress::AsciiToQInum(const char *s, int &i,
    return(true);
 }
 
-string InetAddress::ToDec(U2Byte num)
+std::string InetAddress::ToDec(U2Byte num)
 {
    U2Byte top = 10000;
-   string temp;
+   std::string temp;
 
    while (top > 0 && (num / top) < 1)
       top /= 10;

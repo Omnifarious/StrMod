@@ -1,3 +1,10 @@
+2002-02-05  Eric Hopper  <hopper@omnifarious.org>
+
+	* Everything: Fixed up things to work with new C++ standard
+	library that insists on the std:: namespace.  Removed RCS id
+	string because it isn't consistently included and of dubious
+	value.
+
 2001-09-14  Eric Hopper  <hopper@omnifarious.org>
 
 	* SimpleMulti.cxx (deletePlug): Changed an assert to a return of

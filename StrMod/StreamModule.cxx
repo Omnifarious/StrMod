@@ -20,10 +20,6 @@
 
 // For log information, see ChangeLog
 
-#ifndef NO_RcsID
-static char _EH_StreamModule_CC_rcsID[] = "$Id$";
-#endif
-
 #ifdef __GNUG__
 #  pragma implementation "StreamModule.h"
 #endif

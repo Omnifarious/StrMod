@@ -47,7 +47,7 @@ const STR_ClassIdent GraphVizVisitor::identifier(48UL);
  * @return A pointer to a StrChunk containing the data in the DAG flattened
  * into a single buffer.
  */
-const StrChunkPtr GraphVizVisitor::visit(const StrChunkPtr &root, ostream &out)
+const StrChunkPtr GraphVizVisitor::visit(const StrChunkPtr &root, std::ostream &out)
 {
    StrChunkPtr retval;
    static char name = 'A';
@@ -146,7 +146,7 @@ void GraphVizVisitor::printData(const void *data, size_t len)
       else
       {
          unsigned int val = tmp[i];
-         (*out_) << '\\' << oct << val;
+         (*out_) << '\\' << std::oct << val;
       }
    }
    (*out_) << "\"];\n";

@@ -160,7 +160,7 @@ void CharChopper::processIncoming()
 	       }
 	       else
 	       {
-		  curlen = max(usedshadow + usedshadow / 2, usedshadow + count);
+		  curlen = std::max(usedshadow + usedshadow / 2, usedshadow + count);
 	       }
 	       curdata_->resize(curlen);
 	    }

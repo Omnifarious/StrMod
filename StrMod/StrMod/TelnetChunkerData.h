@@ -27,6 +27,7 @@
 // For a log, see ../ChangeLog
 
 #include <cstddef>
+#include <stdexcept>
 #include <LCore/GenTypes.h>
 #include <StrMod/TelnetChunker.h>
 #include <StrMod/TelnetChars.h>
@@ -94,7 +95,7 @@ class TelnetChunker::SingleChar : public TelnetChunker::TelnetData {
 
    //! Convert the character to a member of the TelnetChars::Commands enum.
    inline static TelnetChars::Commands charToCommand(U1Byte c)
-      throw(domain_error);
+      throw(std::domain_error);
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }

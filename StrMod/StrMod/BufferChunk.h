@@ -33,6 +33,7 @@
 #include <LCore/GenTypes.h>
 #include <LCore/Debugable.h>
 #include <new>
+#include <iosfwd>
 
 #define _STR_BufferChunk_H_
 
@@ -64,7 +65,7 @@ class BufferChunk : public StrChunk, virtual public Debugable {
 
    inline virtual bool invariant() const;
 
-   virtual void printState(ostream &os) const;
+   virtual void printState(std::ostream &os) const;
 
    virtual unsigned int Length() const                  { return(buflen_); }
 
@@ -93,7 +94,7 @@ class BufferChunk : public StrChunk, virtual public Debugable {
     *
     * Throws bad_alloc if the allocation fails, just like operator new.
     */
-   virtual void resize(unsigned int newsize) throw(bad_alloc) = 0;
+   virtual void resize(unsigned int newsize) throw(std::bad_alloc) = 0;
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }

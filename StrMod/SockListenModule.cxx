@@ -22,11 +22,6 @@
 
 // $Revision$
 
-#ifndef NO_RcsID
-static char _SockListenModule_CC_rcsID[] =
-      "$Id$";
-#endif
-
 #ifdef __GNUG__
 #  pragma implementation "SockListenModule.h"
 #endif

@@ -32,10 +32,6 @@
 
 #define _STR_GraphVizVisitor_H_
 
-namespace std {
-class ostream;
-};
-
 namespace strmod {
 namespace strmod {
 

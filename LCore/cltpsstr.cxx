@@ -22,7 +22,7 @@
  /* UNIX:@@:ClassTypesSTR.cc:@@: */
 /* MSDOS:@@:CLTPSSTR.CPP:@@: */
 
-void ClassIdent::PrintOn(ostream &os) const
+void ClassIdent::PrintOn(std::ostream &os) const
 {
    os << "ClassIdent(Programmer #" << GetProgrammer().GetPrNum();
    os << ", Class #" << GetClass().GetClNum() << ')';

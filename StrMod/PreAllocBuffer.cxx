@@ -58,7 +58,7 @@ void PreAllocBufferBase::i_destruct(const U1Byte * const preallocbuf)
 
 void PreAllocBufferBase::i_resize(const unsigned int newsize,
                                   const unsigned int prebufsize,
-                                  U1Byte * const preallocbuf) throw(bad_alloc)
+                                  U1Byte * const preallocbuf) throw(std::bad_alloc)
 {
    if (newsize <= prebufsize)
    {
@@ -96,7 +96,7 @@ void PreAllocBufferBase::i_resize(const unsigned int newsize,
       }
       if (newbuf == 0)
       {
-	 throw bad_alloc();
+	 throw std::bad_alloc();
       }
       buf_ = newbuf;
       buflen_ = newsize;
@@ -120,7 +120,7 @@ bool PreAllocBufferBase::i_invariant(const unsigned int prebufsize,
    }
 }
 
-void PreAllocBufferBase::i_printState(ostream &os,
+void PreAllocBufferBase::i_printState(std::ostream &os,
 				      const unsigned int prebufsize,
 				      const void * const prebuf) const
 {
