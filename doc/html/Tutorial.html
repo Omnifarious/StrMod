@@ -823,9 +823,37 @@ the ForwardedConnection constructor that accomplishes this:</p>
 }</pre>
 
 <p>Yes, it <strong>is</strong> a lot of repetive code.  You are not mistaken.
-Now, all that's left is implmeneting
+Now, all that's left is implementing
 <code>ForwardedConnect::errorOccurred()</code>.  This can be a bit tricky if we
-want to do it 'correctly'.
+want to do it 'correctly'.  Doing it correctly is not strictly necessary for a
+functioning system.  In this case, correctly means that connections are not
+closed until they should be.</p>
+
+<p>The main issue is 'half-open' connections.  Since TCP connections are
+bi-directional, it is possible for a connection to be in a half-open state, so
+only one direction has data flowing.  If you immediately close both connections
+on error, this state cannot exist on connections going through the forwarder.
+Some programs and protocols do require half-open connections to function, but
+most do not.</p>
+
+<p>Here is an implementation of <code>ForwardedConnect::errorOccurred()</code>
+that does not hand half-open connections properly:</p>
+
+<pre class="codeblock">void ForwardedConnect::errorOccurred()
+{
+   delete this;
+}</pre>
+
+<p>As you see, the ForwardedConnection uses events to manage its own existence,
+and that's why it doesn't need to be put into a data structure that will manage
+its existence like the Listener objects need.</p>
+
+<p>If you look at the ForwardedConnection destructor, you can see that it just
+deletes the SocketModules it's keeping track of, and tell its event that it's
+going away.  Deleting the SocketModules has the effect of closing them.</p>
+
+<p>If you put all this together now, you should have a largely functional port
+forwarder.</p>
 
 </body>
 </html>
