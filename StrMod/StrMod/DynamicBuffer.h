@@ -17,7 +17,9 @@ class DynamicBuffer : public BufferChunk {
  public:
    static const STR_ClassIdent identifier;
 
-   DynamicBuffer()                             { }
+   DynamicBuffer()                                      { }
+   DynamicBuffer(unsigned int len) throw(bad_alloc);
+   DynamicBuffer(const void *data, unsigned int len) throw(bad_alloc);
    virtual ~DynamicBuffer();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
@@ -28,7 +30,7 @@ class DynamicBuffer : public BufferChunk {
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
 
    virtual void i_DropUnused(const LinearExtent &usedextent,
-			     KeepDir keepdir)      { }
+			     KeepDir keepdir)           { }
 };
 
 //-----------------------------inline functions--------------------------------

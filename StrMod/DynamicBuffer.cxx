@@ -8,10 +8,23 @@
 
 #include "StrMod/DynamicBuffer.h"
 #include <cstdlib>
+#include <cstring>  // memcpy
 #include <new>
 #include <cassert>
 
 const STR_ClassIdent DynamicBuffer::identifier(39UL);
+
+DynamicBuffer::DynamicBuffer(unsigned int len) throw(bad_alloc)
+{
+   resize(len);
+}
+
+DynamicBuffer::DynamicBuffer(const void *data,
+			     unsigned int len) throw(bad_alloc)
+{
+   resize(len);
+   memcpy(buf_, data, len);
+}
 
 DynamicBuffer::~DynamicBuffer()
 {
