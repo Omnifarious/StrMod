@@ -36,18 +36,19 @@ OBJDIR = $(MYOUTDIR)/obj
 LIBDIR = $(MYOUTDIR)/lib
 LIBSRC = $(MYOUTDIR)/lib_src
 
+# TelnetParser.cxx  SimpleTelnetClient.cxx  StreamFDModule.cxx
 LIBCXX = EchoModule.cxx  STR_ClassIdent.cxx  StreamModule.cxx  \
-         StrChunk.cxx  StrChunkPtr.cxx  LinearExtent.cxx  GroupVector.cxx \
-         GV_Iterator.cxx  StrSubChunk.cxx  GroupChunk.cxx \
+         StrChunk.cxx  StrChunkPtr.cxx  LinearExtent.cxx \
+         StrSubChunk.cxx  GroupChunk.cxx \
          LinearExtentStrmOp.cxx  StrChunkPtrT.cxx  OutSerializer.cxx \
-         InSerializer.cxx  StreamFDModule.cxx  StreamSplitter.cxx \
+         InSerializer.cxx  StreamSplitter.cxx \
          SocketModule.cxx  SockListenModule.cxx  EOFStrChunk.cxx  FDUtil.cxx \
          SimpleMulti.cxx  StreamProcessor.cxx  ProcessorModule.cxx \
          CharChopper.cxx  PassThrough.cxx  NewlineChopper.cxx  BufferChunk.cxx \
          PreAllocBuffer.cxx  DynamicBuffer.cxx  BufferChunkFactory.cxx \
-         InfiniteModule.cxx  TelnetParser.cxx  SimpleTelnetClient.cxx \
+         InfiniteModule.cxx  \
          ChunkVisitor.cxx  UseTrackingVisitor.cxx  GraphVizVisitor.cxx \
-         ChunkIterator.cxx
+         ChunkIterator.cxx  StaticBuffer.cxx
 
 TESTCCS = tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx  \
           tests/testecho.cxx   tests/testsock.cxx tests/echoserv.cxx  \
