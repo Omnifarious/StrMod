@@ -1,3 +1,115 @@
+2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UnixEventPoll.cxx: Fixed a big bug which would cause doPoll to
+	fail if ever more than one file descriptor was registered.
+	(Forgot to increment i at the end of a while loop.)
+
+	Changed to automatically kick out file descriptors that have been
+	closed or are invalid to kill off infinite loops.
+
+2002-03-13  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* tests/testupoll.cxx: The test works now.  Removed code to chop
+	newline from the end if the string read by getline because getline
+	already does it.
+
+	* UnixEventPoll.cxx: Removed lots of debugging prints.
+
+	* SimpleDispatcherImp.cxx: Put an anonymous namespace wrapper
+	around a couple of functions that needed it.
+
+	* UniEvent/UNIXpollManagerImp.h, SimpleDispatcherImp.cxx,
+	UNIXError.cxx, UnixEventPoll.cxx, UNIXSignalHandler.cxx,
+	UNIXTimer.cxx: Numerous good changes to appease AIX's much
+	stricter compiler.  Now much more tight about exactly where names
+	are accessible.
+
+2002-03-12  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/Dispatcher.h, UniEvent/Event.h, UniEvent/EventPtr.h,
+	UniEvent/EventPtrT.h, UniEvent/UNEVT_ClassIdent.h,
+	UniEvent/UNIXError.h, UniEvent/UNIXpollManager.h: Fixed many small
+	things the Solaris compiler doesn't like.  Removed ;'s after the
+	closing } of namespaces.  Removed redeclaration of default
+	argument values in a few places.
+
+	* tests/testupoll.cxx: More attempts to ferret out the problem.
+	GCC bug?
+
+	* UnixEventPoll.cxx: Added in new simple_bitset class so I have
+	cleaner bitset code in order to debug things.
+
+2002-03-08  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* InterruptibleDispatcher.cxx, UniEvent/InterruptibleDispatcher.h,
+	UnixEventPoll.cxx: More testing, seems something's wrong with STLs
+	bitset.
+
+	* Makefile.in, tests/testupoll.cxx, UniEvent/UnixEventPoll.h,
+	UnixEventPoll.cxx: In the middle of testing and debugging.  Added
+	to library makefile.
+
+2002-03-07  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UnixEventPoll.cxx: Fleshed out doPoll even more.
+
+	* UnixEventPoll.cxx: Fleshed out doPoll some more.
+
+	* UnixEventPoll.cxx: Fleshed out doPoll a bit.
+
+	* UnixEventPoll.cxx: Partly done, needs more work.
+
+	* UniEvent/UnixEventPoll.h, UniEvent/UnixEventRegistry.h: Minor
+	cleanups.  Changed bool function to void.
+
+2002-03-06  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/UnixEventPoll.h: Moved forward a bit.
+
+	* UniEvent/UnixEventRegistry.h: Changed default sense of doPoll.
+
+2002-03-01  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/UnixEventPoll.h, UniEvent/UnixEventRegistry.h: Half
+	finished beginning of a new Unix event system.
+
+2002-02-28  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UnixEventRegistry.cxx: Initial version.  Just the .cxx
+	stub for an interface.
+
+	* UniEvent/UnixEventRegistry.h: Changed name to UnixEventRegistry
+	and added interface for signals.
+
+2002-02-27  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/UnixEventRegistry.h: More tiny changes.
+
+2002-02-26  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/UnixEventRegistry.h: More editing.  :-)
+
+	* UniEvent/UnixEventRegistry.h: Building a replacement for
+	UNIXpollManager and the signal handling stuff.
+
+2002-02-10  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/UNIXpollManagerImp.h: More small changes to make work
+	better with standard C++.
+
+	* tests/testdisp.cxx, tests/testsimple.cxx, tests/testUPoll.cxx,
+	UNEVT_ClassIdent.cxx, UniEvent/UNEVT_ClassIdent.h,
+	UniEvent/UNIXpollManager.h: More changes to make work better with
+	standard C++.  Also, added a bit of documentation to try to make
+	doxygen happy.
+
+2002-02-05  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* /home/hopper/src/cvs/C++/UniEvent/ChangeLog, /home/hopper/src/cvs/C++/UniEvent/UNIXSignalHandler.cxx:
+	Fixed up things to work with new C++ standard library that insists on
+	the std:: namespace.  Removed RCS id string because it isn't
+	consistently included and of dubious value.
+
 2002-02-05  Eric Hopper  <hopper@omnifarious.org>
 
 	* Everything: Fixed up things to work with new C++ standard
