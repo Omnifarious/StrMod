@@ -7,6 +7,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.3  1996/07/05 19:39:23  hopper
+ // Minor change.
+ //
  // Revision 1.2  1996/07/03 03:44:36  hopper
  // Made some necessary changes to make this work with new StrChunk style.
  //
@@ -114,7 +117,7 @@ class SplitterModule : public StreamModule {
 
 //----------------------------class SplitterPlug-------------------------------
 
-class StrChunk;
+class StrChunkPtr;
 
 class SplitterPlug : public StrPlug {
    friend class SplitterModule;
