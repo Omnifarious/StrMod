@@ -1,17 +1,18 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-    "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <!-- Copyright 1999 by Eric Hopper. -->
 <!-- You should've received a copy of the GNU Lesser General Public License -->
 <!-- along with this document; if not, write to the Free Software           -->
 <!-- Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.              -->
 <head>
   <title>UNIDispatcher subsystem manual</title>
-  <meta name="AUTHOR" content="Eric Hopper">
-  <meta name="description"
-  content="A Manual describing how to use a                             UNIDispatcher, and other, related classes.">
-  <meta name="revision" content="$Revision$" </head>
-  <meta http-equiv="Content-Type" content="text/html">
+  <meta name="AUTHOR" content="Eric Hopper" />
+  <meta name="description" content="A Manual describing how to use a                             UNIDispatcher, and other, related classes."
+  />
+  <meta name="revision" content="$Revision$" />
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 </head>
 
 <body>
@@ -33,7 +34,7 @@
         </dt>
           <dd><p>A UNIEvent is the object that the UNIDispatcher holds in a
             qeue and 'fires' by calling its <a
-            href="../doxygen/classUNIEvent.html#a3">TriggerEvent</a> method. 
+            href="../doxygen/classUNIEvent.html#a3">TriggerEvent</a> method.
             It behaves a little like a function pointer that's pointing at a
             function that takes as an argument the dispatcher that fired the
             event.  UNIEvents are supposed to be re-used, and not created
