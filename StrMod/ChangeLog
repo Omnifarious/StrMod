@@ -1,3 +1,42 @@
+1998-12-30  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testsplit.cxx: A new test that tests StreamFDModules,
+	EchoModules, and StreamSplitterModules together.  It just copies
+	stdin to stdout.
+
+	* StreamSplitter.cxx: 
+	* StrMod/StreamSplitter.h: Completely overhauled this class to fit
+	within the new StreamModule system.
+
+	* StrMod/StreamModule.h: Numerous changes to cause StreamModules
+	to have a much more aggresive policy with regards to pushing data
+	through the system.  The creation of the SplitterModule had
+	introduced a case in which the data stream could become stalled.
+	These have been fixed.
+
+	* StrChunkPtr.cxx: 
+	* StrMod/StrChunkPtrT.h: 
+	* StrMod/StrChunkPtr.h: 
+	* StrMod/StrChunk.h: Changed the whole face of the StrChunkPtr
+	class to be derived from RefCountPtrT<StrChunk> because with
+	current compiler has rendered this a safe thing to do, and it more
+	accurately reflects semantics anyway.  As part of this, StrChunk
+	has also been changed to derive from ReferenceCounting, because
+	that is also more consistent with semantics, and allows the
+	previously mentioned change.
+
+	* STR_ClassIdent.cxx: Changed some class name comments to reflect
+	new class names.
+
+	* EchoModule.cxx (otherIsWriteable):
+	(otherIsReadable): Added some code to make sure all of the plug
+	readable/writeable flags were set properly in all situations.
+
+1998-12-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* DBStrChunk.cxx: Removed a couple of lines that were used for
+	debugging.
+
 1998-11-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* STR_ClassIdent.cxx: Changed a couple of comments to better
