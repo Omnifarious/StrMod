@@ -651,7 +651,7 @@ external memory management. In other words, the connection pair object can
 manage its own existence.</p>
 
 <p>Here's some preliminary code for <code>ForwardedConnection</code>:</p>
-<pre class="codebase">class ForwardedConnection {
+<pre class="codeblock">class ForwardedConnection {
  public:
    ForwardedConnection(SocketModule &amp;incoming, SocketModule &amp;outgoing);
    ~ForwardedConnection();
@@ -702,7 +702,29 @@ counted pointer to keep track of it.  Lastly, the event will need to call on of
 our own functions when triggered, so we'll need to create our own event class
 that knows what thing it needs to call back.</p>
 
+<p>Here's a preliminary sketch of what the event class would look like:</p>
 
+<pre class="codeblock">class EerrorEvent : public strmod::unievent::Event {
+ public:
+   ErrorEvent(ForwardedConnection &parent)
+        : parent_(parent), parentgood_(true)
+   {
+   }
+   virtual ~ErrorEvent() {}
+
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+      if (parentgood_)
+      {
+         parent_.errorOccurred();
+      }
+   }
+
+   void parentGone() { parentgood_ = false; }
+
+ private:
+   ForwardedConnection &parent_;
+   bool parentgood_;
+};</pre>
 
 </body>
 </html>
