@@ -21,6 +21,7 @@ class UNIDispatcher : virtual public Protocol {
  public:
    static const UNEVT_ClassIdent identifier;
 
+   UNIDispatcher()                                     { }
    virtual ~UNIDispatcher()                            { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
@@ -31,7 +32,7 @@ class UNIDispatcher : virtual public Protocol {
    virtual void DispatchEvents(unsigned int numevents) = 0;
    virtual void DispatchUntilEmpty() = 0;
    virtual void StopDispatching() = 0;
-   virtual bool_ret IsQueueEmpty() const = 0;
+   virtual bool_val IsQueueEmpty() const = 0;
 
    virtual OSConditionManager *GetConditionManager()   { return(0); }
 
