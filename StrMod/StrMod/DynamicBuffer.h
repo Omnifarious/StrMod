@@ -46,9 +46,6 @@ class DynamicBuffer : public BufferChunk {
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
-
-   virtual void i_DropUnused(const LinearExtent &usedextent,
-			     KeepDir keepdir)           { }
 };
 
 //-----------------------------inline functions--------------------------------

@@ -54,12 +54,6 @@ class PreAllocBufferBase : public BufferChunk {
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
 
-   //: See the base class StrChunk.
-   // <p>Do nothing because there's no really good way to drop parts of a
-   // buffer.</p>
-   virtual void i_DropUnused(const LinearExtent &usedextent,
-			     KeepDir keepdir)           { }
-
    void i_destruct(const U1Byte * const preallocbuf);
    void i_resize(const unsigned int newsize,
 		 const unsigned int prebufsize,

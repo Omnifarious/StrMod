@@ -52,18 +52,9 @@ class EOFStrChunk : public StrChunk {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    virtual unsigned int Length() const                 { return(0); }
-   virtual unsigned int NumSubGroups() const           { return(0); }
-   inline virtual unsigned int NumSubGroups(const LinearExtent &extent) const;
-   inline virtual void FillGroupVec(GroupVector &vec,
-				    unsigned int &start_index);
-   inline virtual void FillGroupVec(const LinearExtent &extent,
-				    GroupVector &vec,
-				    unsigned int &start_index);
 
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-   inline virtual void i_DropUnused(const LinearExtent &usedextent,
-				    KeepDir keepdir);
 
    //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
@@ -81,25 +72,6 @@ inline EOFStrChunk::~EOFStrChunk()
 inline int EOFStrChunk::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
-}
-
-inline unsigned int
-EOFStrChunk::NumSubGroups(const LinearExtent &) const
-{
-   return(0);
-}
-
-inline void EOFStrChunk::FillGroupVec(GroupVector &, unsigned int &)
-{
-}
-
-inline void EOFStrChunk::FillGroupVec(const LinearExtent &,
-					    GroupVector &, unsigned int &)
-{
-}
-
-inline void EOFStrChunk::i_DropUnused(const LinearExtent &, KeepDir)
-{
 }
 
 #endif

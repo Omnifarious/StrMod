@@ -39,7 +39,6 @@ class StrChunkPtr;
 
 class GroupChunk : public StrChunk {
    typedef deque<StrChunk *> ChunkList;
-   class RangeAccumulator;
  public:
    static const STR_ClassIdent identifier;
 
@@ -49,11 +48,6 @@ class GroupChunk : public StrChunk {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    virtual unsigned int Length() const                 { return(totalsize_); }
-   virtual unsigned int NumSubGroups() const;
-   virtual unsigned int NumSubGroups(const LinearExtent &extent) const;
-   virtual void FillGroupVec(GroupVector &vec, unsigned int &start_index);
-   virtual void FillGroupVec(const LinearExtent &extent,
-			     GroupVector &vec, unsigned int &start_index);
 
    void push_back(const StrChunkPtr &chnk);
    void push_front(const StrChunkPtr &chnk);
@@ -61,47 +55,11 @@ class GroupChunk : public StrChunk {
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   virtual void i_DropUnused(const LinearExtent &usedextent, KeepDir keepdir);
-
-   void AccumulateRange(const LinearExtent &extent,
-			RangeAccumulator &accum) const;
-
    //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
 
  private:
-   class RangeAccumulator {
-    public:
-      RangeAccumulator()                                { }
-      virtual void operator ()(StrChunk &chnk,
-			       const LinearExtent &ext) = 0;
-    private:
-      RangeAccumulator(const RangeAccumulator &);
-      void operator =(const RangeAccumulator &b);
-   };
-   class NumGroupAccumulator : public RangeAccumulator {
-    public:
-      NumGroupAccumulator() : numgroups_(0)             { }
-
-      virtual void operator ()(StrChunk &chnk, const LinearExtent &ext);
-
-      unsigned int NumGroups() const                    { return(numgroups_); }
-
-    private:
-      unsigned int numgroups_;
-   };
-   class GroupVecAccumulator : public RangeAccumulator {
-    public:
-      inline GroupVecAccumulator(GroupVector *vec, unsigned int *start_index);
-
-      virtual void operator ()(StrChunk &chnk, const LinearExtent &ext);
-
-    private:
-      GroupVector &vec_;
-      unsigned int &index_;
-   };
-      
    ChunkList chnklist_;
    unsigned int totalsize_;
 
@@ -114,13 +72,6 @@ class GroupChunk : public StrChunk {
 inline int GroupChunk::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
-}
-
-inline
-GroupChunk::GroupVecAccumulator::GroupVecAccumulator(GroupVector *vec,
-						     unsigned int *start_index)
-     : vec_(*vec), index_(*start_index)
-{
 }
 
 #endif

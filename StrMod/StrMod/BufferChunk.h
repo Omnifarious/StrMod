@@ -64,16 +64,6 @@ class BufferChunk : public StrChunk, virtual public Debugable {
    virtual void printState(ostream &os) const;
 
    virtual unsigned int Length() const                  { return(buflen_); }
-   //: See the base class StrChunk.  Returns 1 if Length() is > 0.
-   inline virtual unsigned int NumSubGroups() const;
-   //: See the base class StrChunk.  Returns 1 or 0, if extent contains more
-   //: than 0 bytes.
-   inline virtual unsigned int NumSubGroups(const LinearExtent &extent) const;
-   //: See the base class StrChunk.
-   virtual void FillGroupVec(GroupVector &vec, unsigned int &start_index);
-   //: See the base class StrChunk.
-   virtual void FillGroupVec(const LinearExtent &extent,
-			     GroupVector &vec, unsigned int &start_index);
 
    /** Returns a reference to the byte at index bnum.
     *
@@ -104,10 +94,6 @@ class BufferChunk : public StrChunk, virtual public Debugable {
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
-
-   //: See the base class StrChunk.
-   virtual void i_DropUnused(const LinearExtent &usedextent,
-			     KeepDir keepdir) = 0;
 
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
@@ -148,16 +134,6 @@ inline int BufferChunk::AreYouA(const ClassIdent &cid) const
 inline bool BufferChunk::invariant() const
 {
    return((buflen_ == 0) || (buf_ != 0));
-}
-
-inline unsigned int BufferChunk::NumSubGroups() const
-{
-   return((buflen_ > 0) ? 1 : 0);
-}
-
-inline unsigned int BufferChunk::NumSubGroups(const LinearExtent &extent) const
-{
-   return(((extent.Length() > 0) && (extent.Offset() < buflen_)) ? 1 : 0);
 }
 
 inline U1Byte &BufferChunk::operator [](unsigned int bnum)
