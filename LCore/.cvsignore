@@ -1,8 +1,0 @@
-*.tar.gz
-*.flc
-GNUmakefile
-lib*.stamp
-depend.stamp
-dependdb.gdbm
-Makefile
-pwd_test
