@@ -75,7 +75,7 @@ imaps to my computer at home.</p>
 <h2>Design and Code</h2>
 
 <p>This project is small enough that the design can be created along with the
-code, so I won't have a seperate coding step.</p>
+code, so I won't have a separate coding step.</p>
 
 <h3>The config</h3>
 
@@ -175,7 +175,7 @@ Dispatcher as an argument, meaning that the Dispatcher will have to be
 created before the UNIXpollManagerImp:</p>
 <pre class="line">UNIXpollManagerImp(Dispatcher *disp);</pre>
 
-<p>Putting this all together yields a code that looks something like this:</p>
+<p>Putting this all together yields code that looks something like this:</p>
 <pre class="codeblock">SimpleDispatcher dispatcher;
 UNIXpollManagerImp pollmanager(&ampl;dispatcher);
 
@@ -248,11 +248,11 @@ Listener::~Listener()
 <code>from.Copy()</code> and <code>to.Copy()</code> bits in the
 constructor.</p>
 
-<p>A SocketAddress, as we've said before, is an abstract base class. You
-can't actually have a SocketAddress. Also, the SocketAddress objects we are
-being passed are not 'owned' by the Listener, so it needs copies that it owns
-so it can control their lifetime. This also means that they need to be
-destroyed in the destructor.</p>
+<p>As I've said before, a SocketAddress is an abstract base class, so you can't
+actually have a SocketAddress. Also, the SocketAddress objects we are being
+passed are not 'owned' by the Listener, so it needs copies that it owns so it
+can control their lifetime. This also means that they need to be destroyed in
+the destructor.</p>
 
 <p>Hence, the <code>Copy()</code> method. That method is defined as a virtual
 function on SocketAddress, and its intent is to return a full copy of the
