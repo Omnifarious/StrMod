@@ -87,19 +87,22 @@ class StreamFDModule : public StreamModule {
    inline virtual bool_val deletePlug(Plug *p);
 
    //: Is this category in an error state?
-   inline bool hasErrorIn(ErrCategory ecat);
+   inline bool hasErrorIn(ErrCategory ecat) const;
    //: Gets the error that this category has.
-   inline const UNIXError getErrorIn(ErrCategory ecat);
+   inline const UNIXError getErrorIn(ErrCategory ecat) const;
    //: Sets this category to a non-error state.
    // Doesn't work on the ErrFatal category.
    bool_val resetErrorIn(ErrCategory ecat);
    //: Do any categories have an error?
-   inline bool hasError();
+   inline bool hasError() const;
 
    //: Have I read the EOF marker?
    bool_val readEOF() const                         { return(flags_.readeof); }
    //: Reset the EOF marker so I'll attempt to read more.
    void resetReadEOF();
+
+   //: Get the file descriptor associated with this module.
+   inline int getFD()                               { return(fd_); }
 
    //: Is the write buffer empty?  Has the module been drained into the fd?
    bool writeBufferEmpty() const                    { return(!cur_write_); }
@@ -164,9 +167,6 @@ class StreamFDModule : public StreamModule {
 
    //: See base class.  Only makes plugs for side 0.
    inline virtual Plug *i_MakePlug(int side);
-
-   //: Get the file descriptor associated with this module.
-   inline int getFD()                              { return(fd_); }
 
    //: Called by FPlug::i_Write.
    virtual void plugWrite(const StrChunkPtr &ptr);
@@ -259,17 +259,17 @@ inline bool_val StreamFDModule::deletePlug(Plug *p)
       return(false);
 }
 
-inline bool_val StreamFDModule::hasErrorIn(ErrCategory ecat)
+inline bool_val StreamFDModule::hasErrorIn(ErrCategory ecat) const
 {
    return(errvals[ecat] != 0);
 }
 
-inline const UNIXError StreamFDModule::getErrorIn(ErrCategory ecat)
+inline const UNIXError StreamFDModule::getErrorIn(ErrCategory ecat) const
 {
    return(UNIXError(ecat));
 }
 
-inline bool StreamFDModule::hasError()
+inline bool StreamFDModule::hasError() const
 {
    return(hasErrorIn(ErrRead) || hasErrorIn(ErrWrite)
 	  || hasErrorIn(ErrOther) || hasErrorIn(ErrFatal));
