@@ -2,7 +2,8 @@
 #include "StrMod/SocketModule.h"
 #include "StrMod/EchoModule.h"
 #include <EHnet++/InetAddress.h>
-#include <Dispatch/dispatcher.h>
+#include <UniEvent/UNIXpollManagerImp.h>
+#include <UniEvent/SimpleDispatcher.h>
 #include <vector>
 #include <iostream.h>
 
@@ -18,10 +19,10 @@ struct EchoConnection {
 
 inline EchoConnection::EchoConnection(SocketModule *sock) : socket(sock)
 {
-   StrPlug *p1 = socket->MakePlug(0);
-   StrPlug *p2 = echo.MakePlug();
+   StreamModule::Plug *p1 = socket->makePlug(0);
+   StreamModule::Plug *p2 = echo.makePlug(0);
 
-   p1->PlugIntoAndNotify(p2);
+   p1->plugInto(*p2);
 }
 
 inline EchoConnection::~EchoConnection()
@@ -42,43 +43,56 @@ int main(int argc, char *argv[])
       return(1);
    }
 
+   UNISimpleDispatcher disp;
+   UNIXpollManagerImp pm(&disp);
    InetAddress      here(atoi(argv[1]));
-   SockListenModule slm(here);
-   ListeningPlug   *slmp = slm.MakePlug();
+   SockListenModule slm(here, pm, 8);
+   SockListenModule::SLPlug *slmp = slm.makePlug();
    ConAry           connections;
 
-   while (!slm.HasError()) {
-      Dispatcher::instance().dispatch();
-
+   while (!slm.hasError()) {
+      disp.DispatchEvents(1);
       if (connections.size() > 0) {
 	 MaintainList(connections);
       }
 
-      if (slmp->CanRead()) {
-	 SocketModuleChunkPtr attemptedchunk = slmp->Read();
+      if (slmp->isReadable()) {
+	 SocketModuleChunkPtr attemptedchunk = slmp->getConnection();
 	 SocketModule *attempted = attemptedchunk->GetModule();
 
-	 cerr << "Got connection from " << *(attempted->GetPeerAddr()) << "\n";
+	 cerr << "Got connection from " << attempted->GetPeerAddr() << "\n";
 	 attemptedchunk->ReleaseModule();
 	 attemptedchunk.ReleasePtr();
 
 	 connections.push_back(new EchoConnection(attempted));
       }
    }
-   cerr << '\n' << slm.ErrorString() << '\n';
+   cerr << '\n' << slm.getError().getErrorString() << '\n';
 }
 
 static void MaintainList(ConAry &lst)
 {
-   for (ConAry::iterator i = lst.begin(); i < lst.end();) {
+   for (ConAry::iterator i = lst.begin(); i != lst.end();)
+   {
       EchoConnection *ec = *i;
 
-      if (ec->socket->HasError()) {
-	 cerr << "Error: " << ec->socket->ErrorString() << '\n';
+      if (ec->socket->readEOF() || ec->socket->hasError())
+      {
+	 if (ec->socket->readEOF())
+	 {
+	    cerr << "Sucking an empty pipe.\n";
+	 }
+	 else
+	 {
+	    cerr << "The socket had an error.\n";
+	 }
 	 lst.erase(i);
 	 delete ec;
-      } else
+	 ec = 0;
+      }
+      else
+      {
 	 ++i;
-      ec = 0;
+      }
    }
 }
