@@ -24,6 +24,7 @@ class RegistryDispatcherGlue
 {
  public:
    RegistryDispatcherGlue(Dispatcher *disp, UnixEventRegistry *ureg);
+   virtual ~RegistryDispatcherGlue();
 
    void doBusyAction();
    void doQEmptyAction();
