@@ -47,7 +47,8 @@ namespace strmod {
 class StrChunkPtr;
 class StreamProcessor;
 
-class ProcessorModule : public StreamModule {
+class ProcessorModule : public StreamModule
+{
    class PMPlug;
    friend class PMPlug;
  public:
