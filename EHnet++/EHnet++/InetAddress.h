@@ -77,14 +77,43 @@
 namespace strmod {
 namespace ehnet {
 
+/** \class InetAddress InetAddress.h EHnet++/InetAddress.h
+ * An IPV4 TCP or UDP address.
+ *
+ * This class represents an IPV4 TCP or UDP address.  It doesn't represent a
+ * straight IPV4 address because it has a port number.
+ *
+ * This class has the nasty habit of doing blocking DNS lookups at random times.
+ * This may cause a several second pause while they're going on.
+ */
 class InetAddress : public SocketAddress {
  private:
-   typedef ::strmod::lcore::U2Byte U2Byte;
-   typedef ::strmod::lcore::U4Byte U4Byte;
+   typedef lcore::U2Byte U2Byte;
+   typedef lcore::U4Byte U4Byte;
+   typedef lcore::ClassIdent ClassIdent;
  public:
    static const NET_ClassIdent identifier;
 
-   virtual int AreYouA(const lcore::ClassIdent &cid) const {
+   /** Create an InetAddress from a hostname/dotted-quad and port #
+    * @param h_name A host name (i.e. omnifarious.omnifarious.org) , or dotted-quad (i.e. 208.42.65.33).
+    * @param prt A TCP or UDP port number.
+    */
+   InetAddress(const ::std::string &h_name, U2Byte prt);
+   /** Create an InetAddress pointing an INADDR_ANY and a port #
+    * @param port A TCP or UDP port number
+    */
+   InetAddress(U2Byte port);
+   //! Create a copy of another InetAddress
+   InetAddress(const InetAddress &b);
+   /** Create an InetAddress from the associated sockaddr_in structure
+    *
+    * Useful for addresses you get back from accept(2) or getpeername(2)
+    */
+   InetAddress(const ::sockaddr_in &iadr);
+   //! No pointers or anything, so not much to destroy
+   virtual ~InetAddress()                               { }
+
+   virtual int AreYouA(const ClassIdent &cid) const {
       return((identifier == cid) || SocketAddress::AreYouA(cid));
    }
 
@@ -93,27 +122,33 @@ class InetAddress : public SocketAddress {
    virtual int AddressSize() const        { return sizeof(::sockaddr_in); }
    virtual ::std::string AsString();
 
+   //! Get the host name associated with this address, possibly the result of a reverse DNS lookup
    ::std::string GetHostname() const                    { return(hostname); }
+   //! Get the host name associated with this address, possibly the result of a reverse DNS lookup
    ::std::string GetHostname(bool forcelookup);
+   //! Get the port number
    U2Byte GetPort() const                               { return port; }
 
+   //! Only necessary because of the DNS lookups.
    const InetAddress &operator =(const InetAddress &b);
+   /** Copy an InetAddress from a sockaddr_in structure.
+    *
+    * Useful for addresses you get back from accept(2) or getpeername(2).
+    */
    const InetAddress &operator =(const ::sockaddr_in &iadr);
-
-   InetAddress(const ::std::string &h_name, U2Byte prt);
-   InetAddress(U2Byte port);
-   InetAddress(const InetAddress &b);
-   InetAddress(const ::sockaddr_in &iadr);
-   virtual ~InetAddress()                               { }
 
  protected:
    virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    inline virtual SocketAddress *MakeCopy() const;
 
+   //! Mark this address as invalid
    void InvalidateAddress();
+   //! Parse out a dotted-quad
    static bool ParseNumeric(const char *numeric_addr, U4Byte &num);
+   //! Lookup an IPV4 address from a hostname - returns false on failure.
    static bool NameToIaddr(const char *name_addr, U4Byte &num);
+   //! Lookup a hostname from an IPV4 address.
    static ::std::string IaddrToName(const ::sockaddr_in &inaddr);
 
  private:

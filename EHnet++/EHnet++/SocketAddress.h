@@ -71,27 +71,49 @@ struct sockaddr;
 namespace strmod {
 namespace ehnet {
 
-class SocketAddress : virtual public lcore::Protocol {
+/** \class SocketAddress SocketAddress.h EHnet++/SocketAddress.h
+ * C++ class wrapper for struct ::sockaddr from sys/socket.h
+ *
+ * This is a C++ wrapper for the sockaddr structure that the connect, and bind
+ * system calls take.  It includes a virtual 'Copy' method to clone copies when
+ * you don't know the actual type of the address.
+ */
+class SocketAddress : virtual public lcore::Protocol
+{
+   typedef lcore::ClassIdent ClassIdent;
  public:
    static const NET_ClassIdent identifier;
 
+   //! An abstract SocketAddress really doesn't have any parameters
    SocketAddress()                                      { }
+   //! No member variables, nothing to do
    virtual ~SocketAddress()                             { }
 
-   virtual int AreYouA(const lcore::ClassIdent &cid) const {
+   virtual int AreYouA(const ClassIdent &cid) const {
       return((identifier == cid) || lcore::Protocol::AreYouA(cid));
    }
 
+   //! Send a textual representation of the address to the given ostream.
    virtual void PrintOn(::std::ostream &);
 
+   //! Get the sockaddr struct  this object is wrapping.
    virtual ::sockaddr *SockAddr() = 0;
+   /** Clone this address, no matter it's actual type
+    *
+    * This is a non-virtual for compilers that don't support <a
+    * href="http://cpptips.hyperformix.com/Covariance.html">contravariance</a>
+    * in the return types of virtual functions.
+   */
    SocketAddress *Copy() const                          { return(MakeCopy()); }
+   //! How long is this address in memory?
    virtual int AddressSize() const = 0;
+   //! Fetch a string representation of the SocketAddress
    virtual ::std::string AsString() = 0;
 
  protected:
    virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
+   //! Clone this address, no matter it's actual type
    virtual SocketAddress *MakeCopy() const = 0;
 };
 
