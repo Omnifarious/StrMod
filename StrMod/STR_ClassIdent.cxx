@@ -41,4 +41,5 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   28UL	PassThrough
   29UL	ProcessorModule
   30UL	ProcessorModule::Plug
+  31UL	EOFStrChunk
 */
