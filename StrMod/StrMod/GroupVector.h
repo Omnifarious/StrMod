@@ -7,6 +7,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/06/29 06:22:45  hopper
+// Addd stuff to recompute totallength_ when a group changes size.
+//
 // Revision 1.1  1996/05/08 10:56:32  hopper
 // Initial functional revision
 //
@@ -99,6 +102,11 @@ inline void GroupVector::SetVec(GV_Size group_num,
    assert(length > 0);
 
    groups_[group_num].iov_base = static_cast<caddr_t>(data);
+   if (groups_[group_num].iov_len < length) {
+      totallength_ += (length - groups_[group_num].iov_len);
+   } else {
+      totallength_ -= (groups_[group_num].iov_len - length);
+   }
    groups_[group_num].iov_len = length;
 }
 
