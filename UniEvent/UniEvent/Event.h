@@ -10,19 +10,19 @@
 
 #include <LCore/Protocol.h>
 #include <bool.h>
-#include <UnEvt/UNEVT_ClassIdent.h>
+#include <UniEvent/UNEVT_ClassIdent.h>
 
 #define _UNEVT_Event_H_
 
 class UNIDispatcher;
 
-class UNIEvent : virtual public Protocol.h {
+class UNIEvent : virtual public Protocol {
  public:
-   static const UnEvt_ClassIdent identifier;
+   static const UNEVT_ClassIdent identifier;
 
    virtual ~UNIEvent()                                 { }
 
-   virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const ClassIdent &cid) const;
 
    // If the event was triggered by a dispatcher, the dispatcher that
    // triggered it is expected to be passed in.  Otherwise NULL (aka 0)
@@ -37,5 +37,12 @@ class UNIEvent : virtual public Protocol.h {
    UNIEvent(const UNIEvent &b);
    const UNIEvent &operator =(const UNIEvent &b);
 };
+
+//-----------------------------inline functions--------------------------------
+
+inline int UNIEvent::AreYouA(const ClassIdent &cid) const
+{
+   return((identifier == cid) || Protocol::AreYouA(cid));
+}
 
 #endif

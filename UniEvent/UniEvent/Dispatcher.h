@@ -10,7 +10,7 @@
 
 #include <LCore/Protocol.h>
 #include <bool.h>
-#include <UnEvt/UNEVT_ClassIdent.h>
+#include <UniEvent/UNEVT_ClassIdent.h>
 
 #define _UNEVT_Dispatcher_H_
 
@@ -19,11 +19,11 @@ class OSConditionManager;
 
 class UNIDispatcher : virtual public Protocol {
  public:
-   static const UnEvt_ClassIdent identifier;
+   static const UNEVT_ClassIdent identifier;
 
    virtual ~UNIDispatcher()                            { }
 
-   virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const ClassIdent &cid) const;
 
    virtual void AddEvent(UNIEvent *ev) = 0;
 
@@ -46,7 +46,7 @@ class UNIDispatcher : virtual public Protocol {
 
 //-----------------------------inline functions--------------------------------
 
-virtual int AreYouA(const ClassIdent &cid) const;
+inline int UNIDispatcher::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
