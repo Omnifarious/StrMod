@@ -28,12 +28,14 @@ class UNIEvent : virtual public Protocol, public ReferenceCounting {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
+   //: Perform the action associated with the event.
    // If the event was triggered by a dispatcher, the dispatcher that
-   // triggered it is expected to be passed in.  Otherwise NULL (aka 0)
-   // can be passed in.
+   // triggered it is expected to be passed in.  Otherwise NULL (aka 0) can be
+   // passed in.  A dispatcher will only call ONE TriggerEvent method at a
+   // time.
    virtual void TriggerEvent(UNIDispatcher *dispatcher = 0) = 0;
 
-   // Alternate form...
+   //: Alternate form of TriggerEvent
    inline void operator ()(UNIDispatcher *dispatcher = 0);
 
  protected:
