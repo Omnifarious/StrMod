@@ -143,8 +143,8 @@ TimerEventTracker::nextExpirationIn(const absolute_t &now,
                                "parameter is not >= than all previous now "
                                "parameters.");
    }
-   timerheap_t &curheap = impl_.map1_current_ ? impl_.map1_ : impl_.map2_;
-   timerheap_t &oldheap = impl_.map1_current_ ? impl_.map2_ : impl_.map1_;
+   const timerheap_t &curheap = impl_.map1_current_ ? impl_.map1_ : impl_.map2_;
+   const timerheap_t &oldheap = impl_.map1_current_ ? impl_.map2_ : impl_.map1_;
    absolute_t earliest = now;
    if (curheap.size() > 0)
    {
@@ -168,7 +168,15 @@ TimerEventTracker::nextExpirationIn(const absolute_t &now,
    }
    if (now < earliest)
    {
-      return earliest - now;
+      const interval_t next = earliest - now;
+      if (maxtime < next)
+      {
+         return maxtime;
+      }
+      else
+      {
+         return next;
+      }
    }
    else
    {
