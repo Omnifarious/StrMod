@@ -1,3 +1,22 @@
+1999-01-14  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testsplit.cxx:
+	* tests/testsock.cxx:
+	* tests/echoserv.cxx: Changed to make use of the new ability to
+	read and write EOF indications.
+
+	* StrMod/StreamFDModule.h:
+	* StreamFDModule.cxx: Added support for the ability to read and
+	write EOF indications.
+
+	* StrMod/SocketModule.h:
+	* SocketModule.cxx (writeEOF): Added support for writing an EOF
+	indication to a socket.
+
+	* StrMod/EOFStrChunk.h:
+	* EOFStrChunk.cxx: A new class for sending an EOF indication down
+	a stream.
+
 1999-01-13  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* tests/echoserv.cxx: Changed to use new StreamModule system so
