@@ -68,6 +68,8 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
                              size_t regionbegin, size_t regionend,
                              StrChunkPtrT<BufferChunk> &cooked);
 
+   void addOutgoing(const StrChunkPtr &ptr);
+
    void addIncoming(const StrChunkPtr &ptr);
    size_t curIncomingLen() const                            { return curlen_; }
    inline void clearIncoming();
@@ -171,6 +173,13 @@ void TelnetChunker::Builder::addSuboption(U1Byte opt_type,
    chunks_.push_back(ptr);
 }
 
+void TelnetChunker::Builder::addOutgoing(const StrChunkPtr &ptr)
+{
+   StrChunk *rawptr = ptr.GetPtr();
+   rawptr->AddReference();
+   chunks_.push_back(rawptr);
+}
+
 void TelnetChunker::Builder::addIncoming(const StrChunkPtr &ptr)
 {
    const size_t inlen = ptr->Length();
@@ -255,14 +264,21 @@ class TelnetChunker::DataFunctor {
 
 void TelnetChunker::processIncoming()
 {
-   if (!data_.builder_.hasData())
+   assert(incoming_);
+   if (!data_.builder_.hasData() && (incoming_->Length() <= 0))
    {
-      if (incoming_->Length() <= 0)
+      if (data_.parser_.getRegionBegin() != data_.builder_.curIncomingLen())
       {
-         incoming_.ReleasePtr();
-         return;
+         data_.parser_.reset(data_.builder_);
+         assert(data_.parser_.getRegionBegin() ==
+                data_.builder_.curIncomingLen());
       }
-
+      data_.parser_.dropBytes(data_.parser_.getRegionBegin());
+      data_.builder_.clearIncoming();
+      data_.builder_.addOutgoing(incoming_);
+   }
+   else if (!data_.builder_.hasData())
+   {
       data_.builder_.addIncoming(incoming_);
       {
          DataFunctor tmp(data_.parser_, data_.builder_);
