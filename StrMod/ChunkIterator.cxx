@@ -189,7 +189,7 @@ StrChunk::__iterator::__iterator(const StrChunkPtr &chnk)
 }
 
 StrChunk::__iterator::__iterator(shared *sh)
-     : shared_(sh), abspos_(0), extlast_(0), extpos_(0),
+     : shared_(sh), abspos_(0), extpos_(0), extlast_(0),
        curext_(0), extbase_(0)
 {
    if (shared_)
@@ -224,6 +224,11 @@ StrChunk::__iterator::~__iterator()
       }
       shared_ = 0;
    }
+}
+
+inline bool StrChunk::__iterator::isFor(const StrChunkPtr &chnk) const
+{
+   return shared_ && (shared_->root_.GetPtr() == chnk.GetPtr());
 }
 
 const StrChunk::__iterator &

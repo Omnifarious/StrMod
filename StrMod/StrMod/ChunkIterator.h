@@ -54,6 +54,9 @@ class StrChunk::__iterator :
    //! Destroys an iterator, possibly destroying shared data too if refcount is only 1
    ~__iterator();
 
+   //! Am I an iterator over this chunk?
+   bool isFor(const StrChunkPtr &chnk) const;
+
    //! Am I equal to other?  Do I iterator over the same StrChunk and am I at
    //! the same spot?
    bool isEqual(const __iterator &other) const;
@@ -93,12 +96,12 @@ class StrChunk::__iterator :
 
  private:
    class ExtVisitor;
+   shared *shared_;
    unsigned int abspos_;
    unsigned int extpos_;
    unsigned int extlast_;  // Index of last element (not length) of extbase_.
    unsigned int curext_;
    const unsigned char *extbase_;
-   shared *shared_;
 
    inline void move_forward();
    void move_forward_complex();
