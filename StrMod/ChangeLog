@@ -1,3 +1,21 @@
+Sat Aug 24 07:37:48 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/SimpleMulti.h:
+	* SimpleMulti.cc: Added new SimpleMultiplexer class, and related
+ 	plug classes.  This implements a simple multiplexer that
+ 	duplicates all input on the 'single' side to all the plugs
+ 	attached to the 'multi' side, and combines all the data from the
+ 	'multi' side into one flow on the 'single' side.
+
+	* StrMod/SimplePlug.h: 
+	* SimplePlug.cc: Added new SimplePlug class, and SimplePlug
+ 	template.  These are abstract classes that handle details of read
+ 	and write locking on a plug.  Classes derived from these have much
+ 	simpler implementations.
+
+	* STR_ClassIdent.cc: Added new class numbers for SimplePlug and
+	SimpleMulti related classes.
+
 Sun Jul  7 00:09:41 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/StrChunkPtr.h (class StrChunkPtr): Fixed default
