@@ -1,11 +1,5 @@
 /* $Header$ */
 
-// $Log$
-// Revision 1.1  2002/12/10 13:19:16  hopper
-// Some XML parsing classes I'm playing with until I get something that's
-// suitable for public consumption.
-//
-
 #include <string>
 #include <cstring>
 #include <iostream>
@@ -126,3 +120,11 @@ int main()
    }
    return 0;
 }
+
+// $Log$
+// Revision 1.2  2002/12/10 13:21:55  hopper
+// Moved log to the end, like it is for all the other files.
+//
+// Revision 1.1  2002/12/10 13:19:16  hopper
+// Some XML parsing classes I'm playing with until I get something that's
+// suitable for public consumption.
