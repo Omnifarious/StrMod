@@ -1,0 +1,44 @@
+------------------------------------Overview----------------------------------
+	StreamModule's are designed to be a flexible way to move streams of
+data around in a program. They handle non-blocking I/O well, and have a
+mildly complex flow control model built into them.
+
+	A StreamModule is always associated with one or more plugs. Plugs
+are how StreamModule's communicate. When you want data to flow from one
+module to another, you pull the plug out of both of the modules, and plug
+them into one another.
+
+	A StreamModule is typically just a scratch pad used by the various
+plugs to communicate, and coordinate.
+
+----------------------------Major Rules for StrPlug's--------------------------
+
+If a call to CanRead returns true, a subsequent call to Read will ALWAYS
+succeed.
+
+If a call to CanWrite returns true, a subsequent call to Write will ALWAYS
+succeed.
+
+Don't notify someone you can be read from if they're already reading from
+you.
+
+Don't notify someone you can be written to if they're already writing to
+you.
+
+When you receive a ReadableNotify(), or a WriteableNotify(), you are
+expected to try and push data through until you no longer can. If this
+is not followed, some classes which buffer or re-block data may not
+function correctly.
+
+Don't assume someone else followed the lesser rules.
+
+---------------------------Lesser rules for StrPlug's--------------------------
+
+--Don't notify someone you can be read from, unless a call to CanRead() will
+return true.
+
+--Don't notify someone you can be written to, unless a call to CanWrite()
+will return true.
+
+--**-- Note: Some Modules may not follow these guidelines, so it is best to
+check if they are writable yourself.
