@@ -1,3 +1,19 @@
+Sat Mar  8 09:29:44 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/SimpleDispatcher.h:
+	* SimpleDispatcherImp.cxx:
+	* SimpleDispatcher.cxx: Added UNISimpleDispatcher class, which is
+	a simple STL based event dispatcher.
+
+	* UniEvent/Event.h: Removed useless include of <bool.h>.  Added
+	alternate method of calling TriggerEvent to class UNIEvent.
+
+	* UniEvent/Dispatcher.h (constructor): Added default constructor
+ 	after realizing copy constructor suppressed automatically
+ 	generated default.
+	(class UNIDispatcher): Changed bool_ret, to use bool_val typedef
+	instead.
+
 Mon Mar  3 00:25:14 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/Event.h: Fixed stupid errors.
