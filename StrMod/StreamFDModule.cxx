@@ -35,6 +35,8 @@
 #   include "StrMod/UseTrackingVisitor.h"
 #endif
 
+#include <UniEvent/Dispatcher.h>
+
 #include <unistd.h>  // read  (and maybe sysconf)
 #include <sys/types.h>  // writev and struct iovec
 #include <sys/uio.h>    // writev and struct iovec
@@ -52,97 +54,164 @@ typedef struct stat statbuf_t;
 const STR_ClassIdent StreamFDModule::identifier(8UL);
 const STR_ClassIdent StreamFDModule::FPlug::identifier(9UL);
 
-//: A parent class for the three sub event classes.
-// <p>The sub event classes don't do anything except call parent class
-// protected functions.  The only reason they exist is to avoid having
-// a switch statement in the parent.</p>
-class StreamFDModule::FDPollEv : public UNIXpollManager::PollEvent {
+/** \class StreamFDModule::EvMixin
+ * \brief A parent class for StreamFDModule events that provides some behavior
+ * for the module being deleted.
+ */
+class StreamFDModule::EvMixin {
  public:
-   inline FDPollEv(StreamFDModule &parent);
-   virtual ~FDPollEv()                                 { }
+   /** It's a constructor.
+    * @param parent The StreamFDModule that this is an event for.
+    */
+   inline EvMixin(StreamFDModule &parent)
+        : hasparent_(true), parent_(parent)
+   {
+   }
+   //! Whee, I'm a destructor!
+   virtual ~EvMixin()                           { assert(hasparent_ == false); }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) = 0;
-
-   inline void parentGone()                            { hasparent_ = false; }
+   //! This method is called by StreamFDModule when it goes away.
+   inline void parentGone()                     { hasparent_ = false; }
 
  protected:
-   inline void triggerRead();
-   inline void triggerWrite();
-   inline void triggerError();
+   //! Call the right StreamFDModule function for the event.
+   inline void triggerRead(unsigned int condbits);
+   //! Call the right StreamFDModule function for the event.
+   inline void triggerWrite(unsigned int condbits);
+   //! Call the right StreamFDModule function for the event.
+   inline void triggerError(unsigned int condbits);
+   //! Call the right StreamFDModule function for the event.
+   inline void triggerResumeRead();
+   //! Call the right StreamFDModule function for the event.
+   inline void triggerResumeWrite();
 
  private:
    bool hasparent_;
    StreamFDModule &parent_;
 };
 
-inline StreamFDModule::FDPollEv::FDPollEv(StreamFDModule &parent)
-     : hasparent_(true), parent_(parent)
-{
-}
-
-inline void StreamFDModule::FDPollEv::triggerRead()
+inline void StreamFDModule::EvMixin::triggerRead(unsigned int condbits)
 {
    // cerr << "In triggerRead\n";
    if (hasparent_)
    {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
       parent_.eventRead(condbits);
    }
 }
 
-inline void StreamFDModule::FDPollEv::triggerWrite()
+inline void StreamFDModule::EvMixin::triggerWrite(unsigned int condbits)
 {
    // cerr << "In triggerWrite\n";
    if (hasparent_)
    {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
       parent_.eventWrite(condbits);
    }
 }
 
-inline void StreamFDModule::FDPollEv::triggerError()
+inline void StreamFDModule::EvMixin::triggerError(unsigned int condbits)
 {
    // cerr << "In triggerError\n";
    if (hasparent_)
    {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
       parent_.eventError(condbits);
    }
 }
 
-//: This is one of the three helper classes for StreamFDModule::FDPollEv
-class StreamFDModule::FDPollRdEv : public StreamFDModule::FDPollEv {
- public:
-   inline FDPollRdEv(StreamFDModule &parent) : FDPollEv(parent)   { }
-   virtual ~FDPollRdEv()                                          { }
+inline void StreamFDModule::EvMixin::triggerResumeRead()
+{
+   if (hasparent_)
+   {
+      parent_.eventRead(UNIXpollManager::FD_Readable);
+   }
+}
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerRead(); }
+inline void StreamFDModule::EvMixin::triggerResumeWrite()
+{
+   if (hasparent_)
+   {
+      parent_.eventRead(UNIXpollManager::FD_Writeable);
+   }
+}
+
+//: This is one of the three helper classes for StreamFDModule::EvMixin
+class StreamFDModule::FDPollRdEv
+   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+{
+ public:
+   inline FDPollRdEv(StreamFDModule &parent) : EvMixin(parent)  { }
+   virtual ~FDPollRdEv()                                        { }
+
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) {
+      unsigned int condbits = getCondBits();
+      setCondBits(0);
+      triggerRead(condbits);
+   }
 };
 
-//: This is one of the three helper classes for StreamFDModule::FDPollEv
-class StreamFDModule::FDPollWrEv : public StreamFDModule::FDPollEv {
+//: This is one of the three helper classes for StreamFDModule::EvMixin
+class StreamFDModule::FDPollWrEv
+   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+{
  public:
-   inline FDPollWrEv(StreamFDModule &parent) : FDPollEv(parent)   { }
-   virtual ~FDPollWrEv()                                          { }
+   inline FDPollWrEv(StreamFDModule &parent) : EvMixin(parent)  { }
+   virtual ~FDPollWrEv()                                        { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerWrite(); }
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) {
+      unsigned int condbits = getCondBits();
+      setCondBits(0);
+      triggerWrite(condbits);
+   }
 };
 
-//: This is one of the three helper classes for StreamFDModule::FDPollEv
-class StreamFDModule::FDPollErEv : public StreamFDModule::FDPollEv {
+//: This is one of the three helper classes for StreamFDModule::EvMixin
+class StreamFDModule::FDPollErEv
+   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+{
  public:
-   inline FDPollErEv(StreamFDModule &parent) : FDPollEv(parent)   { }
-   virtual ~FDPollErEv()                                          { }
+   inline FDPollErEv(StreamFDModule &parent) : EvMixin(parent)  { }
+   virtual ~FDPollErEv()                                        { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerError(); }
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) {
+      unsigned int condbits = getCondBits();
+      setCondBits(0);
+      triggerError(condbits);
+   }
+};
+
+class StreamFDModule::ResumeReadEv
+   : public StreamFDModule::EvMixin, public UNIEvent
+{
+ public:
+   ResumeReadEv(StreamFDModule &parent)
+        : EvMixin(parent)
+   {
+   }
+   virtual ~ResumeReadEv()                            { }
+
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)
+   {
+      triggerResumeRead();
+   }
+};
+
+class StreamFDModule::ResumeWriteEv
+   : public StreamFDModule::EvMixin, public UNIEvent
+{
+ public:
+   ResumeWriteEv(StreamFDModule &parent)
+        : EvMixin(parent)
+   {
+   }
+   virtual ~ResumeWriteEv()                            { }
+
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)
+   {
+      triggerResumeWrite();
+   }
 };
 
 /**
- * The ChunkVisitor that gathers data for the writev calls.
- */
+ * The ChunkVisitor that gathers data for the writev calls.  */
 class StreamFDModule::BufferList : public UseTrackingVisitor {
  public:
    //! ChunkVisitors never have very interesting constructors
@@ -411,6 +480,16 @@ void StreamFDModule::doReadFD()
    ssize_t size = -1;
    int myerrno = ESUCCESS;
 
+   if (read_since_read_posted_ > (256U * 1024U))
+   {
+      setReadableFlagFor(&plug_, false);
+      disp_.addEvent(resumeread_);
+      read_since_read_posted_ = 0;
+      size = -1;
+      myerrno = EAGAIN;
+      return;
+   }
+   else
    {
       // A normal pointer offers a speed advantage, and we don't know whether
       // we want to set buffed_read until the read succeeds.
@@ -425,6 +504,7 @@ void StreamFDModule::doReadFD()
       // cerr << fd_ << ": just read " << size << " bytes.\n";
 
       if (size > 0) {
+         read_since_read_posted_ += size;
 	 dbchunk->resize(size);
 	 buffed_read_ = dbchunk;
 //  	 cerr << fd_ << ": just read: <";
@@ -510,6 +590,14 @@ void StreamFDModule::doWriteFD()
    assert(!hasErrorIn(ErrFatal));
    assert(fd_ >= 0);
 
+   if (written_since_write_posted_ > (256U * 1024U))
+   {
+      setWriteableFlagFor(&plug_, false);
+      disp_.addEvent(resumewrite_);
+      written_since_write_posted_ = 0;
+      return;
+   }
+
    if (curbuflist_.bytesLeft() <= 0)
    {
       if (cur_write_->AreYouA(EOFStrChunk::identifier))
@@ -563,6 +651,7 @@ void StreamFDModule::doWriteFD()
       }
       else
       {
+         written_since_write_posted_ += written;
          curbuflist_.advanceBy(written);
          length = curbuflist_.bytesLeft();
       }
@@ -608,6 +697,7 @@ void StreamFDModule::maybeShouldReadFD()
       static const unsigned int condbits = UNIXpollManager::FD_Readable;
 
       pollmgr_.registerFDCond(fd_, condbits, readev_);
+      read_since_read_posted_ = 0;
       flags_.checkingrd = true;
    }
 //     else
@@ -655,6 +745,7 @@ void StreamFDModule::maybeShouldWriteFD()
 
 //        cerr << "fd: " << fd_ << " registering for writing.\n";
       pollmgr_.registerFDCond(fd_, condbits, writeev_);
+      written_since_write_posted_ = 0;
       flags_.checkingwr = true;
    }
 }
@@ -721,17 +812,24 @@ void StreamFDModule::eventError(unsigned int condbits)
    }
 }
 
-StreamFDModule::StreamFDModule(int fd, UNIXpollManager &pollmgr,
+StreamFDModule::StreamFDModule(int fd, UNIDispatcher &disp,
+                               UNIXpollManager &pollmgr,
 			       IOCheckFlags f, bool hangdelete)
      : fd_(fd),
        plug_(*this),
        curbuflist_(*(new BufferList)),
        max_block_size_(4096),
-       readevptr_(NULL),
-       writeevptr_(NULL),
-       errorevptr_(NULL),
+       read_since_read_posted_(0),
+       written_since_write_posted_(0),
+       disp_(disp),
        pollmgr_(pollmgr)
 {
+   for (int i = 0;
+        i < (sizeof(parenttrackers_) / sizeof(parenttrackers_[0]));
+        ++i)
+   {
+      parenttrackers_[i] = 0;
+   }
    errvals[ErrRead] = errvals[ErrWrite]
       = errvals[ErrOther] = errvals[ErrFatal] = ESUCCESS;
    setMaxToBest();
@@ -742,9 +840,25 @@ StreamFDModule::StreamFDModule(int fd, UNIXpollManager &pollmgr,
    // write when you really aren't, then the class will never get
    // around to doing it.
    flags_.checkingrd = flags_.checkingwr = true;
-   readev_ = readevptr_ = new FDPollRdEv(*this);
-   writeev_ = writeevptr_ = new FDPollWrEv(*this);
-   errorev_ = errorevptr_ = new FDPollErEv(*this);
+   {
+      FDPollRdEv *readev = new FDPollRdEv(*this);
+      readev_ = readev;
+      FDPollWrEv *writeev = new FDPollWrEv(*this);
+      writeev_ = writeev;
+      FDPollErEv *errorev = new FDPollErEv(*this);
+      errorev_ = errorev;
+      ResumeReadEv *rread = new ResumeReadEv(*this);
+      resumeread_ = rread;
+      ResumeWriteEv *rwrite = new ResumeWriteEv(*this);
+      resumewrite_ = rwrite;
+
+      parenttrackers_[0] = readev;
+      parenttrackers_[1] = writeev;
+      parenttrackers_[2] = errorev;
+      parenttrackers_[3] = rread;
+      parenttrackers_[4] = rwrite;
+   }
+   
    pollmgr_.registerFDCond(fd_,
 			   UNIXpollManager::FD_Error
 			   | UNIXpollManager::FD_Closed
@@ -764,9 +878,16 @@ StreamFDModule::StreamFDModule(int fd, UNIXpollManager &pollmgr,
 
 StreamFDModule::~StreamFDModule()
 {
-   readevptr_->parentGone();
-   writeevptr_->parentGone();
-   errorevptr_->parentGone();
+   for (int i = 0;
+        i < (sizeof(parenttrackers_) / sizeof(parenttrackers_[0]));
+        ++i)
+   {
+      if (parenttrackers_[i])
+      {
+         parenttrackers_[i]->parentGone();
+         parenttrackers_[i] = 0;
+      }
+   }
    if (fd_ >= 0)
    {
       ::close(fd_);
