@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -34,6 +34,19 @@
 /* MSDOS:@@:CLSPRGID.CPP:@@: */
 
 namespace strmod {
+
+/** Contains the basic underlying classes for the whole system
+ *
+ * This is the namespace for classes in the ClassIdent, ReferenceCounting, and
+ * Protocol, LCoreError  subsystems.  Here are a list of the important top-level classes:
+ *    - ClassIdent A globally (we mean globally) unique identifier for a class (deprecated).
+ *    - Protocol A base class for classes that have a ClassIdent (deprecated)
+ *    - Debugable A base class for classes that have a class invariant and can print useful state information.
+ *    - ReferenceCounting A base class for objects with embedded reference counts. RefCountPtr is the smart pointer that works with ReferenceCounting
+ *    - simple_bitset A simplified version of STLs ::std::bitset class.
+ *    - enum_set A set of values of an enum (or enumerated) type.
+ *    - LCoreError A nice class to use for throwing exceptions.
+ */
 namespace lcore {
 
 const ProgrammerNum EricMHopper_0(0UL);
@@ -60,17 +73,17 @@ const LCore_ClassIdent LCore_ClassIdent::identifier(5UL);
     program. The numbers here are here so there is one place to look to find
     and unused class #
 
-Object			0UL
-ProgrammerNum		1UL
-ClassNum		2UL
-ClassIdent		3UL
-EH_ClassNum		4UL
-LCore_ClassIdent	5UL
-EH_ClassIdent		6UL
-Protocol		7UL
-ReferenceCounting	8UL
-RefCountPtr		9UL
-Debugable	       10UL
+  0UL	Object
+  1UL	ProgrammerNum
+  2UL	ClassNum
+  3UL	ClassIdent
+  4UL	EH_ClassNum
+  5UL	LCore_ClassIdent
+  6UL	EH_ClassIdent
+  7UL	Protocol
+  8UL	ReferenceCounting
+  9UL	RefCountPtr
+ 10UL	Debugable
 
 ** End of class #'s */
 
