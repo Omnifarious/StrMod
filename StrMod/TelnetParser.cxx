@@ -33,9 +33,19 @@
 #include <cassert>
 #include <cstddef>
 
+const STR_ClassIdent TelnetParser::identifier(50UL);
+
 TelnetParser::TelnetParser()
      : curpos_(0), state_(PS_Normal), regionbegin_(0), regionend_(0)
 {
+}
+
+TelnetParser::~TelnetParser()
+{
+   if (cooked_)
+   {
+      delete cooked_;
+   }
 }
 
 inline void TelnetParser::stateNormal(ParserState &state, U1Byte ch)
@@ -108,6 +118,7 @@ inline void TelnetParser::stateSubNeg(ParserState &state,
       builder.addDataBlock(regionbegin_, regionend_);
    }
    builder.addNegotiationCommand(negtype_, ch);
+   regionbegin_ = i + 1;
    state = PS_Normal;
 }
 
