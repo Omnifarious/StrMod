@@ -706,7 +706,7 @@ that knows what thing it needs to call back.</p>
 
 <pre class="codeblock">class EerrorEvent : public strmod::unievent::Event {
  public:
-   ErrorEvent(ForwardedConnection &parent)
+   ErrorEvent(ForwardedConnection &amp;parent)
         : parent_(parent), parentgood_(true)
    {
    }
@@ -722,7 +722,7 @@ that knows what thing it needs to call back.</p>
    void parentGone() { parentgood_ = false; }
 
  private:
-   ForwardedConnection &parent_;
+   ForwardedConnection &amp;parent_;
    bool parentgood_;
 };</pre>
 
@@ -747,7 +747,7 @@ ErrorEvent:</p>
    ~ForwardedConnection();
 
  private:
-   class EerrorEvent : public strmod::unievent::Event {
+   class ErrorEvent : public strmod::unievent::Event {
     public:
       ErrorEvent(ForwardedConnection &amp;parent)
            : parent_(parent), parentgood_(true)
@@ -774,7 +774,7 @@ ErrorEvent:</p>
    SocketModule &amp;outgoing_;
    strmod::unievent::EventPtrT&lt;ErrorEvent> errev_;
 
-   void errorOccured();
+   void errorOccurred();
 };
 
 ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
@@ -786,9 +786,15 @@ ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
 
 ForwardedConnection::~ForwardedConnection()
 {
+   errev_->parentGone();
    delete &amp;incoming_;
    delete &amp;outgoing_;
 }</pre>
+
+<p>There, now the ErrorEvent will properly connect back to the parent, and all
+the naming is OK and everything.  Sadly, the parent doesn't yet have an
+<code>errorOccured()</code> method, nor does it arrange for the SocketModules
+to post the error event when something happens.</p>
 
 </body>
 </html>
