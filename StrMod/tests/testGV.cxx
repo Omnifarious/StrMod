@@ -1,13 +1,16 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1999/09/21 03:37:55  hopper
+// Changed to use DynamicBuffer instead of DataBlockStrChunk.
+//
 // Revision 1.1  1996/06/29 07:01:08  hopper
 // New test to work the GroupVector, and some of the other components of
 // the new StrChunk style.
 //
 
 #include <StrMod/StrChunkPtr.h>
-#include <StrMod/DBStrChunk.h>
+#include <StrMod/DynamicBuffer.h>
 #include <StrMod/GroupChunk.h>
 #include <StrMod/StrSubChunk.h>
 #include <StrMod/GroupVector.h>
@@ -32,7 +35,7 @@ static testdata data[num_els] = {
 static void FillGroupChunk(GroupChunk &gc)
 {
    for (int i = 0; i < num_els; i++) {
-      StrChunkPtr dbchnk = new DataBlockStrChunk(data[i].data, data[i].len);
+      StrChunkPtr dbchnk = new DynamicBuffer(data[i].data, data[i].len);
 
       gc.push_back(dbchnk);
    }
