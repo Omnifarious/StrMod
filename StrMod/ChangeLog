@@ -1,0 +1,12 @@
+Sun Jul 23 08:46:32 1995  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in (LIBCCS): Removed two .cc files that were
+	specific to a particular application.
+	Fixed a number of targets to be in tests, not test.
+
+	* SockListenModule.cc (SockListenModule): Fixed an unnecessary
+	cast to caddr_t.
+	(inputReady): Made length unsigned, and fixed the way the address
+ 	buffer for accept was handled.
+	Moved revision history around, and set it up so it was no longer
+	updated.

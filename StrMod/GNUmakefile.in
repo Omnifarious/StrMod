@@ -43,10 +43,11 @@ CCNAMES = ChunkType.cc  StrChunkid.cc  EchoModule.cc  StrChunkio.cc \
 
 CNAMES = utils/cechoserv.c  utils/audiodiv.c  utils/writelots.c
 
+#  StreambufModule.cc  HL7Module.cc
 LIBCCS = ChunkType.cc  StrChunkid.cc  EchoModule.cc  StrChunkio.cc \
-         HL7Module.cc  StrFDPlug.cc  STR_ClassIdent.cc  StreamFDModule.cc \
+         StrFDPlug.cc  STR_ClassIdent.cc  StreamFDModule.cc \
          SockListenModule.cc  StreamModule.cc  SocketModule.cc \
-         StreamSplitter.cc  StrChunk.cc  StreambufModule.cc
+         StreamSplitter.cc  StrChunk.cc
 
 DEPSUB = $(patsubst %.c,%.o,$(?:.cc=.o))
 DEPSUBDD = $(patsubst %.c,%.c.d,$(?:.cc=.cc.d))
@@ -68,16 +69,16 @@ tests/server : tests/server.o
 tests/echoserv : tests/echoserv.o
 	$(CXX) tests/echoserv.o $(LDFLAGS) -o tests/echoserv
 
-test/testdist : test/testdist.o
+tests/testdist : test/testdist.o
 	$(CXX) tests/testdist.o $(LDFLAGS) -o tests/testdist
 
-test/teststr : test/teststr.o
+tests/teststr : test/teststr.o
 	$(CXX) tests/teststr.o $(LDFLAGS) -o tests/teststr
 
-test/testchunk : test/testchunk.o
+tests/testchunk : test/testchunk.o
 	$(CXX) tests/testchunk.o $(LDFLAGS) -o tests/testchunk
 
-test/testecho : test/testecho.o
+tests/testecho : test/testecho.o
 	$(CXX) tests/testecho.o $(LDFLAGS) -o tests/testecho 2>&1 | c++filt
 
 GNUmakefile : depend.stamp

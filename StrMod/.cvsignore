@@ -2,8 +2,6 @@
 *.flc
 GNUmakefile
 GNUmakefile~
-echoserv
-testecho
 lib*.stamp
 depend.stamp
 dependdb.gdbm

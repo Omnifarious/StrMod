@@ -1,34 +1,5 @@
 /* $Header$ */
 
-// $Log$
-// Revision 1.1  1995/07/22 04:46:49  hopper
-// Initial revision
-//
-// Revision 0.13  1995/04/18  03:36:46  hopper
-// Merged revisions 0.12 and 0.12.0.3
-//
-// Revision 0.12.0.3  1994/07/18  03:44:00  hopper
-// Added #pragma implementation thing so this would work better with gcc 2.6.0
-//
-// Revision 0.12.0.2  1994/05/17  06:07:19  hopper
-// Added delcaration for strerror, since g++ seems to want it...
-// Also changed FNDELAY flag to POSIX O_NONBLOCK.
-//
-// Revision 0.12.0.1  1994/05/17  05:22:30  hopper
-// Changed to use Rogue Wave's RWCString, instead of my String.
-//
-// Revision 0.12  1994/05/17  05:20:16  hopper
-// Changed to use ANSI error string lookup routines.
-// Also fixed one include of old header file.
-//
-// Revision 0.11  1994/05/07  03:24:53  hopper
-// Changed header files stuff around to be aprroximately right with
-// new libraries, and new names & stuff.
-//
-// Revision 0.10  1992/05/17  23:30:54  hopper
-// Genesis!
-//
-
 #ifndef NO_RcsID
 static char _SockListenModule_CC_rcsID[] =
       "$Id$";
@@ -104,7 +75,7 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr, int qlen) :
       sockfd = -1;
       return;
    }
-   if (bind(sockfd, caddr_t(myaddr->SockAddr()), myaddr->AddressSize()) < 0) {
+   if (bind(sockfd, myaddr->SockAddr(), myaddr->AddressSize()) < 0) {
       last_error = errno;
       close(sockfd);
       sockfd = -1;
@@ -155,7 +126,8 @@ void ListeningPlug::WriteableNotify()
 int ListeningPlug::inputReady(int fd)
 {
    SockListenModule *parent = ModuleFrom();
-   int newfd, length;
+   int newfd;
+   unsigned int length;
    static unsigned char buf[1024];
    sockaddr *saddr;
 
@@ -166,11 +138,11 @@ int ListeningPlug::inputReady(int fd)
    }
 
    length = 1024;
-   if ((newfd = accept(parent->sockfd, caddr_t(buf), &length)) < 0) {
+   saddr = static_cast<sockaddr *>(buf);
+   if ((newfd = accept(parent->sockfd, saddr, &length)) < 0) {
       parent->last_error = errno;
       return(0);
    }
-   saddr = (sockaddr *)buf;
    if (saddr->sa_family != AF_INET) {
       cerr << "Aigh! ListeningPlug::inputReady(int) accepted a connection ";
       cerr << "from a non-Internet\naddress. I don't know how to handle ";
@@ -220,3 +192,30 @@ ListeningPlug::~ListeningPlug()
 }
 
 int SocketModuleChunk::junk = 0;
+
+// Started using cvs, and ChangeLog.  Look there for a revision history.
+//
+// Revision 0.13  1995/04/18  03:36:46  hopper
+// Merged revisions 0.12 and 0.12.0.3
+//
+// Revision 0.12.0.3  1994/07/18  03:44:00  hopper
+// Added #pragma implementation thing so this would work better with gcc 2.6.0
+//
+// Revision 0.12.0.2  1994/05/17  06:07:19  hopper
+// Added delcaration for strerror, since g++ seems to want it...
+// Also changed FNDELAY flag to POSIX O_NONBLOCK.
+//
+// Revision 0.12.0.1  1994/05/17  05:22:30  hopper
+// Changed to use Rogue Wave's RWCString, instead of my String.
+//
+// Revision 0.12  1994/05/17  05:20:16  hopper
+// Changed to use ANSI error string lookup routines.
+// Also fixed one include of old header file.
+//
+// Revision 0.11  1994/05/07  03:24:53  hopper
+// Changed header files stuff around to be aprroximately right with
+// new libraries, and new names & stuff.
+//
+// Revision 0.10  1992/05/17  23:30:54  hopper
+// Genesis!
+//
