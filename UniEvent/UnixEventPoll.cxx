@@ -13,6 +13,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <cerrno>
 #include <stdexcept>
 #include <sys/poll.h>
@@ -55,7 +56,7 @@ struct UnixEventPoll::Imp
 };
 
 UnixEventPoll::UnixEventPoll(Dispatcher *dispatcher)
-     : UnixEventRegistry(dispatcher), impl_(*(new Imp))
+     : impl_(*(new Imp)), dispatcher_(dispatcher)
 {
 }
 
@@ -85,6 +86,14 @@ void UnixEventPoll::clearSignal(int signo, const EventPtr &e)
 }
 
 void UnixEventPoll::clearSignal(int signo)
+{
+}
+
+void UnixEventPoll::postAt(const absolute_t &t, const EventPtr &ev)
+{
+}
+
+void UnixEventPoll::postIn(const interval_t &off, const EventPtr &ev)
 {
 }
 
@@ -183,7 +192,7 @@ void UnixEventPoll::doPoll(bool wait)
                const FDEvent &curfdev = fdcur->second;
                if (condset & curfdev.condset_)
                {
-                  getDispatcher()->addEvent(curfdev.ev_);
+                  dispatcher_->addEvent(curfdev.ev_);
                   impl_.fdmap_.erase(fdcur++);
                }
                else if (badset & condset)
@@ -208,7 +217,74 @@ bool UnixEventPoll::invariant() const
 
 void UnixEventPoll::printState(::std::ostream &os) const
 {
-   os << "Map contains " << impl_.fdmap_.size() << " entries.\n";
+   os << "UnixEventPoll(\n";
+   const FDMap::iterator end = impl_.fdmap_.end();
+   int prevfd = -1;
+   for (FDMap::iterator i = impl_.fdmap_.begin(); i != end; ++i)
+   {
+      const int fd = i->first;
+      const FDCondSet &condset = i->second.condset_;
+
+      if (fd != prevfd)
+      {
+         prevfd = fd;
+         os << std::setw(4) << fd << " (";
+      }
+      else
+      {
+         os << "     (";
+      }
+      {
+         bool first = true;
+         if (condset[UnixEventPoll::FD_Readable])
+         {
+            if (!first)
+            {
+               os << " | ";
+               first = false;
+            }
+            os << "FD_Readable";
+         }
+         if (condset.test(UnixEventRegistry::FD_Writeable))
+         {
+            if (!first)
+            {
+               os << " | ";
+               first = false;
+            }
+            os << "FD_Writeable";
+         }
+         if (condset.test(UnixEventRegistry::FD_Error))
+         {
+            if (!first)
+            {
+               os << " | ";
+               first = false;
+            }
+            os << "FD_Error";
+         }
+         if (condset.test(UnixEventRegistry::FD_Closed))
+         {
+            if (!first)
+            {
+               os << " | ";
+               first = false;
+            }
+            os << "FD_Closed";
+         }
+         if (condset.test(UnixEventRegistry::FD_Invalid))
+         {
+            if (!first)
+            {
+               os << " | ";
+               first = false;
+            }
+            os << "FD_Invalid";
+         }
+      }
+      os << ")\n";
+   }
+   os << ")";
 }
 
 } // namespace unievent

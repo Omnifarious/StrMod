@@ -11,6 +11,9 @@
 #ifndef _UNEVT_UnixEventRegistry_H_
 #  include <UniEvent/UnixEventRegistry.h>
 #endif
+#ifndef _UNEVT_Timer_H_
+#  include <UniEvent/Timer.h>
+#endif
 #include <LCore/Debugable.h>
 
 #define _UNEVT_UnixEventPoll_H_
@@ -24,14 +27,16 @@ namespace unievent {
  * This is an implementation of UnixEventRegistry that uses the
  * poll(2) system call to find out about events.
  */
-class UnixEventPoll : public UnixEventRegistry, virtual public Debugable
+class UnixEventPoll : virtual public UnixEventRegistry,
+                      virtual public Debugable,
+                      virtual public Timer
 {
  public:
    UnixEventPoll(Dispatcher *dispatcher);
    virtual ~UnixEventPoll();
 
    virtual bool invariant() const;
-   virtual void printState(std::ostream &os) const;
+   virtual void printState(::std::ostream &os) const;
 
    virtual void registerFDCond(int fd,
                                const FDCondSet &condbits,
@@ -45,12 +50,17 @@ class UnixEventPoll : public UnixEventRegistry, virtual public Debugable
 
    virtual void clearSignal(int signo);
 
+   virtual void postAt(const absolute_t &t, const EventPtr &ev);
+
+   virtual void postIn(const interval_t &off, const EventPtr &ev);
+
    virtual void doPoll(bool wait = false);
 
  private:
    struct Imp;
 
    Imp &impl_;
+   Dispatcher * const dispatcher_;
 };
 
 } // namespace unievent
