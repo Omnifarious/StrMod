@@ -369,6 +369,7 @@ void SimpleDispatcher::interrupt()
    }
 }
 
+namespace {
 void *interruptBlock()
 {
    sigset_t *oldset = new sigset_t;
@@ -383,6 +384,7 @@ void interruptUnblock(void *data)
    sigset_t *origset = static_cast<sigset_t *>(data);
    ::sigprocmask(SIG_SETMASK, origset, NULL);
    delete origset;
+}
 }
 
 } // namespace unievent
