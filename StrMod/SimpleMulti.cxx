@@ -110,7 +110,7 @@ class SimpleMultiplexer::ScanEvent : public UNIEvent {
    //: This keeps a reference to parent.
    ScanEvent(SimpleMultiplexer &parent) : parent_(&parent)                   { }
 
-   inline virtual void TriggerEvent(UNIDispatcher *dispatcher = 0);
+   inline virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
 
    void parentGone()                                    { parent_ = 0; }
 
@@ -261,7 +261,7 @@ void SimpleMultiplexer::MultiPlug::otherIsWriteable()
    }
 }
 
-void SimpleMultiplexer::ScanEvent::TriggerEvent(UNIDispatcher *dispatcher)
+void SimpleMultiplexer::ScanEvent::triggerEvent(UNIDispatcher *dispatcher)
 {
    if (parent_ != 0)
    {
@@ -427,7 +427,7 @@ bool SimpleMultiplexer::ownsPlug(const Plug *plug) const
 
 void SimpleMultiplexer::doPost()
 {
-   dispatcher_.AddEvent(scan_);
+   dispatcher_.addEvent(scan_);
 }
 
 void SimpleMultiplexer::moveToEnd(MultiPlug &toend)
