@@ -6,6 +6,7 @@ CAT = @cat@
 PROCLIBSRC = @proclibsrc@
 CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@
+CONFIGCPPFLAGS = @CPPFLAGS@
 CC = @CC@
 CFLAGS = @CFLAGS@
 prefix = @prefix@
@@ -40,7 +41,7 @@ LIBDIR = $(MYOUTDIR)/lib
 LIBSRC = $(MYOUTDIR)/lib_src
 RULESDIR = $(MYOUTDIR)/rules
 
-CPPFLAGS = -I$(INCLUDEDIR)
+CPPFLAGS = $(CONFIGCPPFLAGS) -I$(INCLUDEDIR)
 
 COMPONENTS = LCore UniEvent EHnet++ StrMod xml
 
