@@ -148,7 +148,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    //! ChunkVisitors never have very interesting constructors
    // Do ignore zeros though.  When iterating over data, zero length chunks
    // and data extents are pointless.
-   inline BufferList() : UseTrackingVisitor(true)  { }
+   inline BufferList();
    //! And rarely interesting destructors either.
    virtual ~BufferList()                    { }
 
@@ -234,7 +234,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    void operator =(const BufferList &b);
 };
 
-inline BufferList::BufferList()
+inline StreamFDModule::BufferList::BufferList()
      : UseTrackingVisitor(true), totalbytes_(0), curbyte_(0), curvec_(0)
 {
 }
