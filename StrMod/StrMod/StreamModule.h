@@ -452,7 +452,7 @@ inline void StreamModule::Plug::setReadable(bool val)
 
    flags_.canread_ = val;
 
-   if (val && isReadable())
+   if (val && isReadable() && pluggedInto() != NULL)
    {
       pushLoop();
    }
@@ -468,7 +468,7 @@ inline void StreamModule::Plug::setWriteable(bool val)
 
    flags_.canwrite_ = val;
 
-   if (val && isWriteable())
+   if (val && isWriteable() && pluggedInto() != NULL)
    {
       pullLoop();
    }
