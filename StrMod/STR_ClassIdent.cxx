@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.4  1996/08/24 12:59:53  hopper
+// Added comments for new SimplePlug, and SimpleMultiplexer classes.
+//
 // Revision 1.3  1996/06/29 06:43:42  hopper
 // Changed comment style to be more rational and added comments for new
 // classes.
@@ -54,4 +57,8 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   18UL	StrSubChunk
   19UL  StrChunkPtr
   20UL  GroupChunk
+  21UL	SimpleMultiplexer
+  22UL	SimpleMultiplexer::MultiPlug
+  23UL	SimpleMultiplexer::SinglePlug
+  24UL  SimplePlug
 */
