@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/06/29 06:39:54  hopper
+// Added initialization for totallength_
+//
 // Revision 1.1  1996/05/08 10:56:22  hopper
 // Initial functional revision
 //
@@ -15,7 +18,7 @@ const STR_ClassIdent GroupVector::identifier(16UL);
 
 GroupVector::GroupVector(GV_Size size)
      : numgroups_(size), fakegroup_(false), lastoffset_(0), lastgroupnum_(0),
-       groups_(0), numiterators_(0)
+       groups_(0), numiterators_(0), totallength_(0)
 {
    if (numgroups_ > 0) {
       groups_ = new iovec[numgroups_];
