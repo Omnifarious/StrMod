@@ -1,5 +1,8 @@
 2001-02-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* StrMod/StackSwapper.h, StrMod/ApplyVisitor.h,
+	StreamFDModule.cxx: Documentation.
+
 	* StrMod/ApplyVisitor.h, ApplyVisitor.cxx: Inital implementation
 	of a Visitor that applies a functor to every data extent.
 
