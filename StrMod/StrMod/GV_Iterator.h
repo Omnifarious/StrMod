@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/09/21 20:08:20  hopper
+// Fixed stupid bug in GroupVector::Iterator::operator +=(unsigned int) that
+// caused advances of only one character, no matter what skip said.
+//
 // Revision 1.1  1996/05/08 10:56:33  hopper
 // Initial functional revision
 //
@@ -139,7 +143,7 @@ GroupVector::Iterator::operator +=(unsigned int skip)
    if (!atend_) {
       group_char_num_ += skip;
       if (group_char_num_ < cur_len_) {
-	 cur_char_++;
+	 cur_char_ += skip;
       } else {
 	 HandleRepositionForward();
       }
