@@ -8,7 +8,7 @@
 
 // See ../ChangeLog for log.
 
-#include <assert.h>
+#include <cassert>
 
 #ifndef _STR_STR_ClassIdent_H_
 #  ifndef OS2
