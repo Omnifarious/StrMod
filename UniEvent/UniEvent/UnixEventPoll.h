@@ -23,12 +23,13 @@ namespace unievent {
  * This is an implementation of UnixEventRegistry that uses the
  * poll(2) system call to find out about events.
  */
-class UnixEventPoll : public UnixEventRegistry {
+class UnixEventPoll : public UnixEventRegistry
+{
  public:
    UnixEventPoll(Dispatcher *dispatcher);
    virtual ~UnixEventPoll();
 
-   virtual bool registerFDCond(int fd,
+   virtual void registerFDCond(int fd,
                                const FDCondSet &condbits,
                                const EventPtr &ev);
 
@@ -43,7 +44,7 @@ class UnixEventPoll : public UnixEventRegistry {
    virtual void doPoll(bool wait = false);
 
  private:
-   class Imp;
+   struct Imp;
 
    Imp &impl_;
 };
