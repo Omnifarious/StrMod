@@ -444,7 +444,8 @@ const UNIXError &StreamFDModule::getErrorIn(ErrorType err) const throw ()
    }
 }
 
-void StreamFDModule::setErrorIn(ErrorType err, const UNIXError &errval) throw ()
+void StreamFDModule::setErrorIn(ErrorType err,
+                                const unievent::UNIXError &errval)
 {
    void *rawmem = errorinfo_.errdata_[err];
    if (errorinfo_.used_.test(err))
