@@ -36,8 +36,10 @@
 #define _STR_TelnetParserData_H_
 
 /** \class TelnetParser::TelnetData TelnetParserData.h StrMod/TelnetParserData.h
- * This is just a base abstract class for all things recognized as telnet
- * protocol messages.
+ * This is just a base abstract class for all things recognized as
+ * telnet protocol messages.  It largely exists so the AreYouA() style
+ * searches can be used to find out if a StrChunk is a telnet message
+ * or not.
  */
 class TelnetParser::TelnetData : public StrChunk {
  public:
