@@ -9,7 +9,6 @@
 // For log see ../ChangeLog
 
 #include <LCore/Protocol.h>
-#include <bool.h>
 #include <UniEvent/UNEVT_ClassIdent.h>
 
 #define _UNEVT_Dispatcher_H_
@@ -33,7 +32,7 @@ class UNIDispatcher : virtual public Protocol {
 			       UNIDispatcher *enclosing = 0) = 0;
    virtual void DispatchUntilEmpty(UNIDispatcher *enclosing = 0) = 0;
    virtual void StopDispatching() = 0;
-   virtual bool_val IsQueueEmpty() const = 0;
+   virtual bool IsQueueEmpty() const = 0;
 
    //: This event is only triggered by the DispatchUntilEmpty function.
    virtual void onQueueEmpty(const UNIEventPtr &ev) = 0;

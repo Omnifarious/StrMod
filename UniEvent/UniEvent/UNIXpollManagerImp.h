@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.4  1999/10/21 02:13:06  hopper
+// Removed all references to <bool.h> and changed all references to
+// bool_val and bool_cst to bool.
+//
 // Revision 1.3  1999/07/20 05:36:33  hopper
 // Added a #define of __USE_XOPEN to ensure that Linux defines the full set
 // of poll flags.
@@ -50,13 +54,13 @@ class UNIXpollManagerImp : public UNIXpollManager {
    virtual ~UNIXpollManagerImp();
 
    //: See base class
-   virtual bool_val registerFDCond(int fd,
-				   unsigned int condbits,
-				   const UNIEventPtr &ev);
+   virtual bool registerFDCond(int fd,
+			       unsigned int condbits,
+			       const UNIEventPtr &ev);
    //: See base class
-   virtual bool_val registerFDCond(int fd,
-				   unsigned int condbits,
-				   const UNIEventPtrT<PollEvent> &ev);
+   virtual bool registerFDCond(int fd,
+			       unsigned int condbits,
+			       const UNIEventPtrT<PollEvent> &ev);
    //: See base class
    virtual void freeFD(int fd);
 
@@ -66,11 +70,11 @@ class UNIXpollManagerImp : public UNIXpollManager {
  private:
    struct EVEntry {
       unsigned int condmask_;
-      bool_val isPoll_;
+      bool isPoll_;
       UNIEventPtr ev_;
 
       inline EVEntry(unsigned int condmask,
-		     bool_val isPoll, const UNIEventPtr &ev);
+		     bool isPoll, const UNIEventPtr &ev);
    };
    typedef list<EVEntry> EVList;
    struct FDInfo {
@@ -84,7 +88,7 @@ class UNIXpollManagerImp : public UNIXpollManager {
    friend class DoPollEvent;
 
    //: Adds an event to the table.
-   bool_val addEV(int fd, const EVEntry &ev_ent);
+   bool addEV(int fd, const EVEntry &ev_ent);
 
    //: Fills up the poll_list_ with data so poll can be called.
    void fillPollList();
@@ -96,7 +100,7 @@ class UNIXpollManagerImp : public UNIXpollManager {
    inline unsigned int pevMaskToFDMask(short revents);
 
    FDMap fdmap_;
-   bool_val isregistered_;
+   bool isregistered_;
    pollfd *poll_list_;
    UNIEventPtrT<DoPollEvent> pollev_;
    unsigned int num_entries_;
@@ -106,7 +110,7 @@ class UNIXpollManagerImp : public UNIXpollManager {
 //-----------------------------inline functions--------------------------------
 
 inline UNIXpollManagerImp::EVEntry::EVEntry(unsigned int condmask,
-					    bool_val isPoll,
+					    bool isPoll,
 					    const UNIEventPtr &ev)
      : condmask_(condmask), isPoll_(isPoll), ev_(ev)
 {

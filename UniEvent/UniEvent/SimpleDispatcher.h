@@ -9,7 +9,6 @@
 // For log see ../ChangeLog
 
 #include <UniEvent/Dispatcher.h>
-#include <bool.h>
 
 #define _UNEVT_SimpleDispatcher_H_
 
@@ -32,7 +31,7 @@ class UNISimpleDispatcher : public UNIDispatcher {
    virtual void DispatchUntilEmpty(UNIDispatcher *enclosing = 0);
    inline virtual void StopDispatching();
 
-   virtual bool_val IsQueueEmpty() const;
+   virtual bool IsQueueEmpty() const;
 
    virtual void onQueueEmpty(const UNIEventPtr &ev);
 
@@ -41,7 +40,7 @@ class UNISimpleDispatcher : public UNIDispatcher {
 
  private:
    Imp &imp_;
-   bool_val stop_flag_;
+   bool stop_flag_;
 
    // Purposely left undefined.
    UNISimpleDispatcher(const UNISimpleDispatcher &b);

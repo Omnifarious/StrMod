@@ -68,8 +68,8 @@ UNIXpollManagerImp::~UNIXpollManagerImp()
    num_entries_ = 0;
 }
 
-bool_val UNIXpollManagerImp::registerFDCond(int fd, unsigned int condbits,
-					    const UNIEventPtr &ev)
+bool UNIXpollManagerImp::registerFDCond(int fd, unsigned int condbits,
+					const UNIEventPtr &ev)
 {
    if ((condbits & all_conds) != 0)
    {
@@ -85,8 +85,8 @@ bool_val UNIXpollManagerImp::registerFDCond(int fd, unsigned int condbits,
    }
 }
 
-bool_val UNIXpollManagerImp::registerFDCond(int fd, unsigned int condbits,
-					    const UNIEventPtrT<PollEvent> &ev)
+bool UNIXpollManagerImp::registerFDCond(int fd, unsigned int condbits,
+					const UNIEventPtrT<PollEvent> &ev)
 {
    if ((condbits & all_conds) != 0)
    {
@@ -180,7 +180,7 @@ void UNIXpollManagerImp::doPoll()
    }
 }
 
-bool_val UNIXpollManagerImp::addEV(int fd, const EVEntry &ev_ent)
+bool UNIXpollManagerImp::addEV(int fd, const EVEntry &ev_ent)
 {
    FDInfo &info = fdmap_[fd];
 

@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1999/10/21 02:13:06  hopper
+// Removed all references to <bool.h> and changed all references to
+// bool_val and bool_cst to bool.
+//
 // Revision 1.2  1998/05/01 11:54:51  hopper
 // Made various changes so that the UNIXpollManager could automatically
 // register itself to be run when the event queue was empty.
@@ -17,7 +21,6 @@
 // First cut at making something that can dispatch UNIX system events.
 //
 
-#include <bool.h>
 #ifndef _UNEVT_Event_H_
 #  include <UniEvent/Event.h>
 #endif
@@ -74,15 +77,15 @@ class UNIXpollManager {
    inline virtual ~UNIXpollManager();
 
    //: Register the event '*ev' to be fired on file descriptor condition true.
-   virtual bool_val registerFDCond(int fd,
-				   unsigned int condbits,
-				   const UNIEventPtr &ev) = 0;
+   virtual bool registerFDCond(int fd,
+			       unsigned int condbits,
+			       const UNIEventPtr &ev) = 0;
    //: Register '*ev' to be fired when file descriptor condition true.
    // This function promises to fill in the poll event with information about
    // the conditions causing the event to be triggered.
-   virtual bool_val registerFDCond(int fd,
-				   unsigned int condbits,
-				   const UNIEventPtrT<PollEvent> &ev) = 0;
+   virtual bool registerFDCond(int fd,
+			       unsigned int condbits,
+			       const UNIEventPtrT<PollEvent> &ev) = 0;
 /*   // Register the event '*ev' to be fired when a signal happens.
    bool_val registerSIGCond(int sig, unsigned int condbits, const UNIEventPtr &ev);
 */

@@ -15,7 +15,7 @@ class UNISimpleDispatcher::Imp {
    class EVList : public EVListBase {
     public:
       inline void addElement(UNIEvent *ev);
-      inline bool_val qEmpty();
+      inline bool qEmpty();
 
       inline ~EVList();
    };
@@ -32,7 +32,7 @@ inline void UNISimpleDispatcher::Imp::EVList::addElement(UNIEvent *ev)
    push_back(ev);
 }
 
-inline bool_val UNISimpleDispatcher::Imp::EVList::qEmpty()
+inline bool UNISimpleDispatcher::Imp::EVList::qEmpty()
 {
    return(size() <= 0);
 }
@@ -150,7 +150,7 @@ void UNISimpleDispatcher::DispatchUntilEmpty(UNIDispatcher *enclosing)
    }
 }
 
-bool_val UNISimpleDispatcher::IsQueueEmpty() const
+bool UNISimpleDispatcher::IsQueueEmpty() const
 {
    return(imp_.mainq_.qEmpty());
 }

@@ -8,7 +8,6 @@
 
 // For log see ../ChangeLog
 
-#include <bool.h>
 #include <LCore/HopClTypes.h>
 
 #define _UNEVT_UNEVT_ClassIdent_H_
