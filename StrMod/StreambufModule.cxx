@@ -1,8 +1,11 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:49  hopper
-// Initial revision
+// Revision 1.2  1995/07/23 04:02:28  hopper
+// Changed things for integration into the rest of my libraries.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:49  hopper
+// Imported sources
 //
 // Revision 0.3  1994/07/18  03:47:22  hopper
 // Moved #pragma implementation stuff around so if we ever had gcc on OS2...
@@ -24,7 +27,7 @@
 
 #  include <StrMod/StreambufModule.h>
 
-#  ifndef _StrChunk_H_
+#  ifndef _STR_StrChunk_H_
 #     include <StrMod/StrChunk.h>
 #  endif
 #else
@@ -34,7 +37,7 @@
 
 #  include "strbfmod.h"
 
-#  ifndef _StrChunk_H_
+#  ifndef _STR_StrChunk_H_
 #     include "strchnk.h"
 #  endif
 #endif
@@ -42,21 +45,21 @@
 #include <iostream.h>
 #include <strstream.h>
 
-StreambufModule::DeletePlug(StrPlug *plug)
+StreambufModule::~StreambufModule()
+{
+   DeletePlug(splug);
+   delete splug;
+}
+
+bool StreambufModule::DeletePlug(StrPlug *plug)
 {
    if (OwnsPlug(plug)) {
       if (plug->PluggedInto())
 	 plug->UnPlug();
       plugcreated = 0;
-      return(1);
+      return(true);
    } else
-      return(0);
-}
-
-StreambufModule::~StreambufModule()
-{
-   DeletePlug(splug);
-   delete splug;
+      return(false);
 }
 
 istrstream *StreambufModule::GetStream(StrChunk *&bufspace)
@@ -74,7 +77,7 @@ istrstream *StreambufModule::GetStream(StrChunk *&bufspace)
 
    assert(chnk != 0);
 
-   if (!(chnk->IsChunkType(EHChunk::DataBlockStrChunk))) {
+   if (!(chnk->AreYouA(DataBlockStrChunk::identifier))) {
       dchnk = new DataBlockStrChunk(chnk->Length(), chnk->GetCVoidP());
       delete chnk;
       chnk = 0;
@@ -101,10 +104,19 @@ istrstream *StreambufModule::GetStream(StrChunk *&bufspace)
    return(retval);
 }
 
-int StreambufModule::PutStream(ostrstream &os)
+bool StreambufModule::PutStream(ostrstream *os)
+{
+   if (PutStream(*os)) {
+      delete os;
+      return(true);
+   } else
+      return(false);
+}
+
+bool StreambufModule::PutStream(ostrstream &os)
 {
    if (!CanPut())
-      return(0);
+      return(false);
 
    StrPlug *oplug = splug->PluggedInto();
 
@@ -128,14 +140,5 @@ int StreambufModule::PutStream(ostrstream &os)
 
    assert(oplug->Write(dchnk));
 
-   return(1);
-}
-
-int StreambufModule::PutStream(ostrstream *os)
-{
-   if (PutStream(*os)) {
-      delete os;
-      return(1);
-   } else
-      return(0);
+   return(true);
 }

@@ -1,4 +1,4 @@
-#ifndef _EH_StreambufModule_H_
+#ifndef _STR_StreambufModule_H_
 
 #ifdef __GNUG__
 #pragma interface
@@ -7,8 +7,11 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:51  hopper
-// Initial revision
+// Revision 1.2  1995/07/23 04:04:19  hopper
+// Changed things for integration into the rest of my libraries.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:51  hopper
+// Imported sources
 //
 // Revision 0.4  1995/01/05  21:51:51  hopper
 // Added return statements in rarely taken if branches, These would've caused
@@ -27,18 +30,18 @@
 // $Revision$
 
 #ifdef OS2
-#   ifndef _EH_StreamModule_H_
+#   ifndef _STR_StreamModule_H_
 #      include "strmod.h"
 #   endif
 #else
-#   ifndef _EH_StreamModule_H_
+#   ifndef _STR_StreamModule_H_
 #      include <StrMod/StreamModule.h>
 #   endif
 #endif
 
 #include <assert.h>
 
-#define  _EH_StreambufModule_H_
+#define  _STR_StreambufModule_H_
 
 #ifndef NULLREPLACE
 #   define NULLREPLACE ('\01')
@@ -50,9 +53,34 @@ class istrstream;
 class ostrstream;
 
 //----class StreambufModule
+// This is a very stupid, application specific StreamModule, and I hope
+// nobody uses it.
 
 class StreambufModule : public StreamModule {
 friend class StrbufPlug;
+
+ public:
+   static const STR_ClassIdent identifier;
+
+   inline StreambufModule(char nrepl = NULLREPLACE);
+   virtual ~StreambufModule();
+
+   inline virtual int AreYouA(const ClassIdent &cid) const;
+
+   inline virtual bool CanCreate(int side) const;
+   StrbufPlug *MakePlug(int side);
+   inline virtual bool OwnsPlug(StrPlug *plug) const;
+   virtual bool DeletePlug(StrPlug *plug);
+
+   istrstream *GetStream(StrChunk *&bufspace); //** bufspace should be deleted
+   inline bool CanGet();                       //   when done with istrstream.
+
+   bool PutStream(ostrstream *os);  // **Note: delete's os
+   bool PutStream(ostrstream &os);
+   inline bool CanPut();
+
+   void SetNullReplace(char newrepl)     { nullreplace = newrepl; }
+   char GetNullReplace() const           { return(nullreplace); }
 
  protected:
    StrbufPlug *splug;
@@ -63,28 +91,6 @@ friend class StrbufPlug;
    inline virtual StrPlug *CreatePlug(int side);
 
    virtual void CanBeGotten()            { }
-
- public:
-   virtual int CanCreate(int side) const { return(side == 0 && !plugcreated); }
-   StrbufPlug *MakePlug(int side);
-   inline virtual int OwnsPlug(StrPlug *plug) const;
-   virtual int DeletePlug(StrPlug *plug);
-
-   virtual int ModuleType() const        { return(StreambufModuleNum); }
-   inline virtual int AreYouA(int mtype) const;
-
-   istrstream *GetStream(StrChunk *&bufspace); //** bufspace should be deleted
-   inline int CanGet();                        //   when done with istrstream.
-
-   int PutStream(ostrstream *os);  // **Note: delete's os
-   int PutStream(ostrstream &os);
-   inline int CanPut();
-
-   void SetNullReplace(char newrepl)     { nullreplace = newrepl; }
-   char GetNullReplace() const           { return(nullreplace); }
-
-   inline StreambufModule(char nrepl = NULLREPLACE);
-   virtual ~StreambufModule();
 };
 
 //----class StrbufPlug
@@ -92,32 +98,79 @@ friend class StrbufPlug;
 class StrbufPlug : public StrPlug {
 friend class StreambufModule;
 
+ public:
+   static const STR_ClassIdent identifier;
+
+   inline virtual int AreYouA(const ClassIdent &cid) const;
+
+   inline virtual bool CanWrite() const;
+   inline virtual bool Write(StrChunk *);
+
+   inline virtual bool CanRead() const;
+
+   inline StreambufModule *ModuleFrom() const;
+   virtual int Side() const                          { return(0); }
+
  protected:
    StreambufModule *parent;
+
+   inline StrbufPlug(StreambufModule *parnt);
+   inline virtual ~StrbufPlug();
 
    virtual StreamModule *ParentModule() const        { return(parent); }
    virtual StrChunk *InternalRead()                  { return(0); }
 
    inline virtual void ReadableNotify();
    inline virtual void WriteableNotify();
-
-   inline StrbufPlug(StreambufModule *parnt);
-   inline virtual ~StrbufPlug();
-
- public:
-   virtual int PlugType() const                      { return(StrbufPlugNum); }
-   inline virtual int AreYouA(int ptype) const;
-
-   inline virtual int CanWrite() const;
-   inline virtual int Write(StrChunk *);
-
-   inline virtual int CanRead() const;
-
-   inline StreambufModule *ModuleFrom() const;
-   virtual int Side() const                          { return(0); }
 };
 
 //-----------------------------inline functions--------------------------------
+
+inline StreambufModule::StreambufModule(char nrepl)
+   : splug(0), plugcreated(0), rdngfrm(0), wrtngto(0), nullreplace(nrepl)
+{
+   splug = new StrbufPlug(this);
+}
+
+inline int StreambufModule::AreYouA(const ClassIdent &cid) const
+{
+   return((identifier == cid) || StreamModule::AreYouA(cid));
+}
+
+inline bool StreambufModule::CanCreate(int side) const
+{
+   return(side == 0 && !plugcreated);
+}
+
+inline StrbufPlug *StreambufModule::MakePlug(int side)
+{
+   return((StrbufPlug *)(CreatePlug(side)));
+}
+
+inline bool StreambufModule::OwnsPlug(StrPlug *plug) const
+{
+   return(plugcreated && (plug == splug));
+}
+
+inline bool StreambufModule::CanGet()
+{
+   StrPlug *oplug;
+
+   if (plugcreated && (oplug = splug->PluggedInto()))
+      return(oplug->CanRead());
+   else
+      return(false);
+}
+
+inline bool StreambufModule::CanPut()
+{
+   StrPlug *oplug;
+
+   if (plugcreated && (oplug = splug->PluggedInto()))
+      return(oplug->CanWrite());
+   else
+      return(false);
+}
 
 inline StrPlug *StreambufModule::CreatePlug(int side)
 {
@@ -128,82 +181,31 @@ inline StrPlug *StreambufModule::CreatePlug(int side)
       return(0);
 }
 
-inline StrbufPlug *StreambufModule::MakePlug(int side)
-{
-   return((StrbufPlug *)(CreatePlug(side)));
-}
-
-inline int StreambufModule::OwnsPlug(StrPlug *plug) const
-{
-   return(plugcreated && (plug == splug));
-}
-
-inline int StreambufModule::AreYouA(int mtype) const
-{
-   return((mtype == StreambufModuleNum) || StreamModule::AreYouA(mtype));
-}
-
-inline int StreambufModule::CanGet()
-{
-   StrPlug *oplug;
-
-   if (plugcreated && (oplug = splug->PluggedInto()))
-      return(oplug->CanRead());
-   else
-      return(0);
-}
-
-inline int StreambufModule::CanPut()
-{
-   StrPlug *oplug;
-
-   if (plugcreated && (oplug = splug->PluggedInto()))
-      return(oplug->CanWrite());
-   else
-      return(0);
-}
-
-inline StreambufModule::StreambufModule(char nrepl)
-   : splug(0), plugcreated(0), rdngfrm(0), wrtngto(0), nullreplace(nrepl)
-{
-   splug = new StrbufPlug(this);
-}
-
 //=========StrbufPlug inlines========
 
-inline void StrbufPlug::ReadableNotify()
+inline int StrbufPlug::AreYouA(const ClassIdent &cid) const
 {
-   ModuleFrom()->CanBeGotten();
+   return((identifier == cid) || StrPlug::AreYouA(cid));
 }
 
-inline void StrbufPlug::WriteableNotify()
+inline bool StrbufPlug::CanWrite() const
 {
-   return;
+   return(false);
 }
 
-inline int StrbufPlug::AreYouA(int ptype) const
+inline bool StrbufPlug::Write(StrChunk *)
 {
-   return((ptype == StrbufPlugNum) || StrPlug::AreYouA(ptype));
+   return(false);
 }
 
-inline int StrbufPlug::CanWrite() const
+inline bool StrbufPlug::CanRead() const
 {
-   return(0);
-}
-
-inline int StrbufPlug::Write(StrChunk *)
-{
-   return(0);
-}
-
-inline int StrbufPlug::CanRead() const
-{
-   return(0);
+   return(false);
 }
 
 inline StreambufModule *StrbufPlug::ModuleFrom() const
 {
-   return((StreambufModule *)(ParentModule()));
+   return(static_cast<StreambufModule *>(ParentModule()));
 }
 
 inline StrbufPlug::StrbufPlug(StreambufModule *parnt)
@@ -216,6 +218,16 @@ inline StrbufPlug::~StrbufPlug()
 {
    if (PluggedInto())
       UnPlug();
+}
+
+inline void StrbufPlug::ReadableNotify()
+{
+   ModuleFrom()->CanBeGotten();
+}
+
+inline void StrbufPlug::WriteableNotify()
+{
+   return;
 }
 
 #endif
