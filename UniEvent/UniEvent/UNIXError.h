@@ -37,33 +37,36 @@
  *
  * There are no member functions to modify its value, so this is essentially a
  * const value.  This makes the class multithread safe.
+ *
+ * There is a special kind of error called an EOF error.  An EOF error signals that an EOF condition exists on the file descriptor in questoin.  The 'errno' value is ESUCCESS (0) in this case.
  */
 class UNIXError : public LCoreError {
  public:
-   /** \brief Create using a system call name, the global 'errno' value, and the
-    * LCORE_GET_COMPILERINFO macro to give values to parent.
-    */
-   explicit inline UNIXError(const char *syscallname, const char *desc = 0)
-      throw ();
-   /** \brief Create using a system call name, an errno value, and the
-    * LCORE_GET_COMPILERINFO macro to give values to parent.
-    */
-   inline UNIXError(const char *syscallname, int errnum, const char *desc = 0)
-      throw();
+   //! A value for no error at all.
+   static const UNIXError S_noerror;
+
    /** Create from a system call name, the global 'errno' value, and an
     * LCoreError.
     */
-   inline UNIXError(const char *syscallname, LCoreError &lcerr) throw();
+   inline UNIXError(const char *syscallname, const LCoreError &lcerr) throw ();
    //! Create from a system call name, an errno value, and an LCoreError.
-   inline UNIXError(const char *syscallname, int errnum, LCoreError &lcerr)
-      throw();
+   inline UNIXError(const char *syscallname,
+                    int errnum, const LCoreError &lcerr) throw ();
+
+   //! Create a new UNIXError that is an EOF error.
+   inline static const UNIXError makeEOFError(const char *syscallname,
+                                              const char *desc = 0) throw ();
+
+   //! Create a new UNIXError that is an EOF error.
+   inline static const UNIXError makeEOFError(const char *syscallname,
+                                              const LCoreError &lcerr) throw ();
 
    //! Return name of system call that caused error.
    const char *getSyscallName() const throw ()          { return syscallname_; }
 
    //! The numeric value of the error, which corresponds to values from errno.h
    int getErrorNum() const throw ()                     { return errnum_; }
-   /** The result of doing strerror(getErrorNum()).
+   /** The result of doing <code>strerror_r(getErrorNum(), buf, buflen)</code>.
     *
     * \param buf A buffer to stuff the string into.
     * \param buflen The maximum number of bytes the buffer can hold.
@@ -72,9 +75,9 @@ class UNIXError : public LCoreError {
     *
     * One some platforms (like Linux), strerror is not thread safe, and a
     * different function, strerror_r is called.  strerror_r requires you to
-    * supply a buffer.  Since the strerror_r interface can be implemented in
-    * terms of the strerror interface, but not the other way around, the
-    * strerror_r interface is what is supported here.
+    * supply a buffer.  The sterror_r interface is supported since the
+    * strerror_r interface can be implemented in terms of the strerror
+    * interface, but not the other way around.
     */
    void getErrorString(char *buf, size_t buflen) const throw ();
 
@@ -87,35 +90,11 @@ class UNIXError : public LCoreError {
 
 /**
  * \param syscallname Name of system call that generated the error.
- * \param desc [optional] Description of the context of the error.
- * The actual Unix error number is grabbed from the global 'errno' value.
- */
-inline
-UNIXError::UNIXError(const char *syscallname, const char *desc) throw ()
-     : LCoreError(desc, LCORE_GET_COMPILERINFO()),
-       syscallname_(syscallname), errnum_(errno)
-{
-}
-
-/**
- * \param syscallname Name of system call that generated the error.
- * \param errnum The Unix 'errno' value for this error.
- * \param desc [optional] Description of the context of the error.
- */
-inline
-UNIXError::UNIXError(const char *syscallname, int errnum, const char *desc)
-   throw ()
-     : LCoreError(desc, LCORE_GET_COMPILERINFO()),
-       syscallname_(syscallname), errnum_(errnum)
-{
-}
-
-/**
- * \param syscallname Name of system call that generated the error.
  * \param lcerr An LCoreError, it's values will be copied into the UNIXError.
  * The actual Unix error number is grabbed from the global 'errno' value.
  */
-inline UNIXError::UNIXError(const char *syscallname, LCoreError &lcerr) throw()
+inline
+UNIXError::UNIXError(const char *syscallname, const LCoreError &lcerr) throw ()
      : LCoreError(lcerr), syscallname_(syscallname), errnum_(errno)
 {
 }
@@ -126,7 +105,8 @@ inline UNIXError::UNIXError(const char *syscallname, LCoreError &lcerr) throw()
  * \param lcerr An LCoreError, it's values will be copied into the UNIXError.
  */
 inline
-UNIXError::UNIXError(const char *syscallname, int errnum, LCoreError &lcerr)
+UNIXError::UNIXError(const char *syscallname,
+                     int errnum, const LCoreError &lcerr)
    throw ()
      : LCoreError(lcerr), syscallname_(syscallname), errnum_(errnum)
 {
