@@ -135,7 +135,8 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
    sockfd_ = socket(myaddr_.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC);
    if (sockfd_ < 0)
    {
-      setError(UNIXError("socket",
+      const int myerrno = UNIXError::getErrno();
+      setError(UNIXError("socket", myerrno,
                          LCoreError("Creating listening socket",
                                     LCORE_GET_COMPILERINFO())));
       return;
@@ -145,7 +146,8 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
 
       if (temp < 0)
       {
-         setError(UNIXError("fcntl",
+         const int myerrno = UNIXError::getErrno();
+         setError(UNIXError("fcntl", myerrno,
                             LCoreError("Setting non-blocking mode",
                                        LCORE_GET_COMPILERINFO())));
 	 close(sockfd_);
@@ -155,7 +157,8 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
       temp &= ~O_NDELAY;
       if (fcntl(sockfd_, F_SETFL, temp | O_NONBLOCK) < 0)
       {
-         setError(UNIXError("fcntl",
+         const int myerrno = UNIXError::getErrno();
+         setError(UNIXError("fcntl", myerrno,
                             LCoreError("Setting non-blocking mode",
                                        LCORE_GET_COMPILERINFO())));
 	 close(sockfd_);
@@ -163,8 +166,12 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
 	 return;
       }
    }
-   if (bind(sockfd_, myaddr_.SockAddr(), myaddr_.AddressSize()) < 0) {
-      setError(UNIXError("fcntl",
+   if (bind(sockfd_, myaddr_.SockAddr(), myaddr_.AddressSize()) < 0)
+   {
+      const int myerrno = UNIXError::getErrno();
+//      int myerrno = errno;
+//      std::cerr << "errno == " << myerrno << "\n";
+      setError(UNIXError("bind", myerrno,
                          LCoreError("Binding listening socket",
                                     LCORE_GET_COMPILERINFO())));
       close(sockfd_);
@@ -173,7 +180,8 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
    }
    if (listen(sockfd_, qlen) < 0)
    {
-      setError(UNIXError("listen",
+      const int myerrno = UNIXError::getErrno();
+      setError(UNIXError("listen", myerrno,
                          LCoreError("Listening on listening socket",
                                     LCORE_GET_COMPILERINFO())));
       close(sockfd_);
@@ -259,9 +267,10 @@ void SockListenModule::doAccept()
 
    if (tempfd < 0)
    {
-      if (errno != EAGAIN)
+      const int myerrno = UNIXError::getErrno();
+      if (myerrno != EAGAIN)
       {
-         setError(UNIXError("accept",
+         setError(UNIXError("accept", myerrno,
                             LCoreError("Error accepting connection",
                                        LCORE_GET_COMPILERINFO())));
       }
@@ -289,7 +298,8 @@ void SockListenModule::doAccept()
 
 	    if (temp < 0)
 	    {
-               setError(UNIXError("fcntl",
+               const int myerrno = UNIXError::getErrno();
+               setError(UNIXError("fcntl", myerrno,
                                   LCoreError("Setting accepted connection non-blocking",
                                              LCORE_GET_COMPILERINFO())));
 	       close(tempfd);
@@ -300,7 +310,8 @@ void SockListenModule::doAccept()
 	       temp &= ~O_NDELAY;
 	       if (fcntl(tempfd, F_SETFL, temp | O_NONBLOCK) < 0)
 	       {
-                  setError(UNIXError("fcntl",
+                  const int myerrno = UNIXError::getErrno();
+                  setError(UNIXError("fcntl", myerrno,
                                      LCoreError("Setting accepted connection non-blocking",
                                                 LCORE_GET_COMPILERINFO())));
 		  close(tempfd);
