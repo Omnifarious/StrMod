@@ -33,13 +33,15 @@
 #include "StrMod/TelnetChunkerData.h"
 #include "StrMod/TelnetParser.h"
 #include "StrMod/TelnetChunkBuilder.h"
-#include "StrMod/ChunkIterator.h"
+#include "StrMod/StrSubChunk.h"
+#include "StrMod/GroupChunk.h"
+#include "StrMod/PreAllocBuffer.h"
 #include "StrMod/DynamicBuffer.h"
-#include "StrMod/BufferChunk.h"
+#include "StrMod/ApplyVisitor.h"
+#include "StrMod/StrChunkPtrT.h"
 #include "StrMod/StrChunkPtr.h"
-#include <cstring>
 #include <cassert>
-#include <iostream>
+#include <deque>
 
 const STR_ClassIdent TelnetChunker::identifier(33UL);
 const STR_ClassIdent TelnetChunker::TelnetData::identifier(34UL);
@@ -58,167 +60,174 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
    Builder();
    virtual ~Builder();
 
-   virtual void addCharacter(U1Byte c);
-   virtual void addIACAndCharacter(U1Byte c);
-   virtual void addCharCommand(TelnetChars::Commands command)
-      throw(bad_call_order);
+   virtual void addDataBlock(size_t regionbegin, size_t regionend);
+   virtual void addCharCommand(TelnetChars::Commands command);
    virtual void addNegotiationCommand(TelnetChars::OptionNegotiations negtype,
-                                      U1Byte opt_type)
-      throw(bad_call_order);
-   virtual bool isInSuboption() const             { return insubopt_; }
-   virtual void initSuboption(U1Byte opt_type) throw(bad_call_order);
-   virtual void finishSuboption() throw(bad_call_order);
+                                      U1Byte opt_type);
+   virtual void addSuboption(U1Byte opt_type,
+                             size_t regionbegin, size_t regionend,
+                             StrChunkPtrT<BufferChunk> &cooked);
 
-   bool queueFull() const                         { return queueend_ < qsize_; }
-   inline bool queueEmpty() const                 { return queueend_ == 0; }
+   void addIncoming(const StrChunkPtr &ptr);
+   size_t curIncomingLen() const                            { return curlen_; }
+   inline void clearIncoming();
+   inline void setIncoming(const StrChunkPtr &ptr);
+   inline void setIncoming(const StrChunkPtr &ptr, size_t inlen);
+
    inline bool hasData() const;
-   StrChunkPtr getFromQueue();
+   const StrChunkPtr getFromQueue();
 
  private:
-   StrChunk *chunks_[qsize_];
-   int queueend_;
-   BufferChunk *curdata_;
-   U1Byte *buf_;
-   size_t used_;
-   size_t len_;
-   bool insubopt_;
-   U1Byte suboptnum_;
+   deque<StrChunk *> chunks_;
+   StrChunkPtr curchunk_;
+   size_t curlen_;
 
-   inline void newBuffer(bool queuecurrent = true);
+   inline StrChunk *makeDataPtr(size_t regionbegin, size_t regionend);
 };
 
-inline bool
-TelnetChunker::Builder::hasData() const
+inline void TelnetChunker::Builder::clearIncoming()
 {
-   return (queueend_ != 0) || (!insubopt_ && (used_ != 0));
+   curchunk_.ReleasePtr();
+   curlen_ = 0;
 }
 
-inline void TelnetChunker::Builder::newBuffer(bool queuecurrent)
+inline void TelnetChunker::Builder::setIncoming(const StrChunkPtr &ptr)
 {
-   BufferChunk *cd = curdata_;
-   if (queuecurrent && (used_ > 0))
+   setIncoming(ptr, ptr->Length());
+}
+
+inline void
+TelnetChunker::Builder::setIncoming(const StrChunkPtr &ptr, size_t inlen)
+{
+   curchunk_ = ptr;
+   curlen_ = inlen;
+}
+
+inline bool TelnetChunker::Builder::hasData() const
+{
+   return !chunks_.empty();
+}
+
+inline StrChunk *
+TelnetChunker::Builder::makeDataPtr(size_t regionbegin, size_t regionend)
+{
+   if ((regionbegin == 0) && (regionend == curlen_))
    {
-      cd->resize(used_);
-      chunks_[queueend_++] = cd;
+      return curchunk_.GetPtr();
    }
-   cd = new DynamicBuffer(8);
-   buf_ = cd->getCharP();
-   len_ = 8;
-   used_ = 0;
-   curdata_ = cd;
+   else
+   {
+      return new StrSubChunk(curchunk_,
+                             LinearExtent(regionbegin,
+                                          regionend - regionbegin));
+   }
 }
 
 TelnetChunker::Builder::Builder()
-     : queueend_(0), curdata_(0), buf_(0), used_(0), len_(0), insubopt_(false)
 {
-   for (int i = 0; i < qsize_; ++i)
-   {
-      chunks_[i] = 0;
-   }
-   newBuffer(false);
+   curlen_ = 0;
 }
 
-void TelnetChunker::Builder::addCharacter(U1Byte c)
+void TelnetChunker::Builder::addDataBlock(size_t regionbegin, size_t regionend)
 {
-   if (used_ >= len_)
+   assert(curchunk_);
+   assert(regionend >= regionbegin);
+   assert(regionbegin <= curlen_);
+   assert(regionend <= curlen_);
+   if (regionend == regionbegin)
    {
-      // atleast must be a power of 2.
-      static const size_t atleast = 0x08;
-      static const size_t mask = ~static_cast<size_t>(atleast - 1);
-      BufferChunk *cd = curdata_;
-      cd->resize(used_ + ((used_ / 2) & ~mask) + atleast);
-      len_ = cd->Length();
-      buf_ = cd->getCharP();
+      return;
    }
-   buf_[used_++] = c;
-}
-
-void TelnetChunker::Builder::addIACAndCharacter(U1Byte c)
-{
-   addCharacter(TelnetChars::IAC);
-   addCharacter(c);
+   StrChunk *ptr = makeDataPtr(regionbegin, regionend);
+   ptr->AddReference();
+   chunks_.push_back(ptr);
 }
 
 void TelnetChunker::Builder::addCharCommand(TelnetChars::Commands command)
-      throw(bad_call_order)
 {
-   if (insubopt_)
-   {
-      throw bad_call_order("TelnetChunker::Builder::addCharCommand called "
-                           "while still inside a suboption.");
-   }
-   if (used_ > 0)
-   {
-      newBuffer();
-   }
-   chunks_[queueend_++] = new SingleChar(command);
+   StrChunk *ptr = new SingleChar(command);
+   ptr->AddReference();
+   chunks_.push_back(ptr);
 }
 
 void TelnetChunker::Builder::addNegotiationCommand(
    TelnetChars::OptionNegotiations negtype, U1Byte opt_type)
-   throw(bad_call_order)
 {
-   if (insubopt_)
-   {
-      throw bad_call_order("TelnetChunker::Builder::addNegotiationCommand "
-                           "called while still inside a suboption.");
-   }
-   if (used_ > 0)
-   {
-      newBuffer();
-   }
-   chunks_[queueend_++] = new OptionNegotiation(negtype, opt_type);
+   StrChunk *ptr = new OptionNegotiation(negtype, opt_type);
+   ptr->AddReference();
+   chunks_.push_back(ptr);
 }
 
-void TelnetChunker::Builder::initSuboption(U1Byte opt_type)
-   throw(bad_call_order)
+void TelnetChunker::Builder::addSuboption(U1Byte opt_type,
+                                          size_t regionbegin, size_t regionend,
+                                          StrChunkPtrT<BufferChunk> &cooked)
 {
-   if (insubopt_) {
-      throw bad_call_order("TelnetChunker::Builder::initSuboption "
-                           "called while still inside a suboption.");
-   }
-   suboptnum_ = opt_type;
-   insubopt_ = true;
-   if (used_ > 0)
+   assert(curchunk_);
+   assert(regionend > regionbegin);
+   assert(regionbegin < curlen_);
+   assert(regionend <= curlen_);
+   StrChunk *data = 0;
+   if (regionend > regionbegin)
    {
-      newBuffer();
+      data = makeDataPtr(regionbegin, regionend);
    }
+   StrChunk *ptr = new Suboption(opt_type, cooked, data);
+   ptr->AddReference();
+   chunks_.push_back(ptr);
 }
 
-void TelnetChunker::Builder::finishSuboption()
-   throw(bad_call_order)
+void TelnetChunker::Builder::addIncoming(const StrChunkPtr &ptr)
 {
-   if (!insubopt_) {
-      throw bad_call_order("TelnetChunker::Builder::finishSuboption "
-                           "called while not inside a suboption.");
-   }
-   curdata_->resize(used_);
-   chunks_[queueend_++] = new Suboption(suboptnum_, curdata_);
-   newBuffer(false);
-   insubopt_ = false;
-}
-
-StrChunkPtr
-TelnetChunker::Builder::getFromQueue()
-{
-   StrChunk *ptr = 0;
-   if (queueend_ > 0)
+   const size_t inlen = ptr->Length();
+   const size_t oldlen = curlen_;
+   assert(inlen > 0);
+   if (inlen == 0)
    {
-      ptr = chunks_[0];
-      queueend_--;
-      for (int i = 1; i < queueend_; ++i)
+      return;
+   }
+   assert((curchunk_ && (curlen_ > 0)) || (!curchunk_ && (curlen_ == 0)));
+   if (!curchunk_)
+   {
+      setIncoming(curchunk_, inlen);
+      curlen_ += inlen;
+   }
+   else
+   {
+      StrChunkPtrT<GroupChunk> gc;
+      if ((curchunk_->NumReferences() == 1) &&
+          curchunk_->AreYouA(GroupChunk::identifier))
       {
-         chunks_[i - 1] = chunks_[i];
+         gc = static_cast<GroupChunk *>(curchunk_.GetPtr());
       }
-      chunks_[queueend_] = 0;
+      else
+      {
+         GroupChunk *tmp = new GroupChunk;
+         tmp->push_back(curchunk_);
+         gc = tmp;
+         curchunk_ = tmp;
+      }
+      gc->push_back(ptr);
+      curlen_ += inlen;
+      assert(curlen_ == curchunk_->Length());
    }
-   else if (!insubopt_ && (used_ > 0))
+   assert(curlen_ == (oldlen + inlen));
+}
+
+const StrChunkPtr TelnetChunker::Builder::getFromQueue()
+{
+   assert(!chunks_.empty());
+   if (!chunks_.empty())
    {
-      curdata_->resize(used_);
-      ptr = curdata_;
-      newBuffer(false);
+      StrChunk *ptr = chunks_.front();
+      chunks_.pop_front();
+      assert(ptr->NumReferences() > 0);
+      ptr->DelReference();
+      return(ptr);
    }
-   return(ptr);
+   else
+   {
+      return 0;
+   }
 }
 
 struct TelnetChunker::Internals {
@@ -236,16 +245,71 @@ TelnetChunker::~TelnetChunker()
    delete &data_;
 }
 
+class TelnetChunker::DataFunctor {
+ public:
+   DataFunctor(TelnetParser &parser, TelnetChunkBuilder &builder)
+        : parser_(parser), builder_(builder)
+   {
+   }
+   void operator ()(const void *data, size_t len) const {
+      parser_.processData(data, len, builder_);
+   }
+
+   TelnetParser &parser_;
+   TelnetChunkBuilder &builder_;
+};
+
 void TelnetChunker::processIncoming()
 {
-   if (! chunkpos_.isFor(incoming_))
+   if (!data_.builder_.hasData())
    {
-      chunkpos_ = incoming_->begin();
+      if (incoming_->Length() <= 0)
+      {
+         incoming_.ReleasePtr();
+         return;
+      }
+
+      data_.builder_.addIncoming(incoming_);
+      {
+         DataFunctor tmp(data_.parser_, data_.builder_);
+         for_each(incoming_, tmp);
+      }
+      data_.parser_.endOfChunk(data_.builder_);
+
+      const size_t regionbegin = data_.parser_.getRegionBegin();
+      const size_t totallen = data_.builder_.curIncomingLen();
+      assert(regionbegin <= totallen);
+      // If the parser doesn't forsees a region starting before the end of the
+      // current block.
+      if (regionbegin == totallen)
+      {
+         // Drop
+         data_.parser_.dropBytes(regionbegin);
+         data_.builder_.clearIncoming();
+      }
+      else
+      {
+         const size_t inlen = incoming_->Length();
+
+         assert(totallen >= inlen);
+         // If the parser doesn't forsee a region starting before the beginning
+         // of the block we just processed, drop all prior blocks.
+         if ((totallen == inlen) && ((totallen - regionbegin) <= inlen))
+         {
+            data_.parser_.dropBytes(totallen - inlen);
+            data_.builder_.setIncoming(incoming_, inlen);
+         }
+      }
    }
-   StrChunk::const_iterator end = incoming_->end();
-   for (; chunkpos_ != end; ++chunkpos_)
+   assert(data_.builder_.hasData());;
+   if (data_.builder_.hasData())
    {
-      data_.parser_.processChar(*chunkpos_, data_.builder_);
+      outgoing_ = data_.builder_.getFromQueue();
+      outgoing_ready_ = true;
+   }
+   if (!data_.builder_.hasData())
+   {
+      incoming_.ReleasePtr();
    }
 }
 
@@ -286,7 +350,16 @@ TelnetChunker::Suboption::cookedToRaw(const StrChunkPtrT<BufferChunk> &cooked)
    {
       // Every IAC currently in cooked will be replaced with IAC IAC.
       size_t rawlen = cooked->Length() + countIAC;
-      DynamicBuffer *raw = new DynamicBuffer(rawlen);
+      BufferChunk *raw = 0;
+      if (rawlen <= 16)
+      {
+         raw = new PreAllocBuffer<16>;
+         raw->resize(rawlen);
+      }
+      else
+      {
+         raw = new DynamicBuffer(rawlen);
+      }
       {
          U1Byte * const rawbuf = raw->getCharP();
          size_t o = 0;

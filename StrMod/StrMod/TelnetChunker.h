@@ -27,7 +27,6 @@
 // For a log, see ../ChangeLog
 
 #include <StrMod/StreamProcessor.h>
-#include <StrMod/ChunkIterator.h>
 #include <StrMod/STR_ClassIdent.h>
 
 #define _STR_TelnetChunker_H_
@@ -70,8 +69,8 @@ class TelnetChunker : public StreamProcessor {
    virtual void processIncoming();
 
  private:
+   class DataFunctor;
    class Internals;
-   StrChunk::const_iterator chunkpos_;
    Internals &data_;
 };
 

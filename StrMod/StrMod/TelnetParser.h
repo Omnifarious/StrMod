@@ -32,8 +32,10 @@
 #include <StrMod/STR_ClassIdent.h>
 #include <LCore/Protocol.h>
 #include <LCore/HopClTypes.h>
+#include <cstddef>
 
 class TelnetChunkBuilder;
+template <int n> class PreAllocBuffer;
 
 /** \class TelnetParser TelnetParser.h StrMod/TelnetParser.h
  * Class for parsing out a stream of characters into telnet protocol
@@ -46,19 +48,29 @@ class TelnetParser : virtual public Protocol {
    //! Construct a parser in the 'start' state.
    TelnetParser();
    //! Destroy a parser.
-   ~TelnetParser();
+   virtual ~TelnetParser();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   /** Process a character, call the builder, and advance the state.
-    * OK, so it's a bit more complicated than that.  The appropriate builder
-    * function is called, and it may be that no builder function at all is
-    * called.
+   //! Process a buffer, calling the builder, and advancing the state.
+   void processData(const void *data, size_t len,
+                            TelnetChunkBuilder &builder);
+
+   //! Stuff any pending data chunks into the builder.
+   void endOfChunk(TelnetChunkBuilder &builder);
+
+   /** \brief Return number of bytes to the beginning of the current region that
+    * TelnetParser is not finished parsing yet.
+   */
+   size_t getRegionBegin() const                        { return regionbegin_; }
+
+   /** \brief Move region as if <code>bytes</code> bytes had been chopped off
+    * the front.
     */
-   virtual void processChar(U1Byte ch, TelnetChunkBuilder &builder);
+   inline void dropBytes(size_t bytes);
 
    //! Reset the parser back to the 'start' state.
-   virtual void reset(TelnetChunkBuilder &builder);
+   void reset(TelnetChunkBuilder &builder);
 
  protected:
    /** Describes the current state of the parser.
@@ -78,10 +90,38 @@ class TelnetParser : virtual public Protocol {
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
 
  private:
-   ParserState state_;
    TelnetChars::OptionNegotiations negtype_;
+   U1Byte subopt_type_;
+   size_t curpos_;
+   ParserState state_;
+   size_t regionbegin_;
+   size_t regionend_;
+   U1Byte *cookedbuf_;
+   size_t cooked_total_;
+   size_t cooked_used_;
+   PreAllocBuffer<48> *cooked_;
+
+   inline void stateNormal(ParserState &state, const U1Byte ch);
+   inline void stateEscape(ParserState &state, const U1Byte ch, size_t i,
+                           TelnetChunkBuilder &builder);
+   inline void stateSubNeg(ParserState &state, const U1Byte ch, size_t i,
+                           TelnetChunkBuilder &builder);
+   inline void stateSuboptNum(ParserState &state, const U1Byte ch, size_t i,
+                              TelnetChunkBuilder &builder);
+   inline void stateSubopt(ParserState &state, U1Byte ch);
+   inline void stateSuboptEscape(ParserState &state, U1Byte ch, size_t i,
+                                 TelnetChunkBuilder &builder);
 };
 
 //-----------------------------inline functions--------------------------------
+
+inline void TelnetParser::dropBytes(size_t bytes)
+{
+   if (bytes < regionbegin_)
+   {
+      regionbegin_ -= bytes;
+      curpos_ -= bytes;
+   }
+}
 
 #endif
