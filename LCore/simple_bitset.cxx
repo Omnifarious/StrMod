@@ -33,6 +33,8 @@ const unsigned int _base_simple_bitset::bits_in[256] = {
    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
    4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
 };
+const _base_simple_bitset::bits_t _base_simple_bitset::allones_;
+const size_t _base_simple_bitset::bits_t_bits;
 
 ::std::string _base_simple_bitset::to_string(const bits_t bitary[],
                                              size_t size, bits_t lastmask)
