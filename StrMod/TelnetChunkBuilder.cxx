@@ -25,3 +25,5 @@
 #endif
 
 #include "StrMod/TelnetChunkBuilder.h"
+
+const STR_ClassIdent TelnetChunkBuilder::identifier(49UL);
