@@ -7,6 +7,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/02/22 03:52:28  hopper
+// Made some changes now that we have ReferenceCounting again.
+//
 // Revision 1.2  1996/02/12 05:50:49  hopper
 // Declared something to be inline that should be inline.
 //
@@ -137,16 +140,9 @@ class StrChunkBuffer : public Object, public ReferenceCounting {
    void *GetBufAsVoid() const              { return(data); }
    unsigned char *GetBufAsChar() const     { return((unsigned char *)(data)); }
 
-   void AddReference()                     { refcounter++; }
-   void DelReference()                     { if (refcounter) refcounter--; }
-   U4Byte NumReferences()                  { return(refcounter); }
-
    inline unsigned char &operator [](unsigned int index) const;
 
    const StrChunkBuffer &operator =(const StrChunkBuffer &b);
-
- protected:
-   U4Byte refcounter;
 
  private:
    unsigned int length;
