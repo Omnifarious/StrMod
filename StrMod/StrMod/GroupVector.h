@@ -6,7 +6,7 @@
 
 /* $Header$ */
 
-// $Log$
+// See ../ChangeLog for log.
 // Revision 1.3  1996/09/11 23:10:40  hopper
 // Changed class GroupVector to be a little more STL like.  Added
 // SafeToDelete method.
