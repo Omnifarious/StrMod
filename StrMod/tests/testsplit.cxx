@@ -3,7 +3,6 @@
 #include "StrMod/EchoModule.h"
 #include <UniEvent/UNIXpollManagerImp.h>
 #include <UniEvent/SimpleDispatcher.h>
-// #include <EHnet++/InetAddress.h>
 #include <iostream.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -54,7 +53,7 @@ int main(int argc, char *argv[])
       *(splitter.makePlug(StreamSplitterModule::SideBiDir))
       );
 
-   while (!sin.readEOF())
+   while (!sin.readEOF() || !sout.writeBufferEmpty())
    {
       disp.DispatchEvents(1);
 //        cerr << "Tick!\n";
