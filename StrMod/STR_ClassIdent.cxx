@@ -42,4 +42,5 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   29UL	ProcessorModule
   30UL	ProcessorModule::Plug
   31UL	EOFStrChunk
+  32UL	SimpleMultiplexer::ScanEvent
 */
