@@ -88,13 +88,13 @@ class TimerEvent : public strmod::unievent::Event
  public:
    TimerEvent()
         : created_(currentTime()), recur_(interval_t(0, 0)),
-          last_(created_), recurbase_(created_), ureg_(0)
+          last_(created_), recurbase_(created_), timer_(0)
    {
    }
-   TimerEvent(strmod::unievent::UnixEventPoll *ureg,
+   TimerEvent(strmod::unievent::Timer *timer,
               const interval_t &recurint)
         : created_(currentTime()), recur_(recurint),
-          last_(created_), recurbase_(created_), ureg_(ureg)
+          last_(created_), recurbase_(created_), timer_(timer)
    {
    }
 
@@ -105,7 +105,7 @@ class TimerEvent : public strmod::unievent::Event
    const interval_t recur_;
    absolute_t last_;
    absolute_t recurbase_;
-   strmod::unievent::UnixEventPoll * const ureg_;
+   strmod::unievent::Timer * const timer_;
 
    static const absolute_t currentTime()
    {
@@ -134,7 +134,7 @@ void TimerEvent::triggerEvent(strmod::unievent::Dispatcher *dispatcher)
    {
       cout << "Setting up another event in " << interval_to_double(recur_)
            << " seconds.\n";
-      ureg_->postAt(recurbase_ + recur_, this);
+      timer_->postAt(recurbase_ + recur_, this);
       recurbase_ = recurbase_ + recur_;
    }
    cout.flush();
@@ -150,6 +150,7 @@ int main(int argc, const char *argv[])
 
       using strmod::unievent::UnixEventRegistry;
       upoll.printState(cerr);
+      cerr << "\n";
       const UnixEventRegistry::FDCondSet rdcond(UnixEventRegistry::FD_Readable);
       upoll.registerFDCond(0, rdcond, new StdinEvent(&upoll, 0));
       for (int i = 1; i < argc; ++i)
@@ -168,21 +169,13 @@ int main(int argc, const char *argv[])
       upoll.postIn(strmod::unievent::Timer::interval_t(3, 125000000U),
                    new TimerEvent(&upoll,
                                   strmod::unievent::Timer::interval_t(3, 125000000U)));
-//     upoll.onSignal(SIGALRM, new SigEvent(&upoll, SIGALRM));
-//     {
-//        struct ::itimerval intval;
-//        intval.it_interval.tv_sec = 2;
-//        intval.it_interval.tv_usec = 500000;
-//        intval.it_value.tv_sec = intval.it_interval.tv_sec;
-//        intval.it_value.tv_usec = intval.it_interval.tv_usec;
-//        ::setitimer(ITIMER_REAL, &intval, 0);
-//     }
-//   upoll.printState(std::cerr);
+      upoll.printState(cerr);
+      cerr << "\n";
       do {
          if (dispatcher.isQueueEmpty())
          {
-            upoll.printState(::std::cerr);
-            ::std::cerr << "\n";
+            upoll.printState(cerr);
+            cerr << "\n";
             upoll.doPoll(true);
 //         upoll.printState(std::cerr);
          }
@@ -196,18 +189,18 @@ int main(int argc, const char *argv[])
    }
    catch (::std::range_error re)
    {
-      ::std::cerr << "Died of a range_error: " << re.what() << "\n";
+      cerr << "Died of a range_error: " << re.what() << "\n";
    }
    catch (::std::logic_error le)
    {
-      ::std::cerr << "Died of a logic_error: " << le.what() << "\n";
+      cerr << "Died of a logic_error: " << le.what() << "\n";
    }
    catch (::std::runtime_error re)
    {
-      ::std::cerr << "Died of a runtime_error: " << re.what() << "\n";
+      cerr << "Died of a runtime_error: " << re.what() << "\n";
    }
    catch (::std::exception e)
    {
-      ::std::cerr << "Died of an exception: " << e.what() << "\n";
+      cerr << "Died of an exception: " << e.what() << "\n";
    }
 }
