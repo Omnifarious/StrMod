@@ -1,3 +1,6 @@
+This document is horribly out of date.  In particular, the rules for
+StrPlugs don't really apply anymore.
+
 ------------------------------------Overview----------------------------------
 	StreamModule's are designed to be a flexible way to move streams of
 data around in a program. They handle non-blocking I/O well, and have a
