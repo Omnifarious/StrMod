@@ -1,6 +1,10 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.6  1996/09/02 23:05:05  hopper
+ // Changed to try to handle systems that don't set st_blksize for sockets.
+ // Used 4096 as a default block size.
+ //
  // Revision 1.5  1996/07/07 20:55:41  hopper
  // Changed things so that max_block_size is initialized correctly.  Used
  // to rely on StrChunkio crud for a solution.
@@ -76,6 +80,7 @@ extern "C" int close(int);
 #include <sys/stat.h>
 #include <errno.h>
 #include <string>
+#include <iostream.h>
 
 #ifndef NO_RcsID
 static char StreamFDModule_CC_rcsID[] =
@@ -108,7 +113,6 @@ string StreamFDModule::ErrorString() const
 
 unsigned int StreamFDModule::BestChunkSize()
 {
-#ifndef IRIS
    if (fd >= 0) {
       struct stat sbuf;
 
@@ -117,16 +121,17 @@ unsigned int StreamFDModule::BestChunkSize()
 	 if (errno == EBADF) {
 	    fd = -1;
 	    return(0);
-	 } else
+	 } else {
 	    return(4096);   // Nice default size. BUFSIZ in stdio.h on Sun's is
-                            // too small.
+         }                  // too small.
+      } else if (sbuf.st_blksize > 0) {
+	 return(sbuf.st_blksize);
+      } else {
+	 return(4096);
       }
-      return(sbuf.st_blksize);
-   } else
+   } else {
       return(0);
-#else
-   return(4096);
-#endif
+   }
 }
 
 StreamFDModule::StreamFDModule(int fdes, IOCheckFlags flgs, bool hangdel)
