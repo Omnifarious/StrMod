@@ -25,7 +25,7 @@
 template <class Chunk>
 class StrChunkPtrT : public StrChunkPtr {
  public:
-   typedef StrChunkPtrT super1;
+   typedef StrChunkPtr super1;
 
    inline StrChunkPtrT(const StrChunkPtrT<Chunk> &b) : super1(b)            { }
    inline StrChunkPtrT(const RefCountPtrT<Chunk> &b) : super1(b.GetPtr())   { }
