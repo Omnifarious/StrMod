@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1998/08/24 02:08:39  hopper
+// Changed to return the value it's supposed to return.
+//
 // Revision 1.1  1996/06/29 06:53:20  hopper
 // New file for implementation of stream operator for class LinearExtent.
 //
@@ -18,5 +21,6 @@ ostream &operator <<(ostream &os, const LinearExtent &ext)
 
    end = ext.Offset();
    end += ext.Length();
-   os << "[" << ext.Offset() << "--(" << ext.Length() << ")-->" << end << ")";
+   return(os << "[" << ext.Offset() << "--(" << ext.Length()
+	     << ")-->" << end << ")");
 }
