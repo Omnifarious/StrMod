@@ -7,8 +7,8 @@
 #endif
 
 #include "StrMod/StreamFDModule.h"
-#ifndef _STR_DBStrChunk_H_
-#   include "StrMod/DBStrChunk.h"
+#ifndef _STR_DynamicBuffer_H_
+#   include "StrMod/DynamicBuffer.h"
 #endif
 #ifndef _STR_EOFStrChunk_H_
 #   include "StrMod/EOFStrChunk.h"
@@ -262,17 +262,17 @@ void StreamFDModule::doReadFD()
       // A normal pointer offers a speed advantage, and we don't know whether
       // we want to set buffed_read until the read succeeds.
       size_t maxsize = getMaxChunkSize();
-      DataBlockStrChunk *dbchunk = new DataBlockStrChunk(maxsize);
+      DynamicBuffer *dbchunk = new DynamicBuffer(maxsize);
 
       errno = 0;
       // cerr << "Reading...\n";
-      size = ::read(fd_, dbchunk->GetVoidP(), maxsize);
+      size = ::read(fd_, dbchunk->getVoidP(), maxsize);
       // I may have an error, capture errno to make sure nothing happens to it.
       myerrno = errno;
       // cerr << fd_ << ": just read " << size << " bytes.\n";
 
       if (size > 0) {
-	 dbchunk->Resize(size);
+	 dbchunk->resize(size);
 	 buffed_read_ = dbchunk;
 //  	 cerr << fd_ << ": just read: <";
 //  	 cerr.write(dbchunk->GetCharP(), dbchunk->Length());
