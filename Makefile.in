@@ -1,0 +1,102 @@
+rootdir = @top_srcdir@
+PWD = @pwd@
+CMP = @cmp@
+CAT = @cat@
+PROCLIBSRC = @proclibsrc@
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
+CC = @CC@
+CFLAGS = @CFLAGS@
+
+MYMAKE = $(MAKE) CC='$(CC)' CFLAGS='$(CFLAGS)' CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS)'
+
+SUBDIR = .
+ifeq ($(SUBDIR),.)
+   SUBPREFIX =
+else
+   SUBPREFIX = $(SUBDIR)/
+endif
+
+INCLUDEDIR = $(rootdir)/include
+
+ifeq ($(rootdir),.)
+   OUTDIR = generated
+else
+   OUTDIR = $(rootdir)/generated
+endif
+ifeq ($(SUBDIR),.)
+   MYOUTDIR = $(OUTDIR)
+else
+   MYOUTDIR = $(OUTDIR)/$(SUBDIR)
+endif
+
+OBJDIR = $(MYOUTDIR)/obj
+LIBDIR = $(MYOUTDIR)/lib
+LIBSRC = $(MYOUTDIR)/lib_src
+RULESDIR = $(MYOUTDIR)/rules
+
+CPPFLAGS = -I$(INCLUDEDIR)
+
+COMPONENTS = LCore UniEvent EHnet++ StrMod
+
+.PHONY: directories always all
+
+UNIQUEDIRS = $(sort $(INCLUDEDIR) $(OUTDIR) $(MYOUTDIR) $(RULESDIR) $(OBJDIR) $(LIBDIR))
+
+all : $(LIBDIR) $(LIBDIR)/libNet.a
+
+directories: $(UNIQUEDIRS)
+	@for dir in $(COMPONENTS); do \
+	   $(MYMAKE) -C $$dir SUBDIR=$(SUBPREFIX)$$dir directories; \
+        done
+
+configure: configure.in
+	autoconf
+
+config.status: configure
+
+Makefile: $(PROCLIBSRC).in Makefile.in config.status $(addsuffix /Makefile.in,$(COMPONENTS))
+	./config.status
+	chmod 755 $(PROCLIBSRC)
+
+$(UNIQUEDIRS):
+	mkdir -p $@
+
+.INTERMEDIATE: $(MYOUTDIR)/lib_src
+
+$(LIBSRC): $(MYOUTDIR)
+	@rm -f $(MYOUTDIR)/lib_src
+	@for dir in $(COMPONENTS); do \
+	   libfile="/tmp/lib_src.$$$$" ;\
+	   $(MYMAKE) -C "$$dir" SUBDIR="$$dir" LIBSRC="$$libfile" "$$libfile" ;\
+	   $(PROCLIBSRC) -c $@ "$$dir" "$$libfile" ;\
+	   rm -f "$$libfile" ;\
+	done
+	$(PROCLIBSRC) -a $@ Makefile
+
+$(RULESDIR)/rules.mk: $(LIBSRC) $(RULESDIR)
+	$(PROCLIBSRC) -m $(LIBSRC) $@ ALL_OBJS
+	touch $@
+
+pwd_test: always
+	@echo $(CC)
+	@echo $(MAKEFLAGS)
+	@if [ ! -f pwd_test ]; then $(PWD) >pwd_test; else \
+	if $(PWD) | $(CMP) - pwd_test >/dev/null 2>/dev/null; then :; else \
+	   $(PWD) >pwd_test; \
+	fi; fi
+
+include $(RULESDIR)/rules.mk
+
+.SECONDARY: $(ALL_OBJS)
+
+libNet.objlist:
+	touch libNet.objlist
+
+$(LIBDIR)/libNet.a(%.o): %.o
+	echo '$^' >>libNet.objlist
+
+$(LIBDIR)/libNet.a: $(LIBDIR)/libNet.a($(ALL_OBJS)) libNet.objlist
+	ar rv $@ `cat libNet.objlist`
+	echo -n '' >libNet.objlist
+	ranlib $@
