@@ -18,21 +18,6 @@
 
 class XMLUTF8Lexer
 {
- private:
-   enum XState { XBad, XStart, XLess,
-                 XCommentExcl, XCommentExclDash, XInComment, XDashInComment,
-                 XDashDashInComment,
-                 XOpenElement, XInOpenElement, XEmptyElementEnd,
-                 XCloseElement, XInCloseElement,
-                 XAttr, XAttrAfterEq, XAttrSQ, XAttrDQ };
-
-   enum XSubState { XSNone, XSBad,
-                    XSStartName, XSInName,
-                    XSEntity, XSNamedEntity, XSCharEntity, XSDecEntity,
-                    XSHexEntityStart, XSHexEntity, XSEndEntity };
-   typedef XMLBuilder::BufHandle BufHandle;
-   typedef XMLBuilder::Position Position;
-
  public:
    XMLUTF8Lexer()
         : nonwsok_(false)
@@ -55,6 +40,20 @@ class XMLUTF8Lexer
             BufHandle &lastbuf, XMLBuilder &builder);
 
  private:
+   enum XState { XBad, XStart, XLess,
+                 XCommentExcl, XCommentExclDash, XInComment, XDashInComment,
+                 XDashDashInComment,
+                 XOpenElement, XInOpenElement, XEmptyElementEnd,
+                 XCloseElement, XInCloseElement,
+                 XAttr, XAttrAfterEq, XAttrSQ, XAttrDQ };
+
+   enum XSubState { XSNone, XSBad,
+                    XSStartName, XSInName,
+                    XSEntity, XSNamedEntity, XSCharEntity, XSDecEntity,
+                    XSHexEntityStart, XSHexEntity, XSEndEntity };
+   typedef XMLBuilder::BufHandle BufHandle;
+   typedef XMLBuilder::Position Position;
+
    static const char exclamation = '\x21';
    static const char doublequote = '\x22';
    static const char poundsign = '\x23';
