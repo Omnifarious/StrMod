@@ -28,16 +28,17 @@
 #include <cstring>
 #include <cstddef>
 
-extern "C" char *strerror_r (int __errnum, char *__buf, size_t __buflen);
+//extern "C" char *strerror_r (int __errnum, char *__buf, size_t __buflen);
 
 namespace strmod {
 namespace unievent {
 
-const UNIXError UNIXError::S_noerror("<no error>", LCoreError("<no error>"));
+const UNIXError UNIXError::S_noerror("<no error>", 0, LCoreError("<no error>"));
 
 void UNIXError::getErrorString(char *buf, size_t buflen) const throw ()
 {
-   strerror_r(errnum_, buf, buflen);
+   strncpy(buf, strerror(errnum_), buflen - 1);
+//   strerror_r(errnum_, buf, buflen);  // Doesn't work right for now.
    buf[buflen - 1] = '\0';
 }
 
