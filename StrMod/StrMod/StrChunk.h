@@ -7,8 +7,11 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:50  hopper
-// Initial revision
+// Revision 1.2  1996/02/12 05:50:49  hopper
+// Declared something to be inline that should be inline.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:50  hopper
+// Imported sources
 //
 // ->Revision 0.28  1995/04/05  04:52:22  hopper
 // ->Fixed a stupid mistake.
@@ -138,7 +141,7 @@ class StrChunkBuffer : public Object, public ReferenceCounting {
    void DelReference()                     { if (refcounter) refcounter--; }
    U4Byte NumReferences()                  { return(refcounter); }
 
-   unsigned char &operator [](unsigned int index) const;
+   inline unsigned char &operator [](unsigned int index) const;
 
    const StrChunkBuffer &operator =(const StrChunkBuffer &b);
 
