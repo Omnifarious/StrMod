@@ -1,3 +1,11 @@
+2001-07-05  Eric Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/enum_set.h: Added copy contructor and ability to convert
+	to a string of '1's and '0's.
+
+	* LCore/LCoreError.h, lcerror.cxx: Added ability to send to
+	ostream.
+
 2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* LCore/LCoreError.h (_LCORE_LCoreError_H_): Documented double
