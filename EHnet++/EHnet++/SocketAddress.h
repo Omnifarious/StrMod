@@ -7,6 +7,9 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.4  1996/02/20 01:06:33  hopper
+ // Added inline definition for ostream &operator << for SocketAddresses.
+ //
  // Revision 1.3  1996/02/12 03:01:55  hopper
  // Added links to my ClassIdent system.
  //
@@ -75,6 +78,12 @@ class SocketAddress : virtual public Protocol {
 inline const ClassIdent *SocketAddress::i_GetIdent() const
 {
    return(&identifier);
+}
+
+inline ostream &operator <<(ostream &os, SocketAddress &sa)
+{
+   sa.PrintOn(os);
+   return(os);
 }
 
 #endif
