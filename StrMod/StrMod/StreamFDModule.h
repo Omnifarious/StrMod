@@ -157,6 +157,11 @@ class StreamFDModule : public StreamModule {
    //! Get the error value for a particular category.
    const UNIXError &getErrorIn(ErrorType err) const throw ();
 
+   //! Set whether or not and EOFStrChunk is sent when an EOF is read.
+   inline void setSendChunkOnEOF(bool newval) throw();
+   //! Does this module send a chunk on EOF?
+   inline bool getSendChunkOnEOF() throw()          { return flags_.chunkeof; }
+
    //! Sets the maximum block size to be read in a single read operation.
    inline void setMaxChunkSize(size_t mbs);
    //! Returns the maximum block size to be read in a single read operation.
@@ -346,10 +351,10 @@ inline bool StreamFDModule::deletePlug(Plug *p)
 //  	  || hasErrorIn(ErrOther) || hasErrorIn(ErrFatal));
 //  }
 
-//  inline void StreamFDModule::setSendChunkOnEOF(bool newval)
-//  {
-//     flags_.chunkeof = newval;
-//  }
+inline void StreamFDModule::setSendChunkOnEOF(bool newval) throw()
+{
+   flags_.chunkeof = newval;
+}
 
 inline void StreamFDModule::setMaxChunkSize(size_t mbs)
 {
