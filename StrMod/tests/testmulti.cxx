@@ -2,6 +2,9 @@
 #include "StrMod/SocketModule.h"
 #include "StrMod/EchoModule.h"
 #include "StrMod/SimpleMulti.h"
+#include "StrMod/ProcessorModule.h"
+#include "StrMod/NewlineChopper.h"
+#include "StrMod/PassThrough.h"
 #include <EHnet++/InetAddress.h>
 #include <Dispatch/dispatcher.h>
 #include <vector>
@@ -9,10 +12,40 @@
 
 extern "C" int atoi(const char *);
 
+class MyProcessor : public ProcessorModule {
+ public:
+   enum Sides { ToNet, ToMulti };
+
+   inline MyProcessor();
+
+   inline bool CanCreate(Sides side) const;
+   inline Plug *MakePlug(Sides side);
+
+ private:
+   NewlineChopper chopper_;
+   PassThrough passthrough_;
+};
+
+MyProcessor::MyProcessor() : ProcessorModule(&chopper_, &passthrough_)
+{
+}
+
+inline bool MyProcessor::CanCreate(Sides side) const
+{
+   return(ProcessorModule::CanCreate((side == ToNet) ? OneSide : OtherSide));
+}
+
+inline MyProcessor::Plug *MyProcessor::MakePlug(Sides side)
+{
+   return(ProcessorModule::MakePlug((side == ToNet) ? OneSide : OtherSide));
+}
+
 struct EchoConnection {
    static SimpleMultiplexer *multip;
 
    SocketModule *socket;
+   MyProcessor proc;
+   StrPlug *multiplug;
 
    inline SimpleMultiplexer *multiplexer();
 
@@ -37,11 +70,16 @@ inline EchoConnection::EchoConnection(SocketModule *sock) : socket(sock)
 {
    cerr << "Here 1!\n";
    StrPlug *p1 = socket->MakePlug(0);
-   cerr << "Here 2!\n";
-   StrPlug *p2 = multiplexer()->MakePlug(SimpleMultiplexer::MultiSide);
-   cerr << "Here 3!\n";
+   StrPlug *p2 = proc.MakePlug(MyProcessor::ToNet);
 
    p1->PlugIntoAndNotify(p2);
+
+   cerr << "Here 3!\n";
+   p1 = proc.MakePlug(MyProcessor::ToMulti);
+   p2 = multiplexer()->MakePlug(SimpleMultiplexer::MultiSide);
+
+   p1->PlugIntoAndNotify(p2);
+   multiplug = p2;
    cerr << "Here 4!\n";
 }
 
@@ -49,6 +87,7 @@ inline EchoConnection::~EchoConnection()
 {
    cerr << "Farwell cruel world!\n";
    delete socket;
+   multiplug->ModuleFrom()->DeletePlug(multiplug);
 }
 
 void EchoConnection::makeMultiplexer()
