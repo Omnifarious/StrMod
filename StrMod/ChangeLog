@@ -1,3 +1,37 @@
+1999-07-24  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Blank an entry that wasn't used anymore.
+
+1999-07-25  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testmulti.cxx: Changed to accomodate the fact that
+	ProcessorModule, NewlineChopper, and PassThrough now exist.
+
+	* STR_ClassIdent.cxx: Changed a name so the comments would reflect
+	reality.
+
+1999-07-24  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* ProcessorModule.cxx: Changed to use new StreamModule system.
+	Updated to new coding standards.  Added lots of comments.
+
+	* StrMod/PassThrough.h:
+	* PassThrough.cxx: Updated to new coding standards.
+
+	* StrMod/NewlineChopper.h:
+	* NewlineChopper.cxx: Updated to new coding standards.
+
+	* StrMod/CharChopper.h:
+	* CharChopper.cxx: Updated to new coding standards.  Hopefully
+	made the whole thing a little more efficient (and hopefully a
+	little more understable by mostly re-writing the original.
+
+1999-07-23  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamProcessor.h: 
+	* StreamProcessor.cxx: Updated to conform to new coding standards.
+	Added lots of comments.
+
 1999-07-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* tests/testmulti.cxx: Changed to accomodate the fact that
