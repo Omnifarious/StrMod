@@ -8,3 +8,5 @@ config.status
 configure
 dependdb.gdbm
 lib
+Makefile
+pwd_test
