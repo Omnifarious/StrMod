@@ -1,4 +1,4 @@
-#ifndef _STR_SimpleMulti_H_  // -*-c++-*-
+#ifndef _STR_SimpleMulti_H_  // -*- mode: c++; c-file-style: "hopper"; -*-
 
 #ifdef __GNUG__
 #  pragma interface
@@ -9,10 +9,11 @@
 // For log, see ../ChangeLog
 
 #include <StrMod/StreamModule.h>
-#include <StrMod/SimplePlug.h>
 #include <list>
 
 #define _STR_SimpleMulti_H_
+
+class UNIDispatcher;
 
 //: Use this module of you need one source copied to many destinations.
 // This implements a simple multiplexer that duplicates all input on
@@ -31,97 +32,127 @@
 class SimpleMultiplexer : public StreamModule {
  protected:
    class MultiPlug;
-   class SinglePlug;
    friend class MultiPlug;
+   class SinglePlug;
    friend class SinglePlug;
 
  public:
    enum PublicSides { SingleSide, MultiSide };
    static const STR_ClassIdent identifier;
 
-   SimpleMultiplexer();
+   SimpleMultiplexer(UNIDispatcher &disp);
    virtual ~SimpleMultiplexer();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline virtual bool CanCreate(int side) const;
-   virtual bool OwnsPlug(StrPlug *plug) const;
-   virtual bool DeletePlug(StrPlug *plug);
+   //: See base class.
+   inline virtual bool canCreate(int side) const;
+   //: See base class.
+   virtual bool ownsPlug(const Plug *plug) const;
+   //: See base class.
+   virtual bool deletePlug(Plug *plug);
 
  protected:
-   class SinglePlug : public SimplePlugOf<SimpleMultiplexer> {
+   class SinglePlug : public Plug {
       friend class SimpleMultiplexer;
+      friend class MultiPlug;
     public:
       static const STR_ClassIdent identifier;
 
       inline virtual int AreYouA(const ClassIdent &cid) const;
 
-      virtual int Side() const                         { return(SingleSide); }
+      //: Which module owns this plug?
+      inline SimpleMultiplexer &getParent() const;
+
+      //: What side is this plug on?
+      virtual int side() const                          { return(SingleSide); }
 
     protected:
-      inline SinglePlug(SimpleMultiplexer *parent);
+      inline SinglePlug(SimpleMultiplexer &parent);
       inline virtual ~SinglePlug();
 
-      virtual const ClassIdent *i_GetIdent() const     { return(&identifier); }
+      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
 
-      inline virtual bool i_CanWrite() const;
-      inline virtual bool i_Write(const StrChunkPtr &);
-      inline virtual bool i_CanRead() const;
-      inline virtual const StrChunkPtr i_InternalRead();
+      //: See base class.
+      virtual const StrChunkPtr i_Read();
+
+      //: See base class.
+      virtual void i_Write(const StrChunkPtr &ptr);
+
+      //: Because I try to be a 'pass-through' module.
+      virtual bool needsNotifyWriteable() const         { return(true); }
+      //: Not really a 'pass-through' read module.
+      virtual bool needsNotifyReadable() const          { return(false); }
+
+      //: Rather complicated, see the long explanation.
+      //
+      // <p>If other is writeable, and there is no pending 'update writeable
+      // status' event, update all multi-plugs to be writeable.</p>
+      // <p>If other isn't writeable, then update all multi-plugs to be
+      // non-writeable.</p>
+      virtual void otherIsWriteable(); 
    };
 
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-   virtual StrPlug *CreatePlug(int side);
+   //: Called whenever a plug is disconnected.
+   // <P>Used here to record a plug as having read the mchunk_ if it's
+   // disconnected while it's waiting to be read from.<P>
+   // <P>Also calls StreamModule::plugDisconnected so that PDstrategy handling
+   // and things can be done there.</P>
+   inline virtual void plugDisconnected(Plug *plug);
 
-   bool SingleCanWrite() const                         { return(!mchunk_); }
-   bool SingleWrite(const StrChunkPtr &chnk);
-   bool SingleCanRead();
-   const StrChunkPtr SingleRead();
+   //: Makes a plug on the given side.
+   // <P>Guaranteed to never be called if canCreate would return false.  Must
+   // NEVER return 0 (NULL).</P>
+   virtual Plug *i_MakePlug(int side);
 
-   inline bool MultiCanWrite() const;
-   bool MultiWrite(const StrChunkPtr &ptr);
-   inline bool MultiCanRead(const MultiPlug *mplug) const;
-   const StrChunkPtr MultiRead(MultiPlug *mplug);
+
+   //: If a scan event isn't posted, post one.
+   // <P>A scan is always posted because a piece of data came into a
+   // MultiPlug, and data is only allowed to into a MultiPlug once per
+   // scan.</P>
+   // <P>Data coming into a plug is also cause for that plug to be
+   // considered last when checking for data to pull in through a
+   // plug.
+   inline void postScan(MultiPlug &toend);
+   //: Actually post a scan event to the dispatcher given in the constructor.
+   void doPost();
+   //: Move a MultiPlug to the end of the list.
+   void moveToEnd(MultiPlug &toend);
+
+   //: Process the fact that a MultiPlug read the mchunk_.
+   void multiDidRead(MultiPlug &mplug);
+
+   //: Use to say which direction an adjustment should go in.
+   enum AdjDir { ADJ_Down, ADJ_Up };
+
+   //: This may cause the SinglePlug's readable state to change.
+   void adjustMultiReadables(AdjDir dir);
+   //: This may cause the SinglePlug's writeable state to change.
+   void adjustMultiWriteables(AdjDir dir);
+
+   //: This is called by ScanEvent.
+   void doScan();
 
  private:
    typedef list<MultiPlug *> MPlugList;
+   class mpother_readable_p;
+   class mp_notpluggedin_p;
+   class mp_written_p;
+   class auto_mpptr;
+   class ScanEvent;
+   friend class ScanEvent;
 
    SinglePlug splug_;
    bool splug_created_;
    MPlugList mplugs_;
-   MPlugList::iterator nextplug_;
+   MPlugList delplugs_;
+   bool scan_posted_;
    StrChunkPtr mchunk_;
-   unsigned int multis_left_to_read_mchunk_;
-};
-
-//--
-
-class SimpleMultiplexer::MultiPlug : public SimplePlugOf<SimpleMultiplexer> {
-   friend class SimpleMultiplexer;
- public:
-   static const STR_ClassIdent identifier;
-
-   inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   virtual int Side() const                            { return(MultiSide); }
-
- protected:
-   inline MultiPlug(SimpleMultiplexer *parent);
-   inline virtual ~MultiPlug();
-
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-
-   inline virtual bool i_CanWrite() const;
-   inline virtual bool i_Write(const StrChunkPtr &);
-   inline virtual bool i_CanRead() const;
-   inline virtual const StrChunkPtr i_InternalRead();
-
-   bool HasRead() const                                { return(hasread_); }
-   void ClearHasRead()                                 { hasread_ = false; }
-   void SetHasRead()                                   { hasread_ = true; }
-
- private:
-   bool hasread_;
+   ScanEvent * const scan_;
+   UNIDispatcher &dispatcher_;
+   unsigned int readable_multis_;
+   unsigned int readable_multiothers_;
+   unsigned int writeable_multiothers_;
 };
 
 //-----------------------------inline functions--------------------------------
@@ -131,7 +162,7 @@ inline int SimpleMultiplexer::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
 
-inline bool SimpleMultiplexer::CanCreate(int side) const
+inline bool SimpleMultiplexer::canCreate(int side) const
 {
    if (side == SingleSide) {
       return(!splug_created_);
@@ -142,92 +173,36 @@ inline bool SimpleMultiplexer::CanCreate(int side) const
    }
 }
 
-inline bool SimpleMultiplexer::MultiCanWrite() const
+inline void SimpleMultiplexer::postScan(MultiPlug &toend)
 {
-   return(splug_created_ && splug_.PluggedInto() && !splug_.IsReading() &&
-	  splug_.PluggedInto()->CanWrite());
-}
-
-inline bool SimpleMultiplexer::MultiCanRead(const MultiPlug *mplug) const
-{
-   return(!mplug->HasRead() && mchunk_);
+   if (!scan_posted_)
+   {
+      scan_posted_ = true;
+      doPost();
+   }
+   moveToEnd(toend);
 }
 
 //--
 
-inline SimpleMultiplexer::SinglePlug::SinglePlug(SimpleMultiplexer *parent)
-     : SimplePlugOf<SimpleMultiplexer>(parent)
+inline int SimpleMultiplexer::SinglePlug::AreYouA(const ClassIdent &cid) const
+{
+   return((identifier == cid) || Plug::AreYouA(cid));
+}
+
+inline SimpleMultiplexer::SinglePlug::SinglePlug(SimpleMultiplexer &parent)
+     : Plug(parent)
 {
 }
 
 inline SimpleMultiplexer::SinglePlug::~SinglePlug()
 {
-   UnPlug();
+   unPlug();
 }
 
-inline int SimpleMultiplexer::SinglePlug::AreYouA(const ClassIdent &cid) const
+inline SimpleMultiplexer &SimpleMultiplexer::SinglePlug::getParent() const
 {
-   return((identifier == cid) ||
-	  SimplePlugOf<SimpleMultiplexer>::AreYouA(cid));
-}
-
-bool SimpleMultiplexer::SinglePlug::i_CanWrite() const
-{
-   return(ModuleFrom()->SingleCanWrite());
-}
-
-inline bool SimpleMultiplexer::SinglePlug::i_Write(const StrChunkPtr &chnk)
-{
-   return(ModuleFrom()->SingleWrite(chnk));
-}
-
-bool SimpleMultiplexer::SinglePlug::i_CanRead() const
-{
-   return(ModuleFrom()->SingleCanRead());
-}
-
-inline const StrChunkPtr SimpleMultiplexer::SinglePlug::i_InternalRead()
-{
-   return(ModuleFrom()->SingleRead());
-}
-   
-
-//--
-
-inline SimpleMultiplexer::MultiPlug::MultiPlug(SimpleMultiplexer *parent)
-     : SimplePlugOf<SimpleMultiplexer>(parent), hasread_(false)
-{
-}
-
-inline SimpleMultiplexer::MultiPlug::~MultiPlug()
-{
-   UnPlug();
-}
-
-inline int SimpleMultiplexer::MultiPlug::AreYouA(const ClassIdent &cid) const
-{
-   return((identifier == cid) ||
-	  SimplePlugOf<SimpleMultiplexer>::AreYouA(cid));
-}
-
-inline bool SimpleMultiplexer::MultiPlug::i_CanWrite() const
-{
-   return(ModuleFrom()->MultiCanWrite());
-}
-
-inline bool SimpleMultiplexer::MultiPlug::i_Write(const StrChunkPtr &ptr)
-{
-   return(ModuleFrom()->MultiWrite(ptr));
-}
-
-inline bool SimpleMultiplexer::MultiPlug::i_CanRead() const
-{
-  return(ModuleFrom()->MultiCanRead(this));
-}
-
-inline const StrChunkPtr SimpleMultiplexer::MultiPlug::i_InternalRead()
-{
-   return(ModuleFrom()->MultiRead(this));
+   return(static_cast<SimpleMultiplexer &>(Plug::getParent()));
 }
 
 #endif
