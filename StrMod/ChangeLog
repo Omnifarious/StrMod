@@ -1,3 +1,9 @@
+2001-07-04  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Preliminary support
+	for error events.
+	Put setSendChunkOnEOF and getSendChunkOnEOF back in.
+
 2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Preliminary, not
