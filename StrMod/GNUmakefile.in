@@ -20,38 +20,39 @@ LIBS =  @LIBS@
 
 DEPDB = @DEPDB@
 
-%.o : %.cc
-	$(CXX) -c $(@:.o=.cc) $(CPPFLAGS) $(CXXFLAGS) -o $@
+%.o : %.cxx
+	$(CXX) -c $(@:.o=.cxx) $(CPPFLAGS) $(CXXFLAGS) -o $@
 
-%.s.o : %.cc
-	$(CXX) -c $(@:.s.o=.cc) $(CPPFLAGS) $(CXXFLAGS) -fPIC -o $@
+%.s.o : %.cxx
+	$(CXX) -c $(@:.s.o=.cxx) $(CPPFLAGS) $(CXXFLAGS) -fPIC -o $@
 
-%.cc.d : %.cc
-	+$(CXX) -c $< $(CPPFLAGS) $(CXXFLAGS) -M | sed "s;$<;;" | sed 's;^$(notdir $*)\.o;$*.cc;' | $(DEPDB) update --addtouch $< $<
+%.cxx.d : %.cxx
+	+$(CXX) -c $< $(CPPFLAGS) $(CXXFLAGS) -M | sed "s;$<;;" | sed 's;^$(notdir $*)\.o;$*.cxx;' | $(DEPDB) update --addtouch $< $<
 
 %.c.d : %.c
 	+$(CC) -c $< $(CPPFLAGS) $(CFLAGS) -M | sed "s;$<;;" | sed 's;^$(notdir $*)\.o;$*.c;' | $(DEPDB) update --addtouch $< $<
 
 MYMAKE := $(MAKE)
 
-#  StreambufModule.cc  HL7Module.cc
-LIBCCS = EchoModule.cc  StrFDPlug.cc  STR_ClassIdent.cc  StreamFDModule.cc \
-         SockListenModule.cc  StreamModule.cc  SocketModule.cc \
-         StreamSplitter.cc  StrChunk.cc  StrChunkPtr.cc  LinearExtent.cc \
-         GroupVector.cc  GV_Iterator.cc  StrSubChunk.cc  DBStrChunk.cc \
-         GroupChunk.cc  LinearExtentStrmOp.cc  StrChunkPtrT.cc  SimplePlug.cc \
-         SimpleMulti.cc  CharChopper.cc  PassThrough.cc  NewlineChopper.cc \
-         StreamProcessor.cc  ProcessorModule.cc
+#  StreambufModule.cxx  HL7Module.cxx
+LIBCCS = EchoModule.cxx  StrFDPlug.cxx  STR_ClassIdent.cxx \
+         StreamFDModule.cxx  SockListenModule.cxx  StreamModule.cxx \
+         SocketModule.cxx  StreamSplitter.cxx  StrChunk.cxx  StrChunkPtr.cxx \
+         LinearExtent.cxx  GroupVector.cxx  GV_Iterator.cxx  StrSubChunk.cxx \
+         DBStrChunk.cxx  GroupChunk.cxx  LinearExtentStrmOp.cxx \
+         StrChunkPtrT.cxx  SimplePlug.cxx  SimpleMulti.cxx  CharChopper.cxx \
+         PassThrough.cxx  NewlineChopper.cxx  StreamProcessor.cxx \
+         ProcessorModule.cxx
 
 CCNAMES = $(LIBCCS) \
-          tests/testchunk.cc  tests/server.cc  tests/testdist.cc \
-          tests/testecho.cc  tests/teststr.cc  tests/echoserv.cc \
-          tests/testextent.cc  tests/testGV.cc  tests/testmulti.cc
+          tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx \
+          tests/testecho.cxx   tests/teststr.cxx tests/echoserv.cxx \
+          tests/testextent.cxx tests/testGV.cxx  tests/testmulti.cxx
 
 CNAMES = utils/cechoserv.c  utils/audiodiv.c  utils/writelots.c
 
-DEPSUB = $(patsubst %.c,%.o,$(?:.cc=.o))
-DEPSUBDD = $(patsubst %.c,%.c.d,$(?:.cc=.cc.d))
+DEPSUB = $(patsubst %.c,%.o,$(?:.cxx=.o))
+DEPSUBDD = $(patsubst %.c,%.c.d,$(?:.cxx=.cxx.d))
 
 $(libdir)/libStrMod.a : $(LIBCCS)
 	$(MAKE) $(DEPSUB)
