@@ -1,0 +1,14 @@
+Mon Mar  3 00:25:14 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/Event.h: Fixed stupid errors.
+
+	* UniEvent/Dispatcher.h: Fixed stupid errors.
+
+Sun Mar  2 23:17:54 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/Event.h: First cut at definition for abstract UNIEvent
+ 	class.
+
+	* UniEvent/Dispatcher.h: First cut at definition for abstract
+	UNIDispatcher class.
+
