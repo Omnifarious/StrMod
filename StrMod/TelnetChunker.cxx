@@ -57,8 +57,8 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
  private:
    static const int qsize_ = 16;
  public:
-   Builder();
-   virtual ~Builder();
+   Builder() : curlen_(0)                                   { }
+   virtual ~Builder()                                       { }
 
    virtual void addDataBlock(size_t regionbegin, size_t regionend);
    virtual void addCharCommand(TelnetChars::Commands command);
@@ -123,11 +123,6 @@ TelnetChunker::Builder::makeDataPtr(size_t regionbegin, size_t regionend)
    }
 }
 
-TelnetChunker::Builder::Builder()
-{
-   curlen_ = 0;
-}
-
 void TelnetChunker::Builder::addDataBlock(size_t regionbegin, size_t regionend)
 {
    assert(curchunk_);
@@ -188,8 +183,7 @@ void TelnetChunker::Builder::addIncoming(const StrChunkPtr &ptr)
    assert((curchunk_ && (curlen_ > 0)) || (!curchunk_ && (curlen_ == 0)));
    if (!curchunk_)
    {
-      setIncoming(curchunk_, inlen);
-      curlen_ += inlen;
+      setIncoming(ptr, inlen);  // Also sets curlen_
    }
    else
    {
