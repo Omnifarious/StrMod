@@ -43,9 +43,8 @@ class StrChunk;
 /** \class ChunkVisitor ChunkVisitor.h StrMod/ChunkVisitor.h
  * The interface for a StrChunk visitor.
  *
- * Part of an implementation of the <a
- * href="http://exciton.cs.oberlin.edu/javaresources/DesignPatterns/VisitorPattern.htm">Visitor
- * pattern</a> for traversing StrChunk DAGs.
+ * Part of an implementation of the <A HREF="http://exciton.cs.oberlin.edu/javaresources/DesignPatterns/VisitorPattern.htm">Visitor  pattern</A>
+ * for traversing StrChunk DAGs.
  *
  * A StrChunk may be visited many times because the StrChunk containment
  * hierarchy is a DAG.  This means that a given StrChunk can be contained

@@ -45,6 +45,11 @@ namespace strmod {
 namespace strmod {
 
 /** \class OutSerializer OutSerializer.h StrMod/OutSerializer.h
+ * A class that marshals data into a canonical binary format.
+ *
+ * This class serializes integers of various sizes and strings into a canonical
+ * binary format that can be given to an InSerializer on a completely different
+ * platform to read the data back in.
  */
 class OutSerializer
 {

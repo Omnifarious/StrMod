@@ -43,7 +43,7 @@ class Debugable : virtual public Protocol {
  public:
    static const LCore_ClassIdent identifier;
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    /** \brief This should ALWAYS return true.  It says whether the class
     * invariant holds or not.

@@ -35,6 +35,7 @@
 namespace strmod {
 namespace unievent {
 
+//! Private implementation details of SimpleDispatcher.
 class SimpleDispatcher::Imp {
  public:
    typedef std::deque<Event *> EVListBase;

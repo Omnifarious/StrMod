@@ -53,12 +53,12 @@ class UNIXError : public lcore::LCoreError
    //! A value for no error at all.
    static const UNIXError S_noerror;
 
-   /** Create an EOF error from a system call name, and an LCoreError.
-    */
-   inline UNIXError(const char *syscallname, const LCoreError &lcerr) throw ();
+   //! Create an EOF error from a system call name, and an LCoreError.
+   inline UNIXError(const char *syscallname,
+                    const lcore::LCoreError &lcerr) throw ();
    //! Create from a system call name, an errno value, and an LCoreError.
    inline UNIXError(const char *syscallname, int errnum,
-                    const LCoreError &lcerr) throw ();
+                    const lcore::LCoreError &lcerr) throw ();
 
    //! Return name of system call that caused error.
    const char *getSyscallName() const throw ()          { return syscallname_; }
@@ -70,7 +70,7 @@ class UNIXError : public lcore::LCoreError
     * \param buf A buffer to stuff the string into.
     * \param buflen The maximum number of bytes the buffer can hold.
     *
-    * <code>buf[buflen - 1]</code> will always be set to '\0'.
+    * <code>buf[buflen - 1]</code> will always be set to '\\0'.
     *
     * One some platforms (like Linux), strerror is not thread safe, and a
     * different function, strerror_r is called.  strerror_r requires you to

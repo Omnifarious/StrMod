@@ -122,7 +122,7 @@ static void SAddCharStr(OutSerializer &out, const char *data, size_t len)
    out.addU1Byte('\0');  // Add trailing '\0';
 }
 
-void OutSerializer::addString(const std::string &str)
+void OutSerializer::addString(const ::std::string &str)
 {
    size_t len = str.length();
 

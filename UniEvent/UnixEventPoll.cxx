@@ -103,13 +103,23 @@ struct UnixEventPoll::Imp
    }
 };
 
+/** A convenience class for creating a C++ block in which signal
+ * delivery is disabled and automatically re-enabled upon exit from
+ * the block.
+ */
 class SigBlockRegion
 {
  public:
+   /** Block the specified set of signals and remember what signals were previously blocked.
+    *
+    * @param blockedones The set of signals to block.
+    */
    SigBlockRegion(sigset_t &blockedones)
    {
       sigprocmask(SIG_BLOCK, &blockedones, &oldset_);
    }
+   /** Restore the blocked signal mask that was in effect before the constructor was called.
+   */
    ~SigBlockRegion()
    {
       sigprocmask(SIG_SETMASK, &oldset_, 0);

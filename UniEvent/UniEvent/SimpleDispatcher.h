@@ -41,7 +41,6 @@ class Event;
  */
 class SimpleDispatcher : public Dispatcher
 {
-   class Imp;
  public:
    static const UNEVT_ClassIdent identifier;
 
@@ -70,6 +69,7 @@ class SimpleDispatcher : public Dispatcher
    virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
+   class Imp;
    Imp &imp_;
    bool stop_flag_;
 

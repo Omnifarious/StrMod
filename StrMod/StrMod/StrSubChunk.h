@@ -40,6 +40,12 @@
 namespace strmod {
 namespace strmod {
 
+/** \class StrSubChunk StrSubChunk.h StrMod/StrSubChunk.h
+ * A StrChunk that consists of some part of another StrChunk.
+ *
+ * This allows you to clip out a portion of another StrChunk without altering
+ * the contents of the other StrChunk.
+ */
 class StrSubChunk : public StrChunk
 {
  public:

@@ -18,6 +18,7 @@ namespace strmod {
 namespace lcore {
 namespace priv {
 
+//! A non-template base class of common methods that don't need to vary with the template parameter.
 class _base_simple_bitset
 {
  public:
@@ -50,6 +51,7 @@ inline size_t _base_simple_bitset::countbits(const bits_t bitary[],
 
 } // namespace priv
 
+//! A template for 
 template <size_t Tsize> class simple_bitset : private priv::_base_simple_bitset
 {
  public:
