@@ -1,3 +1,17 @@
+2000-12-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetParserData.h (TelnetData): Modified documentation
+	slightly.
+
+	* StrMod/StreamProcessor.h: Converted documentation to doxygen.
+	Added some documentation.
+
+	* TelnetParser.cxx (processIncoming): Added some doxygen documentation.
+	Removed the GroupVector and GV_Iterator based TelnetData methods.
+
+	* StrMod/TelnetParserData.h: Added lots of doxygen documentation
+	and removed old GroupVector and GV_Iterator stuff.
+
 2000-12-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* Makefile.in: Added back the now working StreamFDModule.cxx
