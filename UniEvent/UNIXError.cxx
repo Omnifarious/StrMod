@@ -27,14 +27,8 @@
 #include "UniEvent/UNIXError.h"
 #include <string.h>
 
-const UNEVT_ClassIdent UNIXError::identifier(10UL);
-
-const string &UNIXError::getErrorString() const
+void UNIXError::getErrorString(char *buf, size_t buflen) const throw ()
 {
-   if (!did_strerror_)
-   {
-      errstr_ = strerror(errno_);
-   }
-   return(errstr_);
+   strerror_r(errnum_, buf, buflen);
+   buf[buflen - 1] = '\0';
 }
-
