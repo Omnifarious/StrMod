@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1996/09/03 01:58:25  hopper
+// Commented out all kinds of debugging stuff.
+//
 // Revision 1.1  1996/09/02 23:31:12  hopper
 // Added class that would turn two StreamProcessors into a StreamModule
 // that used one StreamProcessor for the data flowing in each direction.
@@ -11,7 +14,7 @@
 #endif
 
 #include <StrMod/ProcessorModule.h>
-#include <iostream.h>
+// #include <iostream.h>
 
 const STR_ClassIdent ProcessorModule::identifier(29UL);
 const STR_ClassIdent ProcessorModule::Plug::identifier(30UL);
@@ -88,9 +91,9 @@ bool ProcessorModule::CanCreate(int side) const
 bool ProcessorModule::Plug::i_Write(const StrChunkPtr &chnk)
 {
    assert(chnk);
-   cerr << "ProcessorModule::Plug::i_Write called ("
-	<< (Side() == OneSide ? "OneSide" :
-	    (Side() == OtherSide ? "OtherSide" : "Unknown")) << ")\n";
+//   cerr << "ProcessorModule::Plug::i_Write called ("
+//	<< (Side() == OneSide ? "OneSide" :
+//	    (Side() == OtherSide ? "OtherSide" : "Unknown")) << ")\n";
 
    bool oldoutgoing = inproc_->CanPullOutgoing();
    inproc_->AddIncoming(chnk);
