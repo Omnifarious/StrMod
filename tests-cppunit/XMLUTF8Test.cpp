@@ -1,3 +1,6 @@
+#include <xml/utf8/Builder.h>
+#include <xml/utf8/Lexer.h>
+
 /* $URL$
  * $Author$
  * $Date$
@@ -11,13 +14,13 @@
 #include <stack>
 #include <vector>
 #include <stdexcept>
-#include "xml/utf8/Builder.h"
-#include "xml/utf8/Lexer.h"
-
-namespace {
 
 using ::strmod::xml::utf8::Lexer;
 using ::strmod::xml::utf8::Builder;
+
+namespace strmod {
+namespace tests {
+namespace {
 
 using ::std::cout;
 
@@ -138,6 +141,10 @@ class TestBuilder : public Builder
 };
 
 }
+}
+}
+
+using strmod::tests::TestBuilder;
 
 int main()
 {
