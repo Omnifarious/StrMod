@@ -27,7 +27,7 @@
 // For a log, see ../ChangeLog
 
 #include <bitset>
-#include <iostream>
+#include <string>
 
 #define _LCORE_enum_set_H_
 
@@ -50,6 +50,8 @@ class enum_set : private std::bitset<last - first + 1> {
   public:
    //! Construct an enum_set with no bits set.
    inline enum_set();
+   //! Construct a copy of a different enum_set.
+   inline enum_set(const enum_set<enum_t, first, last> &b);
    //! Construct an enum_set with at most one bit set.
    explicit inline enum_set(enum_t val);
    //! Construct an enum_set with at most two bits set.
@@ -103,6 +105,8 @@ class enum_set : private std::bitset<last - first + 1> {
    //! Are all bits clear (0, false)?
    bool none() const                               { return parent_t::none(); }
 
+   inline std::string to_string() const;
+
    //! Are any bits set (1, true)?
    operator bool() const                           { return any(); }
 };
@@ -111,6 +115,12 @@ class enum_set : private std::bitset<last - first + 1> {
 
 template <class enum_t, enum_t first, enum_t last>
 inline enum_set<enum_t, first, last>::enum_set()
+{
+}
+
+template <class enum_t, enum_t first, enum_t last> inline
+enum_set<enum_t, first, last>::enum_set(const enum_set<enum_t, first, last> &b)
+     : parent_t(*this)
 {
 }
 
@@ -270,6 +280,14 @@ template <class enum_t, enum_t first, enum_t last>
 inline bool enum_set<enum_t, first, last>::test(enum_t __pos) const
 {
    return parent_t::test(__pos - first);
+}
+
+template <class enum_t, enum_t first, enum_t last>
+inline std::string enum_set<enum_t, first, last>::to_string() const
+{
+   string fred;
+   parent_t::_M_copy_to_string(fred);
+   return fred;
 }
 
 //--
