@@ -1,6 +1,9 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1998/05/01 11:58:44  hopper
+// Cleaned DelReference up a little.
+//
 // Revision 1.2  1997/05/12 16:34:53  hopper
 // Fixed #include directives so auto-dependency generator would work better.
 // --
@@ -25,19 +28,17 @@
 
 const LCore_ClassIdent RefCountPtr::identifier(9UL);
 
-void RefCountPtr::i_SetPtr(ReferenceCounting *p, bool deleteref)
+void RefCountPtr::i_SetPtr(ReferenceCounting *p, bool_val deleteref)
 {
    if (p) {
       p->AddReference();
    }
    if (ptr_ && deleteref) {
-      if (ptr_->NumReferences() <= 1) {
-	 if (ptr_->NumReferences() > 0) {
+      if (ptr_->NumReferences() > 0) {
 	    ptr_->DelReference();
-	 }
+      }
+      if (ptr_->NumReferences() <= 0) {
 	 delete ptr_;
-      } else {
-	 ptr_->DelReference();
       }
    }
    ptr_ = p;
