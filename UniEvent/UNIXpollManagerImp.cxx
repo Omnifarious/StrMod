@@ -1,21 +1,8 @@
 /* $Header$ */
 
-// $Log$
-// Revision 1.3  1999/02/01 05:13:14  hopper
-// Changed to handle possible EINTR return code, indicating that the poll
-// was interrupted by a signal.  Some operating systems (AIX v.? and DGUX
-// v.4.0D) interrupt poll with a signal, even if the signal handler has the
-// SA_RESTART flag set.
-//
-// Revision 1.2  1998/05/01 11:54:34  hopper
-// Made various changes so that the UNIXpollManager could automatically
-// register itself to be run when the event queue was empty.
-// Also, changes to use bool_val and bool_cst instead of bool so that we
-// can move to a paltform that doesn't support bool more easily.
-//
-// Revision 1.1  1998/04/29 01:57:05  hopper
-// First cut at making something that can dispatch UNIX system events.
-//
+// For a log, see ./ChangeLog
+
+// $Revision$
 
 #ifdef __GNUG__
 #  pragma implementation "UNIXpollManagerImp.h"
