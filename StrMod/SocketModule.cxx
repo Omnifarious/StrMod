@@ -1,8 +1,11 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:48  hopper
-// Initial revision
+// Revision 1.2  1995/07/23 03:58:48  hopper
+// Removed spurious cast to caddr_t in calls to connect.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:48  hopper
+// Imported sources
 //
 // Revision 0.13  1995/04/17  22:56:12  hopper
 // Changed things for integration into the rest of my libraries.
@@ -42,6 +45,7 @@ static char _SocketModule_CC_rcsID[] =
 #endif
 
 #include "StrMod/SocketModule.h"
+#include <string.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -63,7 +67,7 @@ int SocketModule::MakeSocket(SocketModule *obj,
       return(fd);
 
    if (blockconnect) {
-      if (connect(fd, (caddr_t)(peer->SockAddr()), peer->AddressSize()) < 0) {
+      if (connect(fd, peer->SockAddr(), peer->AddressSize()) < 0) {
 	 if (errno != EINPROGRESS) {
 	    close(fd);
 	    fd = -1;
@@ -85,7 +89,7 @@ int SocketModule::MakeSocket(SocketModule *obj,
    }
 
    if (!blockconnect) {
-      if (connect(fd, (caddr_t)(peer->SockAddr()), peer->AddressSize()) < 0) {
+      if (connect(fd, peer->SockAddr(), peer->AddressSize()) < 0) {
 	 if (errno != EINPROGRESS) {
 	    close(fd);
 	    fd = -1;
