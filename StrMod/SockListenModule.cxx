@@ -63,7 +63,7 @@ class SockListenModule::FDPollEv : public UNIXpollManager::PollEvent {
    inline FDPollEv(SockListenModule &parent);
    virtual ~FDPollEv()                                 { }
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0) = 0;
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) = 0;
 
    inline void parentGone()                            { hasparent_ = false; }
 
@@ -109,7 +109,7 @@ class SockListenModule::FDPollRdEv : public SockListenModule::FDPollEv {
    inline FDPollRdEv(SockListenModule &parent) : FDPollEv(parent)   { }
    virtual ~FDPollRdEv()                                          { }
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0)  { triggerRead(); }
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerRead(); }
 };
 
 //: This is one of the three helper classes for SockListenModule::FDPollEv
@@ -118,16 +118,17 @@ class SockListenModule::FDPollErEv : public SockListenModule::FDPollEv {
    inline FDPollErEv(SockListenModule &parent) : FDPollEv(parent)   { }
    virtual ~FDPollErEv()                                          { }
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0)  { triggerError(); }
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerError(); }
 };
 
 SockListenModule::SockListenModule(const SocketAddress &bind_addr,
+                                   UNIDispatcher &disp,
 				   UNIXpollManager &pmgr,
 				   int qlen)
       : sockfd_(-1), last_err_(0), lplug_(*this),
         plug_pulled_(false), checking_read_(false), newmodule_(0),
 	myaddr_(*(bind_addr.Copy())),
-	pmgr_(pmgr), readevptr_(0), errorevptr_(0)
+	disp_(disp), pmgr_(pmgr), readevptr_(0), errorevptr_(0)
 {
    sockfd_ = socket(myaddr_.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC);
    if (sockfd_ < 0)
@@ -286,7 +287,7 @@ void SockListenModule::doAccept()
 	       = reinterpret_cast<struct sockaddr_in *>(saddr);
 	    InetAddress *addr = new InetAddress(*sinad);
 
-	    newmodule_ = makeSocketModule(tempfd, addr, pmgr_);
+	    newmodule_ = makeSocketModule(tempfd, addr, disp_, pmgr_);
 	 }
       }
    }

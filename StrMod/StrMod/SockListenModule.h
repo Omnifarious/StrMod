@@ -55,6 +55,7 @@
 class ListeningPlug;
 class SocketModuleChunk;
 class SocketAddress;
+class UNIDispatcher;
 
 //: A special 'zero length' chunk that contains a SocketModule.
 // This class is sort of a fake class to shove the listening socket
@@ -107,7 +108,8 @@ class SockListenModule : public StreamModule {
 
    //: What address am I going to listen on, and what's the length of the
    //: pending connection queue?
-   SockListenModule(const SocketAddress &bind_addr, UNIXpollManager &pmgr,
+   SockListenModule(const SocketAddress &bind_addr,
+                    UNIDispatcher &disp, UNIXpollManager &pmgr,
 		    int qlen = 1);
    virtual ~SockListenModule();
 
@@ -176,7 +178,8 @@ class SockListenModule : public StreamModule {
    //: Make a socket module once I've done the accept.
    // Note, ownership of peer is being passed here.
    inline SocketModule *makeSocketModule(int fd, SocketAddress *peer,
-					 UNIXpollManager &pmgr);
+					 UNIDispatcher &disp,
+                                         UNIXpollManager &pmgr);
 
    SocketModule *getNewModule();
 
@@ -187,6 +190,7 @@ class SockListenModule : public StreamModule {
    bool checking_read_;
    SocketModule *newmodule_;
    SocketAddress &myaddr_;
+   UNIDispatcher &disp_;
    UNIXpollManager &pmgr_;
    FDPollEv *readevptr_;
    UNIEventPtrT<UNIXpollManager::PollEvent> readev_;
@@ -262,10 +266,11 @@ inline StreamModule::Plug *SockListenModule::i_MakePlug(int side)
 
 inline SocketModule *SockListenModule::makeSocketModule(int fd,
 							SocketAddress *peer,
+                                                        UNIDispatcher &disp,
 							UNIXpollManager &pmgr)
 {
    // Ownership of peer is passed here.
-   return(new SocketModule(fd, peer, pmgr));
+   return(new SocketModule(fd, peer, disp, pmgr));
 }
 
 //----------------------ListeningPlug inline functions-------------------------
