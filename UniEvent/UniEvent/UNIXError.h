@@ -41,19 +41,21 @@ namespace unievent {
  * There are no member functions to modify its value, so this is essentially a
  * const value.  This makes the class multithread safe.
  *
- * There is a special kind of error called an EOF error.  An EOF error signals that an EOF condition exists on the file descriptor in questoin.  The 'errno' value is ESUCCESS (0) in this case.
+ * There is a special kind of error called an EOF error.  An EOF error signals
+ * that an EOF condition exists on the file descriptor in questoin.  The 'errno'
+ * value is ESUCCESS (0) in this case.
  */
 class UNIXError : public lcore::LCoreError
 {
+ private:
+   struct junk;
  public:
    //! A value for no error at all.
    static const UNIXError S_noerror;
 
-   /** Create from a system call name, the global 'errno' value, and an
-    * LCoreError.
+   /** Create an EOF error from a system call name, and an LCoreError.
     */
-   inline UNIXError(const char *syscallname,
-                    const LCoreError &lcerr, bool iseof = false) throw ();
+   inline UNIXError(const char *syscallname, const LCoreError &lcerr) throw ();
    //! Create from a system call name, an errno value, and an LCoreError.
    inline UNIXError(const char *syscallname, int errnum,
                     const LCoreError &lcerr) throw ();
@@ -81,10 +83,15 @@ class UNIXError : public lcore::LCoreError
    //! Is this an End-Of-File error?
    bool isEOF() const throw()                           { return iseof_; }
 
+   static int getErrno()                                { return errno; }
+
  private:
    const char *syscallname_;
    const int errnum_;
    const bool iseof_;
+
+   struct junk {
+   };
 };
 
 //-----------------------------inline functions--------------------------------
@@ -96,9 +103,9 @@ class UNIXError : public lcore::LCoreError
  */
 inline
 UNIXError::UNIXError(const char *syscallname,
-                     const lcore::LCoreError &lcerr, bool iseof) throw ()
+                     const lcore::LCoreError &lcerr) throw ()
      : LCoreError(lcerr), syscallname_(syscallname),
-       errnum_(iseof ? errno : 0), iseof_(iseof)
+       errnum_(0), iseof_(true)
 {
 }
 
