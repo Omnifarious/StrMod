@@ -7,6 +7,12 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.5  1996/09/21 20:01:44  hopper
+ // Moved the guts of the file I/O (the stuff that actually reads on writes to
+ // the file descriptor) out of StrFDPlug, and put it into
+ // StreamFDModule::DoWriteFD, and StreamFDModule::DoReadFD.  This makes
+ // StreamFDModule a little easier to inherit from.
+ //
  // Revision 1.4  1996/07/07 20:55:34  hopper
  // Changed things so that max_block_size is initialized correctly.  Used
  // to rely on StrChunkio crud for a solution.
@@ -130,6 +136,13 @@ class StreamFDModule : public StreamModule {
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
    inline virtual StrPlug *CreatePlug(int side);
+
+   // Assumes that buffed_read is empty, and various other important things.
+   // UTSL (Use The Source (StrFDPlug.cc) Luke)
+   virtual void DoReadFD();
+   // Assumes that cur_write isn't empty, and various other important things.
+   // UTSL (Use The Source (StrFDPlug.cc) Luke)
+   virtual void DoWriteFD();
 };
 
 //------------------------------class StrFDPlug--------------------------------

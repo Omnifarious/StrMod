@@ -1,6 +1,12 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.7  1996/09/21 20:01:37  hopper
+ // Moved the guts of the file I/O (the stuff that actually reads on writes to
+ // the file descriptor) out of StrFDPlug, and put it into
+ // StreamFDModule::DoWriteFD, and StreamFDModule::DoReadFD.  This makes
+ // StreamFDModule a little easier to inherit from.
+ //
  // Revision 1.6  1996/09/02 23:09:52  hopper
  // Added a crude attempt at fixing deficiencies in AIX 3.2.5's include
  // files with respect to socket calls.
@@ -87,7 +93,10 @@ static char _StrFDPlug_CC_rcsID[] = "$Id$";
 #include "config.h"
 
 #ifdef NEED_WRITEV_DECL
-extern "C" int writev(int FileDescriptor, struct iovec *iov, int iovCount);
+extern "C" int writev(int fd, const struct iovec *iov, int iovCount);
+#endif
+#ifndef MAXIOVCNT
+#  define MAXIOVCNT (16U)
 #endif
 
 #ifdef __GNUG__
@@ -164,45 +173,59 @@ int StrFDPlug::inputReady(int fd)
       return(0);
    }
 
+   parent->DoReadFD();
+
+   if (!rdngfrm && parent->buffed_read) {
+      DoReadableNotify();
+   }
+   return(0);
+}
+
+// This should only really be called from StrFDPlug::inputReady since
+// that's the function that makes sure all the preconditions are true
+// first.
+void StreamFDModule::DoReadFD()
+{
+   assert(!buffed_read);
+   assert(last_error == 0);
+   assert(fd >= 0);
+
    int size;
 
    {
-      DataBlockStrChunk *dbchunk =
-	 new DataBlockStrChunk(parent->GetMaxBlockSize());
-      parent->buffed_read = dbchunk;
+      // A normal pointer offers a speed advantage, and we don't know whether
+      // we want to set buffed_read until the read succeeds.
+      unsigned int maxsize = GetMaxBlockSize();
+      DataBlockStrChunk *dbchunk = new DataBlockStrChunk(maxsize);
 
       errno = 0;
-      size = read(parent->fd, dbchunk->GetVoidP(), parent->GetMaxBlockSize());
+      size = read(fd, dbchunk->GetVoidP(), maxsize);
       if (size > 0) {
 	 dbchunk->Resize(size);
+	 buffed_read = dbchunk;
 //	 cerr << "Reading: \"";
 //	 cerr.write(dbchunk->GetVoidP(), dbchunk->Length());
 //	 cerr << "\"\n";
+	 return;
+      } else {
+	 delete dbchunk;
       }
    }
 
-   if (size > 0) {
-//      cerr << "size > 0!\n";
-      if (!rdngfrm) {
-//	 cerr << "DoReadableNotify()!\n";
-	 DoReadableNotify();
-      }
-   } else {
-      if (size < 0 && errno == EWOULDBLOCK) {
-	 parent->buffed_read.ReleasePtr();
+   // The following code assumes size <= 0 (i.e. there's been an error).
+   assert(size <= 0);
+
+   // EWOULDBLOCK shouldn't really happen, but is an OK error, so ignore it.
+   if (!((size < 0) && (errno == EWOULDBLOCK))) {
+      if (errno != 0) {
+	 last_error = errno;
+      } else if (size == 0) {
+	 last_error = -1;   // EOF encountered in read.
       } else {
-	 if (errno != 0)
-	    parent->last_error = errno;
-	 else if (size == 0)
-	    parent->last_error = -1;   // EOF encountered in read.
-	 else {
-	    assert(errno != 0 || size == 0);
-	 }
-	 parent->buffed_read.ReleasePtr();
-	 Dispatcher::instance().unlink(fd, Dispatcher::ReadMask);
+	 assert(errno != 0 || size == 0);
       }
+      Dispatcher::instance().unlink(fd, Dispatcher::ReadMask);
    }
-   return(0);
 }
 
 int StrFDPlug::outputReady(int fd)
@@ -216,50 +239,66 @@ int StrFDPlug::outputReady(int fd)
       return(0);
    }
 
-   unsigned int length = parent->cur_write->Length();
+   parent->DoWriteFD();
 
-   if (parent->write_pos < length) {
+   if (!wrtngto && (parent->fd >= 0)
+       && (parent->last_error = 0) && !(parent->cur_write)) {
+      DoWriteableNotify();
+   }
+   return(0);
+}
+
+// This should only really be called from StrFDPlug::outputReady since
+// that's the function that makes sure all the preconditions are true
+// first.
+void StreamFDModule::DoWriteFD()
+{
+   assert(cur_write);
+   assert(last_error == 0);
+   assert(fd >= 0);
+
+   if (write_vec == 0) {
+      write_vec = new GroupVector(cur_write->NumSubGroups());
+      cur_write->SimpleFillGroupVec(*write_vec);
+   }
+
+   assert(write_vec != 0);
+
+   size_t length = write_vec->TotalLength();
+
+   if (write_pos < length) {
       int written;
       bool result;
       GroupVector::IOVecDesc ioveclst;
 
-      assert(parent->write_vec != 0);
-
-      result = parent->write_vec->FillIOVecDesc(parent->write_pos, ioveclst);
+      result = write_vec->FillIOVecDesc(write_pos, ioveclst);
       assert(result);
+      assert(ioveclst.iovcnt > 0);
+      if (ioveclst.iovcnt > MAXIOVCNT) {
+	 ioveclst.iovcnt = MAXIOVCNT;
+      }
       errno = 0;
-      written = writev(parent->fd, ioveclst.iov, ioveclst.iovcnt);
+      written = writev(fd, ioveclst.iov, ioveclst.iovcnt);
 /*
       cerr << "Wrote: \"";
       parent->cur_write->PutIntoFd(2, parent->write_pos, written);
       cerr << "\"\n";
 */
       if (written < 0) {
-	 parent->last_error = errno;
+	 last_error = errno;
 	 Dispatcher::instance().unlink(fd, Dispatcher::WriteMask);
-	 return(0);
+	 return;
       } else {
-	 parent->write_pos += written;
-	 if (parent->write_pos >= length) {
-	    delete parent->write_vec;
-	    parent->write_vec = 0;
-	    parent->cur_write.ReleasePtr();
-	    parent->write_pos = 0;
-	    if (!wrtngto)
-	       DoWriteableNotify();
-	 }
-	 return(0);
+	 write_pos += written;
       }
-   } else {
-      if (parent->write_vec) {
-	 delete parent->write_vec;
-	 parent->write_vec = 0;
+   }
+   if (write_pos >= length) {
+      if (write_vec) {
+	 delete write_vec;
+	 write_vec = 0;
       }
-      parent->cur_write.ReleasePtr();
-      parent->write_pos = 0;
-      if (!wrtngto)
-	 DoWriteableNotify();
-      return(0);
+      cur_write.ReleasePtr();
+      write_pos = 0;
    }
 }
 
