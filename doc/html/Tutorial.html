@@ -796,5 +796,36 @@ the naming is OK and everything.  Sadly, the parent doesn't yet have an
 <code>errorOccured()</code> method, nor does it arrange for the SocketModules
 to post the error event when something happens.</p>
 
+<p>The StreamFDModule (which SocketModule is derived from) method that lets us
+register to have events posted is <code>void onErrorIn(ErrorType err, const
+unievent::EventPtr &amp;ev)</code>.  As you can see, it has several error types
+or categories you can register for errors in.  I want to register for errors in
+all of those categories because they are all relevant.  Here is a rewrite of
+the ForwardedConnection constructor that accomplishes this:</p>
+
+<pre class="codeblock">ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
+                                         SocketModule &amp;outgoing)
+     : incoming_(incoming), outgoing_(outgoing), errev_(new ErrorEvent(*this))
+{
+   using strmod::strmod::StreamFDModule;
+
+   incoming_.makePlug(0)->plugInto( *(outgoing_.makePlug(0)) );
+
+   incoming_.onErrorIn(StreamFDModule::ErrRead, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrWrite, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrGeneral, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrFatal, errev_);
+
+   outgoing_.onErrorIn(StreamFDModule::ErrRead, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrWrite, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrGeneral, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrFatal, errev_);
+}</pre>
+
+<p>Yes, it <strong>is</strong> a lot of repetive code.  You are not mistaken.
+Now, all that's left is implmeneting
+<code>ForwardedConnect::errorOccurred()</code>.  This can be a bit tricky if we
+want to do it 'correctly'.
+
 </body>
 </html>
