@@ -29,12 +29,14 @@
           </dd>
         <dt><h3>What's a UNIEvent?</h3>
         </dt>
-          <dd><p>A UNIEvent is the event that the UNIDispatcher keeps track of
-            and 'fires'.  It behaves a little like a function pointer to a
-            function that takes the dispatcher that fired the event as an
-            argument.  UNIEvents are supposed to be re-used, and not created
-            individually for each event. That's why they inherit from
-            ReferenceCounting and have the UNIEventPtr type.</p>
+          <dd><p>A UNIEvent is the object that the UNIDispatcher holds in a
+            qeue and 'fires' by calling its <a
+            href="../classdoc/UNIEvent.html#TriggerEvent(UNIDispatcher*dispatcher=0)">TriggerEvent</a>
+            method..  It behaves a little like a function pointer to a function
+            that takes the dispatcher that fired the event as an argument.
+            UNIEvents are supposed to be re-used, and not created individually
+            for each event. That's why they inherit from ReferenceCounting and
+            have the UNIEventPtr type.</p>
           </dd>
         <dt><h3>Why would I use an implementation of UNIDispatcher?</h3>
         </dt>
