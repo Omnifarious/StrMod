@@ -2,7 +2,8 @@
 
 /* $Header$ */
 
-// $Log$
+// For log, see ../ChangeLog
+//
 // Revision 1.5  1998/05/01 11:59:32  hopper
 // Changed bool to bool_val or bool_cst as appropriate so it will be easier to
 // port to platforms that don't support bool.
@@ -122,12 +123,10 @@ inline int EH_ClassNum::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || ClassNum::AreYouA(cid));
 }
 
-#pragma warn -sig
 inline U2Byte EH_ClassNum::GetLibNum() const
 {
    return((0xfff00000UL & ClassNum::GetClNum()) >> 20);
 }
-#pragma warn .sig
 
 inline U4Byte EH_ClassNum::GetClNum() const
 {
