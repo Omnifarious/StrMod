@@ -1,3 +1,20 @@
+1999-10-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/Dispatcher.h:
+	* UniEvent/SimpleDispatcher.h:
+	* UniEvent/UNEVT_ClassIdent.h:
+	* UniEvent/UNIXpollManager.h:
+	* UniEvent/UNIXpollManagerImp.h:
+	* SimpleDispatcherImp.cxx:
+	* UNIXpollManagerImp.cxx: Removed all references to <bool.h> and
+	changed all references to bool_val and bool_cst to bool.
+	
+	* GNUmakefile.in: Removed because now there's Makefile.in
+
+	* Makefile.in: Added the wondrous, splendiferous new makefile that
+	reports a list of dependencies to the root level makefile so one,
+	big make can be done at the top level.
+
 1999-10-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* GNUmakefile.in: Updated to be have everything the GNUmakefile has.
