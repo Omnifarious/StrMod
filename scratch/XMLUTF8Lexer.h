@@ -2,11 +2,11 @@
 
 #define _XML_XMLUTF8Lexer_H_
 
+/* $Header$ */
+
 #ifdef __GNUG__
 #  pragma interface
 #endif
-
-/* $Header$ */
 
 #include <cstddef>
 #include <string>
@@ -414,6 +414,9 @@ class XMLUTF8Lexer
 };
 
 // $Log$
+// Revision 1.2  2002/12/10 13:21:13  hopper
+// Moved Header line to better place.
+//
 // Revision 1.1  2002/12/10 13:19:16  hopper
 // Some XML parsing classes I'm playing with until I get something that's
 // suitable for public consumption.
