@@ -34,6 +34,8 @@ class UNISimpleDispatcher : public UNIDispatcher {
 
    virtual bool_val IsQueueEmpty() const;
 
+   virtual void onQueueEmpty(const UNIEventPtr &ev);
+
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 

@@ -8,6 +8,7 @@
 
 // For log see ../ChangeLog
 
+#include <bool.h>
 #include <LCore/HopClTypes.h>
 
 #define _UNEVT_UNEVT_ClassIdent_H_
@@ -21,7 +22,7 @@ class UNEVT_ClassIdent : public EH_ClassIdent {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline bool operator ==(const ClassIdent &b) const;
+   inline bool_val operator ==(const ClassIdent &b) const;
 
    inline UNEVT_ClassIdent(U4Byte cnum);
 };
@@ -38,7 +39,7 @@ inline int UNEVT_ClassIdent::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
 }
 
-inline bool UNEVT_ClassIdent::operator ==(const ClassIdent &b) const
+inline bool_val UNEVT_ClassIdent::operator ==(const ClassIdent &b) const
 {
    return(EH_ClassIdent::operator ==(b));
 }

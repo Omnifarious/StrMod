@@ -35,12 +35,16 @@ class UNIDispatcher : virtual public Protocol {
    virtual void StopDispatching() = 0;
    virtual bool_val IsQueueEmpty() const = 0;
 
+   //: This event is only triggered by the DispatchUntilEmpty function.
+   virtual void onQueueEmpty(const UNIEventPtr &ev) = 0;
+
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
  private:
-   // Purposely left undefined.
+   //: Purposely left undefined.
    UNIDispatcher(const UNIDispatcher &b);
+   //: Purposely left undefined.
    const UNIDispatcher &operator =(const UNIDispatcher &b);
 };
 

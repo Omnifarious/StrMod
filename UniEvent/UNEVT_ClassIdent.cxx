@@ -18,4 +18,7 @@ const UNEVT_ClassIdent UNEVT_ClassIdent::identifier(0UL);
  *   4UL  UNISimpleDispatcher
  *   5UL  UNIEventPtr
  *   6UL  OSObjectConditions
+ *   7UL  UNIXpollManager
+ *   8UL  UNIXpollManager::PollEvent
+ *   9UL  UNIXpollManagerImp
  */

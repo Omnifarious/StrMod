@@ -7,6 +7,12 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1998/05/01 11:54:52  hopper
+// Made various changes so that the UNIXpollManager could automatically
+// register itself to be run when the event queue was empty.
+// Also, changes to use bool_val and bool_cst instead of bool so that we
+// can move to a paltform that doesn't support bool more easily.
+//
 // Revision 1.1  1998/04/29 01:57:10  hopper
 // First cut at making something that can dispatch UNIX system events.
 //
@@ -32,31 +38,33 @@
 // having to recompile the clients of UNIXpollManager.
 class UNIXpollManagerImp : public UNIXpollManager {
  public:
+   static const UNEVT_ClassIdent identifier;
+
    UNIXpollManagerImp(UNIDispatcher *disp);
    virtual ~UNIXpollManagerImp();
 
    //: See base class
-   virtual bool registerFDCond(int fd,
-			       unsigned int condbits,
-			       const UNIEventPtr &ev);
+   virtual bool_val registerFDCond(int fd,
+				   unsigned int condbits,
+				   const UNIEventPtr &ev);
    //: See base class
-   virtual bool registerFDCond(int fd,
-			       unsigned int condbits,
-			       const UNIEventPtrT<PollEvent> &ev);
+   virtual bool_val registerFDCond(int fd,
+				   unsigned int condbits,
+				   const UNIEventPtrT<PollEvent> &ev);
    //: See base class
-   virtual void freeFD(int fd) = 0;
+   virtual void freeFD(int fd);
 
-   //: Actually call the UNIX poll system call, and dispatch resulting events.
+   //: See base class
    virtual void doPoll();
 
  private:
    struct EVEntry {
       unsigned int condmask_;
-      bool isPoll_;
+      bool_val isPoll_;
       UNIEventPtr ev_;
 
       inline EVEntry(unsigned int condmask,
-		     bool isPoll, const UNIEventPtr &ev);
+		     bool_val isPoll, const UNIEventPtr &ev);
    };
    typedef list<EVEntry> EVList;
    struct FDInfo {
@@ -66,9 +74,11 @@ class UNIXpollManagerImp : public UNIXpollManager {
       inline FDInfo();
    };
    typedef map<int, FDInfo> FDMap;
+   class DoPollEvent;
+   friend class DoPollEvent;
 
    //: Adds an event to the table.
-   bool addEV(int fd, const EVEntry &ev_ent);
+   bool_val addEV(int fd, const EVEntry &ev_ent);
 
    //: Fills up the poll_list_ with data so poll can be called.
    void fillPollList();
@@ -80,14 +90,17 @@ class UNIXpollManagerImp : public UNIXpollManager {
    inline unsigned int pevMaskToFDMask(short revents);
 
    FDMap fdmap_;
+   bool_val isregistered_;
    pollfd *poll_list_;
+   UNIEventPtrT<DoPollEvent> pollev_;
    unsigned int num_entries_;
+   unsigned int used_entries_;
 };
 
 //-----------------------------inline functions--------------------------------
 
 inline UNIXpollManagerImp::EVEntry::EVEntry(unsigned int condmask,
-					    bool isPoll,
+					    bool_val isPoll,
 					    const UNIEventPtr &ev)
      : condmask_(condmask), isPoll_(isPoll), ev_(ev)
 {
@@ -137,6 +150,7 @@ inline unsigned int UNIXpollManagerImp::pevMaskToFDMask(short revents)
    {
       condmask |= FD_Invalid;
    }
+   return(condmask);
 }
 
 #endif

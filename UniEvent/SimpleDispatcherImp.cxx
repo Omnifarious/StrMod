@@ -5,16 +5,64 @@
 #include "UniEvent/SimpleDispatcher.h"
 #include "UniEvent/Event.h"
 #include "UniEvent/EventPtr.h"
+#include <iostream.h>
 #include <deque>
 
-typedef deque<UNIEvent *> ImpBase;
+typedef deque<UNIEvent *> EVListBase;
 
-class UNISimpleDispatcher::Imp : public ImpBase {
+class UNISimpleDispatcher::Imp {
+ public:
+   class EVList : public EVListBase {
+    public:
+      inline void addElement(UNIEvent *ev);
+      inline bool_val qEmpty();
+
+      inline ~EVList();
+   };
+
+   void flopQueues();
+
+   EVList mainq_;
+   EVList onempty_;
 };
 
-static inline bool_val QEmpty(const ImpBase &imp)
+inline void UNISimpleDispatcher::Imp::EVList::addElement(UNIEvent *ev)
 {
-   return(imp.size() == 0);
+   ev->AddReference();
+   push_back(ev);
+}
+
+inline bool_val UNISimpleDispatcher::Imp::EVList::qEmpty()
+{
+   return(size() <= 0);
+}
+
+inline UNISimpleDispatcher::Imp::EVList::~EVList()
+{
+   while (!qEmpty())
+   {
+      UNIEvent *ev = front();
+
+      pop_front();
+      if (ev->NumReferences() > 0)
+      {
+	 ev->DelReference();
+      }
+      if (ev->NumReferences() <= 0)
+      {
+	 delete ev;
+      }
+   }
+}
+
+void UNISimpleDispatcher::Imp::flopQueues()
+{
+   while (!onempty_.qEmpty())
+   {
+      UNIEvent *ev = onempty_.front();
+      onempty_.pop_front();
+      mainq_.push_back(ev);
+   }
 }
 
 UNISimpleDispatcher::UNISimpleDispatcher()
@@ -25,17 +73,16 @@ UNISimpleDispatcher::UNISimpleDispatcher()
 UNISimpleDispatcher::~UNISimpleDispatcher()
 {
 #ifndef NDEBUG
-   if (!QEmpty(imp_)) {
+   if (!imp_.mainq_.qEmpty()) {
       cerr << "Warning!\a  Deleting a UNISimpleDispatcher that isn't empty!\n";
    }
 #endif
-   delete (&imp_);
+   delete &imp_;
 }
 
 void UNISimpleDispatcher::AddEvent(const UNIEventPtr &ev)
 {
-   ev->AddReference();
-   imp_.push_back(ev.GetPtr());
+   imp_.mainq_.addElement(ev.GetPtr());
 }
 
 void UNISimpleDispatcher::DispatchEvents(unsigned int numevents,
@@ -47,20 +94,29 @@ void UNISimpleDispatcher::DispatchEvents(unsigned int numevents,
 
    unsigned int i = numevents;
 
-   while (i && !QEmpty(imp_) && !stop_flag_) {
-      UNIEvent *ev = imp_.front();
+   while (i && (!imp_.mainq_.qEmpty()
+		|| !imp_.onempty_.qEmpty()) && !stop_flag_)
+   {
+      if (imp_.mainq_.qEmpty())
+      {
+	 imp_.flopQueues();
+      }
+      UNIEvent *ev = imp_.mainq_.front();
 
-      imp_.pop_front();
+      imp_.mainq_.pop_front();
       i--;
       ev->TriggerEvent(enclosing);
-      if (ev->NumReferences() > 0) {
+      if (ev->NumReferences() > 0)
+      {
 	    ev->DelReference();
       }
-      if (ev->NumReferences() <= 0) {
+      if (ev->NumReferences() <= 0)
+      {
 	 delete ev;
       }
    }
-   if (stop_flag_) {
+   if (stop_flag_)
+   {
       stop_flag_ = false;
    }
 }
@@ -71,10 +127,16 @@ void UNISimpleDispatcher::DispatchUntilEmpty(UNIDispatcher *enclosing)
       enclosing = this;
    }
 
-   while (!QEmpty(imp_) && !stop_flag_) {
-      UNIEvent *ev = imp_.front();
+   while ((!imp_.mainq_.qEmpty() || !imp_.onempty_.qEmpty()) && !stop_flag_)
+   {
+      if (imp_.mainq_.qEmpty())
+      {
+	 imp_.flopQueues();
+      }
 
-      imp_.pop_front();
+      UNIEvent *ev = imp_.mainq_.front();
+
+      imp_.mainq_.pop_front();
       ev->TriggerEvent(enclosing);
       if (ev->NumReferences() > 0) {
 	    ev->DelReference();
@@ -90,5 +152,10 @@ void UNISimpleDispatcher::DispatchUntilEmpty(UNIDispatcher *enclosing)
 
 bool_val UNISimpleDispatcher::IsQueueEmpty() const
 {
-   return(QEmpty(imp_));
+   return(imp_.mainq_.qEmpty());
+}
+
+void UNISimpleDispatcher::onQueueEmpty(const UNIEventPtr &ev)
+{
+   imp_.onempty_.addElement(ev.GetPtr());
 }
