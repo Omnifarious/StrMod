@@ -37,27 +37,37 @@ const UNEVT_ClassIdent UNIXpollManagerImp::identifier(9UL);
 class UNIXpollManagerImp::DoPollEvent : public UNIEvent
 {
  public:
-   inline DoPollEvent(UNIXpollManagerImp &parent);
+   inline DoPollEvent(UNIXpollManagerImp &parent, bool wait);
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0);
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
 
    inline void managerDeleted();
 
  private:
    UNIXpollManagerImp *parent_;
+   const bool wait_;
 };
 
-UNIXpollManagerImp::DoPollEvent::DoPollEvent(UNIXpollManagerImp &parent)
-     : parent_(&parent)
+UNIXpollManagerImp::DoPollEvent::DoPollEvent(UNIXpollManagerImp &parent,
+                                             bool wait)
+     : parent_(&parent), wait_(wait)
 {
 }
 
-inline void UNIXpollManagerImp::DoPollEvent::TriggerEvent(UNIDispatcher *dis)
+inline void UNIXpollManagerImp::DoPollEvent::triggerEvent(UNIDispatcher *dis)
 {
    if (parent_ != NULL)
    {
-      parent_->isregistered_ = false;
-      parent_->doPoll();
+      if (wait_)
+      {
+         parent_->isregistered_ = false;
+         parent_->doPoll(true);
+      }
+      else
+      {
+         parent_->isbusyregistered_ = false;
+         parent_->doPoll(false);
+      }
    }
 }
 
@@ -71,7 +81,9 @@ UNIXpollManagerImp::UNIXpollManagerImp(UNIDispatcher *disp)
        poll_list_(NULL),
        num_entries_(0),
        isregistered_(false),
-       pollev_(new DoPollEvent(*this))
+       isbusyregistered_(false),
+       pollev_(new DoPollEvent(*this, true)),
+       busypollev_(new DoPollEvent(*this, false))
 {
 }
 
@@ -125,7 +137,7 @@ void UNIXpollManagerImp::freeFD(int fd)
    fdmap_.erase(fd);
 }
 
-void UNIXpollManagerImp::doPoll()
+void UNIXpollManagerImp::doPoll(bool wait)
 {
    if (fdmap_.size() <= 0)
    {
@@ -134,7 +146,15 @@ void UNIXpollManagerImp::doPoll()
 
    fillPollList();
 
-   int pollresult = ::poll(poll_list_, used_entries_, -1);
+   int pollresult;
+   if (wait)
+   {
+      ::poll(poll_list_, used_entries_, -1);
+   }
+   else
+   {
+      ::poll(poll_list_, used_entries_, 0);
+   }
    int myerrno = errno;  // Save any error that might have happened.
 
    if (pollresult >= 0)
@@ -160,7 +180,7 @@ void UNIXpollManagerImp::doPoll()
 		     p->setCondBits(condmask & (*j).condmask_);
 		  }
 	       }
-	       getDispatcher()->AddEvent((*j).ev_);
+	       getDispatcher()->addEvent((*j).ev_);
 	       j = info.evlist_.erase(j);
 	    }
 	    else
@@ -190,10 +210,18 @@ void UNIXpollManagerImp::doPoll()
    // call.
    if ((pollresult >= 0) || (myerrno == EINTR))
    {
-      if (fdmap_.size() > 0 && !isregistered_)
+      if (fdmap_.size() > 0)
       {
-	 getDispatcher()->onQueueEmpty(pollev_);
-	 isregistered_ = true;
+         if (!isregistered_)
+         {
+            getDispatcher()->onQueueEmpty(pollev_);
+            isregistered_ = true;
+         }
+         if (!isbusyregistered_)
+         {
+            getDispatcher()->addBusyPollEvent(busypollev_);
+            isbusyregistered_ = true;
+         }
       }
    }
 }
@@ -208,6 +236,11 @@ bool UNIXpollManagerImp::addEV(int fd, const EVEntry &ev_ent)
    {
       getDispatcher()->onQueueEmpty(pollev_);
       isregistered_ = true;
+   }
+   if (!isbusyregistered_)
+   {
+      getDispatcher()->addBusyPollEvent(busypollev_);
+      isbusyregistered_ = true;
    }
    return(true);
 }

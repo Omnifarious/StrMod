@@ -84,7 +84,7 @@ class UNIXpollManagerImp : public UNIXpollManager {
    virtual void freeFD(int fd);
 
    //: See base class
-   virtual void doPoll();
+   virtual void doPoll(bool wait = true);
 
  private:
    struct EVEntry {
@@ -120,8 +120,10 @@ class UNIXpollManagerImp : public UNIXpollManager {
 
    FDMap fdmap_;
    bool isregistered_;
+   bool isbusyregistered_;
    pollfd *poll_list_;
    UNIEventPtrT<DoPollEvent> pollev_;
+   UNIEventPtrT<DoPollEvent> busypollev_;
    unsigned int num_entries_;
    unsigned int used_entries_;
 };
