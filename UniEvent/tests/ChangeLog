@@ -1,3 +1,7 @@
+1999-11-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Everything: Added copyright notices everywhere!
+
 1999-01-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* testdisp.cxx: Moved an include around and added a #define to
