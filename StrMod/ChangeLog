@@ -1,3 +1,15 @@
+2001-02-26  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Version 0.2.1 released!
+
+	* StrMod/TelnetChunker.h, TelnetChunker.cxx: Fixed so that a very
+	long suboption will be aborted instead of causing memory
+	exhaustion.
+
+	* TelnetChunker.cxx, TelnetParser.cxx: Fixed a bug that caused
+	'special' 0 length chunks to be dropped by the TelnetChunker
+	module.
+
 2001-02-24  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* Makefile.in: Added semi-test telnet source to the library.
