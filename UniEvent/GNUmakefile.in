@@ -34,15 +34,21 @@ DEPDB = @DEPDB@
 
 MYMAKE := $(MAKE)
 
-#  StreambufModule.cxx  HL7Module.cxx
-LIBCCS = UNEVT_ClassIdent.cxx  Dispatcher.cxx  Event.cxx \
-         SimpleDispatcher.cxx  SimpleDispatcherImp.cxx  UNIXError.cxx
+LIBCCS = Event.cxx \
+         Dispatcher.cxx \
+         SimpleDispatcher.cxx \
+         SimpleDispatcherImp.cxx \
+         UNEVT_ClassIdent.cxx \
+         UNIXError.cxx \
+         UNIXpollManager.cxx \
+         UNIXpollManagerImp.cxx \
+         EventPtr.cxx
 
-TESTCCS = tests/testdisp.cxx  tests/testsimple.cxx
+TESTCCS = tests/testdisp.cxx  tests/testsimple.cxx  tests/testUPoll.cxx
 
 CCNAMES = $(LIBCCS) $(TESTCCS)
 
-TESTEXECS = tests/testsimple
+TESTEXECS = tests/testsimple tests/testUPoll
 
 DEPSUB = $(patsubst %.c,%.o,$(?:.cxx=.o))
 DEPSUBDD = $(patsubst %.c,%.c.d,$(?:.cxx=.cxx.d))
@@ -69,6 +75,10 @@ tests/testsimple : tests/testdisp.o tests/testsimple.o $(libdir)/libUniEvent.a
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -L$(libdir) \
              tests/testdisp.o tests/testsimple.o -lUniEvent -lLCore \
              -o tests/testsimple
+
+tests/testUPoll : tests/testUPoll.o $(libdir)/libUniEvent.a
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -L$(libdir) \
+             tests/testUPoll.o -lUniEvent -lLCore -o tests/testUPoll
 
 GNUmakefile : depend.stamp
 	$(DEPDB) list --makefiles GNUmakefile GNUmakefile.new
