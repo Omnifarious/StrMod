@@ -1,0 +1,125 @@
+#!@perl@
+# -*- mode: perl; -*-
+
+if ($ARGV[0] eq "-c")
+{
+    open(DESTFILE, ">>$ARGV[1]");
+    $prefix = $ARGV[2];
+    open(INFILE, "<$ARGV[3]");
+    while (<INFILE>)
+    {
+	@F = split;
+	foreach $field (@F) {
+	    print DESTFILE "$prefix/$field\n";
+	}
+    }
+    close(INFILE);
+    close(DESTFILE);
+}
+elsif ($ARGV[0] eq "-a")
+{
+    open(DESTFILE, ">>$ARGV[1]");
+    shift @ARGV;
+    shift @ARGV;
+    print DESTFILE join("\n",@ARGV) . "\n";
+    close(DESTFILE);
+}
+elsif ($ARGV[0] eq '-m')
+{
+    open(INFILE, "<$ARGV[1]");
+    while (<INFILE>)
+    {
+	chomp;
+	if (/((GNU)?makefile|Makefile)$/)
+	{
+	    $makelist .= " $_";
+	}
+	elsif (m:^(.*/)?([^/]*)\.(cxx|C|cc|c)$:)
+	{
+	    $curpre = $1;
+	    $curfile = "$2.$3";
+	    if (! defined($prefixes{$curpre}))
+	    {
+		$underpre = $curpre;
+		$underpre =~ s:/:_:g;
+		$prefixes{$curpre} = [ $underpre, $curfile ];
+	    }
+	    else
+	    {
+		local $temp = $prefixes{$curpre};
+		push(@$temp,$curfile);
+	    }
+	}
+    }
+    $objlist = "$ARGV[3] = ";
+    $outstr = "";
+    $ruledir = $ARGV[2];
+    $ruledir =~ s:^(.*)/[^/]*$:$1:;
+    while (($key, $val) = each(%prefixes))
+    {
+	$temp = $$val[0];
+	shift @$val;
+	$outstr .= "\$(OBJDIR)/$temp%.o : $key%.cxx\n";
+	$outstr .= "\tmkdir -p \$(OBJDIR)\n";
+	$outstr .= "\t\$(CXX) \$(CPPFLAGS) \$(CXXFLAGS) -MD -c \$< -o \$@\n";
+	$outstr .= "\t\$(PROCLIBSRC) -d \$*.d \$(RULESDIR)/$temp\$*.d \$(OBJDIR)/$temp\$*.o\n";
+	$outstr .= "\trm -f \$*.d\n";
+	foreach $file (@$val)
+	{
+	    $base = $file;
+	    $base =~ s/^(.*)\.(cxx|C|cc|c)$/$1/;
+	    $outstr .= "\$(OBJDIR)/$temp$base.o: $key$file\n";
+	    $outstr .= "\$(RULESDIR)/$temp$base.d:\n";
+	    $outstr .= "\ttouch \$@\n";
+	    if (! -e "$ruledir/$temp$base.d")
+	    {
+		open(JUNK, ">$ruledir/$temp$base.d");
+		close(JUNK);
+	    }
+	    $outstr .= "include \$(RULESDIR)/$temp$base.d\n";
+	    $objlist .= "\\\n     \$(OBJDIR)/$temp$base.o"
+	}
+    }
+    $outstr .= "$objlist\n";
+    $outstr .= "\$(LIBSRC): $makelist\n";
+    open(INFILE, "<$ARGV[2]");
+    $compstr = join("", <INFILE>);
+    close(INFILE);
+    if ($outstr ne $compstr)
+    {
+	print "=====Updating $ARGV[2]\n";
+	open(OUTFILE, ">$ARGV[2]");
+	print OUTFILE $outstr;
+	close(OUTFILE);
+    }
+}
+elsif ($ARGV[0] eq '-d')
+{
+    open(INFILE, "<$ARGV[1]");
+    @filelist = split(' ', join("", <INFILE>));
+    close(INFILE);
+    while ($filelist[0] =~ m/^((.*((\.o:)|(\.o)|(\.cxx)))|:)$/)
+    {
+	shift @filelist;
+    }
+    foreach $file (@filelist)
+    {
+	if (($file ne "\\") && !($file =~ m:^/:))
+	{
+	    push @headers, $file;
+	}
+    }
+    undef @filelist;
+    $depend = "$ARGV[3]: ";
+    $depend .= (join("\\\n", @headers) . "\n");
+    open(INFILE, "<$ARGV[2]");
+    $olddep = join("", <INFILE>);
+    close(INFILE);
+    if ($depend ne $olddep)
+    {
+	print "=====Updating $ARGV[2]\n";
+	open(OUTFILE, ">$ARGV[2]");
+	print OUTFILE $depend;
+	close(OUTFILE);
+    }
+}
