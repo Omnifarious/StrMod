@@ -73,7 +73,7 @@ class StreamFDModule : public StreamModule {
    // <code>hangdelete</code> is whether the last bit of data should be
    // written before close, and whether or not the close should block.<br>
    StreamFDModule(int fd, UNIXpollManager &pollmgr,
-		  IOCheckFlags f = CheckBoth, bool_val hangdelete = true);
+		  IOCheckFlags f = CheckBoth, bool hangdelete = true);
    virtual ~StreamFDModule();
 
    //: See base class Protocol
@@ -87,17 +87,25 @@ class StreamFDModule : public StreamModule {
    inline virtual bool_val deletePlug(Plug *p);
 
    //: Is this category in an error state?
-   inline bool_val hasErrorIn(ErrCategory ecat);
+   inline bool hasErrorIn(ErrCategory ecat);
    //: Gets the error that this category has.
    inline const UNIXError getErrorIn(ErrCategory ecat);
    //: Sets this category to a non-error state.
    // Doesn't work on the ErrFatal category.
    bool_val resetErrorIn(ErrCategory ecat);
+   //: Do any categories have an error?
+   inline bool hasError();
 
    //: Have I read the EOF marker?
    bool_val readEOF() const                         { return(flags_.readeof); }
    //: Reset the EOF marker so I'll attempt to read more.
    void resetReadEOF();
+
+   //: Is the write buffer empty?  Has the module been drained into the fd?
+   bool writeBufferEmpty() const                    { return(!cur_write_); }
+   //: Is the read buffer empty?  Is the module sucking a currently empty pipe?
+   // Note, a permanently empty pipe results in the readEOF() flag being set.
+   bool readBufferEmpty() const                     { return(!buffed_read_); }
 
    //: This returns the optimal IO blocksize for this descriptor
    // <p>This returns the st_blksize member of the stat structure returned by
@@ -156,6 +164,9 @@ class StreamFDModule : public StreamModule {
 
    //: See base class.  Only makes plugs for side 0.
    inline virtual Plug *i_MakePlug(int side);
+
+   //: Get the file descriptor associated with this module.
+   inline int getFD()                              { return(fd_); }
 
    //: Called by FPlug::i_Write.
    virtual void plugWrite(const StrChunkPtr &ptr);
@@ -256,6 +267,12 @@ inline bool_val StreamFDModule::hasErrorIn(ErrCategory ecat)
 inline const UNIXError StreamFDModule::getErrorIn(ErrCategory ecat)
 {
    return(UNIXError(ecat));
+}
+
+inline bool StreamFDModule::hasError()
+{
+   return(hasErrorIn(ErrRead) || hasErrorIn(ErrWrite)
+	  || hasErrorIn(ErrOther) || hasErrorIn(ErrFatal));
 }
 
 inline void StreamFDModule::setMaxChunkSize(size_t mbs)
