@@ -1,0 +1,80 @@
+rootdir = @top_srcdir@
+PWD = @pwd@
+CMP = @cmp@
+CAT = @cat@
+PROCLIBSRC = @proclibsrc@
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
+CC = @CC@
+CFLAGS = @CFLAGS@
+
+MYMAKE = $(MAKE) CC='$(CC)' CFLAGS='$(CFLAGS)' CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS\)'
+
+SUBDIR = .
+ifeq ($(SUBDIR),.)
+   SUBPREFIX =
+else
+   SUBPREFIX = $(SUBDIR)/
+endif
+
+INCLUDEDIR = $(rootdir)/include
+MYINCLUDEBASE = $(INCLUDEDIR)
+MYINCLUDEDIR = $(MYINCLUDEBASE)/LCore
+
+ifeq ($(rootdir),.)
+   OUTDIR = generated
+else
+   OUTDIR = $(rootdir)/generated
+endif
+ifeq ($(SUBDIR),.)
+   MYOUTDIR = $(OUTDIR)
+else
+   MYOUTDIR = $(OUTDIR)/$(SUBDIR)
+endif
+
+OBJDIR = $(MYOUTDIR)/obj
+LIBDIR = $(MYOUTDIR)/lib
+LIBSRC = $(MYOUTDIR)/lib_src
+
+LIBCXX = classimp.cxx  defproto.cxx  hopclimp.cxx  objctstr.cxx \
+         progrimp.cxx  clsprgid.cxx  cltpsstr.cxx  gentyimp.cxx \
+         objctstd.cxx  objecimp.cxx  protoimp.cxx  defeh_cl.cxx \
+         defspscl.cxx  defrefco.cxx  refcoimp.cxx  rfcntptr.cxx \
+         rfcntptt.cxx  debugabl.cxx
+
+TESTCCS = tests/refcnt.cxx
+
+.PHONY: directories always
+
+UNIQUEDIRS = $(sort $(INCLUDEDIR) $(MYINCLUDEBASE) $(OUTDIR) $(MYOUTDIR))
+
+all: $(LIBDIR)/libLCore.a
+
+directories: $(UNIQUEDIRS) $(MYINCLUDEDIR)
+
+$(UNIQUEDIRS):
+	mkdir -p $@
+
+$(MYOUTDIR)/lib_src: $(MYOUTDIR)
+
+pwd_test: always
+	@if [ ! -f pwd_test ]; then $(PWD) >pwd_test; else \
+	if $(PWD) | $(CMP) - pwd_test >/dev/null 2>/dev/null; then :; else \
+	   $(PWD) >pwd_test; \
+	fi; fi
+
+$(MYINCLUDEDIR): pwd_test
+	$(MYMAKE) $(MYINCLUDEBASE) 
+	rm -f $@
+	ln -s `$(CAT) pwd_test`/LCore $@
+
+$(LIBSRC): Makefile $(MYINCLUDEDIR)
+	$(PROCLIBSRC) -a $@ $(LIBCXX) Makefile
+
+$(LIBDIR)/libLCore.a:
+
+tests/refcnt : tests/refcnt.o rfcntptt.o rfcntptr.o refcoimp.o protoimp.o \
+               hopclimp.o classimp.o defrefco.o defproto.o clsprgid.o \
+               defeh_cl.o cltpsstr.o objctstr.o objecimp.o objctstd.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/refcnt
+
