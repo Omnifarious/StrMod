@@ -33,7 +33,7 @@ class CountingEvent : public UNIEvent {
    inline CountingEvent();
    virtual ~CountingEvent();
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0);
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
 
    static unsigned int GetCount()                      { return(count_); }
    static void SetCount(unsigned int ct)               { count_ = ct; }
@@ -66,7 +66,7 @@ CountingEvent::~CountingEvent()
    kill_count_++;
 }
 
-void CountingEvent::TriggerEvent(UNIDispatcher *dispatcher)
+void CountingEvent::triggerEvent(UNIDispatcher *dispatcher)
 {
    cout << "Event with count " << this_count_ << " triggered!\n";
 }
@@ -77,7 +77,7 @@ class GrowQueueEvent : public CountingEvent {
    GrowQueueEvent()                                                         { }
    inline virtual ~GrowQueueEvent()                                         { }
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0);
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
 };
 
 class ShrinkQueueEvent : public CountingEvent {
@@ -85,59 +85,59 @@ class ShrinkQueueEvent : public CountingEvent {
    ShrinkQueueEvent()                                                       { }
    virtual ~ShrinkQueueEvent()                                              { }
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0);
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
 };
 
-void GrowQueueEvent::TriggerEvent(UNIDispatcher *dispatcher)
+void GrowQueueEvent::triggerEvent(UNIDispatcher *dispatcher)
 {
-   CountingEvent::TriggerEvent(dispatcher);
+   CountingEvent::triggerEvent(dispatcher);
 
    if (dispatcher) {
       int chance = lrand48() % 4;
 
       if ((chance == 0) || (chance == 1)) {
 	 if (MyCount() > 1024) {
-	    dispatcher->AddEvent(new ShrinkQueueEvent);
-	    dispatcher->AddEvent(new ShrinkQueueEvent);
+	    dispatcher->addEvent(new ShrinkQueueEvent);
+	    dispatcher->addEvent(new ShrinkQueueEvent);
 	 } else {
-	    dispatcher->AddEvent(new GrowQueueEvent);
-	    dispatcher->AddEvent(new GrowQueueEvent);
+	    dispatcher->addEvent(new GrowQueueEvent);
+	    dispatcher->addEvent(new GrowQueueEvent);
 	 }
       } else if (chance == 2) {
 	 if (MyCount() > 1024) {
-	    dispatcher->AddEvent(new ShrinkQueueEvent);
+	    dispatcher->addEvent(new ShrinkQueueEvent);
 	 } else {
-	    dispatcher->AddEvent(new GrowQueueEvent);
+	    dispatcher->addEvent(new GrowQueueEvent);
 	 }
       }
    }
 }
 
-void ShrinkQueueEvent::TriggerEvent(UNIDispatcher *dispatcher)
+void ShrinkQueueEvent::triggerEvent(UNIDispatcher *dispatcher)
 {
-   CountingEvent::TriggerEvent(dispatcher);
+   CountingEvent::triggerEvent(dispatcher);
 
    if (dispatcher) {
       int chance = lrand48() % 4;
 
       if (chance == 0) {
-	 dispatcher->AddEvent(new ShrinkQueueEvent);
-	 dispatcher->AddEvent(new ShrinkQueueEvent);
+	 dispatcher->addEvent(new ShrinkQueueEvent);
+	 dispatcher->addEvent(new ShrinkQueueEvent);
       } else if (chance == 1) {
-	 dispatcher->AddEvent(new ShrinkQueueEvent);
+	 dispatcher->addEvent(new ShrinkQueueEvent);
       }
    }
 }
 
-bool_val TestDispatcher(UNIDispatcher &disp, long seed)
+bool TestDispatcher(UNIDispatcher &disp, long seed)
 {
    srand48(seed);
 
    CountingEvent::SetCount(0);
    for (int i = 0; i < 20; i++) {
-      disp.AddEvent(new GrowQueueEvent);
+      disp.addEvent(new GrowQueueEvent);
    }
-   disp.DispatchUntilEmpty();
+   disp.dispatchUntilEmpty();
    cout << " Count == " << CountingEvent::GetCount() << " && "
 	<< "Make count == " << CountingEvent::GetMakeCount() << " && "
 	<< "Kill count == " << CountingEvent::GetKillCount() << endl;
