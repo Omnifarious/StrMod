@@ -11,7 +11,8 @@ h1.title {text-align: center}</style>
 </head>
 
 <body>
-<h1 class="title">What the heck is a StrChunk?</h1>
+<h1 class="title">What the heck is a <a
+href="../doxygen/classstrmod_1_1strmod_1_1StrChunk.html">StrChunk</a>?</h1>
 
 <p>A StrChunk is an abstraction for an immutable byte string. One might think
 such an abstraction wouldn't be very complicated or deserving of a detailed
@@ -33,12 +34,14 @@ two common kinds of StrChunks (StrSubChunks and GroupChunks) use StrChunks
 for their implementation. This sounds pretty simple, but has some interesting
 implications.</p>
 
-<p>Another concept that needs introduction is the idea of a LinearExtent. A
+<p>Another concept that needs introduction is the idea of a <a
+href="../doxygen/classstrmod_1_1strmod_1_1LinearExtent.html">LinearExtent</a>. A
 LinearExtent is actually rather simple, and perhaps a better name could be
 thought of. It consists of a starting point or offset, and a length. It is
 used to refer to portions of a StrChunk.</p>
 
-<h2>StrSubChunks and LinearExtents</h2>
+<h2>StrSubChunks and <a
+href="../doxygen/classstrmod_1_1strmod_1_1LinearExtent.html">LinearExtent</a>s</h2>
 
 <p>A StrSubChunk is a StrChunk that uses another StrChunk to actually
 implement the byte string. It uses a LinearExtent to describe which portion
