@@ -1,6 +1,6 @@
 /* $Header$ */
 
-// $Log$
+// See ChangeLog for log.
 // Revision 1.4  1996/12/10 01:53:59  hopper
 // Fixed an error in FillIOVecDesc involving a misplaced increment.
 //
@@ -24,12 +24,12 @@
 const STR_ClassIdent GroupVector::identifier(16UL);
 
 GroupVector::GroupVector(GV_Size size)
-     : numgroups_(size), fakegroup_(false), lastoffset_(0), lastgroupnum_(0),
-       groups_(0), numiterators_(0), totallength_(0)
+     : groups_(0), numgroups_(size), totallength_(0), fakegroup_(false),
+       lastoffset_(0), lastgroupnum_(0), numiterators_(0)
 {
    if (numgroups_ > 0) {
       groups_ = new iovec[numgroups_];
-      for (int i = 0; i < numgroups_; i++) {
+      for (GV_Size i = 0; i < numgroups_; i++) {
 	 groups_[i].iov_base = 0;
 	 groups_[i].iov_len = 0;
       }
