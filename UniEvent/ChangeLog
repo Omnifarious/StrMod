@@ -1,3 +1,17 @@
+Tue Mar 11 15:29:55 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/SimpleDispatcher.h: 
+	* UniEvent/Dispatcher.h: 
+	* SimpleDispatcherImp.cxx: Added new 'enclosing' parameter to
+	dispatching funtions in order to allow for dispatchers implemented
+	in terms of other dispatchers.
+
+Sun Mar  9 08:13:56 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/Event.h (constructor): Added default constructor after
+ 	realizing copy constructor suppressed automatically generated
+ 	default.
+
 Sat Mar  8 09:29:44 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/SimpleDispatcher.h:
