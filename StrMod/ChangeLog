@@ -1,3 +1,20 @@
+2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Preliminary, not
+	completely finished support for the new error handling scheme.
+	Still needs error events.
+
+	* StrMod/SocketModule.h, SocketModule.cxx: Preliminary, not
+	completely finished support for the new error handling scheme.
+	Changed documentation to doxygen.
+
+	* StrMod/SockListenModule.h, SockListenModule.cxx: Preliminary,
+	not completely finished support for the new error handling scheme.
+	Still needs error events.
+
+	* GraphVizVisitor.cxx (visit): Fixed a compiler warning about an
+	unused variable.
+
 2001-04-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Changed commenting
