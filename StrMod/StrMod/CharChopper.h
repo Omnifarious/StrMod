@@ -46,10 +46,31 @@ namespace strmod {
 
 class GroupVector;
 
-class CharChopper : public StreamProcessor {
+/** \class CharChopper CharChopper.h StrMod/CharChopper.h
+ * Chops up the data in chunks delimited by a character.
+ *
+ * If an object of this class is constructed with a 'g', and you have
+ * an incoming stream of data that arrives in the following chunks:
+ *
+ * \code <This ghost> < went to the gilded post t> <o admire the gold.> \uncode
+ *
+ * You'll end up with an outgoing stream of data that looks like this:
+ *
+ * \code <This g> <host went to the g> <ilded post to admire the g> \uncode
+ *
+ * It will hold the last few characters <old.>, waiting for another 'g' before
+ * it send them off again.
+ */
+class CharChopper : public StreamProcessor
+{
  public:
    static const STR_ClassIdent identifier;
 
+   /** Make a CharChopper
+    * @param chopchar The character to split by.
+    *
+    * The character can be anything, including '\0'.
+    */
    CharChopper(char chopchar) : chopchar_(chopchar)    { }
    // Derived class destructor doesn't do anything base class one doesn't do.
 

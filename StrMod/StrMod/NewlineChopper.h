@@ -38,11 +38,18 @@
 namespace strmod {
 namespace strmod {
 
-class NewlineChopper : public CharChopper {
+/** \class NewlineChopper NewlineChopper.h StrMod/NewlineChopper.h
+ * Just a CharChopper that's hard wired to '\n' as he character.
+ *
+ * This is such a common case, I thought it deserved its own class.
+ */
+class NewlineChopper : public CharChopper
+{
  public:
    typedef CharChopper parentclass;
    static const STR_ClassIdent identifier;
 
+   //! Just pass '\n' to parent consructor.
    NewlineChopper() : CharChopper('\n')                { }
    // Derived class destructor doesn't do anything base class one doesn't do.
 
@@ -59,7 +66,7 @@ class NewlineChopper : public CharChopper {
 
 inline int NewlineChopper::AreYouA(const ClassIdent &cid) const
 {
-   return((identifier == cid) || parentclass::AreYouA(cid));
+   return((identifier == cid) || CharChopp::AreYouA(cid));
 }
 
 };  // namespace strmod
