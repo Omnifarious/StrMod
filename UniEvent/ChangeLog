@@ -1,3 +1,26 @@
+2001-04-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/UNIXpollManagerImp.h, UNIXpollManagerImp.cxx: Changed
+	interface to allow for an actual 'poll' instead of always waiting
+	for an event to happen.  Changed to use the new Dispatcher ability
+	to register 'busy' events to cause the poll manager to be called
+	when the system would otherwise be too busy for the queue to get
+	empty.
+
+	* UniEvent/UNIXpollManager.h: Changed interface to allow for an
+	actual 'poll' instead of always waiting for an event to happen.
+
+	* UniEvent/Dispatcher.h: Changed from Perceps to doxygen comments.
+
+	Changed interfaces to implement busy polling and only allow one
+	'on queue empty' event.
+
+	* UniEvent/SimpleDispatcher.h, SimpleDispatcherImp.cxx: Changed
+	from Perceps to doxygen comments.
+
+	Complete overhaul to implement busy polling and only allow one 'on
+	queue empty' event.
+
 2001-03-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* libNet-0.2.2 is released.
