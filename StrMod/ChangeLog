@@ -1,3 +1,11 @@
+2000-01-27  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamFDModule.h:
+	* SimpleMulti.cxx:
+	* SockListenModule.cxx:
+	* StreamFDModule.cxx: Fixed various member functions to conform to
+	the 'first letter is lowercase' naming conventions.
+
 1999-11-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* Everything: Added copyright notices everywhere!
