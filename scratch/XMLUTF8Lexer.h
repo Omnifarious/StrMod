@@ -23,22 +23,24 @@ class XMLBuilder
       BufHandle bufhdl_;
       size_t bufoffset_;
 
-      Position(BufHandle bufhdl, size_t bufoffset)
+      Position(const BufHandle &bufhdl, const size_t &bufoffset)
            : bufhdl_(bufhdl), bufoffset_(bufoffset)
       {
       }
+      Position() : bufoffset_(0) { bufhdl_.ulval_ = 0; }
    };
 
    //! Just set up some initial defaults.
    XMLBuilder() { }
    virtual ~XMLBuilder() {}
 
-   virtual void startElementTag(Position begin, const ::std::string &name) = 0;
-   virtual void addAttribute(Position attrbegin, Position attrend,
-                             Position valbegin, Position valend,
+   virtual void startElementTag(const Position &begin,
+                                const ::std::string &name) = 0;
+   virtual void addAttribute(const Position &attrbegin, const Position &attrend,
+                             const Position &valbegin, const Position &valend,
                              const ::std::string &name) = 0;
-   virtual void endElementTag(Position end, bool wasempty) = 0;
-   virtual void closeElementTag(Position begin, Position end,
+   virtual void endElementTag(const Position &end, bool wasempty) = 0;
+   virtual void closeElementTag(const Position &begin, const Position &end,
                                 const ::std::string &name) = 0;
 };
 
@@ -56,6 +58,8 @@ class XMLUTF8Lexer
                     XSStartName, XSInName,
                     XSEntity, XSNamedEntity, XSCharEntity, XSDecEntity,
                     XSHexEntityStart, XSHexEntity, XSEndEntity };
+   typedef XMLBuilder::BufHandle BufHandle;
+   typedef XMLBuilder::Position Position;
 
  public:
    XMLUTF8Lexer()
@@ -63,9 +67,12 @@ class XMLUTF8Lexer
    {
    }
 
+   //! Does the lexer consider non-whitespace inside of elements (between tags) to be an error?
    bool getNonWSInElements() const                     { return nonwsok_; }
+   //! Tell the lexer whether or not non-whitespace inside of elements (between tags) is an error.
    void setNonWSInElements(bool nonwsok)               { nonwsok_ = nonwsok; }
-   /** Process the characters in buf, calling the builder at the appropriate points.
+
+   /** Process the UTF-8 encoded characters in buf, calling the builder at the appropriate points.
     * @param buf A pointer to an array of characters to process.
     * @param len The number of characters in the array pointed to by buf.
     * @param lastbuf IN: A buffer handle to identify which call of lex a particular token started in / OUT: The earlist buffer handle still being used internally by the XMLUTF8Lexer.
@@ -98,11 +105,12 @@ class XMLUTF8Lexer
       XState state_;
       XSubState substate_;
       size_t namepos_;
-      size_t elbegin_, attrbegin_, attrvalbegin_;
+      bool used_elbegin_, used_attr_;
+      Position elbegin_, attrbegin_, attrvalbegin_;
 
       LocalState()
            : state_(XStart), substate_(XSNone), namepos_(0),
-             elbegin_(0), attrbegin_(0), attrvalbegin_(0)
+             used_elbegin_(false), used_attr_(false)
       {
       }
    } localstate_;
@@ -150,7 +158,7 @@ class XMLUTF8Lexer
          ((c >= '\x61') && (c <= '\x66'));
    }
 
-   inline void advanceState(const char c, const size_t i,
+   inline void advanceState(const char c, const size_t i, const BufHandle &bh,
                             LocalState &ss, XMLBuilder &parser)
    {
       if (ss.substate_ != XSNone)
@@ -280,7 +288,8 @@ class XMLUTF8Lexer
           case XStart:
             if (c == lessthan)  // <
             {
-               ss.elbegin_ = i;
+               ss.elbegin_ = Position(bh, i);
+               ss.used_elbegin_ = true;
                ss.state_ = XLess;
             }
             else if (! (getNonWSInElements() || iswhite(c)))
@@ -293,6 +302,7 @@ class XMLUTF8Lexer
             if (c == exclamation)
             {
                ss.state_ = XCommentExcl;
+               ss.used_elbegin_ = false;
             }
             else if (isnamestart(c))
             {
@@ -366,9 +376,10 @@ class XMLUTF8Lexer
 
           case XOpenElement:
             call_startElementTag(ss.elbegin_, ss.namepos_, parser);
+            ss.used_elbegin_ = false;
             if (c == greaterthan)  // Parsed the whole tag
             {
-               parser.endElementTag(i + 1, false);
+               parser.endElementTag(Position(bh, i + 1), false);
                ss.state_ = XStart;
             }
             else if (iswhite(c))
@@ -388,7 +399,7 @@ class XMLUTF8Lexer
           case XInOpenElement:
             if (c == greaterthan) // Parsed the whole tag
             {
-               parser.endElementTag(i + 1, false);
+               parser.endElementTag(Position(bh, i + 1), false);
                ss.state_ = XStart;
             }
             else if (c == forwslash)
@@ -400,7 +411,8 @@ class XMLUTF8Lexer
                ss.state_ = XAttr;
                ss.namepos_ = 0;
                name_[ss.namepos_++] = c;
-               ss.attrbegin_ = i;
+               ss.attrbegin_ = Position(bh, i);
+               ss.used_attr_ = true;
                ss.substate_ = XSInName;
             }
             else if (!iswhite(c))
@@ -412,7 +424,7 @@ class XMLUTF8Lexer
           case XEmptyElementEnd:
             if (c == greaterthan)
             {
-               parser.endElementTag(i + 1, true);
+               parser.endElementTag(Position(bh, i + 1), true);
                ss.state_ = XStart;  // Parsed the whole tag.
             }
             else
@@ -428,7 +440,9 @@ class XMLUTF8Lexer
             }
             else if (c == greaterthan)
             {
-               call_closeElementTag(ss.elbegin_, i + 1, ss.namepos_, parser);
+               call_closeElementTag(ss.elbegin_, Position(bh, i + 1),
+                                    ss.namepos_, parser);
+               ss.used_elbegin_ = false;
                ss.state_ = XStart;  // Parsed the whole tag.
             }
             else
@@ -440,7 +454,9 @@ class XMLUTF8Lexer
           case XInCloseElement:
             if (c == greaterthan)
             {
-               call_closeElementTag(ss.elbegin_, i + 1, ss.namepos_, parser);
+               call_closeElementTag(ss.elbegin_, Position(bh, i + 1),
+                                    ss.namepos_, parser);
+               ss.used_elbegin_ = false;
                ss.state_ = XStart;  // Parsed the whole tag.
             }
             else if (!iswhite(c))
@@ -464,12 +480,18 @@ class XMLUTF8Lexer
             if (c == doublequote)
             {
                ss.state_ = XAttrDQ;
-               ss.attrvalbegin_ = i + 1;
+               ss.attrvalbegin_ = Position(bh, i + 1);
+               // Don't worry about recording that we're using this, because if
+               // we set this value, attrbegin_ is ALWAYS set to an earlier
+               // position.
             }
             else if (c == singlequote)
             {
                ss.state_ = XAttrSQ;
-               ss.attrvalbegin_ = i + 1;
+               ss.attrvalbegin_ = Position(bh, i + 1);
+               // Don't worry about recording that we're using this, because if
+               // we set this value, attrbegin_ is ALWAYS set to an earlier
+               // position.
             }
             else if (!iswhite(c))
             {
@@ -478,23 +500,14 @@ class XMLUTF8Lexer
             break;
 
           case XAttrSQ:
-            if (c == singlequote)
-            {
-               call_addAttribute(ss.attrbegin_, i + 1, ss.attrvalbegin_, i,
-                                 ss.namepos_, parser);
-               ss.state_ = XInOpenElement;
-            }
-            else if (c == lessthan)  // Don't ask me, amaya thinks it's evil.
-            {
-               ss.state_ = XBad;
-            }
-            break;
-
           case XAttrDQ:
-            if (c == doublequote)
+            if (((ss.state_ == XAttrSQ) && (c == singlequote)) ||
+                ((ss.state_ == XAttrDQ) && (c == doublequote)))
             {
-               call_addAttribute(ss.attrbegin_, i + 1, ss.attrvalbegin_, i,
+               call_addAttribute(ss.attrbegin_, Position(bh, i + 1),
+                                 ss.attrvalbegin_, Position(bh, i),
                                  ss.namepos_, parser);
+               ss.used_attr_ = false;
                ss.state_ = XInOpenElement;
             }
             else if (c == lessthan)  // Don't ask me, amaya thinks it's evil.
@@ -510,15 +523,19 @@ class XMLUTF8Lexer
    }
 
    static void throw_out_of_range();
-   void call_startElementTag(size_t begin, size_t namepos, XMLBuilder &parser);
-   void call_addAttribute(size_t attrbegin, size_t attrend,
-                          size_t valbegin, size_t valend,
-                          size_t namepos, XMLBuilder &parser);
-   void call_closeElementTag(size_t begin, size_t end, size_t namepos,
+   void call_startElementTag(const Position &begin, size_t namepos,
                              XMLBuilder &parser);
+   void call_addAttribute(const Position &attrbegin, const Position &attrend,
+                          const Position &valbegin, const Position &valend,
+                          size_t namepos, XMLBuilder &parser);
+   void call_closeElementTag(const Position &begin, const Position &end,
+                             size_t namepos, XMLBuilder &parser);
 };
 
 // $Log$
+// Revision 1.11  2003/01/09 22:48:32  hopper
+// Much farter along multiple buffer parsing.
+//
 // Revision 1.10  2003/01/09 03:43:52  hopper
 // Farther along the path to a decent XML parser.
 //

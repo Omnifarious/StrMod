@@ -47,19 +47,19 @@ class TestBuilder : public XMLBuilder
    TestBuilder(const char *buf, XMLUTF8Lexer &lexer) : buf_(buf), lexer_(lexer) { }
    virtual ~TestBuilder() { }
 
-   virtual void startElementTag(size_t begin, const ::std::string &name)
+   virtual void startElementTag(const Position &begin, const ::std::string &name)
    {
       elstack_.push(ElementData(name, begin));
    }
-   virtual void addAttribute(size_t attrbegin, size_t attrend,
-                             size_t valbegin, size_t valend,
+   virtual void addAttribute(const Position &attrbegin, const Position &attrend,
+                             const Position &valbegin, const Position &valend,
                              const ::std::string &name)
    {
       ::std::string literal(buf_ + attrbegin, attrend - attrbegin);
       ::std::string value(buf_ + valbegin, valend - valbegin);
       elstack_.top().attrlist_.push_back(AttributeData(name, value, literal, buf_[valend]));
    }
-   virtual void endElementTag(size_t end, bool wasempty)
+   virtual void endElementTag(const Position &end, bool wasempty)
    {
       ElementData &eldata = elstack_.top();
       eldata.datbegin_ = end;
@@ -97,7 +97,8 @@ class TestBuilder : public XMLBuilder
          }
       }
    }
-   virtual void closeElementTag(size_t begin, size_t end, const ::std::string &name)
+   virtual void closeElementTag(const Position &begin,
+                                const Position &end, const ::std::string &name)
    {
       ElementData &eldata = elstack_.top();
       eldata.datend_ = begin;
@@ -174,6 +175,9 @@ int main()
 }
 
 // $Log$
+// Revision 1.7  2003/01/09 22:48:32  hopper
+// Much farter along multiple buffer parsing.
+//
 // Revision 1.6  2002/12/11 21:55:41  hopper
 // It parses attributes now.  There's even a decent test for it.  :-)
 //
