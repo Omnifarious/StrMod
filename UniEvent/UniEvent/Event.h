@@ -19,6 +19,7 @@ class UNIEvent : virtual public Protocol {
  public:
    static const UNEVT_ClassIdent identifier;
 
+   UNIEvent()                                          { }
    virtual ~UNIEvent()                                 { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
