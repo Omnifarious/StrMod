@@ -61,7 +61,7 @@ class UNIEventPtrT : virtual public UNIEventPtr {
    inline const UNIEventPtrT<Event> &operator =(Event *b);
 
  protected:
-   inline virtual RC *i_CheckType(RC *p) const;
+   inline virtual ReferenceCounting *i_CheckType(ReferenceCounting *p) const;
 };
 
 //-----------------------------inline functions--------------------------------
