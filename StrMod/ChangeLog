@@ -1,5 +1,8 @@
 1999-09-22  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
+	* tests/testinfinite.cxx: Added a test for the InfiniteModule.
+	This was also a test for memory leaks in the StreamModule system.
+
 	* STR_ClassIdent.cxx: Removed reference to DataBlockStrChunk from
 	comments.  Added entries for InfiniteModule and its plug.
 
