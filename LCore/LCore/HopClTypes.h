@@ -3,6 +3,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.5  1998/05/01 11:59:32  hopper
+// Changed bool to bool_val or bool_cst as appropriate so it will be easier to
+// port to platforms that don't support bool.
+//
 // Revision 1.4  1996/10/01 19:17:26  hopper
 // Added Trashcan library to libraries list.
 //
@@ -33,6 +37,8 @@
 #ifdef __GNUG__
 #  pragma interface
 #endif
+
+#include <bool.h>
 
 #ifndef _LCORE_ClassTypes_H_
 #  include <LCore/ClassTypes.h>
@@ -83,7 +89,7 @@ class EH_ClassIdent : public ClassIdent {
 
    const EH_ClassNum GetClass() const     { return(ClassIdent::GetClass()); }
 
-   inline bool operator ==(const ClassIdent &b) const;
+   inline bool_val operator ==(const ClassIdent &b) const;
 
    inline EH_ClassIdent(EH_ClassNum cnum);
 };
@@ -99,7 +105,7 @@ class LCore_ClassIdent : public EH_ClassIdent {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline bool operator ==(const ClassIdent &b) const;
+   inline bool_val operator ==(const ClassIdent &b) const;
 
    inline LCore_ClassIdent(U4Byte cnum);
 };
@@ -149,7 +155,7 @@ inline int EH_ClassIdent::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || ClassIdent::AreYouA(cid));
 }
 
-inline bool EH_ClassIdent::operator ==(const ClassIdent &b) const
+inline bool_val EH_ClassIdent::operator ==(const ClassIdent &b) const
 {
    return(ClassIdent::operator ==(b));
 }
@@ -171,7 +177,7 @@ inline int LCore_ClassIdent::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
 }
 
-inline bool LCore_ClassIdent::operator ==(const ClassIdent &b) const
+inline bool_val LCore_ClassIdent::operator ==(const ClassIdent &b) const
 {
    return(EH_ClassIdent::operator ==(b));
 }

@@ -3,6 +3,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.5  1998/05/01 11:59:33  hopper
+// Changed bool to bool_val or bool_cst as appropriate so it will be easier to
+// port to platforms that don't support bool.
+//
 // Revision 1.4  1996/07/08 02:29:05  hopper
 // Added EDIServ application to class library list.
 //
@@ -20,6 +24,8 @@
 #ifdef __GNUG__
 #  pragma interface
 #endif
+
+#include <bool.h>
 
 #ifndef _LCORE_ClassTypes_H_
 #  include <LCore/ClassTypes.h>
@@ -71,7 +77,7 @@ class SPS_ClassIdent : public ClassIdent {
 
    const SPS_ClassNum GetClass() const     { return(ClassIdent::GetClass()); }
 
-   inline bool operator ==(const ClassIdent &b) const;
+   inline bool_val operator ==(const ClassIdent &b) const;
 
    inline SPS_ClassIdent(SPS_ClassNum cnum);
 };
@@ -87,7 +93,7 @@ class SPSCORE_ClassIdent : public SPS_ClassIdent {
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   inline bool operator ==(const ClassIdent &b) const;
+   inline bool_val operator ==(const ClassIdent &b) const;
 
    inline SPSCORE_ClassIdent(U4Byte cnum);
 };
@@ -137,7 +143,7 @@ inline int SPS_ClassIdent::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || ClassIdent::AreYouA(cid));
 }
 
-inline bool SPS_ClassIdent::operator ==(const ClassIdent &b) const
+inline bool_val SPS_ClassIdent::operator ==(const ClassIdent &b) const
 {
    return(ClassIdent::operator ==(b));
 }
@@ -159,7 +165,7 @@ inline int SPSCORE_ClassIdent::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || SPS_ClassIdent::AreYouA(cid));
 }
 
-inline bool SPSCORE_ClassIdent::operator ==(const ClassIdent &b) const
+inline bool_val SPSCORE_ClassIdent::operator ==(const ClassIdent &b) const
 {
    return(SPS_ClassIdent::operator ==(b));
 }
