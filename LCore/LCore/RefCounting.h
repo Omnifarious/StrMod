@@ -3,6 +3,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.2  1997/05/12 16:27:53  hopper
+// Fixed ReferenceCounting::NumReferences to be a const method, as befits
+// an accessor.
+//
 // Revision 1.1  1996/03/26 16:23:02  hopper
 // Moved ReferenceCounting class over from Container library.
 // Fixed up class numbering system so LCore uses a seperate library number
@@ -45,7 +49,7 @@ class ReferenceCounting : virtual public Protocol {
 
    void AddReference()                      { refcounter++; }
    void DelReference()                      { if (refcounter) refcounter--; }
-   U4Byte NumReferences()                   { return(refcounter); }
+   U4Byte NumReferences() const             { return(refcounter); }
 
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
