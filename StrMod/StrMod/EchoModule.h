@@ -64,7 +64,7 @@ class EchoModule : public StreamModule {
       virtual int side() const                          { return(0); }
 
     protected:
-      inline EPlug(EchoModule *parnt);
+      inline EPlug(EchoModule &parnt);
       inline virtual ~EPlug();
 
       virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
@@ -99,7 +99,7 @@ inline StreamModule::Plug *EchoModule::makePlug(int side)
    return(StreamModule::makePlug(side));
 }
 
-inline bool EchoModule::i_ownsPlug(const Plug *plug) const
+inline bool EchoModule::i_OwnsPlug(const Plug *plug) const
 {
    return(plugcreated_ && (plug == &eplug_));
 }
@@ -112,6 +112,14 @@ inline EchoModule::Plug *EchoModule::i_MakePlug(int side)
 }
 
 //=========EchoModule::EPlug inlines========
+
+inline EchoModule::EPlug::EPlug(EchoModule &parnt) : Plug(parnt)
+{
+}
+
+inline EchoModule::EPlug::~EPlug()
+{
+}
 
 inline int EchoModule::EPlug::AreYouA(const ClassIdent &cid) const
 {
