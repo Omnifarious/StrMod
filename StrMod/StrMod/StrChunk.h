@@ -6,7 +6,7 @@
 
 /* $Header$ */
 
-// $Log$
+// See ../ChangeLog for log.
 // Revision 1.5  1996/06/29 06:27:12  hopper
 // Completely re-worked for new StrChunk handling.
 //
@@ -104,10 +104,6 @@
 // ->for reason.
 // ->(StrChunk.cc 0.10 log file anyway.)
 // ->
-
-#ifndef NO_RcsID
-static char _EH_StrChunk_H_rcsID[] = "$Id$";
-#endif
 
 #include <assert.h>
 
