@@ -6,7 +6,7 @@
 
 /* $Header$ */
 
-// For log information, see ChangeLog
+// For log information, see ../ChangeLog
 
 #include <assert.h>
 #include <stddef.h>
@@ -83,7 +83,7 @@ class StreamModule : public Protocol {
    inline Plug *makePlug(int side);
 
    //: Does the module own this plug?
-   virtual bool ownsPlug(Plug *plug) const = 0;
+   virtual bool ownsPlug(const Plug *plug) const = 0;
 
    //: Please delete this plug.
    // <p>Modules are supposed to own plugs, so you aren't supposed to delete

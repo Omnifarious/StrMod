@@ -6,7 +6,7 @@
 
 /* $Header$ */
 
-// For log information, see ChangeLog
+// For log information, see ../ChangeLog
 
 // $Revision$
 
@@ -41,7 +41,7 @@ class EchoModule : public StreamModule {
 
    inline virtual bool canCreate(int side = 0) const;
    inline Plug *makePlug(int side = 0);
-   virtual bool ownsPlug(Plug *plug) const         { return(i_OwnsPlug(plug)); }
+   virtual bool ownsPlug(const Plug *plug) const   { return(i_OwnsPlug(plug)); }
    virtual bool deletePlug(Plug *plug);
 
  protected:
@@ -76,10 +76,10 @@ class EchoModule : public StreamModule {
       virtual void i_Write(const StrChunkPtr &ptr);
    };
 
-   inline bool i_OwnsPlug(Plug *plug) const;
-
    bool plugcreated_;
    EPlug eplug_;
+
+   bool i_OwnsPlug(const Plug *plug) const;
 };
 
 //-------------------------------inline functions------------------------------
@@ -99,17 +99,16 @@ inline StreamModule::Plug *EchoModule::makePlug(int side)
    return(StreamModule::makePlug(side));
 }
 
+inline bool EchoModule::i_ownsPlug(const Plug *plug) const
+{
+   return(plugcreated_ && (plug == &eplug_));
+}
+
 inline EchoModule::Plug *EchoModule::i_MakePlug(int side)
 {
    assert(side == 0 && !plugcreated_);
    plugcreated_ = true;
    return(&eplug_);
-}
-
-inline bool EchoModule::i_OwnsPlug(Plug *plug) const
-{
-   const Plug *silly = plug;
-   return(plugcreated_ && (silly == &eplug_));
 }
 
 //=========EchoModule::EPlug inlines========
