@@ -1,3 +1,16 @@
+1999-01-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/EventPtrT.h (i_CheckType): Added a NULL check.  Not
+	sure if it is right though.
+
+	* UniEvent/UNIXError.h: Added a destructor and AreYouA function
+	that were accidentally missing before.
+
+	* UNIXError.cxx: Added an identifier so this class is part of my
+	RTTI system.
+
+	* UNEVT_ClassIdent.cxx: Added the UNIXError class to the list.
+
 1998-08-29  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/UNIXError.h: 
