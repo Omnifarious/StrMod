@@ -6,7 +6,7 @@
 
 /* $Header$ */
 
-// $Log$
+// See ../ChangeLog for log.
 // Revision 1.1  1996/06/29 06:51:30  hopper
 // New class GroupChunk to hold a group of chunks and make them appear to
 // be one chunk.
