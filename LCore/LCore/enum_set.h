@@ -301,8 +301,8 @@ operator&(const enum_set<enum_t, first, last> &__x,
           const enum_set<enum_t, first, last> &__y)
 {
    enum_set<enum_t, first, last> result(__x);
-  __result &= __y;
-  return __result;
+  result &= __y;
+  return result;
 }
 
 //! Return bitset containing result of bit1 | bit2 for all corresponding bits.
@@ -312,8 +312,8 @@ operator|(const enum_set<enum_t, first, last> &__x,
           const enum_set<enum_t, first, last> &__y)
 {
    enum_set<enum_t, first, last> result(__x);
-  __result |= __y;
-  return __result;
+  result |= __y;
+  return result;
 }
 
 //! Return bitset containing result of bit1 ^ bit2 for all corresponding bits.
@@ -323,8 +323,8 @@ operator^(const enum_set<enum_t, first, last> &__x,
           const enum_set<enum_t, first, last> &__y)
 {
    enum_set<enum_t, first, last> result(__x);
-  __result ^= __y;
-  return __result;
+  result ^= __y;
+  return result;
 }
 
 #endif
