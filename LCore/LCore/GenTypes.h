@@ -2,7 +2,10 @@
 
 /* $Header$ */
 
-// $Log$
+// $Revision$
+
+// For a log, see ../ChangeLog
+//
 // Revision 1.4  1998/02/08 04:40:35  hopper
 // Untested efficiency improvements.
 //
@@ -63,8 +66,16 @@
       #define BYTE_ORDER_DEFINED
    #endif
 #else // UNIX is default   defined(UNIX)
+#ifdef __alpha
+   typedef unsigned int   U4Byte;
+#else
    typedef unsigned long  U4Byte;
+#endif
+#ifdef __alpha
+   typedef int            S4Byte;
+#else
    typedef long           S4Byte;
+#endif
    typedef unsigned short U2Byte;
    typedef signed short   S2Byte;
    typedef unsigned char  U1Byte;
