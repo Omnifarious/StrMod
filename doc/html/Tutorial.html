@@ -240,29 +240,6 @@ Listener::~Listener()
    delete listener_;
    delete from_;
    delete to_;
-}class Listener {
- public:
-   Listener(const SocketAddress &amp;from, const SocketAddress &amp;to);
-   ~Listener();
-
- private:
-   SockListenModule *listener_;
-   SocketAddress * const from_;
-   SocketAddress * const to_;
-};
-
-Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
-		   UNIDispatcher &amp;disp, UNIXpollManager &amp;pman)
-    : listener_(NULL), from_(from.Copy()), to_(to.Copy())
-{
-   listener_ = new SockListenModule(*from_, disp, pman, 2);
-}
-
-Listener::~Listener()
-{
-   delete listener_;
-   delete from_;
-   delete to_;
 }</pre>
 
 <p>That was pretty straightforward. One thing that is a bit tricky is the
