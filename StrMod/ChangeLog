@@ -1,3 +1,18 @@
+2000-10-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* : libNet-0.1.5 released.
+
+	* ChunkVisitor.cxx, GraphVizVisitor.cxx, Makefile.in,
+	StackSwapper.cxx, TelnetParser.cxx, UseTrackingVisitor.cxx,
+	StrMod/ChunkIterator.h, StrMod/ChunkVisitor.h,
+	StrMod/GraphVizVisitor.h, StrMod/StackSwapper.h,
+	StrMod/StrChunk.h, StrMod/TelnetParserData.h,
+	StrMod/UseTrackingVisitor.h, tests/testvisitor.cxx: Merged in more
+	code.  Now StrChunk::const_iterator can be used in place of
+	GV_Iterator in almost all situations.  The changes needed to
+	actually remove GroupVector and GV_Iterator will happen on another
+	branch.
+
 2000-09-25  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* BufferChunk.cxx, ChangeLog GroupChunk.cxx Makefile.in,
