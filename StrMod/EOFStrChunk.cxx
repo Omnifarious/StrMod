@@ -9,3 +9,5 @@
 #endif
 
 #include "StrMod/EOFStrChunk.h"
+
+const STR_ClassIdent EOFStrChunk::identifier(31UL);
