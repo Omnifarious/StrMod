@@ -7,6 +7,10 @@
 /* $Header$ */
 
 // $Log$
+// Revision 1.3  1996/08/31 15:50:21  hopper
+// Changed to use StrChunkPtr::operator bool a little more explicity.  Used
+// to compare pointer values to 0.
+//
 // Revision 1.2  1996/07/06 01:23:15  hopper
 // Changed to use new StrChunkPtr interface, and new parent module stuff.
 // Streamlined and buffed up other stuff.
@@ -166,7 +170,7 @@ inline bool EchoPlug::CanWrite() const
    EchoModule *parent = ModuleFrom();
 
    return(parent->plugcreated &&
-	  !(parent->wrtngto) && (parent->buffedecho == 0));
+	  !(parent->wrtngto) && !(parent->buffedecho));
 }
 
 inline bool EchoPlug::CanRead() const
@@ -174,7 +178,7 @@ inline bool EchoPlug::CanRead() const
    EchoModule *parent = ModuleFrom();
 
    return(parent->plugcreated &&
-	  !(parent->rdngfrm) && (parent->buffedecho != 0));
+	  !(parent->rdngfrm) && parent->buffedecho);
 }
 
 inline EchoModule *EchoPlug::ModuleFrom() const

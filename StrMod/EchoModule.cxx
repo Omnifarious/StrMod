@@ -5,6 +5,10 @@
 #endif
 
 // $Log$
+// Revision 1.3  1996/08/31 15:50:13  hopper
+// Changed to use StrChunkPtr::operator bool a little more explicity.  Used
+// to compare pointer values to 0.
+//
 // Revision 1.2  1996/07/06 01:23:22  hopper
 // Changed to use new StrChunkPtr interface, and new parent module stuff.
 // Streamlined and buffed up other stuff.
@@ -121,19 +125,21 @@ bool EchoPlug::Write(const StrChunkPtr &chnk)
       return(false);
 
    if (CanWrite()) {
+//      cerr << "EchoPlug::Write - 1\n";
       parent->wrtngto = 1;
       parent->buffedecho = chnk;
-      if (parent->buffedecho != 0 && !(parent->rdngfrm))
+      if (parent->buffedecho && !(parent->rdngfrm))
 	 DoReadableNotify();
       parent->wrtngto = 0;
       return(true);
    } else {
+//      cerr << "EchoPlug::Write - 2\n";
       parent->wrtngto = 1;
       StrChunkPtr temp = parent->buffedecho;
 
       parent->buffedecho = chnk;
       if (PluggedInto()->Write(temp)) {
-	 if (parent->buffedecho != 0 && !(parent->rdngfrm))
+	 if (parent->buffedecho && !(parent->rdngfrm))
 	    DoReadableNotify();
 	 parent->wrtngto = 0;
 	 return(true);
