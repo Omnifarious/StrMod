@@ -2,4 +2,4 @@
 #  pragma implementation "RefCounting.h"
 #endif
 
-#include <LCore/RefCounting.h>
+#include "LCore/RefCounting.h"

@@ -1,5 +1,5 @@
 #pragma hdrstop
-#include <LCore/RefCounting.h>
+#include "LCore/RefCounting.h"
 
  /* UNIX:@@:defs/RefCounting.cc:@@: */
 /* MSDOS:@@:DEFS/DEFREFCO.CPP:@@: */
