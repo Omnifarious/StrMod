@@ -1,3 +1,14 @@
+1999-01-31  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/echoserv.cxx (main): Fixed a small type error (with a cast
+	:-P ) in how the adresses connected from were printing out.
+
+	* StrMod/FDUtil.h: 
+	* FDUtil.cxx: The new FDUtil class.  A set of utility functions
+	for file descriptors.
+
+	* StreamFDModule.cxx: Added more commented out debugging.
+
 1999-01-22  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* tests/testsock.cxx: Made code to set file descriptors to
