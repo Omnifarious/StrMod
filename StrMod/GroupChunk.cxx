@@ -1,6 +1,6 @@
 /* $Header$ */
 
-// $Log$
+// See ChangeLog for log.
 // Revision 1.1  1996/06/29 06:51:22  hopper
 // New class GroupChunk to hold a group of chunks and make them appear to
 // be one chunk.
@@ -230,8 +230,8 @@ void GroupChunk::AccumulateRange(const LinearExtent &extent,
 
    ChunkList::const_iterator i;
    ChunkList::const_iterator end;
-   StrChunk *ptr;
-   unsigned int ptrlen;
+   StrChunk *ptr = 0;
+   unsigned int ptrlen = 0;
 
    i = chnklist_.begin();
    end = chnklist_.end();
