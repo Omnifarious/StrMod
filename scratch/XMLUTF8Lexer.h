@@ -33,16 +33,13 @@ class XMLBuilder
    XMLBuilder() { }
    virtual ~XMLBuilder() {}
 
-   virtual void startElementTag(PosHandle begin, const ::std::string &name) = 0;
-   virtual void addAttribute(PosHandle attrbegin, PosHandle attrend,
-                             PosHandle valbegin, PosHandle valend,
+   virtual void startElementTag(Position begin, const ::std::string &name) = 0;
+   virtual void addAttribute(Position attrbegin, Position attrend,
+                             Position valbegin, Position valend,
                              const ::std::string &name) = 0;
-   virtual void endElementTag(PosHandle end, bool wasempty) = 0;
-   virtual void closeElementTag(PosHandle begin, PosHandle end,
+   virtual void endElementTag(Position end, bool wasempty) = 0;
+   virtual void closeElementTag(Position begin, Position end,
                                 const ::std::string &name) = 0;
-
-   virtual const PosHandle savePosition(size_t index) = 0;
-   virtual void forgetPosition(PosHandle handle) = 0;
 };
 
 class XMLUTF8Lexer
@@ -68,7 +65,15 @@ class XMLUTF8Lexer
 
    bool getNonWSInElements() const                     { return nonwsok_; }
    void setNonWSInElements(bool nonwsok)               { nonwsok_ = nonwsok; }
-   void lex(const char *buf, unsigned int len, XMLBuilder &parser);
+   /** Process the characters in buf, calling the builder at the appropriate points.
+    * @param buf A pointer to an array of characters to process.
+    * @param len The number of characters in the array pointed to by buf.
+    * @param lastbuf IN: A buffer handle to identify which call of lex a particular token started in / OUT: The earlist buffer handle still being used internally by the XMLUTF8Lexer.
+    * @param builder The builder to call when tokens are encountered.
+    * @return true if XMLUTF8Lexer is storing no BufHandles, and lastbuf contains a valid BufHandle, false if it isn't.
+    */
+   bool lex(const char *buf, unsigned int len,
+            BufHandle &lastbuf, XMLBuilder &builder);
 
  private:
    static const char exclamation = '\x21';
@@ -514,6 +519,9 @@ class XMLUTF8Lexer
 };
 
 // $Log$
+// Revision 1.10  2003/01/09 03:43:52  hopper
+// Farther along the path to a decent XML parser.
+//
 // Revision 1.9  2003/01/08 18:00:07  hopper
 // More scrabblings along the path to a decent XML parser.
 //
