@@ -93,11 +93,11 @@ class enum_set : private std::bitset<last - first + 1> {
    size_t size() const                             { return parent_t::size(); }
 
    //! Do all corresponding bits match in both bitsets?
-   inline bool operator==(const self_t &__rhs); 
+   inline bool operator==(const self_t &__rhs) const; 
    //! Do any corresponding bits differ in both bitsets?
-   inline bool operator!=(const self_t &__rhs);
+   inline bool operator!=(const self_t &__rhs) const;
    //! Is the bit on?
-   inline bool test(enum_t __pos);
+   inline bool test(enum_t __pos) const;
    //! Are any bits set (1, true)?
    bool any() const                                { return parent_t::any(); }
    //! Are all bits clear (0, false)?
@@ -245,7 +245,7 @@ template <class enum_t, enum_t first, enum_t last>
 inline enum_set<enum_t, first, last>::parent_t::reference
 enum_set<enum_t, first, last>::operator[](enum_t __pos)
 {
-   return parent_t::reference(*this, __pos - first);
+   return parent_t::operator[](__pos - first);
 }
 
 template <class enum_t, enum_t first, enum_t last>
@@ -255,19 +255,19 @@ inline bool enum_set<enum_t, first, last>::operator[](enum_t __pos) const
 }
 
 template <class enum_t, enum_t first, enum_t last>
-inline bool enum_set<enum_t, first, last>::operator==(const self_t &__rhs)
+inline bool enum_set<enum_t, first, last>::operator==(const self_t &__rhs) const
 {
    return parent_t::operator ==(__rhs);
 }
 
 template <class enum_t, enum_t first, enum_t last>
-inline bool enum_set<enum_t, first, last>::operator!=(const self_t &__rhs)
+inline bool enum_set<enum_t, first, last>::operator!=(const self_t &__rhs) const
 {
    return parent_t::operator !=(__rhs);
 }
 
 template <class enum_t, enum_t first, enum_t last>
-inline bool enum_set<enum_t, first, last>::test(enum_t __pos)
+inline bool enum_set<enum_t, first, last>::test(enum_t __pos) const
 {
    return parent_t::test(__pos - first);
 }
