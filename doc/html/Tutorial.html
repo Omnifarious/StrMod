@@ -233,8 +233,14 @@ tracks the listening socket, and the outgoing address. It also might be nice
 to remember what the port number we are listening to. Since we'll need these
 values in the form of SocketAddresses when we use them, we might as well
 store them as SocketAddresses.</p>
-<pre class="codeblock">class Listener {
+<pre class="codeblock">class Listener
+{
  public:
+   // Lets alias a few types that we use all over in this class to make things
+   // easier on our fingers.
+   typedef ::strmod::ehnet::SocketAddress SocketAddress;
+   typedef ::strmod::unievent::Dispatcher Dispatcher;
+   typedef ::strmod::unievent::UnixEventRegistry UnixEventRegistry;
    Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
             Dispatcher &amp;disp, UnixEventRegistry &amp;ureg);
    ~Listener();
@@ -295,8 +301,14 @@ using strmod::unievent::UnixEventRegistry;
 
 // The EHnet++ library has not yet been converted to use namespaces.
 
-class Listener {
+class Listener
+{
  public:
+   // Lets alias a few types that we use all over in this class to make things
+   // easier on our fingers.
+   typedef ::strmod::ehnet::SocketAddress SocketAddress;
+   typedef ::strmod::unievent::Dispatcher Dispatcher;
+   typedef ::strmod::unievent::UnixEventRegistry UnixEventRegistry;
    Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
             Dispatcher &amp;disp, UnixEventRegistry &amp;ureg);
    ~Listener();
@@ -323,6 +335,8 @@ Listener::~Listener()
 
 int main()
 {
+   using ::strmod::lcore::U2Byte;
+   using ::strmod::ehnet::InetAddress;
    strmod::unievent::SimpleDispatcher dispatcher;
    strmod::unievent::UnixEventPoll pollmanager(&amp;dispatcher);
    strmod::unievent::RegistryDispatcherGlue glue(&amp;dispatcher, &amp;pollmanager);
@@ -495,8 +509,14 @@ using strmod::unievent::UnixEventRegistry;
 
 // The EHnet++ library has not yet been converted to use namespaces.
 
-class Listener {
+class Listener
+{
  public:
+   // Lets alias a few types that we use all over in this class to make things
+   // easier on our fingers.
+   typedef ::strmod::ehnet::SocketAddress SocketAddress;
+   typedef ::strmod::unievent::Dispatcher Dispatcher;
+   typedef ::strmod::unievent::UnixEventRegistry UnixEventRegistry;
    Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
             Dispatcher &amp;disp, UnixEventRegistry &amp;ureg);
    ~Listener();
@@ -541,6 +561,7 @@ Listener::~Listener()
       // If the listener has an error, print the error.
       {
          using std::cerr;
+         ::memset(errbuf, '\0', sizeof(errbuf));
          char errbuf[256];  // Magic number!
          listener_-&gt;getError().getErrorString(errbuf, sizeof(errbuf) - 1);
          cerr &lt;&lt; "Listening socket has this error: ("
@@ -574,6 +595,8 @@ typedef std::list&lt;Listener *&gt; ListenerList;
 </span>
 int main()
 {
+   using ::strmod::lcore::U2Byte;
+   using ::strmod::ehnet::InetAddress;
    strmod::unievent::SimpleDispatcher dispatcher;
    strmod::unievent::UnixEventPoll pollmanager(&amp;dispatcher);
    strmod::unievent::RegistryDispatcherGlue glue(&amp;dispatcher, &pollmanager);
@@ -962,8 +985,14 @@ void ForwardedConnection::errorOccurred()
 
 //----
 
-class Listener {
+class Listener
+{
  public:
+   // Lets alias a few types that we use all over in this class to make things
+   // easier on our fingers.
+   typedef ::strmod::ehnet::SocketAddress SocketAddress;
+   typedef ::strmod::unievent::Dispatcher Dispatcher;
+   typedef ::strmod::unievent::UnixEventRegistry UnixEventRegistry;
    Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
             Dispatcher &amp;disp, UnixEventRegistry &amp;ureg);
    ~Listener();
@@ -1009,6 +1038,7 @@ void Listener::doPoll()
       {
          using std::cerr;
          char errbuf[256];  // Magic number!
+         ::memset(errbuf, '\0', sizeof(errbuf));
          listener_-&gt;getError().getErrorString(errbuf, sizeof(errbuf) - 1);
          cerr &lt;&lt; "Listening socket has this error: ("
               &lt;&lt; listener_-&gt;getError().getSyscallName()
@@ -1045,6 +1075,8 @@ typedef std::list&lt;Listener *&gt; ListenerList;
 
 int main()
 {
+   using ::strmod::lcore::U2Byte;
+   using ::strmod::ehnet::InetAddress;
    strmod::unievent::SimpleDispatcher dispatcher;
    strmod::unievent::UnixEventPoll pollmanager(&amp;dispatcher);
    strmod::unievent::RegistryDispatcherGlue glue(&amp;dispatcher, &amp;pollmanager);
