@@ -66,6 +66,9 @@ class ApplyVisitor_Base : public UseTrackingVisitor {
     * @param extent Which part of the chunk to go through.
     */
    ApplyVisitor_Base(const StrChunkPtr &chunk, LinearExtent &extent);
+   /** Whee, its a destructor, and since this class has no state, it
+    * doesn't do much.
+    */
    virtual ~ApplyVisitor_Base()                         { }
 
    virtual int AreYouA(const ClassIdent &cid) const     {
@@ -116,6 +119,9 @@ class ApplyVisitor : public ApplyVisitor_Base {
     */
    inline ApplyVisitor(const StrChunkPtr &chunk, const LinearExtent &extent,
                        _Function &func);
+   /** Whee, its a destructor, and since this class has no state it
+    * 'owns', it doesn't do much.
+    */
    inline virtual ~ApplyVisitor();
 
  protected:

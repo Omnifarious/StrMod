@@ -153,17 +153,11 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    virtual ~BufferList()                    { }
 
    /**
-    * Visit the StrChunk DAG rooted at root, filling up iovecs_ with what I
+    * Visit the StrChunk DAG rooted at chunk, filling up iovecs_ with what I
     * find.
     *
-    * @param root The StrChunk to visit.
-    *
-    * @param dataexts A reference to a pointer to a list of data extents.  Set
-    * to point at the new list after it's all ben figured out.
-    *
-    * @param numexts A reference to an int that will be filled with the number
-    * of data extents I found, and therefor how many data extents dataexts now
-    * points at.  */
+    * @param chunk The StrChunk to visit.
+    */
    void startChunk(const StrChunkPtr &chunk)
    {
       iovecs_.clear();
@@ -189,9 +183,13 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
       }
    }
 
+   //! How many bytes are left in the currently visited StrChunk?
    size_t bytesLeft() const                { return totalbytes_ - curbyte_; }
+   //! What iovec should be passed to the writev call?
    inline iovec *getIOVec() const          { return curvec_; }
+   //! How many iovec structures are left?
    inline size_t numVecs() const           { return iovecs_.end() - curvec_; }
+   //! Move forward by numbytes, setting it up so the other functions return the right values.
    void advanceBy(size_t numbytes);
 
  protected:
