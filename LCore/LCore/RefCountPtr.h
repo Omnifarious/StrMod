@@ -6,7 +6,8 @@
 
 /* $Header$ */
 
-// $Log$
+// For log see ../ChangeLog
+//
 // Revision 1.3  1998/05/01 11:59:32  hopper
 // Changed bool to bool_val or bool_cst as appropriate so it will be easier to
 // port to platforms that don't support bool.
@@ -42,7 +43,8 @@ class RefCountPtr : virtual public Protocol {
    typedef ReferenceCounting RC;
    static const LCore_ClassIdent identifier;
 
-   inline RefCountPtr(RC *rfptr = 0);
+   inline RefCountPtr();
+   inline RefCountPtr(RC *rfptr);
    inline RefCountPtr(const RefCountPtr &b);
    inline virtual ~RefCountPtr();
 
@@ -72,7 +74,11 @@ class RefCountPtr : virtual public Protocol {
 
 //-----------------------------inline functions--------------------------------
 
-inline RefCountPtr::RefCountPtr(RC *rfptr = 0) : ptr_(0)
+inline RefCountPtr::RefCountPtr() : ptr_(0)
+{
+}
+
+inline RefCountPtr::RefCountPtr(RC *rfptr) : ptr_(0)
 {
    if (rfptr) {
       i_SetPtr(rfptr);
