@@ -34,7 +34,7 @@
 class UNIEventPtr;
 class OSConditionManager;
 
-/** \class UNIDispatcher Dispatcher.h StrMod/Dispatcher.h
+/** \class UNIDispatcher Dispatcher.h UniEvent/Dispatcher.h
  * \brief An interface for a simple queuer and dispatcher of events.
  *
  * This provides an interface for classes that want to implement a queue of
