@@ -1,3 +1,8 @@
+2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/LCoreError.h (_LCORE_LCoreError_H_): Documented double
+	inclusion macro to make doxygen stop complaining.
+
 2001-07-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* LCore/enum_set.h: Improved const correctness.  Stopped trying to

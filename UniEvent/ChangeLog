@@ -1,3 +1,11 @@
+2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/UNIXError.h: Removed bogus constructors that used the
+	LCORE_GET_COMPILERINFO macro in the wrong way.  Added contructor
+	argument to allow the creation of EOF errors.
+
+	* UNIXpollManagerImp.cxx: Fixed some compiler warnings.
+
 2001-07-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/UNIXError.h, UNIXError.cxx: Added new constant,
