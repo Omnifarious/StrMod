@@ -4,3 +4,6 @@ testdist
 teststr
 testchunk
 testecho
+testextent
+testGV
+.dtinfo
