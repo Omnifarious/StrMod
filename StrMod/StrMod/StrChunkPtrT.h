@@ -6,34 +6,42 @@
 
 /* $Header$ */
 
-// $Log$
+// For log see ../ChangeLog
+// 
 // Revision 1.1  1996/07/05 18:39:48  hopper
 // New type to handle StrChunkPtr's that need to point to more specific
 // types than StrChunk.
 //
 
-#include <StrMod/StrChunkPtr.h>
+#ifndef _STR_StrChunkPtr_H_
+#  include <StrMod/StrChunkPtr.h>
+#endif
+#ifndef _STR_StrChunk_H_
+#  include <StrMod/StrChunk.h>
+#endif
 
 #define _STR_StrChunkPtrT_H_
 
 template <class Chunk>
 class StrChunkPtrT : public StrChunkPtr {
  public:
-   inline StrChunkPtrT(Chunk *stptr = 0) : StrChunkPtr(stptr)               { }
-   inline StrChunkPtrT(const StrChunkPtrT<Chunk> &b) : StrChunkPtr(b)       { }
+   typedef StrChunkPtrT super1;
+
+   inline StrChunkPtrT(const StrChunkPtrT<Chunk> &b) : super1(b)            { }
+   inline StrChunkPtrT(const RefCountPtrT<Chunk> &b) : super1(b.GetPtr())   { }
+   inline StrChunkPtrT(Chunk *stptr = 0) : super1(stptr)                    { }
 
    inline Chunk &operator *() const;
    inline Chunk *operator ->() const;
 
    inline Chunk *GetPtr() const;
 
-   inline const StrChunkPtrT<Chunk> &operator =(const StrChunkPtr &b);
-   inline const StrChunkPtrT<Chunk> &operator =(StrChunk *b);
    inline const StrChunkPtrT<Chunk> &operator =(const StrChunkPtrT<Chunk> &b);
+   inline const StrChunkPtrT<Chunk> &operator =(const RefCountPtrT<Chunk> &b);
    inline const StrChunkPtrT<Chunk> &operator =(Chunk *b);
 
  protected:
-   inline virtual StrChunk *i_CheckType(StrChunk *p) const;
+   inline virtual RC *i_CheckType(RC *p) const;
 };
 
 //-----------------------------inline functions--------------------------------
@@ -41,46 +49,34 @@ class StrChunkPtrT : public StrChunkPtr {
 template <class Chunk>
 inline Chunk &StrChunkPtrT<Chunk>::operator *() const
 {
-   return(static_cast<Chunk &>(StrChunkPtr::operator *()));
+   return(*GetPtr());
 }
 
 template <class Chunk>
 inline Chunk *StrChunkPtrT<Chunk>::operator ->() const
 {
-   return(static_cast<Chunk *>(StrChunkPtr::operator ->()));
+   return(GetPtr());
 }
 
 template <class Chunk>
 inline Chunk *StrChunkPtrT<Chunk>::GetPtr() const
 {
-   return(static_cast<Chunk *>(i_GetPtr()));
-}
-
-template <class Chunk>
-inline const StrChunkPtrT<Chunk> &
-StrChunkPtrT<Chunk>::operator =(const StrChunkPtr &b)
-{
-   StrChunkPtr::operator =(b);
-   return(*this);
-}
-
-template <class Chunk>
-inline const StrChunkPtrT<Chunk> &
-StrChunkPtrT<Chunk>::operator =(StrChunk *b)
-{
-   StrChunkPtr::operator =(b);
-   return(*this);
+   return(static_cast<Chunk *>(super1::GetPtr()));
 }
 
 template <class Chunk>
 inline const StrChunkPtrT<Chunk> &
 StrChunkPtrT<Chunk>::operator =(const StrChunkPtrT<Chunk> &b)
 {
-   if (this != &b) {
-      Chunk *p = b.GetPtr();
+   super1::operator =(b);
+   return(*this);
+}
 
-      operator =(p);
-   }
+template <class Chunk>
+inline const StrChunkPtrT<Chunk> &
+StrChunkPtrT<Chunk>::operator =(const RefCountPtrT<Chunk> &b)
+{
+   super1::operator =(b);
    return(*this);
 }
 
@@ -88,21 +84,15 @@ template <class Chunk>
 inline const StrChunkPtrT<Chunk> &
 StrChunkPtrT<Chunk>::operator =(Chunk *b)
 {
-   if (GetPtr() != b) {
-      i_SetPtr(b);
-   }
+   super1::operator =(b);
    return(*this);
 }
 
 template <class Chunk>
-inline StrChunk *StrChunkPtrT<Chunk>::i_CheckType(StrChunk *p) const
+inline ReferenceCounting *
+StrChunkPtrT<Chunk>::i_CheckType(ReferenceCounting *p) const
 {
-   if ((p == 0) || p->AreYouA(Chunk::identifier)) {
-      return(p);
-   } else {
-      assert(0 && "Bad pointer cast");
-      return(0);
-   }
+   return(((p != 0) && p->AreYouA(Chunk::identifier)) ? p : 0);
 }
 
 #endif
