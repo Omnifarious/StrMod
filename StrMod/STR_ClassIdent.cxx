@@ -24,7 +24,7 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   11UL	StreamSplitterModule::SPPlug
   12UL	SocketModule
   13UL	SockListenModule
-  14UL	ListeningPlug
+  14UL	SockListenModule::SLPlug
   15UL	SocketModuleChunk
   16UL	GroupVector
   17UL	GroupVector::Iterator
