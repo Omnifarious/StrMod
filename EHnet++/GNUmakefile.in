@@ -61,6 +61,13 @@ $(EXTLIBTAG) : $(CCNAMES)
 tests/inetaddr : tests/morejunk.o
 	$(CXX) tests/morejunk.o $(LDFLAGS) $(LIBS) -o tests/testinetaddr
 
+clean :
+	rm -f *.o tests/*.o tests/testinetaddr
+
+distclean : clean
+	rm -f conf.h config.cache config.log config.status *.stamp \
+              dependdb.gdbm
+
 GNUmakefile : depend.stamp
 	$(DEPDB) list --makefiles GNUmakefile GNUmakefile.new
 	mv GNUmakefile GNUmakefile~

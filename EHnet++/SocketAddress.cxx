@@ -1,6 +1,10 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.3  1996/02/20 01:05:52  hopper
+ // Added some niceties to GNUmakefile.in
+ // Changed SocketAddress.cc to use new #include convention.
+ //
  // Revision 1.2  1996/02/12 00:32:38  hopper
  // Fixed to use the new C++ standard library string class instead of all the
  // 'NetString' silliness.
@@ -39,7 +43,7 @@
 #endif
 
 #ifndef OS2
-#  include <EHnet++/SocketAddress.h>
+#  include "EHnet++/SocketAddress.h"
 #else
 #  include "sockaddr.h"
 #endif
