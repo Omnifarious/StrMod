@@ -7,8 +7,12 @@
 /* $Header$ */
 
 // $Log$
-// Revision 1.1  1995/07/22 04:46:51  hopper
-// Initial revision
+// Revision 1.2  1996/02/19 03:57:00  hopper
+// Made some of the changes necessary to move this over to the newer
+// StreamModule class style.
+//
+// Revision 1.1.1.1  1995/07/22 04:46:51  hopper
+// Imported sources
 //
 // Revision 0.5  1995/01/13  17:09:16  hopper
 // Changed the #define for the non-double include constant to be correct.
@@ -72,16 +76,13 @@ friend class HL7Plug;
    void DoProcessing();
 
  public:
-   inline virtual int CanCreate(int side) const;
+   inline virtual bool CanCreate(int side) const;
    inline HL7Plug *MakePlug(int side);
-   inline virtual int OwnsPlug(StrPlug *plug) const;
-   virtual int DeletePlug(StrPlug *plug);
+   inline virtual bool OwnsPlug(StrPlug *plug) const;
+   virtual bool DeletePlug(StrPlug *plug);
 
    const char *GetSeperator() const      { return(seperator); }
    void SetSeperator(const char *s);
-
-   virtual int ModuleType() const        { return(HL7ModuleNum); }
-   inline virtual int AreYouA(int mtype) const;
 
    inline HL7Module();
    virtual ~HL7Module();
@@ -110,13 +111,10 @@ friend class HL7Module;
    inline virtual ~HL7Plug();
 
  public:
-   virtual int PlugType() const                      { return(HL7PlugNum); }
-   inline virtual int AreYouA(int ptype) const;
+   virtual bool CanWrite() const;
+   virtual bool Write(StrChunk *);
 
-   virtual int CanWrite() const;
-   virtual int Write(StrChunk *);
-
-   virtual int CanRead() const;
+   virtual bool CanRead() const;
 
    inline HL7Module *ModuleFrom() const;
    virtual int Side() const                          { return(side); }
