@@ -1,0 +1,26 @@
+ 1. Change StreamFDModule to use events to indicate error conditions.
+
+ 2. A timer mechanism
+
+ 3. making the dispatcher thread safe
+
+ 4. a signal handling mechanism
+
+ 5. a signal based timer mechanism
+
+ 6. a better telnet client that handles line mode
+
+ 7. a telnet server that handles line mode (maybe the same as the
+    client because telnet is technically a P2P protocol
+
+ 8. an XML parser module the uses a SAX based parser to get the real
+    work done
+
+ 9. Some handlers for other Internet protocols like SMTP, NNTP, and
+    HTTP
+
+10. Replacement of EHNet++ with a library based on a version of adns
+    with my UNIEvent stuff put on top
+
+11. An inter-thread queue module as well as making the RefCounting
+    class threadsafe
