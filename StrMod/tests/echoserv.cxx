@@ -19,6 +19,8 @@ struct EchoConnection {
 
 inline EchoConnection::EchoConnection(SocketModule *sock) : socket(sock)
 {
+   sock->setSendChunkOnEOF(true);
+
    StreamModule::Plug *p1 = socket->makePlug(0);
    StreamModule::Plug *p2 = echo.makePlug(0);
 
@@ -52,6 +54,7 @@ int main(int argc, char *argv[])
 
    while (!slm.hasError()) {
       disp.DispatchEvents(1);
+      // cerr << "Tick!\n";
       if (connections.size() > 0) {
 	 MaintainList(connections);
       }

@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
    StreamSplitterModule splitter;
    SocketModule sock(echoaddr, pm);
 
+   sin.setSendChunkOnEOF(true);
+   sock.setSendChunkOnEOF(true);
    sin.makePlug(0)->plugInto(
       *(splitter.makePlug(StreamSplitterModule::SideIn))
       );
@@ -66,7 +68,7 @@ int main(int argc, char *argv[])
       *(splitter.makePlug(StreamSplitterModule::SideBiDir))
       );
 
-   while (!sin.readEOF() || !sout.writeBufferEmpty())
+   while (!sout.hasError())
    {
       disp.DispatchEvents(1);
 //        cerr << "Tick!\n";
