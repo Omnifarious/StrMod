@@ -1,6 +1,10 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.5  1996/07/07 20:55:41  hopper
+ // Changed things so that max_block_size is initialized correctly.  Used
+ // to rely on StrChunkio crud for a solution.
+ //
  // Revision 1.4  1996/07/05 18:47:14  hopper
  // Changed to use new StrChunkPtr stuff.
  //
@@ -102,7 +106,7 @@ string StreamFDModule::ErrorString() const
       return("unknown error");
 }
 
-int StreamFDModule::BestChunkSize()
+unsigned int StreamFDModule::BestChunkSize()
 {
 #ifndef IRIS
    if (fd >= 0) {
@@ -127,7 +131,7 @@ int StreamFDModule::BestChunkSize()
 
 StreamFDModule::StreamFDModule(int fdes, IOCheckFlags flgs, bool hangdel)
      : fd(fdes), plug(0), last_error(0),
-       write_pos(0), write_vec(0), max_block_size(0)
+       write_pos(0), write_vec(0), max_block_size(8192)
 {
    if (fd < 0)
       last_error = errno;
@@ -152,6 +156,7 @@ StreamFDModule::StreamFDModule(int fdes, IOCheckFlags flgs, bool hangdel)
       flags.checkwrite = 1;
       break;
    }
+   SetMaxToOptimal();
    plug = new StrFDPlug(this);
 }
 

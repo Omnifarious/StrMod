@@ -7,6 +7,10 @@
 /* $Header$ */
 
  // $Log$
+ // Revision 1.4  1996/07/07 20:55:34  hopper
+ // Changed things so that max_block_size is initialized correctly.  Used
+ // to rely on StrChunkio crud for a solution.
+ //
  // Revision 1.3  1996/07/05 18:47:04  hopper
  // Changed to use new StrChunkPtr stuff.
  //
@@ -104,9 +108,9 @@ class StreamFDModule : public StreamModule {
    int ErrorNum() const                            { return(last_error); }
    void ClearError()                               { last_error = 0; }
    string ErrorString() const;
-   int BestChunkSize();
-   void SetMaxBlockSize(unsigned int mbs)          { max_block_size = mbs; }
-   void UnsetMaxBlockSize()                        { max_block_size = 0; }
+   unsigned int BestChunkSize();
+   inline void SetMaxBlockSize(unsigned int mbs);
+   inline void SetMaxToOptimal();
    unsigned int GetMaxBlockSize() const            { return(max_block_size); }
 
  protected:
@@ -193,6 +197,20 @@ inline bool StreamFDModule::DeletePlug(StrPlug *p)
       return(true);
    } else
       return(false);
+}
+
+inline void StreamFDModule::SetMaxBlockSize(unsigned int mbs)
+{
+   assert(mbs > 0);
+
+   if (mbs > 0) {
+      max_block_size = mbs;
+   }
+}
+
+inline void StreamFDModule::SetMaxToOptimal()
+{
+   SetMaxBlockSize(BestChunkSize());
 }
 
 inline StrPlug *StreamFDModule::CreatePlug(int side)
