@@ -44,7 +44,7 @@ class UnixEventPoll : virtual public UnixEventRegistry,
 
    virtual void freeFD(int fd);
 
-   virtual void onSignal(int signo, const EventPtr &e, bool oneshot = true);
+   virtual void onSignal(int signo, const EventPtr &e);
 
    virtual void clearSignal(int signo, const EventPtr &e);
 
@@ -61,6 +61,12 @@ class UnixEventPoll : virtual public UnixEventRegistry,
 
    Imp &impl_;
    Dispatcher * const dispatcher_;
+
+   static void signalHandler(int signo);
+   void handleSignal(int signo);
+   void unHandleSignal(int signo);
+   void sigOccured(int signo);
+   void postEventsFor(unsigned int usigno);
 };
 
 } // namespace unievent

@@ -17,11 +17,15 @@
 #include <cerrno>
 #include <stdexcept>
 #include <sys/poll.h>
+#include <signal.h>
+
+typedef struct sigaction i_sigaction;
 
 namespace strmod {
 namespace unievent {
 
 typedef UnixEventPoll::FDCondSet FDCondSet;
+typedef i_sigaction local_sigaction;
 
 namespace {
 
@@ -41,19 +45,58 @@ struct FDEvent {
         : ev_(ev), condset_(condset) { }
 };
 
-}
-
 using ::std::multimap;
 using ::std::vector;
 typedef multimap<int, FDEvent> FDMap;
 typedef vector<pollstruct> PollList;
 
 
+typedef std::vector<EventPtr> sigevtlist;
+struct sigdata
+{
+   bool handler_registered_;
+   sigevtlist events_;
+
+   sigdata() : handler_registered_(false) { }
+};
+typedef std::vector<sigdata> siglist;
+
 struct UnixEventPoll::Imp
 {
    FDMap fdmap_;
    PollList polllist_;
+
+   sigset_t caught_;
+   sigset_t handled_;
+   siglist hdlrinfo_;
+
+   Imp()
+   {
+      sigemptyset(&caught_);
+      sigemptyset(&handled_);
+   }
 };
+
+class SigBlockRegion
+{
+ public:
+   SigBlockRegion(sigset_t &blockedones)
+   {
+      sigprocmask(SIG_BLOCK, &blockedones, &oldset_);
+   }
+   ~SigBlockRegion()
+   {
+      sigprocmask(SIG_SETMASK, &oldset_, 0);
+   }
+
+ private:
+   sigset_t oldset_;
+
+   SigBlockRegion(const SigBlockRegion &b);
+   void operator =(const SigBlockRegion &b);
+};
+
+}
 
 UnixEventPoll::UnixEventPoll(Dispatcher *dispatcher)
      : impl_(*(new Imp)), dispatcher_(dispatcher)
@@ -76,9 +119,36 @@ void UnixEventPoll::freeFD(int fd)
    impl_.fdmap_.erase(fd);
 }
 
-void UnixEventPoll::onSignal(int signo, const EventPtr &e, bool oneshot)
+//  namespace
+//  {
+//  }
+
+void UnixEventPoll::onSignal(int signo, const EventPtr &e)
 {
-   throw ::std::logic_error("UnixEventPoll::onSignal unimplemented.");
+   unsigned int usigno = (signo < 0) ? ~0U : signo;
+   if ((usigno >= (sizeof(sigset_t) * 8)) ||
+       (usigno >= max_handled_by_S))
+   {
+      throw std::range_error("signo is too large in UNIXSignalHandler::onSignal");
+   }
+   else
+   {
+      if (impl_.hdlrinfo_.size() <= usigno)
+      {
+         impl_.hdlrinfo_.resize(usigno + 1);
+      }
+      sigdata &sighdlrinfo = impl_.hdlrinfo_[usigno];
+      if (!sighdlrinfo.handler_registered_)
+      {
+         if (handled_by_S[usigno] && (handled_by_S[usigno] != this))
+         {
+            throw std::logic_error("Another handler is handling this signal in UnixEventPoll::onSignal");
+         }
+         handleSignal(usigno);
+         sighdlrinfo.handler_registered_ = true;
+      }
+      sighdlrinfo.events_.push_back(e);
+   }
 }
 
 void UnixEventPoll::clearSignal(int signo, const EventPtr &e)
@@ -91,12 +161,15 @@ void UnixEventPoll::clearSignal(int signo)
 
 void UnixEventPoll::postAt(const absolute_t &t, const EventPtr &ev)
 {
+   throw ::std::logic_error("UnixEventPoll::postAt unimplemented.");
 }
 
 void UnixEventPoll::postIn(const interval_t &off, const EventPtr &ev)
 {
+   throw ::std::logic_error("UnixEventPoll::postIn unimplemented.");
 }
 
+namespace {
 inline short condmask_to_pollmask(const FDCondSet &condset)
 {
    short pollmask = 0;
@@ -149,6 +222,7 @@ inline const FDCondSet pollmask_to_condmask(short pollmask)
       condset.set(UnixEventRegistry::FD_Invalid);
    }
    return condset;
+}
 }
 
 void UnixEventPoll::doPoll(bool wait)
@@ -286,6 +360,27 @@ void UnixEventPoll::printState(::std::ostream &os) const
    }
    os << ")";
 }
+
+static void UnixEventPoll::signalHandler(int signo)
+{
+}
+
+void UnixEventRegistry::handleSignal(int signo)
+{
+   local_sigaction act;
+   act.sa_handler = signalHandler;
+   sigemptyset(&act.sa_mask);
+   act.sa_flags = 0;
+   if (::sigaction(signo, &act, 0) != 0)
+   {
+      throw UNIXError("sigaction", errno, LCoreError(LCORE_GET_COMPILERINFO()));
+   }
+   sigaddset(&imp_.handled_, signo);
+}
+
+void UnixEventRegistry::unHandleSignal(int signo);
+void UnixEventRegistry::sigOccured(int signo);
+void UnixEventRegistry::postEventsFor(unsigned int usigno);
 
 } // namespace unievent
 } // namespace strmod
