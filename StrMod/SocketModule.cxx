@@ -24,6 +24,10 @@ static char _SocketModule_CC_rcsID[] =
 #include "config.h"
 #include "sockdecl.h"
 
+#ifndef SHUT_WR
+#define SHUT_WR 1
+#endif
+
 const STR_ClassIdent SocketModule::identifier(12UL);
 
 // MakeSocket sets makesock_errno.
