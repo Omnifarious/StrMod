@@ -26,7 +26,7 @@
         <dt><h3>What the heck's a UNIDispatcher?</h3>
         </dt>
           <dd><p>A UNIDispatcher is an interface class the provides simple
-            event dispatching capabilities.  It has methods (that subclasses
+            event dispatching capabilities. It has methods (that subclasses
             must implement) to allow you to add events to its queue, and
             methods that cause it to 'fire' one or more of these events.</p>
           </dd>
@@ -37,13 +37,13 @@
             href="../doxygen/classUNIEvent.html#a3">TriggerEvent</a> method.
             It behaves a little like a function pointer that's pointing at a
             function that takes as an argument the dispatcher that fired the
-            event.  UNIEvents are supposed to be re-used, and not created
+            event. UNIEvents are supposed to be re-used, and not created
             individually for each event. That's why they inherit from
             ReferenceCounting and have the UNIEventPtr type.</p>
           </dd>
         <dt><h3>Why would I use an implementation of UNIDispatcher?</h3>
         </dt>
-          <dd><p>This is a complicated question.  The short answer is that
+          <dd><p>This is a complicated question. The short answer is that
             you'd use it when you need to use events to communicate between
             different parts of your program.</p>
             <p>Of course, this begs the question of why you'd use events
@@ -72,8 +72,8 @@
               <li>The UNIXPollManager uses events to notify interested parties
                 about the state of file descriptors.</li>
               <li>The SimpleMultiplexer uses events to give other things a
-                chance to run.  This is so one stream can't hog the
-                many-to-one direction of the multiplexer.</li>
+                chance to run. This is so one stream can't hog the many-to-one
+                direction of the multiplexer.</li>
               <li>The StreamFDModule will be changed to use events to notify
                 interested parties about error conditions.</li>
               <li>When signal handling is finished, the signal handler will
