@@ -20,7 +20,10 @@
  *     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/* $Header$ */
+// $URL$
+// $Revision$
+// $Date$
+// $Author$
 
 // See ../ChangeLog for a change log.
 
