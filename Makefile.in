@@ -8,6 +8,10 @@ CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@
 CC = @CC@
 CFLAGS = @CFLAGS@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+DESTLIB = @libdir@
+DESTINC = @includedir@
 
 MYMAKE = $(MAKE) CC='$(CC)' CFLAGS='$(CFLAGS)' CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS)'
 
@@ -45,6 +49,14 @@ COMPONENTS = LCore UniEvent EHnet++ StrMod
 UNIQUEDIRS = $(sort $(INCLUDEDIR) $(OUTDIR) $(MYOUTDIR) $(RULESDIR) $(OBJDIR) $(LIBDIR))
 
 all : $(LIBDIR) $(LIBDIR)/libNet.a
+
+install : $(LIBDIR) $(LIBDIR)/libNet.a
+	install -d $(DESTLIB)
+	install -m 0644 $(LIBDIR)/libNet.a $(DESTLIB)
+	for dir in $(INCLUDEDIR); do \
+	   rm -rf $(DESTINC)/"$$dir"; \
+	done
+	tar --mode=-w -h -C $(INCLUDEDIR) -cf - . | tar -C $(DESTINC) -xf -
 
 directories: $(UNIQUEDIRS)
 	@for dir in $(COMPONENTS); do \

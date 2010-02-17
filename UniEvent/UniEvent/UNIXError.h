@@ -26,63 +26,90 @@
 
 // See ../ChangeLog for log.
 
-#include <string>
-#include <LCore/Protocol.h>
-#ifndef _UNEVT_UNEVT_ClassIdent_H_
-#  include <UniEvent/UNEVT_ClassIdent.h>
-#endif
+#include <LCore/LCoreError.h>
+#include <cstddef>  // For size_t
+#include <cerrno>  // For errno
 
 #define _UNEVT_UNIXError_H_
 
-//: Holds a UNIX errno value.  Not really intended to be derived from.
-// <p>There are no member functions to modify its value, so this is
-// essentially a const value.  This can be useful in multi-threading
-// environments because you don't have to care who else can modify your
-// object.  Of course, someone CAN destroy it out from underneath...</p>
-class UNIXError : virtual public Protocol {
+/** \class UNIXError UNIXError.h UniEvent/UNIXError.h
+ * \brief Holds a UNIX errno value.
+ *
+ * There are no member functions to modify its value, so this is essentially a
+ * const value.  This makes the class multithread safe.
+ *
+ * There is a special kind of error called an EOF error.  An EOF error signals that an EOF condition exists on the file descriptor in questoin.  The 'errno' value is ESUCCESS (0) in this case.
+ */
+class UNIXError : public LCoreError {
  public:
-   static const UNEVT_ClassIdent identifier;
+   //! A value for no error at all.
+   static const UNIXError S_noerror;
 
-   inline explicit UNIXError(int errno);
-   inline ~UNIXError();
+   /** Create from a system call name, the global 'errno' value, and an
+    * LCoreError.
+    */
+   inline UNIXError(const char *syscallname,
+                    const LCoreError &lcerr, bool iseof = false) throw ();
+   //! Create from a system call name, an errno value, and an LCoreError.
+   inline UNIXError(const char *syscallname, int errnum,
+                    const LCoreError &lcerr) throw ();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   //! Return name of system call that caused error.
+   const char *getSyscallName() const throw ()          { return syscallname_; }
 
-   //: The numeric value of the error.  Corresponds to global varaible errno.
-   int getErrorNum() const                              { return(errno_); }
-   //: The result of doing strerror(getErrorNum()).  Beware the reference return
-   // <p>The reference will only be valid while the object you obtained it from
-   // still exists.</p>
-   const string &getErrorString() const;
+   //! The numeric value of the error, which corresponds to values from errno.h
+   int getErrorNum() const throw ()                     { return errnum_; }
+   /** The result of doing <code>strerror_r(getErrorNum(), buf, buflen)</code>.
+    *
+    * \param buf A buffer to stuff the string into.
+    * \param buflen The maximum number of bytes the buffer can hold.
+    *
+    * <code>buf[buflen - 1]</code> will always be set to '\0'.
+    *
+    * One some platforms (like Linux), strerror is not thread safe, and a
+    * different function, strerror_r is called.  strerror_r requires you to
+    * supply a buffer.  The sterror_r interface is supported since the
+    * strerror_r interface can be implemented in terms of the strerror
+    * interface, but not the other way around.
+    */
+   void getErrorString(char *buf, size_t buflen) const throw ();
 
- protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   //! Is this an End-Of-File error?
+   bool isEOF() const throw()                           { return iseof_; }
 
  private:
-   int errno_;
-   mutable bool did_strerror_;
-   mutable string errstr_;
-
-   //: Left undefined and made private on purpose.
-   // <p>The copy constructor isn't here on purpose.  The default public one
-   // is just fine.</p>
-   void operator =(const UNIXError &val);
+   const char *syscallname_;
+   const int errnum_;
+   const bool iseof_;
 };
 
 //-----------------------------inline functions--------------------------------
 
-UNIXError::UNIXError(int errno)
-     : errno_(errno), did_strerror_(false)
+/**
+ * \param syscallname Name of system call that generated the error.
+ * \param lcerr An LCoreError, it's values will be copied into the UNIXError.
+ * The actual Unix error number is grabbed from the global 'errno' value.
+ */
+inline
+UNIXError::UNIXError(const char *syscallname,
+                     const LCoreError &lcerr, bool iseof) throw ()
+     : LCoreError(lcerr), syscallname_(syscallname),
+       errnum_(iseof ? errno : 0), iseof_(iseof)
 {
 }
 
-inline UNIXError::~UNIXError()
+/**
+ * \param syscallname Name of system call that generated the error.
+ * \param errnum The Unix 'errno' value for this error.
+ * \param lcerr An LCoreError, it's values will be copied into the UNIXError.
+ */
+inline
+UNIXError::UNIXError(const char *syscallname,
+                     int errnum, const LCoreError &lcerr)
+   throw ()
+     : LCoreError(lcerr), syscallname_(syscallname),
+       errnum_(errnum), iseof_(false)
 {
-}
-
-inline int UNIXError::AreYouA(const ClassIdent &cid) const
-{
-   return((identifier == cid) || Protocol::AreYouA(cid));
 }
 
 #endif

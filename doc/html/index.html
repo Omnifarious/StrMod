@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+                      "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>StreamModule documentation</title>
+  <meta name="AUTHOR" content="Eric Hopper">
+  <meta name="revision" conent="$Id$">
+  <meta name="description" content="Documentation of the StreamModule      
+  subssytems">
+  <meta name="keywords" content="Eric Hopper, UNIX, C++, StreamModule,      
+  documentation">
+</head>
+
+<body>
+<h1 align="center"><a href="../">StreamModule</a> Subsystem
+Documentation</h1>
+
+<p>Here are a list of subsystems, with links to their documentation:</p>
+
+<table border="1" cellpadding="8" summary="A list of subsystems, with links to
+their documentation">
+  <thead>
+    <tr>
+      <th>Subsystem</th>
+      <th>Description</th>
+      <th>Documentation</th>
+      <th>Class list</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dispatcher</td>
+      <td><p>Privdes event queueing and dispatching.</p>
+      </td>
+      <td><a href="UNIDispatcher_faq.html">documentation</a></td>
+      <td>None yet</td>
+    </tr>
+    <tr>
+      <td>LCore</td>
+      <td><p>This holds key base classes for broad concepts such as reference
+        counting, the Protocol class (which provides a common virtual base
+        class for persistent RTTI and object identity), and the persistent
+        RTTI mechanism.</p>
+      </td>
+      <td>None yet</td>
+      <td>None yet</td>
+    </tr>
+    <tr>
+      <td>EHnet++</td>
+      <td><p>This contains classes representing addresses that sockets can
+        bind to.</p>
+      </td>
+      <td>None yet</td>
+      <td>None yet</td>
+    </tr>
+    <tr>
+      <td>UNIXpollManager</td>
+      <td><p>A part of the Dispatcher subsystem that provides a way to be
+        notified of some condition on a file descriptor via an event.</p>
+      </td>
+      <td>None yet</td>
+      <td>None yet</td>
+    </tr>
+    <tr>
+      <td>StrChunk</td>
+      <td><p>A way of representing chunks of data that minimizes expensive
+        copying operations, and provides for the ability to write fragmented
+        data to a file descriptor.</p>
+      </td>
+      <td>None yet</td>
+      <td>None yet</td>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+      <td>StreamModule</td>
+      <td><p>Ties together all the previously mentioned systems to provide a
+        way to build complex communication pipelines by plugging together
+        simpler components.</p>
+      </td>
+      <td>None yet</td>
+      <td>None yet</td>
+    </tr>
+    <tr>
+    </tr>
+  </tbody>
+</table>
+<hr>
+
+<address>
+  Eric Hopper <a
+  href="mailto:hopper@omnifarious.org">hopper@omnifarious.org</a> 
+</address>
+</body>
+</html>

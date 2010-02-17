@@ -109,8 +109,6 @@ const InetAddress &InetAddress::operator =(const InetAddress &b)
 
 const InetAddress &InetAddress::operator =(const sockaddr_in &iadr)
 {
-   struct hostent *hostinfo;
-
    /* Make sure we're not being set to our own inaddr, so the = won't be
       disastrous. */
    if (&inaddr != &iadr) {
@@ -165,8 +163,6 @@ InetAddress::InetAddress(const string &h_name, U2Byte prt) :
 
 InetAddress::InetAddress(U2Byte prt) : port(prt)
 {
-   struct hostent *hostinfo;
-
    memset(&inaddr, '\0', sizeof(inaddr));
    inaddr.sin_family = AF_INET;
    inaddr.sin_port = htons(port);

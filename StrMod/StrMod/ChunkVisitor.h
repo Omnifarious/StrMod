@@ -60,7 +60,7 @@ class ChunkVisitor : public Protocol {
    friend class StrChunk;
  public:
    //! An exception to allow the visitor to halt the traversal.
-   class halt_visitation : public exception {
+   class halt_visitation : public std::exception {
    };
    static const STR_ClassIdent identifier;
 

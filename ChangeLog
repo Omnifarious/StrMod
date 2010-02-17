@@ -1,3 +1,10 @@
+2001-07-04  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* distbin/proclibsrc.pl.in: Fixed the generation of rules.mk to
+	handle the way post 2.96 gcc handles the -MD option.  The new
+	handling is obviously more correct than the previous handling, so
+	the previous way is no longer supported.
+
 2001-03-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* libnet-0.2.2 is released.

@@ -34,6 +34,8 @@
 
 class SocketAddress;
 class SockListenModule;
+class UNIDispatcher;
+class UNIXError;
 
 class SocketModule : public StreamFDModule {
    friend class SockListenModule;  // This is so SockListenModule's can access
@@ -41,36 +43,33 @@ class SocketModule : public StreamFDModule {
  public:
    static const STR_ClassIdent identifier;
 
-   //: Create a SocketModule connected to the given address.
-   SocketModule(const SocketAddress &addr, UNIXpollManager &pollmgr,
-		bool hangdelete = true, bool blockconnect = true);
+   //! Create a SocketModule connected to the given address.
+   SocketModule(const SocketAddress &addr,
+                UNIDispatcher &disp, UNIXpollManager &pollmgr,
+		bool blockconnect = true) throw(UNIXError);
    virtual ~SocketModule();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    //: Who are we connected to?
-   const SocketAddress &GetPeerAddr()                  { return(peer); }
+   const SocketAddress &GetPeerAddr()                  { return(peer_); }
 
  protected:
-   //: An EOF indication has been written.  This function has to handle it.
-   // This function follows the template method pattern from Design Patterns.
-   // Return true if the fd can now be written to, and return false if it
-   // can't.  It would probably also be best to set some kind of error
-   // condition if it can't be written to.
-   virtual bool writeEOF();
+   virtual void writeEOF();
 
-   //: Create a SocketModule using the given fd
-   // Note that ownership of pr is being passed.
-   SocketModule(int fd, SocketAddress *pr, UNIXpollManager &pollmgr);
+   /** Create a SocketModule using the given fd.
+    * Note that ownership of peer is being passed.
+    */
+   SocketModule(int fd, SocketAddress *peer,
+                UNIDispatcher &disp, UNIXpollManager &pollmgr);
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   static int MakeSocket(SocketModule &obj,
-			 const SocketAddress &addr, bool blockconnect);
+   static int MakeSocket(SocketModule &obj, const SocketAddress &addr,
+                         bool blockconnect) throw(UNIXError);
 
  private:
-   SocketAddress &peer;
-   int makesock_errno;
+   SocketAddress &peer_;
 };
 
 //-------------------------------inline functions------------------------------

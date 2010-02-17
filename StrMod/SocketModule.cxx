@@ -48,105 +48,114 @@ static char _SocketModule_CC_rcsID[] =
 
 const STR_ClassIdent SocketModule::identifier(12UL);
 
-// MakeSocket sets makesock_errno.
-SocketModule::SocketModule(const SocketAddress &addr, UNIXpollManager &pollmgr,
-			   bool hangdelete, bool blockconnect)
-     : StreamFDModule(MakeSocket(*this, addr, blockconnect), pollmgr,
-		      StreamFDModule::CheckBoth,  hangdelete),
-       peer(*(addr.Copy()))
+// MakeSocket sets makesock_errno_.
+SocketModule::SocketModule(const SocketAddress &addr,
+                           UNIDispatcher &disp, UNIXpollManager &pollmgr,
+                           bool blockconnect)
+   throw(UNIXError)
+     : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, pollmgr,
+		      StreamFDModule::CheckBoth),
+       peer_(*(addr.Copy()))
 {
-   if (makesock_errno != 0)
-   {
-      setErrorIn(ErrFatal, makesock_errno);
-   }
+   setMaxChunkSize(64U * 1024U);
 }
 
 SocketModule::~SocketModule()  // This might be changed later to add
 {                              // a shutdown message sent to the
-   delete &peer;               // socket on the other side of the
+   delete &peer_;              // socket on the other side of the
 }                              // connection.
 
-SocketModule::SocketModule(int fd, SocketAddress *pr, UNIXpollManager &pollmgr)
-     : StreamFDModule(fd, pollmgr, StreamFDModule::CheckBoth, true),
-       peer(*pr),
-       makesock_errno(0)
+SocketModule::SocketModule(int fd, SocketAddress *pr,
+                           UNIDispatcher &disp, UNIXpollManager &pollmgr)
+     : StreamFDModule(fd, disp, pollmgr, StreamFDModule::CheckBoth),
+       peer_(*pr)
 {
+   setMaxChunkSize(64U * 1024U);
 }
 
-bool SocketModule::writeEOF()
+void SocketModule::writeEOF()
 {
    if (getFD() >= 0)
    {
-      if (readEOF())
+      if (hasErrorIn(ErrRead) && getErrorIn(ErrRead).isEOF())
       {
-	 return(StreamFDModule::writeEOF());
+	 StreamFDModule::writeEOF();
       }
       else
       {
 //  	 cerr << "Wheee 1\n";
-	 shutdown(getFD(), SHUT_WR);
+         if (shutdown(getFD(), SHUT_WR) != 0)
+         {
 //  	 cerr << "Wheee 2\n";
-	 setErrorIn(ErrWrite, EBADF);
+            setErrorIn(ErrWrite,
+                       UNIXError("shutdown",
+                                 LCoreError(LCORE_GET_COMPILERINFO())));
+         }
+         else
+         {
+            setErrorIn(ErrWrite,
+                       UNIXError("shutdown",
+                                 LCoreError(LCORE_GET_COMPILERINFO()), true));
+         }
       }
    }
-   return(false);
 }
 
-static inline int setNonBlock(int fd, int &errval)
+static inline void setNonBlock(int fd) throw(UNIXError)
 {
+   int errval = 0;
 //     cerr << "In setNonBlock(" << fd << ", " << errval << ")\n";
    if (!FDUtil::setNonBlock(fd, errval))
    {
-      close(fd);
-      fd = -1;
+      throw UNIXError("FDUtil::setNonBlock", errval,
+                      LCoreError(LCORE_GET_COMPILERINFO()));
 //        cerr << "setNonBlock::errval == " << errval << "\n";
    }
-
-   return(fd);
 }
 
-static inline int doConnect(int fd, SocketAddress &peer, int &errval)
+static inline void doConnect(int fd, SocketAddress &peer) throw(UNIXError)
 {
    if (connect(fd, peer.SockAddr(), peer.AddressSize()) < 0)
    {
       if (errno != EINPROGRESS)
       {
-	 errval = errno;
-	 close(fd);
-	 fd = -1;
+         throw UNIXError("connect", LCoreError(LCORE_GET_COMPILERINFO()));
       }
    }
-   return(fd);
 }
 
 int SocketModule::MakeSocket(SocketModule &obj,
 			     const SocketAddress &addr, bool blockconnect)
+   throw(UNIXError)
 {
-   obj.makesock_errno = 0;
-   int fd;
-   SocketAddress &peer = *(addr.Copy());
+   int fd = -1;
+   try {
+      SocketAddress &peer = *(addr.Copy());
 
-   if ((fd = socket(peer.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC)) < 0)
-   {
-      return(fd);
-   }
-
-   if (blockconnect)
-   {
-      fd = doConnect(fd, peer, obj.makesock_errno);
-      if (fd >= 0)
+      if ((fd = socket(peer.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC)) < 0)
       {
-	 fd = setNonBlock(fd, obj.makesock_errno);
+         throw UNIXError("socket", LCoreError(LCORE_GET_COMPILERINFO()));
+      }
+
+      if (blockconnect)
+      {
+          doConnect(fd, peer);
+          setNonBlock(fd);
+      }
+      else
+      {
+         setNonBlock(fd);
+         doConnect(fd, peer);
       }
    }
-   else
+   catch(UNIXError e)
    {
-      fd = setNonBlock(fd, obj.makesock_errno);
       if (fd >= 0)
       {
-	 fd = doConnect(fd, peer, obj.makesock_errno);
+         close(fd);
+         fd = -1;
       }
+      throw;
    }
-
    return(fd);
 }

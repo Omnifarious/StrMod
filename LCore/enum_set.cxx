@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2001 Eric M. Hopper <hopper@omnifarious.mn.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -18,19 +18,10 @@
 
 /* $Header$ */
 
-// For log, see ChangeLog
+// For a log, see ./ChangeLog
 
 #ifdef __GNUG__
-#  pragma implementation "UNIXError.h"
+#  pragma implementation "enum_set.h"
 #endif
 
-#include "UniEvent/UNIXError.h"
-#include <string.h>
-
-const UNIXError UNIXError::S_noerror("<no error>", LCoreError("<no error>"));
-
-void UNIXError::getErrorString(char *buf, size_t buflen) const throw ()
-{
-   strerror_r(errnum_, buf, buflen);
-   buf[buflen - 1] = '\0';
-}
+#include "LCore/enum_set.h"

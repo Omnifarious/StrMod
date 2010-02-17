@@ -59,7 +59,6 @@ const StrChunkPtr GraphVizVisitor::visit(const StrChunkPtr &root, ostream &out)
           out << "digraph " << (name++) << " {\n";
           startVisit(root);
           {
-              const void *rootptr = root.GetPtr();
               const void *dataptr = data_->getVoidP();
               out << "n_" << root.GetPtr() << " -> d_" << dataptr << ";\n";
               printData(data_->getVoidP(), data_->Length());

@@ -36,125 +36,159 @@
 #   include <StrMod/StrChunkPtr.h>
 #endif
 
+#include <UniEvent/EventPtr.h>
 #include <UniEvent/EventPtrT.h>
 #include <UniEvent/UNIXpollManager.h>
 #include <UniEvent/UNIXError.h>
 
-#include <stddef.h>  // size_t
+#include <cstddef>  // size_t
 
 #define _STR_StreamFDModule_H_
 
 class GroupVector;
 class UNIXError;
+template <class enum_t, enum_t first, enum_t last> class enum_set;
 
-//: This module is for communicating outside your program via UNIX IO.
-// <p>One side of this module is a UNIX file descriptor, and the other side is
-// the plug.  Everything written to the plug is written to the file
-// descriptor, and everything read from the file descriptor is read from the
-// plug.</p>
-// <p>There are (or will be) ways of asking for events to be posted when stuff
-// happens that the StreamFDModule can't deal with directly, such has EOF,
-// read or write errors, or unexpected file descriptor closings.</p>
-// <p>See StreamModule (the parent class) for descriptions of any member
-// functions not described here.</p>
+/** \class StreamFDModule StreamFDModule.h StrMod/StreamFDModule.h
+ * \brief This module is for communicating outside your program via UNIX IO.
+ *
+ * One side of this module is a UNIX file descriptor, and the other side is the
+ * plug.  Everything written to the plug is written to the file descriptor, and
+ * everything read from the file descriptor is read from the plug.
+ *
+ * There are (or will be) ways of asking for events to be posted when stuff
+ * happens that the StreamFDModule can't deal with directly, such has EOF,
+ * read or write errors, or unexpected file descriptor closings.
+ */
 class StreamFDModule : public StreamModule {
  protected:
    class FPlug;
    friend class FPlug;
  private:
    class BufferList;
-   class FDPollEv;
-   friend class FDPollEv;
+   class EvMixin;
+   friend class EvMixin;
    class FDPollRdEv;
    class FDPollWrEv;
    class FDPollErEv;
+   class ResumeReadEv;
+   class ResumeWriteEv;
 
  public:
-   //: What directions is IO checked in?
-   // <p>This is used for file descriptors that are open for only reading, or
-   // only writing.</p>
-   enum IOCheckFlags { CheckNone, CheckRead, CheckWrite, CheckBoth };
-   //: What categories of errors can we have?
-   // <p>ErrFatal MUST be the last category for later array declarations to
-   // work.</p>
-   enum ErrCategory { ErrRead = 0, ErrWrite, ErrOther, ErrFatal };
+   /** What directions is IO checked in?
+    * This is used for file descriptors that are open only for reading, or only
+    * for writing.
+    */
+   enum IOCheckFlags {
+      CheckNone,  //!< Don't bother with checking for reading or writing.
+      CheckRead,  //!< Only check file descriptor for reading.
+      CheckWrite, //!< Only check file descriptor for writing.
+      CheckBoth   //!< Check file descriptor for reading and writing.
+   };
+   /** What kinds of errors are possible?
+    */
+   enum ErrorType {
+      ErrRead,  //!< Error while reading, might have read an EOF.  Must be lowest enum value.
+      ErrWrite, //!< Error while writing, might have written an EOF.
+      ErrGeneral,  //!< General error affecting both reading and writing.
+      ErrFatal  //! General, fatal error affecting both reading and writing.  Must be highest enum value.
+   };
+   //! Typedef for set of error types.
+   typedef enum_set<ErrorType, ErrRead, ErrFatal> ErrorSet;
+
 
    static const STR_ClassIdent identifier;
+   /** \brief This is the maximum number of bytes to read or write without going
+    * back to the dispatcher.
+    *
+    * If the socket on this class has enough data going through it to saturate
+    * the CPU, the StreamFDModule may never give the CPU to any of the other
+    * StreamFDModules unless it voluntarily gives it up after passing a certain
+    * amount of data.  This is the constant that determines how much data is
+    * enough.
+    *
+    * This should possibly be a configurable value, but it isn't yet.  If it is
+    * too low, you call back the dispatcher too often, and high bandwidth
+    * connections are handled slightly less efficiently than they could be.  If
+    * it's too high you'll get choppy response.  It's kinda like the
+    * multitasking timeslice value in an OS.
+    */
+   static const size_t S_max_bytes_without_dispatch = 256U * 1024U;
 
-   //: Constructor
-   // <code>fd</code> is the file descriptor to attach to.<br>
-   // <code>pollmgr</code> is the poll manager to use.  A reference to the
-   // poll manager is kept until object destruction.  I don't consider myself
-   // to own the poll manager.<br>
-   // <code>f</code> talks about the kinds of IO that can be done (and
-   // therefore, should be checked for) on <code>fd</code>.<br>
-   // <code>hangdelete</code> is whether the last bit of data should be
-   // written before close, and whether or not the close should block.<br>
-   StreamFDModule(int fd, UNIXpollManager &pollmgr,
-		  IOCheckFlags f = CheckBoth, bool hangdelete = true);
+   /** Constructs a StreamFDModule from an OS file descriptor.
+    *
+    * @param fd The file descriptor to attach to.
+    *
+    * @param disp The UNIDispatcher to use for posting an event to when it
+    * becomes apparent that this module is in danger of hogging the CPU.
+    *
+    * @param pollmgr The poll manager to use.  A reference to the poll manager
+    * is kept until object destruction.  The StreamFDModule doesn't 'own' the
+    * poll manager.
+    *
+    * @param checkmask Describes what kinds of IO that can be done (and
+    * therefore, should be checked for) on <code>fd</code>.
+    */
+   StreamFDModule(int fd,  UNIDispatcher &disp, UNIXpollManager &pollmgr,
+		  IOCheckFlags checkmask = CheckBoth);
+   //! Closes the associated file descriptor.
    virtual ~StreamFDModule();
 
-   //: See base class Protocol
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   //: See base class StreamModule
    inline virtual bool canCreate(int side) const;
-   //: See base class StreamModule
    inline virtual bool ownsPlug(const Plug *p) const;
-   //: See base class StreamModule
    inline virtual bool deletePlug(Plug *p);
 
-   //: Is this category in an error state?
-   inline bool hasErrorIn(ErrCategory ecat) const;
-   //: Gets the error that this category has.
-   inline const UNIXError getErrorIn(ErrCategory ecat) const;
-   //: Sets this category to a non-error state.
-   // Doesn't work on the ErrFatal category.
-   bool resetErrorIn(ErrCategory ecat);
-   //: Do any categories have an error?
-   inline bool hasError() const;
+   //! Check for an error in the given category.
+   bool hasErrorIn(ErrorType err) const throw ();
+   //! Check for an error in one of the categories given by the set.
+   bool hasErrorIn(const ErrorSet &set) const throw ();
+   /** Ask to post an event when the given error type happens.
+    * Currently only one event per error type is allowed.  If there is already
+    * an event for a particular error type, that event will be forgotten about
+    * and not posted.
+    */
+   void onErrorIn(ErrorType err, const UNIEventPtr &ev) throw();
+   /** Reset the error value for a particular category.
+    * This does not work for the ErrFatal category.
+    */
+   void resetErrorIn(ErrorType err) throw ();
+   //! Get the error value for a particular category.
+   const UNIXError &getErrorIn(ErrorType err) const throw ();
 
-   //: Have I read the EOF marker?
-   bool readEOF() const                             { return(flags_.readeof); }
-   //: Reset the EOF marker so I'll attempt to read more.
-   void resetReadEOF();
+   //! Set whether or not and EOFStrChunk is sent when an EOF is read.
+   inline void setSendChunkOnEOF(bool newval) throw();
+   //! Does this module send a chunk on EOF?
+   inline bool getSendChunkOnEOF() throw()          { return flags_.chunkeof; }
 
-   bool getSendChunkOnEOF() const                   { return(flags_.chunkeof); }
-   inline void setSendChunkOnEOF(bool newval);
+   //! Sets the maximum block size to be read in a single read operation.
+   inline void setMaxChunkSize(size_t mbs);
+   //! Returns the maximum block size to be read in a single read operation.
+   size_t getMaxChunkSize() const                   { return(max_block_size_); }
 
-   //: Get the file descriptor associated with this module.
-   inline int getFD()                               { return(fd_); }
-
-   //: Is the write buffer empty?  Has the module been drained into the fd?
-   bool writeBufferEmpty() const                    { return(!cur_write_); }
-   //: Is the read buffer empty?  Is the module sucking a currently empty pipe?
-   // Note, a permanently empty pipe results in the readEOF() flag being set.
-   bool readBufferEmpty() const                     { return(!buffed_read_); }
-
-   //: This returns the optimal IO blocksize for this descriptor
-   // <p>This returns the st_blksize member of the stat structure returned by
-   // fstat'ing the file descriptor.  If the stat cannot be performed, or
-   // st_blksize is 0, a default value (most likely 4096) is returned.</p>
-   // <p>In a certain special case, if st_blksize is > 0, but &lt; 64, 64 is
-   // returned.</p>
+   /** This returns the optimal IO blocksize for this descriptor
+    *
+    * This returns the st_blksize member of the stat structure returned by
+    * fstat'ing the file descriptor.  If the stat cannot be performed, or
+    * st_blksize is 0, a default value (most likely 4096) is returned.
+    *
+    * In a certain special case, if 0 < st_blksize < 64, 64 is returned.
+    */
    size_t getBestChunkSize() const;
 
-   //: Sets the maximum block size to be read in a single read operation.
-   inline void setMaxChunkSize(size_t mbs);
-
-   //: Mostly equivalent to setMaxChunkSize(BestChunkSize())
-   // <p>If the value returned by BestChunkSize is an 'unreasonable' value
-   // such as less than 1024 (1k) bytes, or more than 65536 (64k) bytes, the
-   // value is set to the closest 'reasonable' value.</p>
+   /** Mostly equivalent to setMaxChunkSize(BestChunkSize())
+    * If the value returned by BestChunkSize is an 'unreasonable' value such as
+    * less than 1024 (1k) bytes, or more than 65536 (64k) bytes, the value is
+    * set to the closest 'reasonable' value.
+    */
    inline void setMaxToBest();
 
-   //: Returns the maximum block size to be read in a single read operation.
-   size_t getMaxChunkSize() const                   { return(max_block_size_); }
 
  protected:
    class MyPollEvent;
    friend class MyPollEvent;
-   //: This plug is the rather simplistic plug for a StreamFDModule.
+   //: This plug is the rather simple plug for a StreamFDModule.
    class FPlug : public Plug {
       friend class StreamFDModule;
     public:
@@ -183,80 +217,95 @@ class StreamFDModule : public StreamModule {
       inline virtual void i_Write(const StrChunkPtr &ptr);
    };
 
-   //: See base class.
    virtual const ClassIdent *i_GetIdent() const    { return(&identifier); }
 
-   //: See base class.  Only makes plugs for side 0.
    inline virtual Plug *i_MakePlug(int side);
 
-   //: Called by FPlug::i_Write.
+   //! Called by FPlug::i_Write.
    virtual void plugWrite(const StrChunkPtr &ptr);
-   //: Called by FPlug::i_Read.
+   //! Called by FPlug::i_Read.
    virtual const StrChunkPtr plugRead();
 
-   //: Read from fd into buffed_read_
-   // <p>Assumes that buffed_read is empty, and various other important
-   // things.  UTSL (Use The Source (StrFDPlug.cc) Luke)</p>
+   /** Read from fd into buffed_read_
+    *
+    * Assumes that buffed_read_ is empty, that there are no read errors, no
+    * fatal errors, and that EOF has not been read.
+    *
+    * If the read returns '0' and the EOF on read flag is set, buffed_read_ will
+    * contain an EOFStrChunk.
+    */
    virtual void doReadFD();
-   //: Write to fd from cur_write_, using the info in write_vec_.
-   // <p>Assumes that cur_write isn't empty, and various other important
-   // things.  UTSL (Use The Source (StrFDPlug.cc) Luke)</p>
+   /** Write to fd from cur_write_, using the info in write_vec_.
+    *
+    * Assumes that cur_write_ isn't empty, that there are no write errors, no
+    * fatal errors, and that EOF has not been written.
+    *
+    * If cur_write_ is an EOFStrChunk, it will call writeEOF().
+    */
    virtual void doWriteFD();
 
-   //: An EOF indication has been written.  This function has to handle it.
-   // This function follows the template method pattern from Design Patterns.
-   // Return true if the fd can now be written to, and return false if it
-   // can't.  It would probably also be best to set some kind of error
-   // condition if it can't be written to.
-   virtual bool writeEOF();
+   /** An EOF indication has been written.  This function has to handle it.
+    * This function follows the template method pattern from Design Patterns.
+    *
+    * Do whatever is needed to write an EOF to the file descriptor for
+    * this module.
+    */
+   virtual void writeEOF();
 
-   //: Set an error flag to <code>errnum</code> in the category
-   //:<code>ecat</code>.
-   void setErrorIn(ErrCategory ecat, int errnum);
+//     //! Set an error flag to <code>errnum</code> in the category <code>ecat</code>.
+//     void setErrorIn(ErrCategory ecat, int errnum);
 
-   //: Set the flag that says we've read the EOF market to <code>newval</code>.
-   void setReadEOF(bool newval);
+//     //! Set the flag that says we've read the EOF market to <code>newval</code>.
+//     void setReadEOF(bool newval);
 
-   //: Check if my UNIXpollManager should tell me if fd_ is readable.
-   // <p>Check several different flags and conditions, and if things are
-   // alright, ask my UNIXpollManager to post my event when fd_ is writeable.
-   // Also set flags_.checkingrd if this is done.</p>
-   void maybeShouldReadFD();
-   //: Check if my UNIXpollManager should tell me if fd_ is writeable.
-   // <p>Check several different flags and conditions, and if things are
-   // alright, ask my UNIXpollManager to post an even when fd_ is writeable.
-   // Also set flags_.checkingwr if this is done. </p>
-   void maybeShouldWriteFD();
+   //! Set an error in a particular category.
+   void setErrorIn(ErrorType err, const UNIXError &errval) throw();
 
-   //: Called by readev_'s triggerEvent.
+   //! Called by readev_ and resumeread_'s triggerEvent.
    void eventRead(unsigned int condbits);
-   //: Called by writeev_'s triggerEvent.
+   //! Called by writeev_ and resumewrite_'s triggerEvent.
    void eventWrite(unsigned int condbits);
-   //: Called by errorev_'s triggerEvent.
+   //! Called by errorev_'s triggerEvent.
    void eventError(unsigned int condbits);
+   //! Called by resumeread_'s triggerEvent
+   void eventResumeRead();
+   //! Called by resumewrite_'s triggerEvent
+   void eventResumeWrite();
+
+   //! Get the file descriptor so a derived class can do something to it.
+   int getFD() const throw()                       { return fd_; }
 
  private:
+   struct ErrorInfo;
+
    int fd_;
    struct {
       unsigned int plugmade   : 1;
-      unsigned int hangdelete : 1;
       unsigned int checkingrd : 1;
       unsigned int checkingwr : 1;
       unsigned int readeof    : 1;
+      unsigned int eofwritten : 1;
       unsigned int chunkeof   : 1;
    } flags_;
-   int errvals[ErrFatal + 1];
+//   int errvals[ErrFatal + 1];
    FPlug plug_;
    StrChunkPtr buffed_read_;
    StrChunkPtr cur_write_;
    BufferList &curbuflist_;
    unsigned int max_block_size_;
-   FDPollEv *readevptr_;
+   unsigned int read_since_read_posted_;
+   unsigned int written_since_write_posted_;
+   // Non reference counted pointers, used for housekeeping.
+   EvMixin *parenttrackers_[5];
+   // The following 5 members are duplicates of the pointers held in the
+   // previous array.  They are reference counted.
    UNIEventPtrT<UNIXpollManager::PollEvent> readev_;
-   FDPollEv *writeevptr_;
    UNIEventPtrT<UNIXpollManager::PollEvent> writeev_;
-   FDPollEv *errorevptr_;
    UNIEventPtrT<UNIXpollManager::PollEvent> errorev_;
+   UNIEventPtr resumeread_;
+   UNIEventPtr resumewrite_;
+   ErrorInfo &errorinfo_;
+   UNIDispatcher &disp_;
    UNIXpollManager &pollmgr_;
 };
 
@@ -286,23 +335,23 @@ inline bool StreamFDModule::deletePlug(Plug *p)
       return(false);
 }
 
-inline bool StreamFDModule::hasErrorIn(ErrCategory ecat) const
-{
-   return(errvals[ecat] != 0);
-}
+//  inline bool StreamFDModule::hasErrorIn(ErrCategory ecat) const
+//  {
+//     return(errvals[ecat] != 0);
+//  }
 
-inline const UNIXError StreamFDModule::getErrorIn(ErrCategory ecat) const
-{
-   return(UNIXError(errvals[ecat]));
-}
+//  inline const UNIXError StreamFDModule::getErrorIn(ErrCategory ecat) const
+//  {
+//     return(UNIXError(errvals[ecat]));
+//  }
 
-inline bool StreamFDModule::hasError() const
-{
-   return(hasErrorIn(ErrRead) || hasErrorIn(ErrWrite)
-	  || hasErrorIn(ErrOther) || hasErrorIn(ErrFatal));
-}
+//  inline bool StreamFDModule::hasError() const
+//  {
+//     return(hasErrorIn(ErrRead) || hasErrorIn(ErrWrite)
+//  	  || hasErrorIn(ErrOther) || hasErrorIn(ErrFatal));
+//  }
 
-inline void StreamFDModule::setSendChunkOnEOF(bool newval)
+inline void StreamFDModule::setSendChunkOnEOF(bool newval) throw()
 {
    flags_.chunkeof = newval;
 }

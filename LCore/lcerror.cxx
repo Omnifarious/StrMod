@@ -1,3 +1,4 @@
+/* $Header$ */
 /*
  * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
  * 
@@ -16,21 +17,33 @@
  *     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/* $Header$ */
-
-// For log, see ChangeLog
+// For a log, see ./ChangeLog
 
 #ifdef __GNUG__
-#  pragma implementation "UNIXError.h"
+#  pragma implementation "LCoreError.h"
 #endif
 
-#include "UniEvent/UNIXError.h"
-#include <string.h>
+#include "LCore/LCoreError.h"
+#include <iostream>
 
-const UNIXError UNIXError::S_noerror("<no error>", LCoreError("<no error>"));
-
-void UNIXError::getErrorString(char *buf, size_t buflen) const throw ()
+ostream &operator <<(ostream &os, const LCoreError &err)
 {
-   strerror_r(errnum_, buf, buflen);
-   buf[buflen - 1] = '\0';
+   bool out = false;
+   if (err.getSourceFile())
+   {
+      os << "In " << err.getSourceFile();
+      out = true;
+   }
+   if (err.getLine() != 0)
+   {
+      os << (out ? ", at line " : "At line ") << err.getLine();
+      out = true;
+   }
+   if (err.getFunc())
+   {
+      os << (out ? ", in function '" : "In function '") << err.getFunc();
+   }
+   os << (out ? ": " : "Error: ")
+      << (err.getDesc() ? err.getDesc() : "<no description>");
+   return os;
 }

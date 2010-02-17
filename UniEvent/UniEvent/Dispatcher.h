@@ -1,7 +1,7 @@
 #ifndef _UNEVT_Dispatcher_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2001 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -34,47 +34,79 @@
 class UNIEventPtr;
 class OSConditionManager;
 
-//: An interface for a simple queuer and dispatcher of events.
-// <p>This provides an interface for classes that want to implement a queue of
-// UNIEvent objects that are removed from the queue in FIFO order and 'fired'
-// by calling their triggerEvent methods.</p>
+/** \class UNIDispatcher Dispatcher.h UniEvent/Dispatcher.h
+ * \brief An interface for a simple queuer and dispatcher of events.
+ *
+ * This provides an interface for classes that want to implement a queue of
+ * UNIEvent objects that are removed from the queue in FIFO order and 'fired' by
+ * calling their triggerEvent methods.
+ */
 class UNIDispatcher : virtual public Protocol {
  public:
    static const UNEVT_ClassIdent identifier;
 
+   //! Because every class (even abstract ones) should have a constructor.
    UNIDispatcher()                                     { }
+   //! Because abstract classes should have a virtual destructor.
    virtual ~UNIDispatcher()                            { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   //: Add an event to the queue.
+   //! Add an event to the queue.
    virtual void addEvent(const UNIEventPtr &ev) = 0;
 
-   //: Dispatch a single event.
+   //! Dispatch a single event.
    inline void dispatchEvent(UNIDispatcher *enclosing = 0);
-   //: Dispatch until a certain number of events have been dispatched, or the
-   //: queue is empty.
+
+   /**
+    * \brief Dispatch until a certain number of events have been dispatched, or
+    * the queue is empty.
+   */
    virtual void dispatchEvents(unsigned int numevents,
 			       UNIDispatcher *enclosing = 0) = 0;
-   //: Dispatch until the queue is empty.
+   //! Dispatch until the queue is empty.
    virtual void dispatchUntilEmpty(UNIDispatcher *enclosing = 0) = 0;
-   //: Cause the multiple event dispatch methods to halt before they normally
-   //: would.
+   /**
+    * Cause the multiple event dispatch methods to halt before they normally
+    * would.
+    */
    virtual void stopDispatching() = 0;
-   //: Does the queue have any events in it?
+   //! Does the queue have any events in it?
    virtual bool isQueueEmpty() const = 0;
 
-   //: This event is only triggered whenever an event dispatch is attempted
-   //: when there's an empty queue.
-   virtual void onQueueEmpty(const UNIEventPtr &ev) = 0;
+   /**
+    * Add an event that will be posted to poll something if the queue is busy.
+    *
+    * The UNIDispatcher maintains the concept of <em>external</em>
+    * and <em>internal</em> events.  External events are those posted by the
+    * addEvent function.  Internal events are those posted in response to some
+    * internal condition.
+    *
+    * When external events cause other external events to be added, busy loops
+    * can take over the system.  In order to prevent this, an event from this
+    * queue will be posted if the queue contains only external events.
+    *
+    * Events in this queue should query some outside event source for events and
+    * use addEvent to add any there may be.  <strong>Under no circumstance
+    * should one of these events <em>always</em> cause events to be added
+    * through addEvent.</strong> Doing this would just propogate the bad busy
+    * loop behavior.
+    */
+   virtual void addBusyPollEvent(const UNIEventPtr &ev) = 0;
+
+   /**
+    * \brief This event is only triggered whenever an event dispatch is
+    * attempted when there's an empty queue.
+   */
+   virtual bool onQueueEmpty(const UNIEventPtr &ev) = 0;
 
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
  private:
-   //: Purposely left undefined.
+   //! Purposely left undefined.
    UNIDispatcher(const UNIDispatcher &b);
-   //: Purposely left undefined.
+   //! Purposely left undefined.
    const UNIDispatcher &operator =(const UNIDispatcher &b);
 };
 

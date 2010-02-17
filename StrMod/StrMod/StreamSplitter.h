@@ -41,49 +41,59 @@
 
 #define _STR_StreamSplitter_H_
 
-//: This module is for treating two uni-directional streams as one
-//: bi-directional stream.
-// <font face=Courier><pre>
-// SplitterModule's work this way
-//              SideIn
-//  Module>---->--->-->--+
-//                       |       (bi-directional)
-//                      Splitter===>==<==>==<==>==<===Module
-//                       |      ^
-//  Module<----<---<--<--+      |
-//              SideOut         +--side SideBiDir
-// </pre></font>
-//
-
-// <p>The SplitterModule takes three i/o streams, one that does both input and
-// output, one that does input, and one that does output, and connects them
-// together. They're connected in such a way as to cause the output of the
-// stream that does input and ouput goes into the stream that only takes input,
-// and the output of the stream that only does output goes to the input of the
-// combined stream.</p>
-// <p>The SideOut plug is <b>never</b> writeable, and the SideIn plug is
-// <b>never</b> readable..</p>
+/** \class StreamSplitterModule StreamSplitter.h StrMod/StreamSplitter.h
+ * \brief This module is for treating two uni-directional streams as one
+ * bi-directional stream.
+ *
+ * <p>SplitterModule's work this way:</p>
+ * <pre>
+ *              SideIn
+ *  Module>---->--->-->--+
+ *                       |       (bi-directional)
+ *                      Splitter===>==<==>==<==>==<===Module
+ *                       |      ^
+ *  Module<----<---<--<--+      |
+ *              SideOut         +--side SideBiDir
+ * </pre>
+ *
+ *
+ * <p>The SplitterModule takes three i/o streams, one that does both input and
+ * output, one that does input, and one that does output, and connects them
+ * together. They're connected in such a way as to cause the output of the
+ * stream that does input and ouput goes into the stream that only takes input,
+ * and the output of the stream that only does output goes to the input of the
+ * combined stream.</p>
+ *
+ * <p>The SideOut plug is <b>never</b> writeable, and the SideIn plug is
+ * <b>never</b> readable..</p>
+ */
 class StreamSplitterModule : public StreamModule {
  public:
    static const STR_ClassIdent identifier;
 
+   //! Create a splitter module who's plugs are connected to nothing.
    StreamSplitterModule();
+   //! Delete splitter module and destroy all plugs it owns.
    virtual ~StreamSplitterModule();
 
-   //: On what sides can a plug be created?
-   enum Sides { SideIn, SideOut, SideBiDir };
+   //! On what sides can a plug be created?
+   enum Sides {
+      SideIn,  //!< Only accepts input
+      SideOut,  //!< Only produces output
+      SideBiDir //!< Writing here goes out SideOut and reading comes from SideIn
+   };
 
-   //: See base class.
    inline virtual bool canCreate(int side) const;
-   //: See base class.
    virtual bool deletePlug(Plug *plug);
-   //: See base class.
    inline virtual bool ownsPlug(const Plug *p) const;
 
  protected:
    class SPPlug;
    friend class SPPlug;
-   //: This does most of the work.  It just forwards stuff to the other plugs.
+   /* Not Doxygen yet. 
+    * \brief This does most of the work.  It just forwards stuff to the other
+    * plugs.
+    */
    class SPPlug : public Plug {
       friend class StreamSplitterModule;
     public:
@@ -99,19 +109,13 @@ class StreamSplitterModule : public StreamModule {
     protected:
       virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
 
-      //: See base class.  This just forwards.
       virtual const StrChunkPtr i_Read();
-      //: See base class.  This just forwards.
       virtual void i_Write(const StrChunkPtr &ptr);
 
-      //: See base class.
       inline virtual bool needsNotifyReadable() const;
-      //: See base class.
       inline virtual bool needsNotifyWriteable() const;
 
-      //: See base class.  This just forwards.
       virtual void otherIsReadable();
-      //: See base class.  This just forwards.
       virtual void otherIsWriteable();
 
       inline SPPlug *getReadPartner() const;
@@ -121,15 +125,15 @@ class StreamSplitterModule : public StreamModule {
       Sides side_;
    };
 
-   //: See Protocol base.
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
 
-   //: See base class.  This one sets the read/writeable flags on the other
-   //: plugs to be right.
-   // It calls the base class version after doing its work.
+   /** See base class.  This one sets the read/writeable flags on the other
+    * plugs to be right.
+    *
+    * It calls the base class version after doing its work.
+    */
    virtual void plugDisconnected(Plug *plug);
 
-   //: See base class.
    virtual Plug *i_MakePlug(int side);
 
  private:

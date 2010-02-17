@@ -1,3 +1,36 @@
+2001-07-05  Eric Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/enum_set.h: Added copy contructor and ability to convert
+	to a string of '1's and '0's.
+
+	* LCore/LCoreError.h, lcerror.cxx: Added ability to send to
+	ostream.
+
+2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/LCoreError.h (_LCORE_LCoreError_H_): Documented double
+	inclusion macro to make doxygen stop complaining.
+
+2001-07-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/enum_set.h: Improved const correctness.  Stopped trying to
+	use std::bitset::reference improperly.
+
+2001-06-22  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in (LIBCXX): Added source file for new enum_set class.
+
+	* LCore/enum_set.h, enum_set.cxx, tests/test_enum_set.cxx: Added
+	enum_set to hold a set of enumerated values.
+
+2001-06-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in (LIBCXX): Added source files for new LCoreError
+	class.
+
+	* LCore/LCoreError.h, lcerror.cxx: New class for holding error
+	conditions in exception and other situations.
+
 2001-03-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* libNet-0.2.2 is released.

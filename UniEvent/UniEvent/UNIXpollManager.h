@@ -78,7 +78,7 @@ class UNIXpollManager {
       //: Sets the condition bit(s) that triggered this event.
       void setCondBits(unsigned int condbits)          { bits_ = condbits; }
 
-      virtual void TriggerEvent(UNIDispatcher *dispatcher = 0) = 0;
+      virtual void triggerEvent(UNIDispatcher *dispatcher = 0) = 0;
 
     protected:
       virtual const ClassIdent *i_GetIdent() const     { return(&identifier); }
@@ -113,7 +113,7 @@ class UNIXpollManager {
    virtual void freeFD(int fd) = 0;
 
    //: Actually call the UNIX poll system call, and dispatch resulting events.
-   virtual void doPoll() = 0;
+   virtual void doPoll(bool wait = true) = 0;
 
  protected:
    UNIDispatcher *getDispatcher() const                { return(disp_); }

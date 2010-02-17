@@ -44,13 +44,17 @@ class RouterModule : public StreamModule {
  protected:
    class RPlug;
    friend class RPlug;
+   //! Just a type alias to avoid errors in typing deque<RPlug *>.
    typedef deque<RPlug *> RPlugList;
+   //! Just a type alias to avoid errors in typing back_insert_iterator<RPlugList>
    typedef back_insert_iterator<RPlugList> RPlugAdder;
 
  public:
    static const STR_ClassIdent identifier;
 
-   RouterModule(UNIDispatcher &disp);
+   //! Construct given UNIDispatcher to use to post scan events.
+   explicit RouterModule(UNIDispatcher &disp);
+   //! Destroy the RouterModule and all of its plugs.
    virtual ~RouterModule();
 
    virtual int AreYouA(const ClassIdent &cid) const {
