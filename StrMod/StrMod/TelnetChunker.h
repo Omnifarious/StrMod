@@ -48,6 +48,7 @@ class TelnetChunker : public StreamProcessor {
    class OptionNegotiation;
 
    static const STR_ClassIdent identifier;
+   static const unsigned int MAX_SUBOPTSIZE = (64U * 1024U);
 
    /** Construct a TelnetChunker.
     * Not much to tell one when you make it.  The state diagram has a quite

@@ -68,6 +68,8 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
                              size_t regionbegin, size_t regionend,
                              StrChunkPtrT<BufferChunk> &cooked);
 
+   void addOutgoing(const StrChunkPtr &ptr);
+
    void addIncoming(const StrChunkPtr &ptr);
    size_t curIncomingLen() const                            { return curlen_; }
    inline void clearIncoming();
@@ -171,6 +173,13 @@ void TelnetChunker::Builder::addSuboption(U1Byte opt_type,
    chunks_.push_back(ptr);
 }
 
+void TelnetChunker::Builder::addOutgoing(const StrChunkPtr &ptr)
+{
+   StrChunk *rawptr = ptr.GetPtr();
+   rawptr->AddReference();
+   chunks_.push_back(rawptr);
+}
+
 void TelnetChunker::Builder::addIncoming(const StrChunkPtr &ptr)
 {
    const size_t inlen = ptr->Length();
@@ -255,14 +264,23 @@ class TelnetChunker::DataFunctor {
 
 void TelnetChunker::processIncoming()
 {
-   if (!data_.builder_.hasData())
-   {
-      if (incoming_->Length() <= 0)
-      {
-         incoming_.ReleasePtr();
-         return;
-      }
+   assert(incoming_);
+   const size_t inlen = incoming_->Length();
 
+   if (!data_.builder_.hasData() && (inlen <= 0))
+   {
+      if (data_.parser_.getRegionBegin() != data_.builder_.curIncomingLen())
+      {
+         data_.parser_.reset(data_.builder_);
+         assert(data_.parser_.getRegionBegin() ==
+                data_.builder_.curIncomingLen());
+      }
+      data_.parser_.dropBytes(data_.parser_.getRegionBegin());
+      data_.builder_.clearIncoming();
+      data_.builder_.addOutgoing(incoming_);
+   }
+   else if (!data_.builder_.hasData())
+   {
       data_.builder_.addIncoming(incoming_);
       {
          DataFunctor tmp(data_.parser_, data_.builder_);
@@ -273,22 +291,35 @@ void TelnetChunker::processIncoming()
       const size_t regionbegin = data_.parser_.getRegionBegin();
       const size_t totallen = data_.builder_.curIncomingLen();
       assert(regionbegin <= totallen);
-      // If the parser doesn't forsees a region starting before the end of the
-      // current block.
-      if (regionbegin == totallen)
+
+      // If our parse buffer has gotten too huge (perhaps because of a
+      // neverending suboption) reset the parser.
+      if ((totallen - regionbegin) > MAX_SUBOPTSIZE)
       {
-         // Drop
-         data_.parser_.dropBytes(regionbegin);
+         data_.parser_.reset(data_.builder_);
+         assert(data_.parser_.getRegionBegin() == totallen);
+         data_.parser_.dropBytes(totallen);
+         data_.builder_.clearIncoming();
+         if (!data_.builder_.hasData())
+         {
+            incoming_.ReleasePtr();
+            // Yeah, a bit ugly, but I think cleaner than adding a flag.
+            return;
+         }
+      }
+      // Otherwise, if everything has been completely parsed, drop it all.
+      else if (regionbegin == totallen)
+      {
+         // Drop the uneeded blocks.
+         data_.parser_.dropBytes(totallen);
          data_.builder_.clearIncoming();
       }
       else
       {
-         const size_t inlen = incoming_->Length();
-
          assert(totallen >= inlen);
          // If the parser doesn't forsee a region starting before the beginning
          // of the block we just processed, drop all prior blocks.
-         if ((totallen == inlen) && ((totallen - regionbegin) <= inlen))
+         if ((regionbegin != 0) && ((totallen - regionbegin) <= inlen))
          {
             data_.parser_.dropBytes(totallen - inlen);
             data_.builder_.setIncoming(incoming_, inlen);
