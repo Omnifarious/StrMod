@@ -49,14 +49,14 @@ LIBCXX = EchoModule.cxx  STR_ClassIdent.cxx  StreamModule.cxx  \
          TelnetChars.cxx  TelnetChunkBuilder.cxx  LocalCopy.cxx \
          ChunkVisitor.cxx  UseTrackingVisitor.cxx  GraphVizVisitor.cxx \
          ChunkIterator.cxx  StaticBuffer.cxx  ApplyVisitor.cxx \
-         SimpleTelnetClient.cxx
+         SimpleTelnetClient.cxx  RouterModule.cxx
 
 TESTCCS = tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx  \
           tests/testecho.cxx   tests/testsock.cxx tests/echoserv.cxx  \
           tests/testextent.cxx tests/testGV.cxx  tests/testmulti.cxx \
 	  tests/testserial.cxx tests/TelnetToAscii.cxx tests/ttelnet.cxx \
           tests/testPreAlloc.cxx tests/testinfinite.cxx  tests/tstelnet.cxx \
-          tests/testvisitor.cxx
+          tests/testvisitor.cxx  tests/testrouter.cxx
 
 .PHONY: directories always
 
@@ -89,6 +89,16 @@ $(LIBDIR)/libStrMod.a:
 
 tests/testvisitor : tests/testvisitor.o PreAllocBuffer.o
 	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/testvisitor
+
+tests/routetest : tests/testrouter.o  RouterModule.o  SockListenModule.o \
+                  ProcessorModule.o  StreamModule.o  NewlineChopper.o  \
+                  StrChunkPtr.o  CharChopper.o  PreAllocBuffer.o \
+                  StreamProcessor.o  PassThrough.o  BufferChunk.o \
+                  GroupChunk.o  STR_ClassIdent.o  StrChunk.o  ChunkIterator.o \
+                  SocketModule.o  DynamicBuffer.o  StrSubChunk.o  \
+                  ChunkVisitor.o  UseTrackingVisitor.o  LinearExtent.o \
+                  StreamFDModule.o  FDUtil.o  EOFStrChunk.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o $@ 2>&1 | c++filt
 
 tests/testserial : tests/testserial.o OutSerializer.o InSerializer.o BufferChunk.o DynamicBuffer.o StrChunkPtr.o GroupVector.o GV_Iterator.o StrChunk.o LinearExtent.o STR_ClassIdent.o
 	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/testserial

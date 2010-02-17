@@ -33,20 +33,21 @@
 
 class UNIDispatcher;
 
-//: Use this module of you need one source copied to many destinations.
-// This implements a simple multiplexer that duplicates all input on
-// the 'single' side to all the plugs attached to the 'multi' side,
-// and combines all the data from the 'multi' side into one flow on
-// the 'single' side.
-//
-// A 'multi' side plug that isn't plugged in is considered to be dead,
-// and no data is routed to it.  This prevents the stream from backing
-// up.
-//
-// Currently, 'multi' side plug deletion is implemented by simply
-// unplugging the plug.  Please don't take advantage of this detail.
-// In the future, 'multi' side plugs will be actually deleted.
-
+/** \class SimpleMultiplexer SimpleMulti.h StrMod/SimpleMulti.h
+ * \brief Use this module of you need one source copied to many
+ * destinations, and/or many streams combined into one.
+ *
+ * This implements a simple multiplexer that duplicates all input on the
+ * 'single' side to all the plugs attached to the 'multi' side, and combines all
+ * the data from the 'multi' side into one flow on the 'single' side.
+ *
+ * A 'multi' side plug that isn't plugged in is considered to be dead, and no
+ * data is routed to it.  This prevents the stream from backing up.
+ *
+ * Currently, 'multi' side plug deletion is implemented by simply unplugging the
+ * plug.  Please don't take advantage of this detail.  In the future, 'multi'
+ * side plugs will be actually deleted.
+ */
 class SimpleMultiplexer : public StreamModule {
  protected:
    class MultiPlug;
@@ -55,19 +56,32 @@ class SimpleMultiplexer : public StreamModule {
    friend class SinglePlug;
 
  public:
-   enum PublicSides { SingleSide, MultiSide };
+   //! The two sides available in a SimpleMultiplexer
+   enum PublicSides {
+      SingleSide,  //!< Writing to this plug writes to all plugs connected to MultiSide plugs.
+      MultiSide  //!< Writing to his plug writes to the plug connected to the SingleSide plug.
+   };
    static const STR_ClassIdent identifier;
 
+   /** Construct a SimpleMultiplexer
+    *
+    * The UNIDispatcher is needed for making sure data from all MultiSide plugs
+    * is handled fairly.  Whenever the SimpleMultiplexer gets data from a
+    * MultiPlug, it flags that plug as non-writeable and posts an event to a
+    * UNIDispatcher.  When that event is fired, it resets all MultiPlugs to
+    * being writeable again.  The prevens any MultiPlug from monopolizing the
+    * SinglePlug.
+    *
+    * @param disp The UNIDispatcher to post to.
+    */
    SimpleMultiplexer(UNIDispatcher &disp);
+   //! Also destroys all Plug's and any unsent data.
    virtual ~SimpleMultiplexer();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   //: See base class.
    inline virtual bool canCreate(int side) const;
-   //: See base class.
    virtual bool ownsPlug(const Plug *plug) const;
-   //: See base class.
    virtual bool deletePlug(Plug *plug);
 
  protected:
@@ -111,44 +125,75 @@ class SimpleMultiplexer : public StreamModule {
       virtual void otherIsWriteable(); 
    };
 
-   //: Called whenever a plug is disconnected.
-   // <P>Used here to record a plug as having read the mchunk_ if it's
-   // disconnected while it's waiting to be read from.<P>
-   // <P>Also calls StreamModule::plugDisconnected so that PDstrategy handling
-   // and things can be done there.</P>
+   /** Called whenever a plug is disconnected.
+    * Used here to record a MultiPlug as having read the mchunk_ if it's
+    * disconnected while it's waiting to be read from.
+    *
+    * Also calls StreamModule::plugDisconnected so that PDstrategy handling and
+    * things can be done there.
+    */
    inline virtual void plugDisconnected(Plug *plug);
 
-   //: Makes a plug on the given side.
-   // <P>Guaranteed to never be called if canCreate would return false.  Must
-   // NEVER return 0 (NULL).</P>
    virtual Plug *i_MakePlug(int side);
 
-
-   //: If a scan event isn't posted, post one.
-   // <P>A scan is always posted because a piece of data came into a
-   // MultiPlug, and data is only allowed to into a MultiPlug once per
-   // scan.</P>
-   // <P>Data coming into a plug is also cause for that plug to be
-   // considered last when checking for data to pull in through a
-   // plug.
+   /** If a scan event isn't posted, post one.
+    * A scan is always posted because a piece of data came into a MultiPlug, and
+    * data is only allowed to into a MultiPlug once per scan.
+    *
+    * Data coming into a plug is also cause for that plug to be considered last
+    * when checking for data to pull in through a plug.
+    */
    inline void postScan(MultiPlug &toend);
-   //: Actually post a scan event to the dispatcher given in the constructor.
+   //! Post a scan event to dispatcher_.
    void doPost();
-   //: Move a MultiPlug to the end of the list.
+   //! Move a MultiPlug to the end of the list.
    void moveToEnd(MultiPlug &toend);
 
-   //: Process the fact that a MultiPlug read the mchunk_.
+   //! Process the fact that a MultiPlug read the mchunk_.
    void multiDidRead(MultiPlug &mplug);
 
-   //: Use to say which direction an adjustment should go in.
-   enum AdjDir { ADJ_Down, ADJ_Up };
+   /** \name Count adjusting functions.
+    * These functions maintain a count of MultiPlugs that are in a particular
+    * state.  The counts are used for adjusting the SingPlug's readable or
+    * writeable state.  This provides a way for the plugs, which don't directly
+    * know about eachother, to communicate.
+    *
+    * adjustMultiWriteables adjusts the number of MultiPlugs who's partners are
+    * writeable.  If there are none, the SinglePlug's state is changed to not be
+    * writeable.  A write to a SinglePlug where there are no MultiPlug partners
+    * to forward that data onto would be counterproductive and introduce
+    * unecessary buffering.
+    *
+    * adjustMultiReadables adjusts the number of MultiPlugs who's partners are
+    * readable.  If there are no such MultiPlugs, then the SinglePlug won't be
+    * able to be read from.  If there is even one MultiPlug who's partner is
+    * readable, then a read from the SinglePlug will read from that MultiPlug's
+    * partner, so the SinglePlug should be set to readable.
+    */
+   //@{
+   //! Use to say which direction an adjustment should go in.
+   enum AdjDir {
+      ADJ_Down,  //< Lower the number.
+      ADJ_Up  //< Raise the number.
+   };
 
-   //: This may cause the SinglePlug's readable state to change.
+   /** Adjust the number of MultiPlugs who's partners are in a readable state.
+    * This may cause the SinglePlug's readable state to change.
+    */
    void adjustMultiReadables(AdjDir dir);
-   //: This may cause the SinglePlug's writeable state to change.
+   /** Adjust the number of MultiPlugs who's partners are in a writeable state.
+    * This may cause the SinglePlug's writeable state to change.
+    */
    void adjustMultiWriteables(AdjDir dir);
+   //@}
 
-   //: This is called by ScanEvent.
+   /** This is called by ScanEvent when its triggerEvent method is called.
+    * This resets the 'haswritten' flags of all the MultiPlugs to false.
+    *
+    * This flag is used to ensure that one MultiPlug can't monopolize the
+    * SinglePlug.  A MultiPlug that has written is not allowed to write again
+    * until all other MultiPlugs also have a chance to write.
+    */
    void doScan();
 
  private:

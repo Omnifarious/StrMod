@@ -80,4 +80,7 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   49UL	TelnetChunkBuilder
   50UL	TelnetParser
   51UL	ApplyVisitor_Base
+  52UL	RouterModule
+  53UL	RouterModule::RPlug
+  54UL	RouterModule::ScanEvent
 */

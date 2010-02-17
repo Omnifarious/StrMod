@@ -1,3 +1,20 @@
+2001-03-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* libNet-0.2.2 is released.
+
+2001-03-05  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testrouter.cxx: This tests some functionality of
+	RouterModule by creating a broadcast server.  Anything one client
+	sends to the server gets sent back to all the clients.
+
+	* StreamFDModule.cxx (BufferList): Fixed several likely stupid
+	errors in BufferList code.
+
+	* StrMod/RouterModule.h, RouterModule.cxx: A new abstract module
+	for reading chunks in and passing them out to an arbitrary set of
+	connected plugs.
+
 2001-02-26  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* Version 0.2.1 released!
