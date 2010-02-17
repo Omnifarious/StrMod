@@ -1,3 +1,180 @@
+2001-02-24  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in: Added semi-test telnet source to the library.
+
+	* tests/tstelnet.cxx, tests/TelnetToAscii.cxx, tests/ttelnet.cxx,
+	SimpleTelnetClient.cxx: Changes to use the re-written
+	TelnetChunker stuff.
+
+	* StrMod/ApplyVisitor.h, ApplyVisitor.cxx: Had to move the call to
+	startVisit that actually begins the process of applying the
+	functor to the data out of the constructor.
+
+	I forgot that calling virtual functions in a constructor is a bad
+	idea.  Too much Python programming I expect.
+
+	* STR_ClassIdent.cxx: Changes to the class number list to reflect
+	reality.
+
+	* StrMod/TelnetParser.h, TelnetParser.cxx, TelnetChunker.cxx,
+	StreamFDModule.cxx: Small changes to fix missing symbols and bugs.
+
+2001-02-23  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetChunker.h, TelnetChunker.cxx,
+	StrMod/TelnetParser.h, TelnetParser.cxx,
+	StrMod/TelnetChunkBuilder.h: Completely changed around to use the
+	ApplyVisitor and to process a buffer at a time instead of a
+	character at a time.
+
+2001-02-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/LocalCopy.h, LocalCopy.cxx: New class for holding local
+	copies of member variables.  Like StackSwapper.
+
+2001-02-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StackSwapper.h, StrMod/ApplyVisitor.h,
+	StreamFDModule.cxx: Documentation.
+
+	* StrMod/ApplyVisitor.h, ApplyVisitor.cxx: Inital implementation
+	of a Visitor that applies a functor to every data extent.
+
+2001-02-11  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Added new number for class
+	TelnetChunkBuilder
+
+	* StrMod/TelnetParserData.h, StrMod/TelnetChunkerData.h: Replaced
+	TelnetParserData.h with now more appropriately named
+	TelnetChunkerData.h
+
+	* StrMod/TelnetChunker.h, TelnetChunker.cxx: Added TelnetChunker,
+	a StreamProcessor module that chunks up a data stream into telnet
+	protocol objects.
+
+	* StrMod/TelnetChunkBuilder.h: Changed to use definitions from
+	TelnetChars.h instead of redundant internal ones.
+
+2001-01-28  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/ChunkIterator.h, ChunkIterator.cxx (isFor): Added this
+	method both for completeness, and to make TelnetParser easier to
+	implement.
+
+	* StrMod/TelnetChars.h, TelnetChars.cxx: Various constants and
+	routines for determining the meanings of individual characters in
+	a telnet stream.
+
+	* StrMod/TelnetParser.h: Re-implemented the state machine to do
+	nothing besides determine the lexical meaning of each character in
+	the stream.
+
+	* TelnetParser.cxx: Severe changes designed to seperate parsing
+	from the other steps that occur.  Now this class _just_ parses.
+
+2001-01-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetParser.h: Complete refactoring.  TelnetParser now
+	just runs the state machine that parses telnet data and nothing
+	else.
+
+	* StrMod/TelnetChunkBuilder.h: First shot at a Builder interface
+	for streams following the telnet protocol.
+
+2001-01-07  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/STR_ClassIdent.h: Rearranged class sections to conform to
+	newer (post 1995) coding standard.  Also, added some doxygen
+	documentation that will probably be moved a little ways up in the
+	hierarchy later.
+
+2000-12-16  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetParserData.h: Added lots more documentation.
+
+2000-12-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetParserData.h (TelnetData): Modified documentation
+	slightly.
+	(Suboption::NumSubGroups): Oops, missed the removal of one of
+	these.
+
+	* StrMod/StreamProcessor.h: Converted documentation to doxygen.
+	Added some documentation.
+
+	* TelnetParser.cxx (processIncoming): Added some doxygen documentation.
+	Removed the GroupVector and GV_Iterator based TelnetData methods.
+
+	* StrMod/TelnetParserData.h: Added lots of doxygen documentation
+	and removed old GroupVector and GV_Iterator stuff.
+
+2000-12-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in: Added back the now working StreamFDModule.cxx
+
+	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Lots of changes to
+	remove the GroupVector based code, and replace it with
+	ChunkVisitor based code.
+
+2000-12-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UseTrackingVisitor.cxx: Removed redundant destructor definition.
+
+	* StrMod/InSerializer.h, StrMod/StrChunk.h: Completely worked over
+	documentation for Doxygen.
+
+	* Makefile.in: Temporarily removed a few .cxx files that haven't
+	been converted to use ChunkIterator and ChunkVisitor yet.  Removed
+	obsolete GV_Iterator and GroupVecter .cxx files.
+
+	* StrMod/StrSubChunk.h, StrMod/StrChunk.h,
+	StrMod/SockListenModule.h, StrMod/PreAllocBuffer.h,
+	StrMod/EOFStrChunk.h, StrMod/DynamicBuffer.h, StrChunk.cxx,
+	StrMod/GroupChunk.h, GroupChunk.cxx, StrMod/BufferChunk.h,
+	BufferChunk.cxx, StrMod/GV_Iterator.h, GV_Iterator.cxx,
+	StrMod/GroupVector.h, GroupVector.h: Removed all the old
+	GroupVector based member functions, DropUnused, and i_DropUnused.
+
+	All of the functionality in the GroupVector and related classes
+	can be had using the ChunkIterator or ChunkVisitor classes.  The
+	DropUnused and i_DropUnused functionality wasn't used often, and
+	will be revisited later.
+
+2000-12-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StrChunkPtrT.h: Completely worked over the documentation
+	for Doxygen.  Made some changes because Doxygen has difficulties
+	with typedefs.
+
+	* CharChopper.cxx:, InSerializer.cxx: Fixed to use new iterator
+	system instead of old, crufty, GV_Iterator.
+
+	* StaticBuffer.cxx, StrMod/StaticBuffer.h (class StaticBuffer):
+	Added this class so that I could hack InSerializer into working.
+
+2000-11-30  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GraphVizVisitor.cxx: Added some cleanup code and made it
+	exception safe.
+
+	* ChunkIterator.cxx: Added some exception cleanup code.
+
+	* StrMod/StrChunkPtrT.h, StrMod/StrChunkPtr.h,
+	StrMod/LinearExtent.h, StrMod/GraphVizVisitor.h,
+	StrMod/ChunkVisitor.h, StrMod/ChunkIterator.h,
+	StrMod/BufferChunk.h: Completely worked over the documentation for
+	Doxygen.
+
+	* StrMod/GraphVizVisitor.h: Added missing i_GetIdent function.
+
+2000-11-28  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamModule.h, StreamModule.cxx, StrChunkPtr.cxx,
+	GraphVizVisitor.cxx, UseTrackingVisitor.cxx,
+	StrMod/UseTrackingVisitor.h: Completely worked over the
+	documentation for Doxygen.
+
 2000-10-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* : libNet-0.1.5 released.

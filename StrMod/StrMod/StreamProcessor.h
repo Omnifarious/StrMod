@@ -44,54 +44,67 @@
 
 #define _STR_StreamProcessor_H_
 
-//: Describes a simple non-active processor of a unidirectional data stream
-//: that has one input and one output.
-// <P>This class is intended to be used with a ProcessorModule to create
-// modules that do some sort of processing on every chunk that passes
-// through.</P>
-// <P>A prime example of this sort of thing are streams that re-chunk the data
-// passing through them according to some criteria.  Another example is a
-// stream which simply prepends a header of some sort to every chunk coming
-// through.</P>
-// <P>Non-active means that this things readable or writeable status can't
-// change unless it's a result of being read or written to.</P>
+/** \class StreamProcessor StreamProcessor.h StrMod/StreamProcessor.h
+ * Describes a simple non-active processor of a unidirectional data stream
+ * that has one input and one output.
+ *
+ * Non-active means that this things readable or writeable status can't change
+ * unless it's a result of being read or written to.
+ *
+ * This class is intended to be used with a ProcessorModule to create modules
+ * that do some sort of processing on every chunk that passes through.
+ *
+ * A prime example of this sort of thing are streams that re-chunk the data
+ * passing through them according to some criteria.  Another example is a
+ * stream which simply prepends a header of some sort to every chunk coming
+ * through.
+ *
+ * Another prime example is a process in a Unix pipeline.
+ */
 class StreamProcessor : virtual public Protocol {
  public:
    static const STR_ClassIdent identifier;
 
+   //! Abstract base classes don't have substansive constructors.
    inline StreamProcessor();
+   //! Abstract base classes don't have substansive destructors.
    virtual ~StreamProcessor();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   //: Can you put data into this thing?
-   // <P>Note that this is !incoming_.  This means that if you need more data
-   // to complete your processing, your must clear incoming_ and store the
-   // partially processed data someplace else, like outgoing_.</P>
+   /** Can you put data into this thing?
+    * Note that this is \c !incoming_.  This means that if you need
+    * more data to complete your processing, your must clear incoming_ and
+    * store the partially processed data someplace else, like
+    * \c outgoing_.
+    */
    inline bool canWriteTo() const;
-   //: Shove in some data.  Must not be called when !canWriteTo().
+   //! Shove in some data.  Must not be called when !canWriteTo().
    inline void writeTo(const StrChunkPtr &chnk);
-   //: Can you get any data from this thing?
-   // <P>Note that this is outgoing_ready_.  It's a gross error for !outgoing_
-   // && outgoing_ready_.  Set outgoing_ready_ when the data in outgoing_ is
-   // ready to go.</P>
+   /** Can you get any data from this thing?
+    * Note that this is \c outgoing_ready_.  It's a gross error for
+    * <code>!outgoing_ && outgoing_ready_</code>.  Set \c outgoing_ready_ when
+    * the data in \c outgoing_ is ready to go.
+    */
    inline bool canReadFrom() const;
-   //: Pull out some data.  Must not be called when !canReadFrom().
+   //! Pull out some data.  Must not be called when !canReadFrom().
    inline const StrChunkPtr readFrom();
 
  protected:
-   StrChunkPtr incoming_;
-   StrChunkPtr outgoing_;
-   bool outgoing_ready_;
+   StrChunkPtr incoming_;  //!< Where to find the incoming data when processIncoming() is called.
+   StrChunkPtr outgoing_;  //!< Where to stick data that's ready to go out.
+   bool outgoing_ready_;   //!< Set this when the data in \c outgoing_ is actually ready to go out.
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
-   //: Do something with your m_incoming data.
-   // <P><CODE>(incoming_ && !outoing_ready_)</CODE> will
-   // <strong>always</strong> be true when entering this function, meaning
-   // that incoming_ points at a valid chunk.</P>
-   // <P>A post condition of this function is <CODE>(!incoming_ ||
-   // (outgoing_ready_ && outgoing_))</CODE>.</P>
+   /** Do something with your incoming_ data.
+    * \pre <code>(incoming_ && !outoing_ready_)</code> will
+    * <strong>always</strong> be true when entering this function, meaning
+    * that incoming_ points at a valid chunk.
+    *
+    * \post A post condition of this function is <code>(!incoming_ ||
+    * (outgoing_ready_ && outgoing_))</code>.
+    */
    virtual void processIncoming() = 0;
 
  private:

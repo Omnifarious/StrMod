@@ -83,7 +83,7 @@ class RefCountPtr : virtual public Protocol {
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
    virtual RC *i_CheckType(RC *p) const                { return(p); }
-   void i_SetPtr(RC *p, bool deleteref = true);
+   void i_SetPtr(ReferenceCounting *p, bool deleteref = true);
 
  private:
    RC *ptr_;

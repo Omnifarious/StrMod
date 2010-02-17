@@ -32,6 +32,9 @@
 
 #define _STR_ChunkIterator_H_
 
+/** \clsss StrChunk::__iterator ChunkIterator.h StrMod/ChunkIterator.h
+ * The const_iterator class for StrChunk.
+ */
 class StrChunk::__iterator :
    public bidirectional_iterator<const U1Byte, int>
 {
@@ -40,41 +43,65 @@ class StrChunk::__iterator :
    friend class shared;
 
  public:
+   //! Creates an iterator that's always at the end()
    __iterator();
+   //! Creates an interator pointat the beginning of a StrChunk.
    __iterator(const StrChunkPtr &chnk);
+   //! Creates an iterator using the shared data already generated.
    __iterator(shared *sh);
+   //! Copies one iterator to another.  Manages reference count on shared area.
    __iterator(const __iterator &other);
+   //! Destroys an iterator, possibly destroying shared data too if refcount is only 1
    ~__iterator();
 
+   //! Am I an iterator over this chunk?
+   bool isFor(const StrChunkPtr &chnk) const;
+
+   //! Am I equal to other?  Do I iterator over the same StrChunk and am I at
+   //! the same spot?
    bool isEqual(const __iterator &other) const;
+   //! Am I less than other?
    bool isLessThan(const __iterator &other) const;
 
+   //! How many characters are there between me and another iterator?
    difference_type distance(const __iterator &other) const;
 
+   //! Make me into a copy of another iterator.
    const __iterator &operator =(const __iterator &other);
 
+   //! Using this operator will almost certainly result in a compiler error.
    inline pointer operator->() const;
+   //! What character am I looking at?
    inline reference operator *() const;
 
+   //! Move forward one.  Prefix operator, so it's more efficient.
    inline const __iterator &operator ++();
+   //! Move forward one.  Postfix operator, so it's less efficient.
    inline const __iterator operator ++(int);
+   //! Move to one past the last character.
    void moveToEnd();
+   //! Move backward one.  Prefix operator, so it's more efficient.
    inline const __iterator &operator --();
+   //! Move backward one.  Postfix operator, so it's less efficient.
    inline const __iterator operator --(int);
+   //! Move to the first character (which may be one past the last character
+   //! if the StrChunk is empty.
    void moveToBegin();
 
  protected:
+   //! Set the secret storage compartment in a StrChunk to val.
    inline static void setStorage(StrChunk &chnk, void *val);
+   //! Get what's in the secret storage compartment inside a StrChunk.
    inline static void *getStorage(StrChunk &chnk);
 
  private:
    class ExtVisitor;
+   shared *shared_;
    unsigned int abspos_;
    unsigned int extpos_;
    unsigned int extlast_;  // Index of last element (not length) of extbase_.
    unsigned int curext_;
    const unsigned char *extbase_;
-   shared *shared_;
 
    inline void move_forward();
    void move_forward_complex();

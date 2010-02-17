@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2001 by Eric M. Hopper <hopper@omnifarious.mn.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -18,15 +18,10 @@
 
 /* $Header$ */
 
-// See ./ChangeLog for changes.
+// For a log, see ChangeLog
 
 #ifdef __GNUG__
-#  pragma implementation "StrChunk.h"
+#  pragma implementation "LocalCopy.h"
 #endif
 
-#include "StrMod/StrChunk.h"
-#include "StrMod/LinearExtent.h"
-#include "StrMod/StrChunkPtr.h"
-
-//! A unique identifier for this class.
-const STR_ClassIdent StrChunk::identifier(6UL);
+#include "StrMod/LocalCopy.h"

@@ -32,10 +32,9 @@
 
 #include <StrMod/CharChopper.h>
 #include <StrMod/StrChunk.h>
+#include <StrMod/ChunkIterator.h>
 #include <StrMod/StrChunkPtrT.h>
 #include <StrMod/GroupChunk.h>
-#include <StrMod/GroupVector.h>
-#include <StrMod/GV_Iterator.h>
 #include <StrMod/StrSubChunk.h>
 #include <StrMod/PreAllocBuffer.h>
 #include <StrMod/DynamicBuffer.h>
@@ -114,10 +113,9 @@ void CharChopper::processIncoming()
       bool foundchar = false;
 
       {
-	 GV_Size gvsize = incoming_->NumSubGroups();
-	 GroupVector gvec(gvsize);
-	 incoming_->SimpleFillGroupVec(gvec);
-	 for (GroupVector::iterator i = gvec.begin(); !foundchar && i; ++i)
+         StrChunk::const_iterator end = incoming_->end();
+	 for (StrChunk::const_iterator i = incoming_->begin();
+              !foundchar && i != end; ++i)
 	 {
 	    if (count < 16)
 	    {

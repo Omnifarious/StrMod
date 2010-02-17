@@ -31,9 +31,17 @@ static char _EH_StreamModule_CC_rcsID[] = "$Id$";
 #include "StrMod/StreamModule.h"
 #include "StrMod/StrChunkPtr.h"
 
+//! A unique identifier for this class.
 const STR_ClassIdent StreamModule::identifier(1UL);
+//! A unique identifier for this class.
 const STR_ClassIdent StreamModule::Plug::identifier(2UL);
 
+/*!
+ * \param other A reference to the plug to plug into.  <strong>(A pointer to
+ * it is stored)</strong>.
+ *
+ * A pointer to \a other will be stored by the plug until it's unplugged or
+ * destroyed.  \a other is a reference because it's not allowed to be \c NULL.  */
 bool StreamModule::Plug::plugInto(Plug &other)
 {
    // Make sure neither plug is already plugged in.
@@ -71,6 +79,28 @@ bool StreamModule::Plug::plugInto(Plug &other)
    }
 }
 
+/** \name Push and pulll loops
+ * The loops that get everything done.
+ *
+ * Because of these loops, and the infrastructure that exists in the base
+ * StreamModule and StreamModule::Plug class that calls them, you should never
+ * have to call \c i_Read() or \c i_Write().
+ *
+ * These member functions are part of that infrastructure.  They handle
+ * setting the \p iswriting_ and \p isreading_ flags properly.  They also loop
+ * until no more data can be moved in the direction they're moving it because
+ * one Plug became unwriteable, or one plug became unreadable.
+ *
+ * In short, don't bypass them unless you really know what you're doing.
+ */
+//@{
+/*!
+ * This keeps the isreading and iswriting flags set until the loop exits.
+ *
+ * This loop can exit for a number of reasons, including disconnection, one
+ * side 'drying up' and having nothing to read, or one side 'filling up'
+ * and not being able to be written to.
+ */
 void StreamModule::Plug::pushLoop()
 {
    assert(isReadable() && (flags_.isreading_ == false));
@@ -105,6 +135,13 @@ void StreamModule::Plug::pushLoop()
    }
 }
 
+/*!
+ * This keeps the isreading and iswriting flags set until the loop exits.
+ *
+ * This loop can exit for a number of reasons, including disconnection, one
+ * side 'drying up' and having nothing to read, or one side 'filling up' and
+ * not being able to be written to.
+ */
 void StreamModule::Plug::pullLoop()
 {
    assert(isWriteable() && (flags_.iswriting_ == false));
@@ -138,3 +175,4 @@ void StreamModule::Plug::pullLoop()
       other->setIsReading(false);
    }
 }
+//@}

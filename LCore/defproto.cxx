@@ -21,4 +21,10 @@
  /* UNIX:@@:defs/Protocol.cc:@@: */
 /* MSDOS:@@:DEFS/DEFPROTO.CPP:@@: */
 
+/**
+ * Globally unique identifier for this class.
+ *
+ * Every class that might need to be identified should have a public static
+ * const identifier object in it.
+ */
 const LCore_ClassIdent Protocol::identifier(7UL);

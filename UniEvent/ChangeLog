@@ -1,3 +1,8 @@
+2000-12-01  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/EventPtrT.h: Made some changes because Doxygen has
+	difficulties with typedefs.
+
 2000-01-27  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UniEvent/Dispatcher.h:

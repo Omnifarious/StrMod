@@ -74,13 +74,6 @@ class SocketModuleChunk : public StrChunk {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    virtual unsigned int Length() const                 { return(0); }
-   virtual unsigned int NumSubGroups() const           { return(0); }
-   inline virtual unsigned int NumSubGroups(const LinearExtent &extent) const;
-   inline virtual void FillGroupVec(GroupVector &vec,
-				    unsigned int &start_index);
-   inline virtual void FillGroupVec(const LinearExtent &extent,
-				    GroupVector &vec,
-				    unsigned int &start_index);
 
    SocketModule *GetModule() const                     { return(module); }
    void ReleaseModule()                                { module = 0; }
@@ -89,10 +82,8 @@ class SocketModuleChunk : public StrChunk {
    SocketModule *module;
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-   inline virtual void i_DropUnused(const LinearExtent &usedextent,
-				    KeepDir keepdir);
 
-   //: Accept a ChunkVisitor, and maybe lead it through your children.
+   //! Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation)             { }
 };
@@ -220,25 +211,6 @@ inline SocketModuleChunk::~SocketModuleChunk()
 inline int SocketModuleChunk::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
-}
-
-inline unsigned int
-SocketModuleChunk::NumSubGroups(const LinearExtent &) const
-{
-   return(0);
-}
-
-inline void SocketModuleChunk::FillGroupVec(GroupVector &, unsigned int &)
-{
-}
-
-inline void SocketModuleChunk::FillGroupVec(const LinearExtent &,
-					    GroupVector &, unsigned int &)
-{
-}
-
-inline void SocketModuleChunk::i_DropUnused(const LinearExtent &, KeepDir)
-{
 }
 
 // ---------------------SockListenModule inline functions----------------------

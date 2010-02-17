@@ -21,7 +21,7 @@
 // For a list of changes, see ../ChangeLog
 
 #include "TelnetToAscii.h"
-#include <StrMod/TelnetParser.h>
+#include <StrMod/TelnetChunker.h>
 #include <StrMod/SimpleTelnetClient.h>
 #include <StrMod/SimpleMulti.h>
 #include <StrMod/PassThrough.h>
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
    SimpleMultiplexer splitlocal(disp);
    SimpleMultiplexer splitremote(disp);
    SimpleMultiplexer combineout(disp);
-   ProcessorModule parser(*(new PassThrough), *(new TelnetParser));
+   ProcessorModule parser(*(new PassThrough), *(new TelnetChunker));
    SocketModule sock(echoaddr, pm);
 
    sin.setSendChunkOnEOF(true);
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 
    while (!sout.hasError())
    {
-      disp.DispatchEvents(1);
+      disp.dispatchEvents(1);
 //        cerr << "Tick!\n";
    }
 

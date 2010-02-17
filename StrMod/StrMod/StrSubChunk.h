@@ -47,19 +47,9 @@ class StrSubChunk : public StrChunk {
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
    inline virtual unsigned int Length() const;
-   inline virtual unsigned int NumSubGroups() const;
-   inline virtual unsigned int NumSubGroups(const LinearExtent &extent) const;
-   inline virtual void FillGroupVec(GroupVector &vec,
-				    unsigned int &start_index);
-   inline virtual void FillGroupVec(const LinearExtent &extent,
-				    GroupVector &vec,
-				    unsigned int &start_index);
 
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
-
-   inline virtual void i_DropUnused(const LinearExtent &usedextent,
-				    KeepDir keepdir);
 
    //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
@@ -80,35 +70,6 @@ inline int StrSubChunk::AreYouA(const ClassIdent &cid) const
 inline unsigned int StrSubChunk::Length() const
 {
    return(subext_.Length());
-}
-
-inline unsigned int StrSubChunk::NumSubGroups() const
-{
-   return(subchunk_->NumSubGroups(subext_));
-}
-
-inline unsigned int StrSubChunk::NumSubGroups(const LinearExtent &extent) const
-{
-   return(subchunk_->NumSubGroups(subext_.SubExtent(extent)));
-}
-
-inline void StrSubChunk::i_DropUnused(const LinearExtent &usedextent,
-				      KeepDir keepdir)
-{
-   subchunk_->DropUnused(subext_.SubExtent(usedextent), keepdir);
-}
-
-inline void StrSubChunk::FillGroupVec(GroupVector &vec,
-				      unsigned int &start_index)
-{
-   subchunk_->FillGroupVec(subext_, vec, start_index);
-}
-
-inline void StrSubChunk::FillGroupVec(const LinearExtent &extent,
-				      GroupVector &vec,
-				      unsigned int &start_index)
-{
-   subchunk_->FillGroupVec(subext_.SubExtent(extent), vec, start_index);
 }
 
 #endif

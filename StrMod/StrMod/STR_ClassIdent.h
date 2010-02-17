@@ -47,18 +47,44 @@
 
 #define _STR_STR_ClassIdent_H_
 
+/** \class STR_ClassIdent STR_ClassIdent.h StrMod/STR_ClassIdent.h
+ * The class identifier class that sets the library number section of the
+ * class number to be correct for the classes in the StrMod library.
+ */
 class STR_ClassIdent : public EH_ClassIdent {
- protected:
-   inline virtual const ClassIdent *i_GetIdent() const;
-
  public:
+   //! The unique class identifier for this class.
    static const STR_ClassIdent identifier;
 
+   /** Construct a class identifier.
+    * This class the base class constructor with the appropriate library
+    * number.
+    */
+   inline STR_ClassIdent(U4Byte cnum);
+
+   /**
+    * Asks if a class is of a particular type, or publicly derived from that
+    * type.
+    *
+    * Overriden in every derived class (with a static identifier member) to
+    * compare against the identifier, then call the AreYouA methods of all the
+    * superclasses.
+    *
+    * @param cid Usually <class>::identifier for the class you want to ask if
+    * the object is an instance of.
+    */
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
 //     inline bool operator ==(const ClassIdent &b) const;
 
-   inline STR_ClassIdent(U4Byte cnum);
+ protected:
+   /**
+    * Returns the class identifier for the class the object actually is.
+    *
+    * Should <strong>always</strong> be overridden in any class that has a
+    * static identifier member.
+    */
+   inline virtual const ClassIdent *i_GetIdent() const;
 };
 
 //---------------------------inline functions--------------------------------

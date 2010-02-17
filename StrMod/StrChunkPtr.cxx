@@ -35,4 +35,5 @@
 
 #include <StrMod/StrChunkPtr.h>
 
+//! A unique identifier for this class.
 const STR_ClassIdent StrChunkPtr::identifier(19UL);

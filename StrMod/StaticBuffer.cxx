@@ -18,15 +18,12 @@
 
 /* $Header$ */
 
-// See ./ChangeLog for changes.
+// For a log, see ChangeLog
 
 #ifdef __GNUG__
-#  pragma implementation "StrChunk.h"
+#  pragma implementation "StaticBuffer.h"
 #endif
 
-#include "StrMod/StrChunk.h"
-#include "StrMod/LinearExtent.h"
-#include "StrMod/StrChunkPtr.h"
+#include "StrMod/StaticBuffer.h"
 
-//! A unique identifier for this class.
-const STR_ClassIdent StrChunk::identifier(6UL);
+const STR_ClassIdent StaticBuffer::identifier(46UL);

@@ -31,7 +31,7 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
 /*
    0UL	STR_ClassIdent
    1UL	StreamModule
-   2UL	StrPlug
+   2UL	StreamModule::Plug
    3UL	EchoModule
    4UL	EchoModule::EPlug
    6UL	StrChunk
@@ -44,8 +44,8 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   13UL	SockListenModule
   14UL	SockListenModule::SLPlug
   15UL	SocketModuleChunk
-  16UL	GroupVector
-  17UL	GroupVector::Iterator
+  16UL	====was GroupVector
+  17UL	====was GroupVector::Iterator
   18UL	StrSubChunk
   19UL  StrChunkPtr
   20UL  GroupChunk
@@ -74,7 +74,10 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   43UL	SimpleTelnetClient
   44UL	SimpleTelnetClient::UPlug
   45UL	SimpleTelnetClient::SPlug
-  46UL
+  46UL	StaticBuffer
   47UL	UseTrackingVisitor
   48UL	GraphVizVisitor
+  49UL	TelnetChunkBuilder
+  50UL	TelnetParser
+  51UL	ApplyVisitor_Base
 */

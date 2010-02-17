@@ -36,85 +36,84 @@
 
 #define _STR_BufferChunk_H_
 
-//: This is an abstract base class for StrChunks that are really just bags of
-//: bytes.
+/** \class BufferChunk BufferChunk.h StrMod/BufferChunk.h
+ * This is an abstract base class for StrChunks that are really just bags of
+ * bytes.
+ */
 class BufferChunk : public StrChunk, virtual public Debugable {
  public:
    class Factory;
    static const STR_ClassIdent identifier;
 
-   //: Initialize the variables maintained by the derived classes as a
-   //: convenience.
+   /** As a convenience, initialize the protected variables maintained by the
+    * derived classes.
+    */
    BufferChunk() : buf_(0), buflen_(0)                  { }
-   //: Doesn't delete any storage whatsoever.
-   // <p>Since this is an abstract class that doesn't ever actually allocate
-   // any storage, it's left to the derived classes to do the actual
-   // deletion.</p>
+   /** Doesn't delete any storage whatsoever.
+    *
+    * Since this is an abstract class that doesn't ever actually allocate
+    * any storage, it's left to the derived classes to do the actual
+    * deletion.
+    */
    virtual ~BufferChunk()                               { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   //: See class Debugable.
    inline virtual bool invariant() const;
 
-   //: See class Debugable.
    virtual void printState(ostream &os) const;
 
-   //: See the base class StrChunk.
    virtual unsigned int Length() const                  { return(buflen_); }
-   //: See the base class StrChunk.  Returns 1 if Length() is > 0.
-   inline virtual unsigned int NumSubGroups() const;
-   //: See the base class StrChunk.  Returns 1 or 0, if extent contains more
-   //: than 0 bytes.
-   inline virtual unsigned int NumSubGroups(const LinearExtent &extent) const;
-   //: See the base class StrChunk.
-   virtual void FillGroupVec(GroupVector &vec, unsigned int &start_index);
-   //: See the base class StrChunk.
-   virtual void FillGroupVec(const LinearExtent &extent,
-			     GroupVector &vec, unsigned int &start_index);
 
-   //: Returns a reference to the byte at index bnum.
-   // If bnum is out of range, the behavior is undefined.
+   /** Returns a reference to the byte at index bnum.
+    *
+    * If bnum is out of range, the behavior is undefined.
+    */
    inline U1Byte &operator [](unsigned int bnum);
-   //: Gets a void pointer to at least Length() bytes of data.
-   // <p>This guarantees that you can read or write to any byte in the valid
-   // range using this pointer as long as you make no calls to Resize or
-   // i_DropUNused in between accesses.</p>
+   /** Gets a void pointer to at least Length() bytes of data.
+    *
+    * This guarantees that you can read or write to any byte in the valid
+    * range using this pointer as long as you make no calls to resize() in
+    * between accesses.
+    */
    inline void *getVoidP();
-   //: Gets a <code>U1Byte</code> pointer to at least <code>Length()</code>
-   //: bytes of data.
-   // <p>This guarantees that you can read or write to any byte in the valid
-   // range using this pointer as long as you make no calls to Resize or
-   // i_DropUNused in between accesses.</p>
+   /** Gets a <code>U1Byte</code> pointer to at least <code>Length()</code>
+    * bytes of data.
+    *
+    * This guarantees that you can read or write to any byte in the valid
+    * range using this pointer as long as you make no calls to resize() in
+    * between accesses.
+    */
    inline U1Byte *getCharP();
 
-   //: Change the size of the chunk to newsize.
-   // Throws bad_alloc if the allocation fails, just like operator new.
+   /** Change the size of the chunk to newsize.
+    *
+    * Throws bad_alloc if the allocation fails, just like operator new.
+    */
    virtual void resize(unsigned int newsize) throw(bad_alloc) = 0;
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
 
-   //: See the base class StrChunk.
-   virtual void i_DropUnused(const LinearExtent &usedextent,
-			     KeepDir keepdir) = 0;
-
-   //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
 
  protected:
-   //: <code>buf_</code> is expected to be maintained by the derived class.
-   // <p>This exist so that the above inline functions are truly inline.  It's
-   // only allowed to change in the constructor, or in respone to the Resize,
-   // or i_DropUnused methods being called.</p>
-   // <p><code>buf_</code> is required to be non-null when
-   // <code>buflen_</code> is greater than 0.</p>
+   /** <code>buf_</code> is expected to be maintained by the derived class.
+    *
+    * This exists so that the above inline functions are truly inline.  It's
+    * only allowed to change in the constructor, or in respone to the resize()
+    * method being called.
+    *
+    * <code>buf_</code> is required to be non-null when <code>buflen_</code>
+    * is greater than 0.  */
    void *buf_;
-   //: <code>buflen_</code> is expected to be maintained by the derived class.
-   // <p>This exist so that the above inline functions are truly inline.  It's
-   // only allowed to change in the constructor, or in respone to the Resize,
-   // or i_DropUnused methods being called.</p>
+   /** <code>buflen_</code> is expected to be maintained by the derived class.
+    *
+    * This exist so that the above inline functions are truly inline.  It's
+    * only allowed to change in the constructor, or in respone to the resize()
+    * method being called.
+    */
    unsigned int buflen_;
 
  private:
@@ -135,16 +134,6 @@ inline int BufferChunk::AreYouA(const ClassIdent &cid) const
 inline bool BufferChunk::invariant() const
 {
    return((buflen_ == 0) || (buf_ != 0));
-}
-
-inline unsigned int BufferChunk::NumSubGroups() const
-{
-   return((buflen_ > 0) ? 1 : 0);
-}
-
-inline unsigned int BufferChunk::NumSubGroups(const LinearExtent &extent) const
-{
-   return(((extent.Length() > 0) && (extent.Offset() < buflen_)) ? 1 : 0);
 }
 
 inline U1Byte &BufferChunk::operator [](unsigned int bnum)

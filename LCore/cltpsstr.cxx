@@ -16,7 +16,7 @@
  *     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <iostream.h>
+#include <iostream>
 #include "LCore/ClassTypes.h"
 
  /* UNIX:@@:ClassTypesSTR.cc:@@: */

@@ -62,7 +62,7 @@ class RefCountPtrT : public RefCountPtr {
    inline const RefCountPtrT<T> &operator =(T *b);
 
  protected:
-   inline virtual RC *i_CheckType(RC *p) const;
+   inline virtual ReferenceCounting *i_CheckType(ReferenceCounting *p) const;
 };
 
 //-----------------------------inline functions--------------------------------

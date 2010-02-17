@@ -47,19 +47,64 @@
 
 #define _LCORE_Protocol_H_
 
+/**
+ * \class Protocol Protocol.h LCore/Protocol.h
+ * A base class for my own type identification system.
+ *
+ * This type identification system uses IDs that are assigned to a class by a
+ * programmer so they remain constant.  This means you can use the IDs for
+ * type identification of data in persistent storage.
+ */
 class Protocol {
  public:
    static const LCore_ClassIdent identifier;
 
+   /**
+    * Gets the identifier for the class the object actually is.
+    *
+    * This is an interface mistake I'll have to live with until I get the
+    * gumption to make the pervasive changes to correct it.
+    *
+    * Originally the plan was to have this return different types (derived
+    * from ClassIdent) in different classes.  After I tried it a couple of
+    * times, I realized what a bad idea that was, and am now left with this
+    * interface.
+    *
+    * In order to achieve the original goal, a function that was virtual was
+    * needed to return that actual identifier, and a non-virtual function was
+    * needed to do the possible cast.  I decided to have just one interface
+    * for getting the ClassIdent, so I made the virtual function protected.
+    * That's why this looks like it does.
+    */
    const ClassIdent &GetIdent() const               { return(*i_GetIdent()); }
+   /**
+    * Asks if a class is of a particular type, or publicly derived from that
+    * type.
+    *
+    * Overriden in every derived class (with a static identifier member) to
+    * compare against the identifier, then call the AreYouA methods of all the
+    * superclasses.
+    *
+    * @param cid Usually <class>::identifier for the class you want to ask if
+    * the object is an instance of.
+    */
    virtual int AreYouA(const ClassIdent &cid) const {
       return(identifier == cid);
    }
 
+   //! Do nothing constructor for interface class with no member variables.
    Protocol()                                       {}
+   //! Do nothing (virtual) destructor for interface class with no member
+   //! variables.
    virtual ~Protocol()                              {}
 
  protected:
+   /**
+    * Returns the class identifier for the class the object actually is.
+    *
+    * Should <strong>always</strong> be overridden in any class that has a
+    * static identifier member.
+    */
    inline virtual const ClassIdent *i_GetIdent() const;
 };
 
