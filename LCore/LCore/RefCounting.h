@@ -77,7 +77,7 @@ class ReferenceCounting : virtual public Protocol {
    inline void DelReferences(U4Byte num);
 
  private:
-   U4Byte refcounter;
+   mutable U4Byte refcounter;
 };
 
 inline const ClassIdent *ReferenceCounting::i_GetIdent() const

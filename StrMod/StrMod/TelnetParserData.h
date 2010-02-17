@@ -61,6 +61,10 @@ class TelnetParser::TelnetData : public StrChunk {
    //: No child will need to implement this.
    virtual void i_DropUnused(const LinearExtent &usedextent,
 			     KeepDir keepdir)           { }
+
+   //! Accept a ChunkVisitor, and maybe lead it through your children.
+   virtual void acceptVisitor(ChunkVisitor &visitor)
+      throw(ChunkVisitor::halt_visitation) = 0;
 };
 
 //---
@@ -92,6 +96,10 @@ class TelnetParser::SingleChar : public TelnetParser::TelnetData {
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+
+   //! Accept a ChunkVisitor, and maybe lead it through your children.
+   virtual void acceptVisitor(ChunkVisitor &visitor)
+      throw(ChunkVisitor::halt_visitation);
 
  private:
    const Specials opt_;
@@ -127,6 +135,10 @@ class TelnetParser::Suboption : public TelnetParser::TelnetData {
 
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+
+   //! Accept a ChunkVisitor, and maybe lead it through your children.
+   virtual void acceptVisitor(ChunkVisitor &visitor)
+      throw(ChunkVisitor::halt_visitation);
 
  private:
    static const U1Byte optend_[2];  // Always <IAC> <SE>  (255 240)
@@ -164,6 +176,10 @@ class TelnetParser::OptionNegotiation : public TelnetParser::TelnetData {
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+
+   //! Accept a ChunkVisitor, and maybe lead it through your children.
+   virtual void acceptVisitor(ChunkVisitor &visitor)
+      throw(ChunkVisitor::halt_visitation);
 
  private:
    Requests request_;

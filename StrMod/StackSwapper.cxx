@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2000 by Eric M. Hopper <hopper@omnifarious.mn.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -18,24 +18,10 @@
 
 /* $Header$ */
 
-// See ./ChangeLog for changes.
+// For a log, see ChangeLog
 
 #ifdef __GNUG__
-#  pragma implementation "StrChunk.h"
+#  pragma implementation "StackSwapper.h"
 #endif
 
-#include "StrMod/StrChunk.h"
-#include "StrMod/LinearExtent.h"
-#include "StrMod/StrChunkPtr.h"
-
-const STR_ClassIdent StrChunk::identifier(6UL);
-
-unsigned int StrChunk::NumSubGroups() const
-{
-   return(NumSubGroups(LinearExtent::full_extent));
-}
-
-void StrChunk::FillGroupVec(GroupVector &vec, unsigned int &start_index)
-{
-   FillGroupVec(LinearExtent::full_extent, vec, start_index);
-}
+#include "StrMod/StackSwapper.h"

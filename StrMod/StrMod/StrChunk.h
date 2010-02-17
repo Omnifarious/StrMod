@@ -27,6 +27,7 @@
 // See ../ChangeLog for log.
 
 #include <cassert>
+#include <cstddef>
 
 #ifndef _STR_STR_ClassIdent_H_
 #  ifndef OS2
@@ -38,6 +39,7 @@
 
 #include <LCore/Object.h>
 #include <LCore/RefCounting.h>
+#include <StrMod/ChunkVisitor.h>
 
 #define _STR_StrChunk_H_
 
@@ -50,6 +52,7 @@ class GroupVector;
 // Use the StrChunkPtr class if you want the reference count to be maintained
 // automatically.
 class StrChunk : public Object, public ReferenceCounting {
+   friend class ChunkVisitor;
  public:
    //: Describes how 0 length chunks should be handled when chunks are dropped.
    // <dl><dt>KeepLeft</dt> <dd>Drop all trailing 0 length chunks and keep all
@@ -59,10 +62,13 @@ class StrChunk : public Object, public ReferenceCounting {
    // <dt>KeepNone</dt> <dd>Drop both leading and trailing 0 length
    // chunks.</dd></dl>
    enum KeepDir { KeepLeft, KeepRight, KeepNone };
+   class __iterator;
+   friend class __iterator;
+   typedef __iterator const_iterator;
    static const STR_ClassIdent identifier;
 
-   StrChunk() : ReferenceCounting(0)         { }
-   virtual ~StrChunk()                       { }
+   StrChunk() : ReferenceCounting(0), iter_storage(0)  { }
+   virtual ~StrChunk()                                 { }
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
@@ -87,14 +93,18 @@ class StrChunk : public Object, public ReferenceCounting {
 			     GroupVector &vec, unsigned int &start_index) = 0;
    //: Drop any unused sub chunks from this StrChunk.  <strong>Largely
    //: unimplemented and unsafe to use.  Interface may change.</strong>
-   // This is a dummy function that checks the reference count first, then
+   // <p>This is a dummy function that checks the reference count first, then
    // calls i_DropUnused.  If this chunk is referenced from more than one
-   // place a determination of which chunks are unused is impossible.
+   // place a determination of which chunks are unused is impossible.</p>
    inline void DropUnused(const LinearExtent &usedextent,
 			  KeepDir keepdir = KeepLeft);
 
+   //! Get an STL style const bidirectional iterator.
+   __iterator begin();
+   __iterator end();
+
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
    //: The actual DropUnused function that needs to be overloaded in derived
    //: classes.
@@ -103,6 +113,24 @@ class StrChunk : public Object, public ReferenceCounting {
    // documentation for KeepDir for more information.
    virtual void i_DropUnused(const LinearExtent &usedextent,
 			     KeepDir keepdir) = 0;
+
+   //: Accept a ChunkVisitor, and maybe lead it through your children.
+   virtual void acceptVisitor(ChunkVisitor &visitor)
+      throw(ChunkVisitor::halt_visitation) = 0;
+
+   inline void call_visitStrChunk(ChunkVisitor &visitor,
+                                  const StrChunkPtr &chunk)
+      throw(ChunkVisitor::halt_visitation);
+   inline void call_visitStrChunk(ChunkVisitor &visitor,
+                                  const StrChunkPtr &chunk,
+                                  const LinearExtent &used)
+      throw(ChunkVisitor::halt_visitation);
+   inline void call_visitDataBlock(ChunkVisitor &visitor,
+                                   void *start, size_t len)
+      throw(ChunkVisitor::halt_visitation);
+
+ private:
+   void *iter_storage;
 };
 
 //------------------------inline functions for StrChunk------------------------
@@ -125,6 +153,28 @@ inline void StrChunk::DropUnused(const LinearExtent &usedextent,
    if (NumReferences() <= 1) {
       i_DropUnused(usedextent, keepdir);
    }
+}
+
+inline void StrChunk::call_visitStrChunk(ChunkVisitor &visitor,
+                                         const StrChunkPtr &chunk)
+   throw(ChunkVisitor::halt_visitation)
+{
+   visitor.visitStrChunk(chunk);
+}
+
+inline void StrChunk::call_visitStrChunk(ChunkVisitor &visitor,
+                                         const StrChunkPtr &chunk,
+                                         const LinearExtent &used)
+   throw(ChunkVisitor::halt_visitation)
+{
+   visitor.visitStrChunk(chunk, used);
+}
+
+inline void StrChunk::call_visitDataBlock(ChunkVisitor &visitor,
+                                          void *start, size_t len)
+   throw(ChunkVisitor::halt_visitation)
+{
+   visitor.visitDataBlock(start, len);
 }
 
 #endif

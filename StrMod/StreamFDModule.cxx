@@ -60,7 +60,7 @@ class StreamFDModule::FDPollEv : public UNIXpollManager::PollEvent {
    inline FDPollEv(StreamFDModule &parent);
    virtual ~FDPollEv()                                 { }
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0) = 0;
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) = 0;
 
    inline void parentGone()                            { hasparent_ = false; }
 
@@ -118,7 +118,7 @@ class StreamFDModule::FDPollRdEv : public StreamFDModule::FDPollEv {
    inline FDPollRdEv(StreamFDModule &parent) : FDPollEv(parent)   { }
    virtual ~FDPollRdEv()                                          { }
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0)  { triggerRead(); }
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerRead(); }
 };
 
 //: This is one of the three helper classes for StreamFDModule::FDPollEv
@@ -127,7 +127,7 @@ class StreamFDModule::FDPollWrEv : public StreamFDModule::FDPollEv {
    inline FDPollWrEv(StreamFDModule &parent) : FDPollEv(parent)   { }
    virtual ~FDPollWrEv()                                          { }
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0)  { triggerWrite(); }
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerWrite(); }
 };
 
 //: This is one of the three helper classes for StreamFDModule::FDPollEv
@@ -136,7 +136,7 @@ class StreamFDModule::FDPollErEv : public StreamFDModule::FDPollEv {
    inline FDPollErEv(StreamFDModule &parent) : FDPollEv(parent)   { }
    virtual ~FDPollErEv()                                          { }
 
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0)  { triggerError(); }
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerError(); }
 };
 
 void StreamFDModule::setErrorIn(ErrCategory ecat, int err)

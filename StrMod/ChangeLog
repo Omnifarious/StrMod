@@ -1,3 +1,72 @@
+2000-10-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* : libNet-0.1.5 released.
+
+	* ChunkVisitor.cxx, GraphVizVisitor.cxx, Makefile.in,
+	StackSwapper.cxx, TelnetParser.cxx, UseTrackingVisitor.cxx,
+	StrMod/ChunkIterator.h, StrMod/ChunkVisitor.h,
+	StrMod/GraphVizVisitor.h, StrMod/StackSwapper.h,
+	StrMod/StrChunk.h, StrMod/TelnetParserData.h,
+	StrMod/UseTrackingVisitor.h, tests/testvisitor.cxx: Merged in more
+	code.  Now StrChunk::const_iterator can be used in place of
+	GV_Iterator in almost all situations.  The changes needed to
+	actually remove GroupVector and GV_Iterator will happen on another
+	branch.
+
+2000-09-25  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* BufferChunk.cxx, ChangeLog GroupChunk.cxx Makefile.in,
+	ProcessorModule.cxx STR_ClassIdent.cxx StrChunk.cxx,
+	StrSubChunk.cxx, ChunkVisitor.cxx GraphVizVisitor.cxx
+	StackSwapper.cxx, UseTrackingVisitor.cxx, StrMod/BufferChunk.h,
+	StrMod/EOFStrChunk.h, StrMod/GroupChunk.h, StrMod/LinearExtent.h,
+	StrMod/SockListenModule.h, StrMod/StrChunk.h,
+	StrMod/StrSubChunk.h, StrMod/TelnetParserData.h,
+	StrMod/ChunkIterator.h, StrMod/ChunkVisitor.h,
+	StrMod/GraphVizVisitor.h, StrMod/StackSwapper.h,
+	StrMod/UseTrackingVisitor.h, tests/testvisitor.cxx: Merged in new
+	Visitor code.  Not done yet because the other traversal mechanisms
+	haven't been totally replaced with Visitors.
+
+2000-09-08  Eric Mathew Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/BufferChunk.h, BufferChunk.cxx (acceptVisitor): Added new
+	method to allow BufferChunks to be visited by the ChunkVisitor.
+
+	* StrMod/ChunkVisitor.h: Fixed interface for visitDataBlock
+	because void * + length is enough information.  No LinearExtent is
+	needed.
+
+2000-09-07  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/ChunkVisitor.h: Added the visitZeroLength method so a
+	visitor could choose to include or skip chunks of zero length
+	which are sometimes special stream control chunks.
+
+	* StrMod/StrSubChunk.h (class StrSubChunk): 
+	* StrSubChunk.cxx (acceptVisitor): 
+	* StrMod/GroupChunk.h (class GroupChunk): 
+	* GroupChunk.cxx (acceptVisitor): Added the acceptVisitor method
+	in order to support ChunkVisitors.
+
+2000-09-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Added listing for new ChunkVisitor class.
+
+	* StrMod/ChunkVisitor.h: 
+	* ChunkVisitor.cxx: 
+	* StrMod/StrChunk.h: 
+	* StrChunk.cxx: First crack at adding an interface for visitors to
+	the StrChunk class.
+
+2000-01-27  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamFDModule.h:
+	* SimpleMulti.cxx:
+	* SockListenModule.cxx:
+	* StreamFDModule.cxx: Fixed various member functions to conform to
+	the 'first letter is lowercase' naming conventions.
+
 1999-11-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* Everything: Added copyright notices everywhere!

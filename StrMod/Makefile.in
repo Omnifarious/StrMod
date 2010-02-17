@@ -45,13 +45,16 @@ LIBCXX = EchoModule.cxx  STR_ClassIdent.cxx  StreamModule.cxx  \
          SimpleMulti.cxx  StreamProcessor.cxx  ProcessorModule.cxx \
          CharChopper.cxx  PassThrough.cxx  NewlineChopper.cxx  BufferChunk.cxx \
          PreAllocBuffer.cxx  DynamicBuffer.cxx  BufferChunkFactory.cxx \
-         InfiniteModule.cxx  TelnetParser.cxx  SimpleTelnetClient.cxx
+         InfiniteModule.cxx  TelnetParser.cxx  SimpleTelnetClient.cxx \
+         ChunkVisitor.cxx  UseTrackingVisitor.cxx  GraphVizVisitor.cxx \
+         ChunkIterator.cxx
 
 TESTCCS = tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx  \
           tests/testecho.cxx   tests/testsock.cxx tests/echoserv.cxx  \
           tests/testextent.cxx tests/testGV.cxx  tests/testmulti.cxx \
 	  tests/testserial.cxx tests/TelnetToAscii.cxx tests/ttelnet.cxx \
-          tests/testPreAlloc.cxx tests/testinfinite.cxx  tests/tstelnet.cxx
+          tests/testPreAlloc.cxx tests/testinfinite.cxx  tests/tstelnet.cxx \
+          tests/testvisitor.cxx
 
 .PHONY: directories always
 
@@ -81,6 +84,9 @@ $(LIBSRC): Makefile $(MYINCLUDEDIR)
 	$(PROCLIBSRC) -a $@ $(LIBCXX) Makefile
 
 $(LIBDIR)/libStrMod.a:
+
+tests/testvisitor : tests/testvisitor.o PreAllocBuffer.o
+	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/testvisitor
 
 tests/testserial : tests/testserial.o OutSerializer.o InSerializer.o BufferChunk.o DynamicBuffer.o StrChunkPtr.o GroupVector.o GV_Iterator.o StrChunk.o LinearExtent.o STR_ClassIdent.o
 	$(CXX) $^ $(LDFLAGS) $(LIBS) -o tests/testserial

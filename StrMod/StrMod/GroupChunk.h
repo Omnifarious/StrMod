@@ -66,6 +66,10 @@ class GroupChunk : public StrChunk {
    void AccumulateRange(const LinearExtent &extent,
 			RangeAccumulator &accum) const;
 
+   //: Accept a ChunkVisitor, and maybe lead it through your children.
+   virtual void acceptVisitor(ChunkVisitor &visitor)
+      throw(ChunkVisitor::halt_visitation);
+
  private:
    class RangeAccumulator {
     public:

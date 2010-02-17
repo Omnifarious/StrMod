@@ -91,6 +91,10 @@ class SocketModuleChunk : public StrChunk {
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
    inline virtual void i_DropUnused(const LinearExtent &usedextent,
 				    KeepDir keepdir);
+
+   //: Accept a ChunkVisitor, and maybe lead it through your children.
+   virtual void acceptVisitor(ChunkVisitor &visitor)
+      throw(ChunkVisitor::halt_visitation)             { }
 };
 
 typedef StrChunkPtrT<SocketModuleChunk> SocketModuleChunkPtr;

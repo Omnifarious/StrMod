@@ -56,6 +56,12 @@ void BufferChunk::FillGroupVec(const LinearExtent &extent,
    }
 }
 
+void BufferChunk::acceptVisitor(ChunkVisitor &visitor)
+   throw(ChunkVisitor::halt_visitation)
+{
+   call_visitDataBlock(visitor, getVoidP(), buflen_);
+}
+
 void BufferChunk::printState(ostream &os) const
 {
    os << "BufferChunk(buf_ == " << buf_ << ", buflen_ == " << buflen_ << ")";

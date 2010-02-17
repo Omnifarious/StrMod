@@ -1,3 +1,8 @@
+2000-01-27  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/RefCounting.h: Made the member variable refcounter mutable
+	so even const objects could be reference counted.
+
 1999-11-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* Everything: Added copyright notices everywhere!

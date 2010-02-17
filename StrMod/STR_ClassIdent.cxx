@@ -35,7 +35,7 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
    3UL	EchoModule
    4UL	EchoModule::EPlug
    6UL	StrChunk
-   7UL
+   7UL  ChunkVisitor
    8UL	StreamFDModule
    9UL	StreamFDModule::FPlug
   10UL	StreamSplitterModule
@@ -74,4 +74,7 @@ const STR_ClassIdent STR_ClassIdent::identifier(0UL);
   43UL	SimpleTelnetClient
   44UL	SimpleTelnetClient::UPlug
   45UL	SimpleTelnetClient::SPlug
+  46UL
+  47UL	UseTrackingVisitor
+  48UL	GraphVizVisitor
 */

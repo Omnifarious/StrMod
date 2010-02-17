@@ -37,6 +37,7 @@
 class UNIDispatcher;
 class UNIEventPtr;
 
+//: An event to be queued up in a UNIDispatcher.
 class UNIEvent : virtual public Protocol, public ReferenceCounting {
  public:
    static const UNEVT_ClassIdent identifier;
@@ -49,9 +50,9 @@ class UNIEvent : virtual public Protocol, public ReferenceCounting {
    //: Perform the action associated with the event.
    // If the event was triggered by a dispatcher, the dispatcher that
    // triggered it is expected to be passed in.  Otherwise NULL (aka 0) can be
-   // passed in.  A dispatcher will only call ONE TriggerEvent method at a
+   // passed in.  A dispatcher will only call ONE triggerEvent method at a
    // time.
-   virtual void TriggerEvent(UNIDispatcher *dispatcher = 0) = 0;
+   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) = 0;
 
    //: Alternate form of TriggerEvent
    inline void operator ()(UNIDispatcher *dispatcher);
@@ -75,7 +76,7 @@ inline int UNIEvent::AreYouA(const ClassIdent &cid) const
 
 inline void UNIEvent::operator ()(UNIDispatcher *dispatcher)
 {
-   TriggerEvent(dispatcher);
+   triggerEvent(dispatcher);
 }
 
 #endif

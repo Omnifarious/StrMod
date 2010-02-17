@@ -62,6 +62,9 @@ class LinearExtent {
    inline length_t Length() const;
    inline void Length(length_t new_length);
 
+   inline off_t beginOffset() const;
+   inline off_t endOffset() const;
+
    inline const LinearExtent intersection(const LinearExtent &other) const;
 
    void LengthenLeft(length_t by);
@@ -88,7 +91,7 @@ ostream &operator <<(ostream &os, const LinearExtent &ext);
 
 //-----------------------------inline functions--------------------------------
 
-LinearExtent::LinearExtent() : m_offset(0), m_length(0)
+inline LinearExtent::LinearExtent() : m_offset(0), m_length(0)
 {
 }
 
@@ -121,12 +124,22 @@ inline void LinearExtent::Length(LinearExtent::length_t new_length)
    m_length = new_length;
 }
 
+inline LinearExtent::off_t LinearExtent::beginOffset() const
+{
+    return(Offset());
+}
+
+inline LinearExtent::off_t LinearExtent::endOffset() const
+{
+    return(Offset() + Length());
+}
+
 inline const LinearExtent
 LinearExtent::intersection(const LinearExtent &other) const
 {
    off_t intstart = (Offset() > other.Offset()) ? Offset() : other.Offset();
-   off_t myend = Offset() + Length();
-   off_t otherend = other.Offset() + other.Length();
+   off_t myend = endOffset();
+   off_t otherend = other.endOffset();
    off_t intend = (myend < otherend) ? myend : otherend;
    return(LinearExtent(intstart,
 		       (intend <= intstart) ? 0 : (intend - intstart)));
