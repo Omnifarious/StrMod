@@ -47,6 +47,9 @@
 
 #define _LCORE_Protocol_H_
 
+namespace strmod {
+namespace lcore {
+
 /**
  * \class Protocol Protocol.h LCore/Protocol.h
  * A base class for my own type identification system.
@@ -85,10 +88,10 @@ class Protocol {
     * compare against the identifier, then call the AreYouA methods of all the
     * superclasses.
     *
-    * @param cid Usually <class>::identifier for the class you want to ask if
+    * @param cid Usually &lt;class>::identifier for the class you want to ask if
     * the object is an instance of.
     */
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return(identifier == cid);
    }
 
@@ -112,5 +115,8 @@ inline const ClassIdent *Protocol::i_GetIdent() const
 {
    return(&identifier);
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

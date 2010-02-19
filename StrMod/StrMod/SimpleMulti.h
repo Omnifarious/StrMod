@@ -1,7 +1,7 @@
 #ifndef _STR_SimpleMulti_H_  // -*- mode: c++; c-file-style: "hopper"; -*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -26,12 +26,19 @@
 
 // For log, see ../ChangeLog
 
-#include <StrMod/StreamModule.h>
 #include <list>
+#include <StrMod/StreamModule.h>
 
 #define _STR_SimpleMulti_H_
 
-class UNIDispatcher;
+namespace strmod {
+namespace unievent {
+class Dispatcher;
+};
+};
+
+namespace strmod {
+namespace strmod {
 
 /** \class SimpleMultiplexer SimpleMulti.h StrMod/SimpleMulti.h
  * \brief Use this module of you need one source copied to many
@@ -48,7 +55,8 @@ class UNIDispatcher;
  * plug.  Please don't take advantage of this detail.  In the future, 'multi'
  * side plugs will be actually deleted.
  */
-class SimpleMultiplexer : public StreamModule {
+class SimpleMultiplexer : public StreamModule
+{
  protected:
    class MultiPlug;
    friend class MultiPlug;
@@ -65,20 +73,20 @@ class SimpleMultiplexer : public StreamModule {
 
    /** Construct a SimpleMultiplexer
     *
-    * The UNIDispatcher is needed for making sure data from all MultiSide plugs
-    * is handled fairly.  Whenever the SimpleMultiplexer gets data from a
-    * MultiPlug, it flags that plug as non-writeable and posts an event to a
-    * UNIDispatcher.  When that event is fired, it resets all MultiPlugs to
-    * being writeable again.  The prevens any MultiPlug from monopolizing the
-    * SinglePlug.
+    * The strmod::unievent::Dispatcher is needed for making sure data from all
+    * MultiSide plugs is handled fairly.  Whenever the SimpleMultiplexer gets
+    * data from a MultiPlug, it flags that plug as non-writeable and posts an
+    * event to a strmod::unievent::Dispatcher.  When that event is fired, it
+    * resets all MultiPlugs to being writeable again.  The prevens any MultiPlug
+    * from monopolizing the SinglePlug.
     *
-    * @param disp The UNIDispatcher to post to.
-    */
-   SimpleMultiplexer(UNIDispatcher &disp);
+    * @param disp The strmod::unievent::Dispatcher to post to.  */
+
+   SimpleMultiplexer(unievent::Dispatcher &disp);
    //! Also destroys all Plug's and any unsent data.
    virtual ~SimpleMultiplexer();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool canCreate(int side) const;
    virtual bool ownsPlug(const Plug *plug) const;
@@ -91,7 +99,7 @@ class SimpleMultiplexer : public StreamModule {
     public:
       static const STR_ClassIdent identifier;
 
-      inline virtual int AreYouA(const ClassIdent &cid) const;
+      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       //: Which module owns this plug?
       inline SimpleMultiplexer &getParent() const;
@@ -103,7 +111,9 @@ class SimpleMultiplexer : public StreamModule {
       inline SinglePlug(SimpleMultiplexer &parent);
       inline virtual ~SinglePlug();
 
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       //: See base class.
       virtual const StrChunkPtr i_Read();
@@ -122,7 +132,7 @@ class SimpleMultiplexer : public StreamModule {
       // status' event, update all multi-plugs to be writeable.</p>
       // <p>If other isn't writeable, then update all multi-plugs to be
       // non-writeable.</p>
-      virtual void otherIsWriteable(); 
+      virtual void otherIsWriteable();
    };
 
    /** Called whenever a plug is disconnected.
@@ -197,11 +207,14 @@ class SimpleMultiplexer : public StreamModule {
    void doScan();
 
  private:
-   typedef list<MultiPlug *> MPlugList;
+   typedef std::list<MultiPlug *> MPlugList;
    class mpother_readable_p;
+   friend class mpother_readable_p;
    class mp_notpluggedin_p;
    class mp_written_p;
+   friend class mp_written_p;
    class auto_mpptr;
+   friend class auto_mpptr;
    class ScanEvent;
    friend class ScanEvent;
 
@@ -212,7 +225,7 @@ class SimpleMultiplexer : public StreamModule {
    bool scan_posted_;
    StrChunkPtr mchunk_;
    ScanEvent * const scan_;
-   UNIDispatcher &dispatcher_;
+   unievent::Dispatcher &dispatcher_;
    unsigned int readable_multis_;
    unsigned int readable_multiothers_;
    unsigned int writeable_multiothers_;
@@ -220,7 +233,7 @@ class SimpleMultiplexer : public StreamModule {
 
 //-----------------------------inline functions--------------------------------
 
-inline int SimpleMultiplexer::AreYouA(const ClassIdent &cid) const
+inline int SimpleMultiplexer::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
@@ -248,7 +261,7 @@ inline void SimpleMultiplexer::postScan(MultiPlug &toend)
 
 //--
 
-inline int SimpleMultiplexer::SinglePlug::AreYouA(const ClassIdent &cid) const
+inline int SimpleMultiplexer::SinglePlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }
@@ -266,5 +279,8 @@ inline SimpleMultiplexer &SimpleMultiplexer::SinglePlug::getParent() const
 {
    return(static_cast<SimpleMultiplexer &>(Plug::getParent()));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

@@ -1,4 +1,4 @@
-#ifndef _LCORE_Object_H_
+#ifndef _LCORE_Object_H_  // -*- c++ -*-
 
 /*
  * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
@@ -36,31 +36,37 @@
 #  pragma interface
 #endif
 
+#include <iosfwd>
+
 #define _LCORE_Object_H_
 
+namespace strmod {
+namespace lcore {
+
 class ClassIdent;
-class ostream;
 
 class Object {
-   friend int operator ==(const Object &a, const Object &b);
-   friend ostream &operator <<(ostream &os, const Object &ob);
-   friend ostream &operator <<(ostream &os, Object &ob);
-
- protected:
-   virtual void PrintOn(ostream &os) const;
-   inline virtual void PrintOn(ostream &os);
-   virtual int IsEqual(const Object &b) const       { return(this == &b); }
-   int DoEqual(const Object &b) const;
-   inline virtual const ClassIdent *i_GetIdent() const;
-
  public:
    static const ClassIdent identifier;
+
+   Object()                                       {}
+   virtual ~Object()                              {}
 
    const ClassIdent &GetIdent() const             { return(*i_GetIdent()); }
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   Object()                                       {}
-   virtual ~Object()                              {}
+ protected:
+   virtual void PrintOn(std::ostream &os) const;
+   inline virtual void PrintOn(std::ostream &os);
+   virtual int IsEqual(const Object &b) const       { return(this == &b); }
+   int DoEqual(const Object &b) const;
+   inline virtual const ClassIdent *i_GetIdent() const;
+
+ private:
+   friend int operator ==(const Object &a, const Object &b);
+   friend std::ostream &operator <<(std::ostream &os, const Object &ob);
+   friend std::ostream &operator <<(std::ostream &os, Object &ob);
+
 };
 
 #define AreYouA_Template(parent)      return((identifier == cid) || \
@@ -71,10 +77,14 @@ class Object {
 					  parent::AreYouA(cid));
 
 #ifndef _LCORE_ClassTypes_H_
+}  // end namespace lcore
+}  // end namespace strmod
    #include <LCore/ClassTypes.h>
+namespace strmod {
+namespace lcore {
 #endif
 
-inline void Object::PrintOn(ostream &os)
+inline void Object::PrintOn(std::ostream &os)
 {
    ((const Object *)(this))->PrintOn(os);
 }
@@ -99,16 +109,19 @@ inline int operator !=(const Object &a, const Object &b)
    return (!(a == b));
 }
 
-inline ostream &operator <<(ostream &os, const Object &ob)
+inline std::ostream &operator <<(std::ostream &os, const Object &ob)
 {
    ob.PrintOn(os);
    return(os);
 }
 
-inline ostream &operator <<(ostream &os, Object &ob)
+inline std::ostream &operator <<(std::ostream &os, Object &ob)
 {
    ob.PrintOn(os);
    return(os);
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

@@ -25,16 +25,22 @@
 #endif
 
 #include "UniEvent/UNIXError.h"
-#include <string.h>
+#include <cstring>
+#include <cstddef>
 
-const UNEVT_ClassIdent UNIXError::identifier(10UL);
+//extern "C" char *strerror_r (int __errnum, char *__buf, size_t __buflen);
 
-const string &UNIXError::getErrorString() const
+namespace strmod {
+namespace unievent {
+
+const UNIXError UNIXError::S_noerror("<no error>", 0, LCoreError("<no error>"));
+
+void UNIXError::getErrorString(char *buf, size_t buflen) const throw ()
 {
-   if (!did_strerror_)
-   {
-      errstr_ = strerror(errno_);
-   }
-   return(errstr_);
+   strncpy(buf, strerror(errnum_), buflen - 1);
+//   strerror_r(errnum_, buf, buflen);  // Doesn't work right for now.
+   buf[buflen - 1] = '\0';
 }
 
+};
+};

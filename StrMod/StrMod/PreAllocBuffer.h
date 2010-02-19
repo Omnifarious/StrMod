@@ -1,7 +1,7 @@
 #ifndef _STR_PreAllocBuffer_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -27,50 +27,63 @@
 // For a log, see ../ChangeLog
 
 #include <StrMod/BufferChunk.h>
+#include <iosfwd>
+#include <new>
 
 #define _STR_PreAllocBuffer_H_
 
-//: Just a base class that defines the non-varying functions for the template
-//: class.
-class PreAllocBufferBase : public BufferChunk {
+namespace strmod {
+namespace strmod {
+
+/** \class PreAllocBufferBase PreAllocBuffer.h StrMod/PreAllocBuffer.h
+ * \brief Just a base class that defines the functions for the template class
+ * that don't depend on the template argument.
+ */
+class PreAllocBufferBase : public BufferChunk
+{
  private:
    void a_silly_member_function_to_make_sure_a_vtable_is_generated();
+   typedef lcore::U1Byte U1Byte;
  public:
    static const STR_ClassIdent identifier;
 
    PreAllocBufferBase()                                 { }
    virtual ~PreAllocBufferBase() = 0;
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //: See class Debugable
    virtual bool invariant() const = 0;
 
    //: See class Debugable
-   virtual void printState(ostream &os) const = 0;
+   virtual void printState(std::ostream &os) const = 0;
 
-   virtual void resize(unsigned int newsize) throw(bad_alloc) = 0;
+   virtual void resize(unsigned int newsize) throw(std::bad_alloc) = 0;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    void i_destruct(const U1Byte * const preallocbuf);
    void i_resize(const unsigned int newsize,
 		 const unsigned int prebufsize,
-		 U1Byte * const preallocbuf) throw(bad_alloc);
+		 U1Byte * const preallocbuf) throw(std::bad_alloc);
    bool i_invariant(const unsigned int prebufsize,
 		    const void * const prebuf) const;
-   void i_printState(ostream &os,
+   void i_printState(std::ostream &os,
 		     const unsigned int prebufsize,
 		     const void * const prebuf) const;
 };
 
 //---
 
-//: A template class for buffers that contain a certain fixed amount of
-//: storage that's not dynamically allocated.
+/** \class PreAllocBuffer PreAllocBuffer.h StrMod/PreAllocBuffer.h
+ * \brief A template class for buffers that contain a certain fixed amount of
+ * storage that's not dynamically allocated.
+ */
 template <unsigned int TInitialAlloc>
 class PreAllocBuffer : public PreAllocBufferBase {
+ private:
+   typedef lcore::U1Byte U1Byte;
  public:
    // There isn't any identifier here because there's no good way (in the
    // identifier system) to generate a unique identifier for every template
@@ -80,9 +93,9 @@ class PreAllocBuffer : public PreAllocBufferBase {
 
    inline virtual bool invariant() const;
 
-   inline virtual void printState(ostream &os) const;
+   inline virtual void printState(std::ostream &os) const;
 
-   inline virtual void resize(unsigned int newsize) throw(bad_alloc);
+   inline virtual void resize(unsigned int newsize) throw(std::bad_alloc);
 
  private:
    U1Byte preallocbuf_[TInitialAlloc];
@@ -90,7 +103,7 @@ class PreAllocBuffer : public PreAllocBufferBase {
 
 //-----------------------------inline functions--------------------------------
 
-inline int PreAllocBufferBase::AreYouA(const ClassIdent &cid) const
+inline int PreAllocBufferBase::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || BufferChunk::AreYouA(cid));
 }
@@ -115,16 +128,19 @@ inline bool PreAllocBuffer<TInitialAlloc>::invariant() const
 }
 
 template <unsigned int TInitialAlloc>
-inline void PreAllocBuffer<TInitialAlloc>::printState(ostream &os) const
+inline void PreAllocBuffer<TInitialAlloc>::printState(std::ostream &os) const
 {
    return(i_printState(os, TInitialAlloc, preallocbuf_));
 }
 
 template <unsigned int TInitialAlloc>
 inline void
-PreAllocBuffer<TInitialAlloc>::resize(unsigned int newsize) throw(bad_alloc)
+PreAllocBuffer<TInitialAlloc>::resize(unsigned int newsize) throw(std::bad_alloc)
 {
    i_resize(newsize, TInitialAlloc, preallocbuf_);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

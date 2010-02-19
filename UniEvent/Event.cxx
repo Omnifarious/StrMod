@@ -26,4 +26,10 @@
 
 #include "UniEvent/Event.h"
 
-const UNEVT_ClassIdent UNIEvent::identifier(2UL);
+namespace strmod {
+namespace unievent {
+
+const UNEVT_ClassIdent Event::identifier(2UL);
+
+}; // namespace unievent
+}; // namespace strmod

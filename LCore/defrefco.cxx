@@ -21,4 +21,10 @@
  /* UNIX:@@:defs/RefCounting.cc:@@: */
 /* MSDOS:@@:DEFS/DEFREFCO.CPP:@@: */
 
+namespace strmod {
+namespace lcore {
+
 const LCore_ClassIdent ReferenceCounting::identifier(8UL);
+
+} // namespace lcore
+} // namespace strmod

@@ -1,0 +1,212 @@
+2002-09-10  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* LCore/RefCounting.h, LCore/RefCountPtr.h: Added lots of class
+	documentation.
+
+2002-09-09  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* clsprgid.cxx: Added some namespace documentation for
+	::strmod::lcore, and changed class number comments to new style
+	format.
+
+2002-09-08  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* LCore/RefCountPtr.h: Changes to stop abusing the preprocessor in
+	quite so complicated a manner, but still arranging it so that code
+	with 'assert' in it is never in an inline function.
+
+2002-08-28  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* LCore/simple_bitset.h (operator &): Added some non-member binary
+	operators that should've been there in the first place.
+
+2002-03-13  hopper  <hopper@omnifarious.org>
+
+	* LCore/simple_bitset.h: Include optimizing specializations.
+
+	* LCore/simple_bitset_optim.h, LCore/simple_bitset.h: Removed lots
+	of debugging prints.
+
+	* LCore/enum_set.h: Fixed a stupid error (I put in *this instead
+	of other :-(.  Removed lots of debugging prints.
+
+	* LCore/simple_bitset.h, LCore/simple_bitset.cxx: Numerous good
+	changes to appease AIX's much stricter compiler.  Now much more
+	tight about exactly where names are accessible.
+
+2002-03-12  hopper  <hopper@omnifarious.org>
+
+	* LCore/LCoreError.h, LCore/simple_bitset.h: Fixed many small
+	things the Solaris compiler doesn't like.  Removed ;'s after the
+	closing } of namespaces.  Removed redeclaration of default
+	argument values in a few places.
+
+	* LCore/enum_set.h, LCore/simple_bitset.h: More attempts to ferret
+	out the problem.  GCC bug?
+
+	* LCore/enum_set.h, LCore/simple_bitset.h,
+	LCore/simple_bitset_optim.h, Makefile.in, simple_bitset.cxx: Added
+	in new simple_bitset class so I have cleaner bitset code in order
+	to debug things.
+
+2002-03-08  hopper  <hopper@omnifarious.org>
+
+	* LCore/enum_set.h: More testing, seems something's wrong with
+	STLs bitset.
+
+	* LCore/enum_set.h: Added operator = to try to fix a bug.
+
+2002-03-07  hopper  <hopper@omnifarious.org>
+
+	* LCore/enum_set.h: Fixed a coupld of errors that never showed up
+	because the bitwise operator functions had never been
+	instantiated.
+
+2002-02-10  hopper  <hopper@omnifarious.org>
+
+	* tests/refcnt.cxx, LCore/enum_set.h, LCore/LCoreError.h,
+	objctstr.cxx: More changes to make work better with standard C++.
+	Also, added a bit of documentation to try to make doxygen happy.
+
+2002-02-05  hopper  <hopper@omnifarious.org>
+
+	* /home/hopper/src/cvs/C++/LCore/ChangeLog, /home/hopper/src/cvs/C++/LCore/cltpsstr.cxx, /home/hopper/src/cvs/C++/LCore/lcerror.cxx, /home/hopper/src/cvs/C++/LCore/LCore/ClassTypes.h, /home/hopper/src/cvs/C++/LCore/LCore/Debugable.h, /home/hopper/src/cvs/C++/LCore/LCore/enum_set.h, /home/hopper/src/cvs/C++/LCore/LCore/LCoreError.h, /home/hopper/src/cvs/C++/LCore/LCore/Object.h:
+	Fixed up things to work with new C++ standard library that insists on
+	the std:: namespace.  Removed RCS id string because it isn't
+	consistently included and of dubious value.
+
+2002-02-05  Eric Hopper  <hopper@omnifarious.org>
+
+	* Everything: Fixed up things to work with new C++ standard
+	library that insists on the std:: namespace.  Removed RCS id
+	string because it isn't consistently included and of dubious
+	value.
+
+2001-07-05  Eric Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/enum_set.h: Added copy contructor and ability to convert
+	to a string of '1's and '0's.
+
+	* LCore/LCoreError.h, lcerror.cxx: Added ability to send to
+	ostream.
+
+2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/LCoreError.h (_LCORE_LCoreError_H_): Documented double
+	inclusion macro to make doxygen stop complaining.
+
+2001-07-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/enum_set.h: Improved const correctness.  Stopped trying to
+	use std::bitset::reference improperly.
+
+2001-06-22  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in (LIBCXX): Added source file for new enum_set class.
+
+	* LCore/enum_set.h, enum_set.cxx, tests/test_enum_set.cxx: Added
+	enum_set to hold a set of enumerated values.
+
+2001-06-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in (LIBCXX): Added source files for new LCoreError
+	class.
+
+	* LCore/LCoreError.h, lcerror.cxx: New class for holding error
+	conditions in exception and other situations.
+
+2001-03-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* libNet-0.2.2 is released.
+
+2000-12-01  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/RefCountPtrT.h, LCore/RefCountPtr.h: Made some changes
+	because Doxygen has difficulties with typedefs.
+
+	* LCore/Debugable.h: Completely worked over the documentation for
+	Doxygen.
+
+	* LCore/Protocol.h, defproto.cxx: Added Doxygen documentation.
+
+	* cltpsstr.cxx: Changed include of iostream to new standard C++
+	library style.
+
+2000-01-27  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/RefCounting.h: Made the member variable refcounter mutable
+	so even const objects could be reference counted.
+
+1999-11-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Everything: Added copyright notices everywhere!
+
+1999-10-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/SPSClTypes.h:
+	* LCore/RefCountPtrT.h:
+	* LCore/RefCountPtr.h:
+	* LCore/HopClTypes.h:
+	* rfcntptr.cxx: Removed all references to <bool.h> and changed all
+	references to bool_val and bool_cst to bool.
+
+	* GNUmakefile.in: Removed because now there's Makefile.in
+
+	* Makefile.in: Added the wondrous, splendiferous new makefile that
+	reports a list of dependencies to the root level makefile so one,
+	big make can be done at the top level.
+
+1999-10-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in: Fixed to include stuff the GNUmakefile now
+	includes.
+
+	* LCore/RefCountPtr.h: Changed so that a preprocessor flag that
+	should disappear after the file is done does disappear.
+
+	* LCore/Protocol.h: Moved the protected section to where it should
+	be if it follows coding giudelines.  Added a reference to this
+	file.
+
+	* clsprgid.cxx: Added a new class, Debugable.
+
+	* LCore/Debugable.h:
+	* debugabl.cxx: Added a new 'Debugable' interface for checking
+	class invariants and printing state.
+
+1999-07-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/HopClTypes.h: 
+	* LCore/SPSClTypes.h: Removed a whole bunch of operator == that
+	were there only to appease buggy compilers.
+
+	* LCore/GenTypes.h: Changed include of sys/byteorder.h to
+	netinet/in.h since that more reliably exists and defines the
+	hton/ntoh family of macros.
+	Added const in a bunch of spots that I thought made sense.
+
+	* LCore/ClassTypes.h: Fixed so that all operator == are no longer
+	member functions so type conversion can occur on either argument.
+
+1999-01-17  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/RefCountPtr.h: Fixed a problem with NDEBUG being defined
+	when it shouldn't be.
+
+	* LCore/GenTypes.h: Fixed UNIX U4Byte and S4Byte typedefs to use
+	int instead of long if you're compiling on a alpha.  This is in
+	lieu of a more comprehensive 64 bit solution.
+
+1999-01-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* LCore/RefCountPtrT.h: Removed puzzling use of virtual inheritance.
+	Added/changes constructors and assignment operators so the class
+	works better and is more complete.
+
+	* LCore/RefCountPtr.h: Seperated out default constructor because
+	setting the pointer initially to NULL can be optimized.
+
+
+	* LCore/HopClTypes.h: Removed pragmas that only made sense to
+	Borland's compiler.
+

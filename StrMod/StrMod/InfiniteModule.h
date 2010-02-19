@@ -1,7 +1,7 @@
 #ifndef _STR_InfiniteModule_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -31,23 +31,33 @@
 
 #define _STR_InfiniteModule_H_
 
-//: Sends a particular chunk repeatedly forever.  Eats any chunk sent to it.
-// <p>The strongly resembles a /dev/zero where you decide what comes out
-// instead of an infinite string of zeros.</p>
-class InfiniteModule : public StreamModule {
+namespace strmod {
+namespace strmod {
+
+/** \class InfiniteModule InfiniteModule.h StrMod/InfiniteModule.h
+ * \brief Sends a particular chunk repeatedly forever.  Eats any chunk sent to
+ * it.
+ *
+ * This strongly resembles a /dev/zero where you decide what comes out instead
+ * of an infinite string of zeros.
+ */
+class InfiniteModule : public StreamModule
+{
    class IPlug;
    friend class IPlug;
 
  public:
    static const STR_ClassIdent identifier;
 
-   //: Repeatedly sends chnk.
+   /** Construct given a chunk to repeatedly send.
+    * @param chnk The chunk to repeatedly send.
+   */
    InfiniteModule(const StrChunkPtr &chnk);
-   //: Defaults to a PreAllocBuffer containing 8192 zeros.
+   //! Destroy an InfiniteModule
    InfiniteModule();
    virtual ~InfiniteModule();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool canCreate(int side = 0) const;
    inline Plug *makePlug(int side = 0);
@@ -55,7 +65,7 @@ class InfiniteModule : public StreamModule {
    virtual bool deletePlug(Plug *plug);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual Plug *i_MakePlug(int side);
 
@@ -69,13 +79,15 @@ class InfiniteModule : public StreamModule {
       IPlug(InfiniteModule &parent) : Plug(parent)      { }
       ~IPlug()                                          { }
 
-      inline virtual int AreYouA(const ClassIdent &cid) const;
+      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       inline InfiniteModule &getParent() const;
       virtual int side() const                          { return(0); }
 
     protected:
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       inline virtual const StrChunkPtr i_Read();
       inline virtual void i_Write(const StrChunkPtr &tr);
@@ -88,7 +100,7 @@ class InfiniteModule : public StreamModule {
 
 //-----------------------------inline functions--------------------------------
 
-inline int InfiniteModule::AreYouA(const ClassIdent &cid) const
+inline int InfiniteModule::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
@@ -110,7 +122,7 @@ inline bool InfiniteModule::ownsPlug(const Plug *plug) const
 
 //--
 
-inline int InfiniteModule::IPlug::AreYouA(const ClassIdent &cid) const
+inline int InfiniteModule::IPlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }
@@ -128,5 +140,8 @@ const StrChunkPtr InfiniteModule::IPlug::i_Read()
 void InfiniteModule::IPlug::i_Write(const StrChunkPtr &ptr)
 {
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

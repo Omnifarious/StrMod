@@ -1,11 +1,11 @@
-#ifndef _EHNET_SocketAddress_H_
+#ifndef _EHNET_SocketAddress_H_  // -*-c++-*-
 
 #ifdef __GNUG__
 #pragma interface
 #endif
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -25,7 +25,7 @@
 /* $Header$ */
 
  // For a log, see ../ChangeLog
-//
+ //
  // Revision 1.4  1996/02/20 01:06:33  hopper
  // Added inline definition for ostream &operator << for SocketAddresses.
  //
@@ -60,49 +60,70 @@
  // $Revision$
 
 #include <string>
+#include <iosfwd>  // ostream
 #include <LCore/Protocol.h>
 #include <EHnet++/NET_ClassIdent.h>
 
 #define _EHNET_SocketAddress_H_
 
 struct sockaddr;
-class ostream;
 
-class SocketAddress : virtual public Protocol {
+namespace strmod {
+namespace ehnet {
+
+/** \class SocketAddress SocketAddress.h EHnet++/SocketAddress.h
+ * C++ class wrapper for struct ::sockaddr from sys/socket.h
+ *
+ * This is a C++ wrapper for the sockaddr structure that the connect, and bind
+ * system calls take.  It includes a virtual 'Copy' method to clone copies when
+ * you don't know the actual type of the address.
+ */
+class SocketAddress : virtual public lcore::Protocol
+{
  public:
    static const NET_ClassIdent identifier;
 
-   SocketAddress()                              { }
-   virtual ~SocketAddress()                     { }
+   //! An abstract SocketAddress really doesn't have any parameters
+   SocketAddress()                                      { }
+   //! No member variables, nothing to do
+   virtual ~SocketAddress()                             { }
 
-   virtual int AreYouA(const ClassIdent &cid) const {
-      return((identifier == cid) || Protocol::AreYouA(cid));
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
+      return((identifier == cid) || lcore::Protocol::AreYouA(cid));
    }
 
-   virtual void PrintOn(ostream &);
+   //! Send a textual representation of the address to the given ostream.
+   virtual void PrintOn(::std::ostream &);
 
-   virtual struct sockaddr *SockAddr() = 0;
-   SocketAddress *Copy() const                  { return(MakeCopy()); }
+   //! Get the sockaddr struct  this object is wrapping.
+   virtual ::sockaddr *SockAddr() = 0;
+   /** Clone this address, no matter it's actual type
+    *
+    * This is a non-virtual for compilers that don't support <A HREF="http://cpptips.hyperformix.com/Covariance.html">contravariance</A>
+    * in the return types of virtual functions.
+   */
+   SocketAddress *Copy() const                          { return(MakeCopy()); }
+   //! How long is this address in memory?
    virtual int AddressSize() const = 0;
-   virtual string AsString() = 0;
+   //! Fetch a string representation of the SocketAddress
+   virtual ::std::string AsString() = 0;
 
  protected:
-   inline virtual const ClassIdent *i_GetIdent() const;
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
+   //! Clone this address, no matter it's actual type
    virtual SocketAddress *MakeCopy() const = 0;
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline const ClassIdent *SocketAddress::i_GetIdent() const
-{
-   return(&identifier);
-}
-
-inline ostream &operator <<(ostream &os, SocketAddress &sa)
+inline ::std::ostream &operator <<(::std::ostream &os, SocketAddress &sa)
 {
    sa.PrintOn(os);
    return(os);
 }
+
+} // namespace ehnet
+} // namespace strmod
 
 #endif

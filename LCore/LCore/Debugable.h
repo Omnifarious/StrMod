@@ -31,7 +31,8 @@
 
 #define _LCORE_Debugable_H_
 
-class ostream;
+namespace strmod {
+namespace lcore {
 
 /** \class Debugable Debugable.h LCore/Debugable.h
  * Interface class for things that have certain common debugging functions.
@@ -42,7 +43,7 @@ class Debugable : virtual public Protocol {
  public:
    static const LCore_ClassIdent identifier;
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    /** \brief This should ALWAYS return true.  It says whether the class
     * invariant holds or not.
@@ -55,7 +56,7 @@ class Debugable : virtual public Protocol {
    /** This should print out as much of the internal state of a class as would
     * be needed to debug it properly.
     */
-   virtual void printState(ostream &os) const = 0;
+   virtual void printState(::std::ostream &os) const = 0;
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
@@ -67,5 +68,8 @@ inline int Debugable::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

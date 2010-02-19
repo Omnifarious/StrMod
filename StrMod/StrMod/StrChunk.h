@@ -29,19 +29,18 @@
 #include <cassert>
 #include <cstddef>
 
-#ifndef _STR_STR_ClassIdent_H_
-#  ifndef OS2
-#     include <StrMod/STR_ClassIdent.h>
-#  else
-#     include "str_clas.h"
-#  endif
-#endif
-
 #include <LCore/Object.h>
 #include <LCore/RefCounting.h>
+
+#ifndef _STR_STR_ClassIdent_H_
+#  include <StrMod/STR_ClassIdent.h>
+#endif
 #include <StrMod/ChunkVisitor.h>
 
 #define _STR_StrChunk_H_
+
+namespace strmod {
+namespace strmod {
 
 class LinearExtent;
 
@@ -49,8 +48,7 @@ class LinearExtent;
  * An interface to a reference counted chunk of data.
  *
  * The chunk of data is actually held by the derived classes.  Some chunks of
- * data even consist of other StrChunks.  This is an instance of the <a
- * href="http://exciton.cs.oberlin.edu/javaresources/DesignPatterns/composite.htm">Composite</a>
+ * data even consist of other StrChunks.  This is an instance of the <A HREF="http://exciton.cs.oberlin.edu/javaresources/DesignPatterns/composite.htm">Composite</A>
  * design pattern.
  *
  * StrChunks are supposed to be immutable after they're created.  Often
@@ -67,7 +65,8 @@ class LinearExtent;
  * a different tree.  It might even be found twice in the same tree.  This
  * complexity requires reference counts for tractable resource handling.
  */
-class StrChunk : public Object, public ReferenceCounting {
+class StrChunk : public lcore::Object, public lcore::ReferenceCounting
+{
    friend class ChunkVisitor;
  public:
    class __iterator;
@@ -81,11 +80,11 @@ class StrChunk : public Object, public ReferenceCounting {
    //! Not much to talk about.
    virtual ~StrChunk()                                 { }
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Number of octets this chunk takes up.  May be deprecated.
    virtual unsigned int Length() const = 0;
-   
+
    //@{
    /**
     * Get an STL style const bidirectional iterator.
@@ -99,7 +98,7 @@ class StrChunk : public Object, public ReferenceCounting {
 
  protected:
    //! See class Protocol
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 
    //! Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
@@ -128,7 +127,7 @@ class StrChunk : public Object, public ReferenceCounting {
 
 //------------------------inline functions for StrChunk------------------------
 
-inline int StrChunk::AreYouA(const ClassIdent &cid) const
+inline int StrChunk::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Object::AreYouA(cid));
 }
@@ -154,5 +153,8 @@ inline void StrChunk::call_visitDataBlock(ChunkVisitor &visitor,
 {
    visitor.visitDataBlock(start, len);
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef _STR_StrSubChunk_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -37,19 +37,29 @@
 
 #define _STR_StrSubChunk_H_
 
-class StrSubChunk : public StrChunk {
+namespace strmod {
+namespace strmod {
+
+/** \class StrSubChunk StrSubChunk.h StrMod/StrSubChunk.h
+ * A StrChunk that consists of some part of another StrChunk.
+ *
+ * This allows you to clip out a portion of another StrChunk without altering
+ * the contents of the other StrChunk.
+ */
+class StrSubChunk : public StrChunk
+{
  public:
    static const STR_ClassIdent identifier;
 
    StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent);
    virtual ~StrSubChunk()                              { }
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual unsigned int Length() const;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
@@ -62,7 +72,7 @@ class StrSubChunk : public StrChunk {
 
 //-----------------------------inline functions--------------------------------
 
-inline int StrSubChunk::AreYouA(const ClassIdent &cid) const
+inline int StrSubChunk::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }
@@ -71,5 +81,8 @@ inline unsigned int StrSubChunk::Length() const
 {
    return(subext_.Length());
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

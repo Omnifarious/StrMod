@@ -1,7 +1,7 @@
 #ifndef _STR_StreamProcessor_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -36,13 +36,16 @@
 // the result along.
 //
 
-#include <LCore/GenTypes.h>
-#include <StrMod/STR_ClassIdent.h>
-#include <LCore/Protocol.h>
-#include <StrMod/StrChunkPtr.h>
 #include <cassert>
+#include <LCore/GenTypes.h>
+#include <LCore/Protocol.h>
+#include <StrMod/STR_ClassIdent.h>
+#include <StrMod/StrChunkPtr.h>
 
 #define _STR_StreamProcessor_H_
+
+namespace strmod {
+namespace strmod {
 
 /** \class StreamProcessor StreamProcessor.h StrMod/StreamProcessor.h
  * Describes a simple non-active processor of a unidirectional data stream
@@ -61,7 +64,8 @@
  *
  * Another prime example is a process in a Unix pipeline.
  */
-class StreamProcessor : virtual public Protocol {
+class StreamProcessor : virtual public lcore::Protocol
+{
  public:
    static const STR_ClassIdent identifier;
 
@@ -70,7 +74,7 @@ class StreamProcessor : virtual public Protocol {
    //! Abstract base classes don't have substansive destructors.
    virtual ~StreamProcessor();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    /** Can you put data into this thing?
     * Note that this is \c !incoming_.  This means that if you need
@@ -95,7 +99,7 @@ class StreamProcessor : virtual public Protocol {
    StrChunkPtr outgoing_;  //!< Where to stick data that's ready to go out.
    bool outgoing_ready_;   //!< Set this when the data in \c outgoing_ is actually ready to go out.
 
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    /** Do something with your incoming_ data.
     * \pre <code>(incoming_ && !outoing_ready_)</code> will
@@ -111,7 +115,7 @@ class StreamProcessor : virtual public Protocol {
    // Inhibit accidental copying.
    StreamProcessor(const StreamProcessor &b);
    void operator =(const StreamProcessor &b);
-};  
+};
 
 //-----------------------------inline functions--------------------------------
 
@@ -120,7 +124,7 @@ inline StreamProcessor::StreamProcessor()
 {
 }
 
-inline int StreamProcessor::AreYouA(const ClassIdent &cid) const
+inline int StreamProcessor::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
@@ -161,5 +165,8 @@ inline const StrChunkPtr StreamProcessor::readFrom()
    }
    return(tmp);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

@@ -2,7 +2,7 @@
 /* $Header$ */
 
 /*
- * Copyright 2000 by Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2000-2002 by Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -31,11 +31,15 @@
 #include <vector>
 #include <algorithm>
 
+namespace strmod {
+namespace strmod {
+
 /**
  * A bunch of data that can be share among all the StrChunk::__iterator
  * objects for a given StrChunk.
  */
-class StrChunk::__iterator::shared : public ReferenceCounting {
+class StrChunk::__iterator::shared : public lcore::ReferenceCounting
+{
  public:
    /**
     * Holds information about where to find a chunk of data and how big it is.
@@ -150,7 +154,7 @@ class StrChunk::__iterator::ExtVisitor : public UseTrackingVisitor {
    }
 
  private:
-   vector<shared::rawdata> extvec_;
+   std::vector<shared::rawdata> extvec_;
 };
 
 //---
@@ -366,7 +370,7 @@ void StrChunk::__iterator::move_forward_complex()
    ++abspos_;
    assert(abspos_ < shrd.length_);
    ++curext_;
-   assert(curext_ < shred_->numexts_);
+   assert(curext_ < shrd.numexts_);
    extpos_ = 0;
    extbase_ = static_cast<const unsigned char *>(shrd.dataexts_[curext_].base_);
    extlast_ = shrd.dataexts_[curext_].len_;
@@ -427,3 +431,6 @@ StrChunk::__iterator StrChunk::end()
    tmp.moveToEnd();
    return tmp;
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

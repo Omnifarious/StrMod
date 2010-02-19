@@ -42,20 +42,30 @@
 // First functional revision
 //
 
+#include <iosfwd>  // For ostream
+#include <climits>
+
 #define _STR_LinearExtent_H_
 
-class ostream;
+namespace strmod {
+namespace strmod {
 
 /** \class LinearExtent LinearExtent.h StrMod/LinearExtent.h
  * A simple class describing a subrange of a contiguous sequence.
  *
  * This class sees such a subrange as beginning at an offset, and proceeding
  * for some number of items.
+ *
+ * The results of using objects of this class when Offset() + Length() >
+ * full_extent.Length() are undefined.  To be safe, you should always use
+ * extents to refer to things who's absolute length is < UINT_MAX
  */
 class LinearExtent {
  public:
    typedef unsigned int off_t;  ///< Type for expressing the offset.
    typedef unsigned int length_t;  ///< Type for expressing the length.
+   static const off_t OFFSET_MAX = UINT_MAX;
+   static const length_t LENGTH_MAX = UINT_MAX;
 
    /**
     * A constant for an infinite length extent starting at offset 0.
@@ -89,11 +99,21 @@ class LinearExtent {
    //! Offset().
    inline off_t beginOffset() const;
    //! Offset of end of extent (for STL like algorithms).  Same as Offset() +
-   //! Length()
+   //! Length()  (undefined when Offset() + Length() > full_extent.Length()
    inline off_t endOffset() const;
    //@}
 
-   //! Given two extents, what is extent is common to both?
+   /** Given two extents, what is extent is common to both?
+    *
+    * If there is no intersection, this will return an extent who's Offset() is
+    * undefined, and who's Length() is 0.
+    *
+    * This operator commutes.  a.intersection(b) is guaranteed to yield the
+    * exact same results as b.intersection(a) in all cases except where
+    * a.Offset() + a.Length() > full_extent.Length(), or b.Offset() + b.Length()
+    * > full_extent.Length().  The results of intersection in the latter two
+    * cases are undefined.
+    */
    inline const LinearExtent intersection(const LinearExtent &other) const;
 
    /** \name Extent as a Moveable Tape Measure
@@ -105,18 +125,12 @@ class LinearExtent {
    //! Lengthen an extent by lowering the offset and increasing the length by
    //! the same amount.
    void LengthenLeft(length_t by);
-   //! Lengthen an extent by lowering the offset by half of \c by and
-   //! increasing the length by \c by.
-   void LengthenCenter(length_t by);
    //! Lengthen an extent merely by adding to the length.
    inline void LengthenRight(length_t by);
 
    //! Shorten an extent by increasing its offset and decreasing its length by
    //! the same amount.
    void ShortenLeft(length_t by);
-   //! Shorten an extent by increasing its offset by half of \c by and
-   //! decreasing its length by \c by.
-   void ShortenCenter(length_t by);
    //! Shorten an extent by simply decreasing its length.
    inline void ShortenRight(length_t by);
 
@@ -128,7 +142,7 @@ class LinearExtent {
 
    //! Translate a subextent into the underlying sequence's coordinate space.
    const LinearExtent SubExtent(const LinearExtent &extent) const;
-   //! The function is to SubExtent as += is to +.
+   //! This function is to SubExtent() as += is to +.
    const LinearExtent &SubExtent_eq(const LinearExtent &extent);
 
  private:
@@ -136,7 +150,8 @@ class LinearExtent {
    length_t m_length;
 };
 
-ostream &operator <<(ostream &os, const LinearExtent &ext);
+//! Print out a LinearExtent on an iostream.
+::std::ostream &operator <<(::std::ostream &os, const LinearExtent &ext);
 
 //-----------------------------inline functions--------------------------------
 
@@ -196,7 +211,11 @@ LinearExtent::intersection(const LinearExtent &other) const
 
 inline void LinearExtent::MoveRight(LinearExtent::off_t by)
 {
-   m_offset += by;
+   if ((LENGTH_MAX - endOffset()) >= by) {
+      m_offset += by;
+   } else {
+      m_offset = LENGTH_MAX - Length();
+   }
 }
 
 inline void LinearExtent::MoveLeft(LinearExtent::off_t by)
@@ -210,16 +229,33 @@ inline void LinearExtent::MoveLeft(LinearExtent::off_t by)
 
 inline void LinearExtent::LengthenRight(length_t by)
 {
-   m_length += by;
+   if ((LENGTH_MAX - m_length) >= by) {
+      m_length += by;
+   } else {
+      m_length = LENGTH_MAX;
+   }
 }
 
 inline void LinearExtent::ShortenRight(length_t by)
 {
-   if (m_length > by) {
+   if (m_length >= by) {
       m_length -= by;
    } else {
       m_length = 0;
    }
 }
+
+inline bool operator ==(const LinearExtent &a, const LinearExtent &b)
+{
+   return (a.Offset() == b.Offset()) && (a.Length() == b.Length());
+}
+
+inline bool operator !=(const LinearExtent &a, const LinearExtent &b)
+{
+   return !(a == b);
+}
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

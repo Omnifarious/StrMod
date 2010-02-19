@@ -29,6 +29,9 @@
 #include "StrMod/UseTrackingVisitor.h"
 #include "StrMod/StackSwapper.h"
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent UseTrackingVisitor::identifier(47UL);
 
 /*!
@@ -134,3 +137,6 @@ void UseTrackingVisitor::do_acceptVisitor(const StrChunkPtr &chunk,
    StackSwapper<LinearExtent> s3(curext_, chunkext);
    call_acceptVisitor(chunk);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

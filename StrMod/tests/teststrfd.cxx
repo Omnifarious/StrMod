@@ -21,7 +21,7 @@
 #include <UniEvent/UNIXpollManagerImp.h>
 #include <UniEvent/SimpleDispatcher.h>
 // #include <EHnet++/InetAddress.h>
-#include <iostream.h>
+#include <iostream>
 #include <unistd.h>
 #include <fcntl.h>
 #include <assert.h>

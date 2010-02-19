@@ -1,7 +1,7 @@
 #ifndef _STR_OutSerializer_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -36,41 +36,54 @@
 
 #include <StrMod/BufferChunk.h>
 #include <LCore/GenTypes.h>
-#include <string.h>
+#include <cstring>
 #include <string>
 
 #define _STR_OutSerializer_H_
 
-class OutSerializer {
+namespace strmod {
+namespace strmod {
+
+/** \class OutSerializer OutSerializer.h StrMod/OutSerializer.h
+ * A class that marshals data into a canonical binary format.
+ *
+ * This class serializes integers of various sizes and strings into a canonical
+ * binary format that can be given to an InSerializer on a completely different
+ * platform to read the data back in.
+ */
+class OutSerializer
+{
  public:
    struct State;
 
    OutSerializer(size_t suggested_size);
-   //: Use this as the external state to save into on destruction.  Only use
-   //: this if you've read the directions.  :-)
-   // <p>This class can be much more efficient if it's always instantiated
-   // locally.  Sometimes though, the state will need to be saved across
-   // function calls.  That's where this constructor comes in.</p>
-   // <p>If the <code>takeChunk</code> function is called, a flag is set in
-   // the external state (that is also set when the external state is
-   // initially constructed) that tells this OutSerializer constructor that it
-   // needs to reset the state.</p>
+   /** \brief Use this as the external state to save into on destruction, only
+    * use this if you've read the directions.  :-)
+    *
+    * This class can be much more efficient if it's always instantiated locally.
+    * Sometimes though, the state will need to be saved across function calls.
+    * That's where this constructor comes in.
+    *
+    * If the takeChunk function is called, a flag is set in the external state
+    * (that is also set when the external state is initially constructed) that
+    * tells this OutSerializer constructor that it needs to reset the state.
+    */
    OutSerializer(State &savedstate);
    OutSerializer();
    virtual ~OutSerializer();
 
-   inline void addS1Byte(S1Byte num);
-   inline void addU1Byte(U1Byte num);
+   inline void addS1Byte(lcore::S1Byte num);
+   inline void addU1Byte(lcore::U1Byte num);
 
-   inline void addS2Byte(S2Byte num);
-   inline void addU2Byte(U2Byte num);
+   inline void addS2Byte(lcore::S2Byte num);
+   inline void addU2Byte(lcore::U2Byte num);
 
-   inline void addS4Byte(S4Byte num);
-   inline void addU4Byte(U4Byte num);
+   inline void addS4Byte(lcore::S4Byte num);
+   inline void addU4Byte(lcore::U4Byte num);
 
-   void addBool(bool val)                            { addU1Byte(U1Byte(val)); }
+   void addBool(bool val)                    { addU1Byte(lcore::U1Byte(val)); }
 
-   void addString(const string &str);
+   void addString(const ::std::string &str);
    void addString(const char *str);  // C style string.
 
    inline void addRaw(const void *data, size_t len);
@@ -92,7 +105,7 @@ class OutSerializer {
     private:
       BufferChunk::Factory * const fact_;
       BufferChunk *cur_chunk_;
-      U1Byte *buf_;
+      lcore::U1Byte *buf_;
       size_t chnklen_;
       size_t cur_pos_;
 
@@ -116,51 +129,51 @@ inline void OutSerializer::setMinSuggestedSize(size_t size)
    }
 }
 
-inline void OutSerializer::addS1Byte(S1Byte num)
+inline void OutSerializer::addS1Byte(lcore::S1Byte num)
 {
    setMinSuggestedSize(state_.cur_pos_ + 1);
 
-   hton(num, state_.buf_ + state_.cur_pos_);
+   lcore::hton(num, state_.buf_ + state_.cur_pos_);
    state_.cur_pos_++;
 }
 
-inline void OutSerializer::addU1Byte(U1Byte num)
+inline void OutSerializer::addU1Byte(lcore::U1Byte num)
 {
    setMinSuggestedSize(state_.cur_pos_ + 1);
 
-   hton(num, state_.buf_ + state_.cur_pos_);
+   lcore::hton(num, state_.buf_ + state_.cur_pos_);
    state_.cur_pos_++;
 }
 
-inline void OutSerializer::addS2Byte(S2Byte num)
+inline void OutSerializer::addS2Byte(lcore::S2Byte num)
 {
    setMinSuggestedSize(state_.cur_pos_ + 2);
 
-   hton(num, state_.buf_ + state_.cur_pos_);
+   lcore::hton(num, state_.buf_ + state_.cur_pos_);
    state_.cur_pos_ += 2;
 }
 
-inline void OutSerializer::addU2Byte(U2Byte num)
+inline void OutSerializer::addU2Byte(lcore::U2Byte num)
 {
    setMinSuggestedSize(state_.cur_pos_ + 2);
 
-   hton(num, state_.buf_ + state_.cur_pos_);
+   lcore::hton(num, state_.buf_ + state_.cur_pos_);
    state_.cur_pos_ += 2;
 }
 
-inline void OutSerializer::addS4Byte(S4Byte num)
+inline void OutSerializer::addS4Byte(lcore::S4Byte num)
 {
    setMinSuggestedSize(state_.cur_pos_ + 4);
 
-   hton(num, state_.buf_ + state_.cur_pos_);
+   lcore::hton(num, state_.buf_ + state_.cur_pos_);
    state_.cur_pos_ += 4;
 }
 
-inline void OutSerializer::addU4Byte(U4Byte num)
+inline void OutSerializer::addU4Byte(lcore::U4Byte num)
 {
    setMinSuggestedSize(state_.cur_pos_ + 4);
 
-   hton(num, state_.buf_ + state_.cur_pos_);
+   lcore::hton(num, state_.buf_ + state_.cur_pos_);
    state_.cur_pos_ += 4;
 }
 
@@ -174,43 +187,43 @@ inline void OutSerializer::addRaw(const void *data, size_t len)
 
 //---
 
-inline OutSerializer &operator <<(OutSerializer &os, S1Byte num)
+inline OutSerializer &operator <<(OutSerializer &os, lcore::S1Byte num)
 {
    os.addS1Byte(num);
    return(os);
 }
 
-inline OutSerializer &operator <<(OutSerializer &os, U1Byte num)
+inline OutSerializer &operator <<(OutSerializer &os, lcore::U1Byte num)
 {
    os.addU1Byte(num);
    return(os);
 }
 
-inline OutSerializer &operator <<(OutSerializer &os, S2Byte num)
+inline OutSerializer &operator <<(OutSerializer &os, lcore::S2Byte num)
 {
    os.addS2Byte(num);
    return(os);
 }
 
-inline OutSerializer &operator <<(OutSerializer &os, U2Byte num)
+inline OutSerializer &operator <<(OutSerializer &os, lcore::U2Byte num)
 {
    os.addU2Byte(num);
    return(os);
 }
 
-inline OutSerializer &operator <<(OutSerializer &os, S4Byte num)
+inline OutSerializer &operator <<(OutSerializer &os, lcore::S4Byte num)
 {
    os.addS4Byte(num);
    return(os);
 }
 
-inline OutSerializer &operator <<(OutSerializer &os, U4Byte num)
+inline OutSerializer &operator <<(OutSerializer &os, lcore::U4Byte num)
 {
    os.addU4Byte(num);
    return(os);
 }
 
-inline OutSerializer &operator <<(OutSerializer &os, const string &str)
+inline OutSerializer &operator <<(OutSerializer &os, const ::std::string &str)
 {
    os.addString(str);
    return(os);
@@ -221,5 +234,8 @@ inline OutSerializer &operator <<(OutSerializer &os, const char *str)
    os.addString(str);
    return(os);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

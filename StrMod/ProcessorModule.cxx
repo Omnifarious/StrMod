@@ -36,7 +36,10 @@
 #include "StrMod/StreamProcessor.h"
 #include "StrMod/StrChunkPtr.h"
 #include <cassert>
-// #include <iostream.h>
+// #include <iostream>
+
+namespace strmod {
+namespace strmod {
 
 const STR_ClassIdent ProcessorModule::identifier(29UL);
 const STR_ClassIdent ProcessorModule::PMPlug::identifier(30UL);
@@ -84,3 +87,6 @@ void ProcessorModule::PMPlug::i_Write(const StrChunkPtr &chnk)
    getParent().setReadableFlagFor(&sibling_, writeproc_.canReadFrom());
    setWriteable(writeproc_.canWriteTo());
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

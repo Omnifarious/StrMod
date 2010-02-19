@@ -33,62 +33,85 @@
 
 #define _UNEVT_EventPtr_H_
 
-class UNIEventPtr : public RefCountPtrT<UNIEvent> {
+namespace strmod {
+namespace unievent {
+
+/** \class EventPtr Event.h UniEvent/Event.h
+ * A smart pointer class that points an Event and handles the reference count.
+ */
+class EventPtr : public lcore::RefCountPtrT<Event>
+{
  public:
-   typedef RefCountPtrT<UNIEvent> super1;
+   //! An easier way to refer to RefCountPtrT<Evemt>
+   typedef lcore::RefCountPtrT<Event> super1;
    static const UNEVT_ClassIdent identifier;
 
-   inline UNIEventPtr(UNIEvent *eptr = 0);
-   inline UNIEventPtr(const UNIEventPtr &b);
-   inline UNIEventPtr(const super1 &b);
+   //@{
+   /**
+    * These all construct an EventPtr from the appropriate type and maintain the
+    * reference count to the pointed at Event.
+    */
+   inline EventPtr(Event *eptr = 0);
+   inline EventPtr(const EventPtr &b);
+   inline EventPtr(const super1 &b);
+   //@}
 
-   inline const UNIEventPtr &operator =(const UNIEventPtr &b);
-   inline const UNIEventPtr &operator =(const super1 &b);
-   inline const UNIEventPtr &operator =(UNIEvent *b);
+   //@{
+   /**
+    * These all set the value of an EventPtr value from the appropriate type and
+    * maintain the reference count to the pointed at EVent.
+    */
+   inline const EventPtr &operator =(const EventPtr &b);
+   inline const EventPtr &operator =(const super1 &b);
+   inline const EventPtr &operator =(Event *b);
+   //@}
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline UNIEventPtr::UNIEventPtr(UNIEvent *eptr)
+inline EventPtr::EventPtr(Event *eptr)
 {
    if (eptr) {
       i_SetPtr(eptr);
    }
 }
 
-inline UNIEventPtr::UNIEventPtr(const UNIEventPtr &b)
+inline EventPtr::EventPtr(const EventPtr &b)
 {
    if (b.GetPtr()) {
       i_SetPtr(b.GetPtr());
    }
 }
 
-inline UNIEventPtr::UNIEventPtr(const super1 &b)
+inline EventPtr::EventPtr(const super1 &b)
 {
    if (b.GetPtr()) {
       i_SetPtr(b.GetPtr());
    }
 }
 
-inline const UNIEventPtr &UNIEventPtr::operator =(const UNIEventPtr &b)
+inline const EventPtr &EventPtr::operator =(const EventPtr &b)
 {
    super1::operator =(b);
    return(*this);
 }
 
-inline const UNIEventPtr &UNIEventPtr::operator =(const super1 &b)
+inline const EventPtr &EventPtr::operator =(const super1 &b)
 {
    super1::operator =(b);
    return(*this);
 }
 
-inline const UNIEventPtr &UNIEventPtr::operator =(UNIEvent *b)
+inline const EventPtr &EventPtr::operator =(Event *b)
 {
    super1::operator =(b);
    return(*this);
 }
+
+} // namespace unievent
+} // namespace strmod
 
 #endif

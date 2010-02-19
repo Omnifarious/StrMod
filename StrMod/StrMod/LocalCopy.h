@@ -28,6 +28,9 @@
 
 #define _STR_LocalCopy_H_
 
+namespace strmod {
+namespace strmod {
+
 /** \class LocalCopy LocalCopy.h StrMod/LocalCopy.h
  * \brief Makes a local copy of a variable the compiler doesn't have enough
  * information to do CSE on.
@@ -38,7 +41,6 @@
  * function across an entire call, despite other functions being called.  When
  * other functions are called, the compiler's CSE throws out member variables,
  * as those variables may concievably be altered by the function call.
- *
  */
 template <class T>
 class LocalCopy {
@@ -72,5 +74,8 @@ const T &LocalCopy<T>::operator =(const T &b)
 {
    return local = b;
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

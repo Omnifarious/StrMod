@@ -21,4 +21,10 @@
  /* UNIX:@@:defs/EH_ClassIdent.cc:@@: */
 /* MSDOS:@@:DEFS/DEFEH_CL.CPP:@@: */
 
+namespace strmod {
+namespace lcore {
+
 const LCore_ClassIdent EH_ClassIdent::identifier(6UL);
+
+} // namespace lcore
+} // namespace strmod

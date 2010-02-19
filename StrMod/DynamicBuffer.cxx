@@ -30,15 +30,18 @@
 #include <new>
 #include <cassert>
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent DynamicBuffer::identifier(39UL);
 
-DynamicBuffer::DynamicBuffer(unsigned int len) throw(bad_alloc)
+DynamicBuffer::DynamicBuffer(unsigned int len) throw(std::bad_alloc)
 {
    resize(len);
 }
 
 DynamicBuffer::DynamicBuffer(const void *data,
-			     unsigned int len) throw(bad_alloc)
+			     unsigned int len) throw(std::bad_alloc)
 {
    resize(len);
    memcpy(buf_, data, len);
@@ -55,7 +58,7 @@ DynamicBuffer::~DynamicBuffer()
    }
 }
 
-void DynamicBuffer::resize(unsigned int newsize) throw(bad_alloc)
+void DynamicBuffer::resize(unsigned int newsize) throw(std::bad_alloc)
 {
    #ifndef NDEBUG
    if (buf_ != 0)
@@ -81,13 +84,16 @@ void DynamicBuffer::resize(unsigned int newsize) throw(bad_alloc)
 	 void *newbuf = realloc(buf_, newsize);
 	 if ((newbuf == NULL) && (newsize != 0))
 	 {
-	    throw bad_alloc();
+	    throw std::bad_alloc();
 	 }
 	 else
 	 {
-	    buf_ = static_cast<U1Byte *>(newbuf);
+	    buf_ = static_cast<lcore::U1Byte *>(newbuf);
 	    buflen_ = newsize;
 	 }
       }
    }
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

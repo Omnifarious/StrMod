@@ -1,7 +1,7 @@
 #ifndef _STR_TelnetChunker_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -26,10 +26,13 @@
 
 // For a log, see ../ChangeLog
 
-#include <StrMod/StreamProcessor.h>
 #include <StrMod/STR_ClassIdent.h>
+#include <StrMod/StreamProcessor.h>
 
 #define _STR_TelnetChunker_H_
+
+namespace strmod {
+namespace strmod {
 
 /** \class TelnetChunker TelnetChunker.h StrMod/TelnetChunker.h
  * This class parses out a stream of data into seperate telnet protocol
@@ -40,7 +43,8 @@
  * elements mean, search for the relevant IETF RFCs, or visit
  * http://www.omnifarious.org/~hopper/technical/telnet-rfc.html
  */
-class TelnetChunker : public StreamProcessor {
+class TelnetChunker : public StreamProcessor
+{
  public:
    class TelnetData;
    class SingleChar;
@@ -61,26 +65,30 @@ class TelnetChunker : public StreamProcessor {
     */
    virtual ~TelnetChunker();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
  protected:
    class Builder;
 
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 
    virtual void processIncoming();
 
  private:
    class DataFunctor;
    class Internals;
+   friend class Internals;
    Internals &data_;
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline int TelnetChunker::AreYouA(const ClassIdent &cid) const
+inline int TelnetChunker::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamProcessor::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

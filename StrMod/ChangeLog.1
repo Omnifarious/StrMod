@@ -1,0 +1,1232 @@
+2002-09-15  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* LinearExtent.cxx, StrMod/LinearExtent.h: Lots of cleanups
+	related to writing CppUnit tests.
+
+	Changed comments to clearly state that behavior is undefined in
+	certain cases.
+
+	Changed all of the Lengthen, Shorten and Move methods to check
+	bounds to avoid putting the LinearExtent into an undefined state
+	if it wasn't there before.
+
+	Removed LengthenCenter and ShortenCenter because they had a number
+	of difficult to define cases, and few uses I could think of.
+
+	Added operator == to test for extents with the exact same offset
+	and length.  I don't think extent comparisons have a lot of value
+	in general, but they are extremely useful for testing.
+
+	Changed definition of full_extent to use new LENGTH_MAX constant.
+
+2002-09-09  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* ChunkIterator.cxx: Fixed syntax error in assert that hadn't been
+	caught before because of silly way of handling #define NDEBUG in
+	LCore/RefCountPtr.h
+
+2002-08-30  Eric Hopper  <hopper@omnifarious.org>
+
+	* StreamFDModule.cxx, SocketModule.cxx: Lots of small changes to
+	work with slightly different way of handling errno style errors
+	with the UNIXError class.
+
+	* SockListenModule.cxx: Changed so error message for 'bind' really
+	said 'bind'.  Also, lots of small changes to work with slightly
+	different way of handling errno style errors with the UNIXError
+	class.
+
+2002-03-26  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/tests/echoserv.cxx:
+
+	Revamped echoserv test to work with UnixEventPoll and
+	StreamFDModule error events.
+
+	* SocketModule.cxx, SockListenModule.cxx, StreamFDModule.cxx,
+	StrMod/SocketModule.h, StrMod/SockListenModule.h,
+	StrMod/StreamFDModule.h:
+
+	Various changes to start using UnixEventRegistry instead of
+	UNIXpollManager.
+
+2002-03-13  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* SimpleMulti.cxx, SockListenModule.cxx, StrMod/ChunkIterator.h,
+	StrMod/RouterModule.h, StrMod/SimpleMulti.h,
+	StrMod/SockListenModule.h, StrMod/StreamFDModule.h,
+	StrMod/TelnetChunker.h, StrMod/TelnetParser.h:
+
+	Numerous good changes to appease AIX's much stricter compiler.
+	Now much more tight about exactly where names are accessible.
+
+2002-03-12  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/BufferChunk.h, StrMod/ChunkVisitor.h,
+	StrMod/DynamicBuffer.h, StrMod/EchoModule.h, StrMod/EOFStrChunk.h,
+	StrMod/GroupChunk.h, StrMod/LinearExtent.h, StrMod/StrChunk.h,
+	StrMod/StrChunkPtr.h, StrMod/StrChunkPtrT.h,
+	StrMod/STR_ClassIdent.h, StrMod/StreamFDModule.h,
+	StrMod/StreamModule.h, StrMod/StrSubChunk.h,
+	StrMod/UseTrackingVisitor.h, EchoModule.cxx, GroupChunk.cxx,
+	LinearExtent.cxx, StrChunk.cxx, StrChunkPtr.cxx,
+	STR_ClassIdent.cxx, StreamModule.cxx, StrSubChunk.cxx:
+
+	Fixed many small things the Solaris compiler doesn't like.
+
+	Removed ;'s after the closing } of namespaces.
+
+	Removed redeclaration of default argument values in a few places.
+
+2002-02-20  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/StreamModule.h:
+
+	Removed spurious 'inline' that's no longer true.
+
+2002-02-10  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* SockListenModule.cxx:
+
+	More small changes to make work better with standard C++.
+
+	* SockListenModule.cxx, StrMod/LinearExtent.h, tests/echoserv.cxx,
+	tests/server.cxx, tests/testchunk.cxx, tests/testdist.cxx,
+	tests/testecho.cxx, tests/testextent.cxx, tests/testGV.cxx,
+	tests/testserial.cxx, tests/testsock.cxx, tests/testsplit.cxx,
+	tests/teststrfd.cxx:
+
+	More changes to make work better with standard C++.
+
+	Also, added a bit of documentation to try to make doxygen happy.
+
+2002-02-09  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* SockListenModule.cxx, StrMod/SockListenModule.h:
+
+	Added code for SockListenModule::getError.
+
+	Changed interface for SocetModuleChunk.  Removed GetModule and
+	ReleaseModule and put in new getModule that combines both
+	interfaces in one call.
+
+2002-02-05  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/BufferChunk.h, StrMod/DynamicBuffer.h,
+	StrMod/GraphVizVisitor.h, StrMod/OutSerializer.h,
+	StrMod/PreAllocBuffer.h, StrMod/SimpleMulti.h,
+	StrMod/TelnetChunkerData.h, BufferChunk.cxx, ChangeLog,
+	CharChopper.cxx, DynamicBuffer.cxx, GraphVizVisitor.cxx,
+	InSerializer.cxx, LinearExtentStrmOp.cxx, OutSerializer.cxx,
+	PreAllocBuffer.cxx, SocketModule.cxx, SockListenModule.cxx,
+	StreamFDModule.cxx, StreamModule.cxx:
+
+	Fixed up things to work with new C++ standard library that insists
+	on the std:: namespace.
+
+	Removed RCS id string because it isn't consistently included and
+	of dubious value.
+
+2002-02-05  Eric Hopper  <hopper@omnifarious.org>
+
+	* Everything: Fixed up things to work with new C++ standard
+	library that insists on the std:: namespace.  Removed RCS id
+	string because it isn't consistently included and of dubious
+	value.
+
+2001-09-14  Eric Hopper  <hopper@omnifarious.org>
+
+	* SimpleMulti.cxx (deletePlug): Changed an assert to a return of
+	'false', which is what it should've been.
+
+2001-09-07  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Everything: I moved this entire subsection into the
+	strmod::strmod namespace.
+
+2001-08-18  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/RouterModule.h, RouterModule.cxx, StrMod/SimpleMulti.h,
+	SimpleMulti.cxx, StrMod/SockListenModule.h, SockListenModule.cxx,
+	StrMod/SocketModule.h, SocketModule.cxx, StrMod/StreamFDModule.h,
+	StreamFDModule.cxx: Lots of fixups to make work with namespace
+	changes in the UniEvent headers.
+
+2001-08-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StreamFDModule.cxx: More support for error events.  Filled on
+	all those ERROR HANDLING comments I forgot to fill in before.  :-(
+
+2001-07-04  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Preliminary support
+	for error events.
+	Put setSendChunkOnEOF and getSendChunkOnEOF back in.
+
+2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Preliminary, not
+	completely finished support for the new error handling scheme.
+	Still needs error events.
+
+	* StrMod/SocketModule.h, SocketModule.cxx: Preliminary, not
+	completely finished support for the new error handling scheme.
+	Changed documentation to doxygen.
+
+	* StrMod/SockListenModule.h, SockListenModule.cxx: Preliminary,
+	not completely finished support for the new error handling scheme.
+	Still needs error events.
+
+	* GraphVizVisitor.cxx (visit): Fixed a compiler warning about an
+	unused variable.
+
+2001-04-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Changed commenting
+	from Perceps to doxygen.
+
+	Preliminary attempt to implement anti-starvation fixes.  This
+	attempt will probably be thrown away and the class completely
+	re-worked.
+
+	* StrMod/StreamSplitter.h: Changed comment style from Perceps to
+	doxygen.
+
+	* StrMod/SocketModule.h, SocketModule.cxx: Added dispatcher
+	argument to constructor for anti-starvation changes.
+
+	Changed to set max chunk size to common OS socket buffer size
+	instead of using the value from the fcntl call.  For some reason,
+	that call was returning a value that wasn't really optimum under
+	Linux.
+
+	* StrMod/SockListenModule.h, SockListenModule.cxx: Added
+	dispatcher argument to constructor for anti-starvation changes.
+
+2001-03-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* libNet-0.2.2 is released.
+
+2001-03-05  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testrouter.cxx: This tests some functionality of
+	RouterModule by creating a broadcast server.  Anything one client
+	sends to the server gets sent back to all the clients.
+
+	* StreamFDModule.cxx (BufferList): Fixed several likely stupid
+	errors in BufferList code.
+
+	* StrMod/RouterModule.h, RouterModule.cxx: A new abstract module
+	for reading chunks in and passing them out to an arbitrary set of
+	connected plugs.
+
+2001-02-26  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Version 0.2.1 released!
+
+	* StrMod/TelnetChunker.h, TelnetChunker.cxx: Fixed so that a very
+	long suboption will be aborted instead of causing memory
+	exhaustion.
+
+	* TelnetChunker.cxx, TelnetParser.cxx: Fixed a bug that caused
+	'special' 0 length chunks to be dropped by the TelnetChunker
+	module.
+
+2001-02-24  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in: Added semi-test telnet source to the library.
+
+	* tests/tstelnet.cxx, tests/TelnetToAscii.cxx, tests/ttelnet.cxx,
+	SimpleTelnetClient.cxx: Changes to use the re-written
+	TelnetChunker stuff.
+
+	* StrMod/ApplyVisitor.h, ApplyVisitor.cxx: Had to move the call to
+	startVisit that actually begins the process of applying the
+	functor to the data out of the constructor.
+
+	I forgot that calling virtual functions in a constructor is a bad
+	idea.  Too much Python programming I expect.
+
+	* STR_ClassIdent.cxx: Changes to the class number list to reflect
+	reality.
+
+	* StrMod/TelnetParser.h, TelnetParser.cxx, TelnetChunker.cxx,
+	StreamFDModule.cxx: Small changes to fix missing symbols and bugs.
+
+2001-02-23  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetChunker.h, TelnetChunker.cxx,
+	StrMod/TelnetParser.h, TelnetParser.cxx,
+	StrMod/TelnetChunkBuilder.h: Completely changed around to use the
+	ApplyVisitor and to process a buffer at a time instead of a
+	character at a time.
+
+2001-02-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/LocalCopy.h, LocalCopy.cxx: New class for holding local
+	copies of member variables.  Like StackSwapper.
+
+2001-02-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StackSwapper.h, StrMod/ApplyVisitor.h,
+	StreamFDModule.cxx: Documentation.
+
+	* StrMod/ApplyVisitor.h, ApplyVisitor.cxx: Inital implementation
+	of a Visitor that applies a functor to every data extent.
+
+2001-02-11  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Added new number for class
+	TelnetChunkBuilder
+
+	* StrMod/TelnetParserData.h, StrMod/TelnetChunkerData.h: Replaced
+	TelnetParserData.h with now more appropriately named
+	TelnetChunkerData.h
+
+	* StrMod/TelnetChunker.h, TelnetChunker.cxx: Added TelnetChunker,
+	a StreamProcessor module that chunks up a data stream into telnet
+	protocol objects.
+
+	* StrMod/TelnetChunkBuilder.h: Changed to use definitions from
+	TelnetChars.h instead of redundant internal ones.
+
+2001-01-28  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/ChunkIterator.h, ChunkIterator.cxx (isFor): Added this
+	method both for completeness, and to make TelnetParser easier to
+	implement.
+
+	* StrMod/TelnetChars.h, TelnetChars.cxx: Various constants and
+	routines for determining the meanings of individual characters in
+	a telnet stream.
+
+	* StrMod/TelnetParser.h: Re-implemented the state machine to do
+	nothing besides determine the lexical meaning of each character in
+	the stream.
+
+	* TelnetParser.cxx: Severe changes designed to seperate parsing
+	from the other steps that occur.  Now this class _just_ parses.
+
+2001-01-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetParser.h: Complete refactoring.  TelnetParser now
+	just runs the state machine that parses telnet data and nothing
+	else.
+
+	* StrMod/TelnetChunkBuilder.h: First shot at a Builder interface
+	for streams following the telnet protocol.
+
+2001-01-07  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/STR_ClassIdent.h: Rearranged class sections to conform to
+	newer (post 1995) coding standard.  Also, added some doxygen
+	documentation that will probably be moved a little ways up in the
+	hierarchy later.
+
+2000-12-16  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetParserData.h: Added lots more documentation.
+
+2000-12-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetParserData.h (TelnetData): Modified documentation
+	slightly.
+	(Suboption::NumSubGroups): Oops, missed the removal of one of
+	these.
+
+	* StrMod/StreamProcessor.h: Converted documentation to doxygen.
+	Added some documentation.
+
+	* TelnetParser.cxx (processIncoming): Added some doxygen documentation.
+	Removed the GroupVector and GV_Iterator based TelnetData methods.
+
+	* StrMod/TelnetParserData.h: Added lots of doxygen documentation
+	and removed old GroupVector and GV_Iterator stuff.
+
+2000-12-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in: Added back the now working StreamFDModule.cxx
+
+	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Lots of changes to
+	remove the GroupVector based code, and replace it with
+	ChunkVisitor based code.
+
+2000-12-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UseTrackingVisitor.cxx: Removed redundant destructor definition.
+
+	* StrMod/InSerializer.h, StrMod/StrChunk.h: Completely worked over
+	documentation for Doxygen.
+
+	* Makefile.in: Temporarily removed a few .cxx files that haven't
+	been converted to use ChunkIterator and ChunkVisitor yet.  Removed
+	obsolete GV_Iterator and GroupVecter .cxx files.
+
+	* StrMod/StrSubChunk.h, StrMod/StrChunk.h,
+	StrMod/SockListenModule.h, StrMod/PreAllocBuffer.h,
+	StrMod/EOFStrChunk.h, StrMod/DynamicBuffer.h, StrChunk.cxx,
+	StrMod/GroupChunk.h, GroupChunk.cxx, StrMod/BufferChunk.h,
+	BufferChunk.cxx, StrMod/GV_Iterator.h, GV_Iterator.cxx,
+	StrMod/GroupVector.h, GroupVector.h: Removed all the old
+	GroupVector based member functions, DropUnused, and i_DropUnused.
+
+	All of the functionality in the GroupVector and related classes
+	can be had using the ChunkIterator or ChunkVisitor classes.  The
+	DropUnused and i_DropUnused functionality wasn't used often, and
+	will be revisited later.
+
+2000-12-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StrChunkPtrT.h: Completely worked over the documentation
+	for Doxygen.  Made some changes because Doxygen has difficulties
+	with typedefs.
+
+	* CharChopper.cxx:, InSerializer.cxx: Fixed to use new iterator
+	system instead of old, crufty, GV_Iterator.
+
+	* StaticBuffer.cxx, StrMod/StaticBuffer.h (class StaticBuffer):
+	Added this class so that I could hack InSerializer into working.
+
+2000-11-30  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GraphVizVisitor.cxx: Added some cleanup code and made it
+	exception safe.
+
+	* ChunkIterator.cxx: Added some exception cleanup code.
+
+	* StrMod/StrChunkPtrT.h, StrMod/StrChunkPtr.h,
+	StrMod/LinearExtent.h, StrMod/GraphVizVisitor.h,
+	StrMod/ChunkVisitor.h, StrMod/ChunkIterator.h,
+	StrMod/BufferChunk.h: Completely worked over the documentation for
+	Doxygen.
+
+	* StrMod/GraphVizVisitor.h: Added missing i_GetIdent function.
+
+2000-11-28  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamModule.h, StreamModule.cxx, StrChunkPtr.cxx,
+	GraphVizVisitor.cxx, UseTrackingVisitor.cxx,
+	StrMod/UseTrackingVisitor.h: Completely worked over the
+	documentation for Doxygen.
+
+2000-10-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* : libNet-0.1.5 released.
+
+	* ChunkVisitor.cxx, GraphVizVisitor.cxx, Makefile.in,
+	StackSwapper.cxx, TelnetParser.cxx, UseTrackingVisitor.cxx,
+	StrMod/ChunkIterator.h, StrMod/ChunkVisitor.h,
+	StrMod/GraphVizVisitor.h, StrMod/StackSwapper.h,
+	StrMod/StrChunk.h, StrMod/TelnetParserData.h,
+	StrMod/UseTrackingVisitor.h, tests/testvisitor.cxx: Merged in more
+	code.  Now StrChunk::const_iterator can be used in place of
+	GV_Iterator in almost all situations.  The changes needed to
+	actually remove GroupVector and GV_Iterator will happen on another
+	branch.
+
+2000-09-25  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* BufferChunk.cxx, ChangeLog GroupChunk.cxx Makefile.in,
+	ProcessorModule.cxx STR_ClassIdent.cxx StrChunk.cxx,
+	StrSubChunk.cxx, ChunkVisitor.cxx GraphVizVisitor.cxx
+	StackSwapper.cxx, UseTrackingVisitor.cxx, StrMod/BufferChunk.h,
+	StrMod/EOFStrChunk.h, StrMod/GroupChunk.h, StrMod/LinearExtent.h,
+	StrMod/SockListenModule.h, StrMod/StrChunk.h,
+	StrMod/StrSubChunk.h, StrMod/TelnetParserData.h,
+	StrMod/ChunkIterator.h, StrMod/ChunkVisitor.h,
+	StrMod/GraphVizVisitor.h, StrMod/StackSwapper.h,
+	StrMod/UseTrackingVisitor.h, tests/testvisitor.cxx: Merged in new
+	Visitor code.  Not done yet because the other traversal mechanisms
+	haven't been totally replaced with Visitors.
+
+2000-09-08  Eric Mathew Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/BufferChunk.h, BufferChunk.cxx (acceptVisitor): Added new
+	method to allow BufferChunks to be visited by the ChunkVisitor.
+
+	* StrMod/ChunkVisitor.h: Fixed interface for visitDataBlock
+	because void * + length is enough information.  No LinearExtent is
+	needed.
+
+2000-09-07  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/ChunkVisitor.h: Added the visitZeroLength method so a
+	visitor could choose to include or skip chunks of zero length
+	which are sometimes special stream control chunks.
+
+	* StrMod/StrSubChunk.h (class StrSubChunk):
+	* StrSubChunk.cxx (acceptVisitor):
+	* StrMod/GroupChunk.h (class GroupChunk):
+	* GroupChunk.cxx (acceptVisitor): Added the acceptVisitor method
+	in order to support ChunkVisitors.
+
+2000-09-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Added listing for new ChunkVisitor class.
+
+	* StrMod/ChunkVisitor.h:
+	* ChunkVisitor.cxx:
+	* StrMod/StrChunk.h:
+	* StrChunk.cxx: First crack at adding an interface for visitors to
+	the StrChunk class.
+
+2000-01-27  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamFDModule.h:
+	* SimpleMulti.cxx:
+	* SockListenModule.cxx:
+	* StreamFDModule.cxx: Fixed various member functions to conform to
+	the 'first letter is lowercase' naming conventions.
+
+1999-11-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Everything: Added copyright notices everywhere!
+
+1999-10-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/InSerializer.h:
+	* StrMod/OutSerializer.h:
+	* StrMod/SockListenModule.h:
+	* StrMod/StreamFDModule.h:
+	* StrMod/StreamSplitter.h:
+	* StreamFDModule.cxx:
+	* StreamSplitter.cxx:
+	* SockListenModule.cxx: Removed all references to <bool.h> and
+	changed all references to bool_val and bool_cst to bool.
+
+	* GNUmakefile.in: Removed because now there's Makefile.in
+
+	* Makefile.in: Added the wondrous, splendiferous new makefile that
+	reports a list of dependencies to the root level makefile so one,
+	big make can be done at the top level.
+
+1999-10-14  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in: Added items for the new telnet stuff.
+
+	* tests/TelnetToAscii.h:
+	* tests/TelnetToAscii.cxx (class TelnetToAscii): Added an option
+	to the constructors to alllow you to specify that you want it to
+	strip non-telnet protocol data.  This is so it can more easily be
+	used for debugging ouput.
+	(processIncoming): Had to modify this function to do the actual
+	stripping.
+
+	* tests/tstelnet.cxx: A test for the SimpleTelnetClient class.
+
+	* StrMod/SimpleTelnetClient.h:
+	* SimpleTelnetClient.cxx: Added the SimpleTelnetClient class.
+	This is designed for simple, character at a time, telnet sessions.
+
+	* StrMod/InfiniteModule.h (class InfiniteModule): Added an AreYouA
+	function.
+
+1999-09-22  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in: Updated for the rewrite.
+
+	* tests/testinfinite.cxx: Added a test for the InfiniteModule.
+	This was also a test for memory leaks in the StreamModule system.
+
+	* STR_ClassIdent.cxx: Removed reference to DataBlockStrChunk from
+	comments.  Added entries for InfiniteModule and its plug.
+
+	* StrMod/InfiniteModule.h:
+	* InfiniteModule.cxx: Added the InfiniteModule class.  This acts a
+	lot like /dev/zero
+
+	* StrMod/SimpleMulti.h (SinglePlug::~SingePlug): Removed bad call
+	to unPlug.
+
+1999-09-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/TelnetParserData.h:
+	* StrMod/TelnetParser.h:
+	* TelnetParser.cxx: Added the new TelnetParser class and nested
+	classes.  This class is designed to transform a raw data stream
+	containing telnet protocol messages into a data stream in which
+	the telnet protocol messages are discreet chunks that can be
+	easily identified by other stream modules using a simple type
+	test.
+	(TelnetParser::processChar): Added a state transition that I
+	forgot about.
+
+	* tests/TelnetToAscii.h:
+	* tests/TelnetToAscii.cxx:
+	* tests/ttelnet.cxx: Added to test the new TelnetParser class.
+
+	* tests/testchunk.cxx: Changed to use DynamicBuffer instead of
+	DataBlockStrChunk.
+
+	* tests/testGV.cxx: Changed to use DynamicBuffer instead of
+	DataBlockStrChunk.
+
+	* StrMod/PreAllocBuffer.h (class PreAllocBufferBase): Added proper
+	capitalization on resize function.
+	(class PreAllocBuffer): Removed 'identifier' because having it
+	private was causing a lot of problems with templates.
+
+	* StreamFDModule.cxx (doReadFD): Changed to use DynamicBuffer
+	instead of DataBlockStrChunk.
+
+	* StrMod/DynamicBuffer.h:
+	* DynamicBuffer.cxx: Added a couple of convenience constructors to
+	make transition from DataBlockStrChunk easier.
+
+	* StrMod/CharChopper.h:
+	* CharChopper.cxx: Various changes to stop using DataBlockStrChunk
+	and start using BufferChunks.
+
+	* StrMod/DBStrChunk.h:
+	* DBStrChunk.cxx: Removed file implementing obsolete class.
+
+1999-09-15  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/dlmalloc.c: Imported Doug Lea's malloc to use in certain
+	tests for its debugging features.
+
+	* StrMod/BufferChunkFactory.h:
+	* BufferChunkFactory.cxx: Created an interface for things that
+	create BufferChunks.
+
+	* tests/testPreAlloc.cxx: Added a test for the various kinds of
+	BufferChunk I've implemented.  Using dlmalloc, a good, debugging
+	malloc.
+
+	* tests/testserial.cxx: Changed to use BufferChunk and the
+	debugging malloc.
+
+	* StrMod/LinearExtent.h (intersection): Added this function to
+	help write the telnet code.
+
+	* STR_ClassIdent.cxx: Added all of the new classes.
+
+	* StrMod/OutSerializer.h:
+	* OutSerializer.cxx: Changed to conform to new coding standards.
+
+	Changed to use BufferChunk instead of old DataBlockStrChunk.
+
+	Changed to allow the internal state to be stored externally so the
+	instance could be destructed, and then reconstructed in its old
+	state.
+
+	* StrMod/PreAllocBuffer.h:
+	* PreAllocBuffer.cxx: Added a template class, derived from
+	BufferChunk, to represent a bag of bytes allocated on the stack if
+	possible.
+
+	* StrMod/DynamicBuffer.h:
+	* DynamicBuffer.cxx: Added a class, derived from BufferChunk, to
+	represent a bag of bytes that's always allocated from the heap.
+
+	* StrMod/BufferChunk.h:
+	* BufferChunk.cxx: Added an abstract base class for types
+	representing an indexable bag of bytes.
+
+1999-07-24  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Blank an entry that wasn't used anymore.
+
+1999-07-25  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testmulti.cxx: Changed to accomodate the fact that
+	ProcessorModule, NewlineChopper, and PassThrough now exist.
+
+	* STR_ClassIdent.cxx: Changed a name so the comments would reflect
+	reality.
+
+1999-07-24  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* ProcessorModule.cxx: Changed to use new StreamModule system.
+	Updated to new coding standards.  Added lots of comments.
+
+	* StrMod/PassThrough.h:
+	* PassThrough.cxx: Updated to new coding standards.
+
+	* StrMod/NewlineChopper.h:
+	* NewlineChopper.cxx: Updated to new coding standards.
+
+	* StrMod/CharChopper.h:
+	* CharChopper.cxx: Updated to new coding standards.  Hopefully
+	made the whole thing a little more efficient (and hopefully a
+	little more understable by mostly re-writing the original.
+
+1999-07-23  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamProcessor.h:
+	* StreamProcessor.cxx: Updated to conform to new coding standards.
+	Added lots of comments.
+
+1999-07-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testmulti.cxx: Changed to accomodate the fact that
+	ProcessorModule, NewlineChopper, and PassThrough don't exist yet.
+	Also altered to fit new way of doing things.
+
+	* StrMod/SimpleMulti.h:
+	* SimpleMulti.cxx: Completely redid SimpleMultiplexer to fit into
+	new way of doing things.
+
+	* StrMod/StreamModule.h: Changed to include new <cassert> and
+	<cstddef> header files instead of <assert.h> and <stddef.h>
+	(Plug::getFlagsFrom): Changed to return a reference to the Flags
+	structure.  Should be a little more efficient.
+
+	* StrMod/StrChunk.h: Changed to include new <cassert> header file
+	instead of <assert.h>
+
+	* StreamFDModule.cxx (plugWrite): Added a case to try to better
+	handle writing an EOF.
+	(doWriteFD): Added yet another way to determine the value of
+	MAXIOVCNT.
+	Added miscellaneous commented out debugging statements.
+
+	* SocketModule.cxx (SHUT_WR): Added #define for SHUT_WR so I could
+	use the symbolic argument to shutdown on Linux systems.
+
+	* STR_ClassIdent.cxx: Added comment line for
+	SimpleMultiplexer::ScanEvent
+
+1999-03-19  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StreamSplitter.cxx: Simplified logic for determining the value
+	passed into setReadable or setWriteable.  Added some commented out
+	debugging.
+
+	* SocketModule.cxx: Fixed to use new FDUtil::setNonBlock function.
+	Added some commented out debugging.
+
+1999-01-31  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/echoserv.cxx (main): Fixed a small type error (with a cast
+	:-P ) in how the adresses connected from were printing out.
+
+	* StrMod/FDUtil.h:
+	* FDUtil.cxx: The new FDUtil class.  A set of utility functions
+	for file descriptors.
+
+	* StreamFDModule.cxx: Added more commented out debugging.
+
+1999-01-22  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testsock.cxx: Made code to set file descriptors to
+	non-blocking use the new FDUtil class.
+
+	* SockListenModule.cxx (doAccept): Fixed an error introduced by
+	the earlier 64 bit change.
+
+	* StrMod/StreamModule.h (setReadable):
+	(setWriteable): Made setReadable and setWriteable check to see if
+	the plug was plugged in before trying to work with the plug the
+	plug was plugged into.
+
+	* StrMod/DBStrChunk.h (DataBlockStrChunk): Fixed an incredibly
+	stupid error in the 'make DataBlockStrChunk from memory block'
+	constructor.
+
+1999-01-17  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testsock.cxx: Attempted to fix the problem of stdin and
+	stdout being left non-blocking on program exit.
+
+	* StrSubChunk.cxx (StrSubChunk): Changed to automatically make a
+	StrSubChunk of a StrSubChunk into just a StrSubChunk.
+
+	* StrMod/StreamFDModule.h:
+	* StreamFDModule.cxx: Fixed a number of stupid errors in how error
+	categories were handled.
+
+	* SockListenModule.cxx (doAccept): Fixed to handle systems that
+	need accept to take an int * instead of a size_t *.  This first
+	happened to me on an Alpha, which is a 64 bit architecture.  I'm
+	sure it's that way to maintain compatibility with old, non 64-bit
+	binaries using the accept call.
+
+	* LinearExtent.cxx (SubExtent_eq): Made to handle
+	a.SubExtent_eq(a).
+
+1999-01-14  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testsplit.cxx:
+	* tests/testsock.cxx:
+	* tests/echoserv.cxx: Changed to make use of the new ability to
+	read and write EOF indications.
+
+	* StrMod/StreamFDModule.h:
+	* StreamFDModule.cxx: Added support for the ability to read and
+	write EOF indications.
+
+	* StrMod/SocketModule.h:
+	* SocketModule.cxx (writeEOF): Added support for writing an EOF
+	indication to a socket.
+
+	* StrMod/EOFStrChunk.h:
+	* EOFStrChunk.cxx: A new class for sending an EOF indication down
+	a stream.
+
+1999-01-13  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/echoserv.cxx: Changed to use new StreamModule system so
+	SockListenModule could be properly tested.
+
+	* StrMod/StrChunkPtrT.h: Fixed incredibly stupid mistake in
+	typedef for super1.
+
+	* StrMod/SocketModule.h: Added explanatory comment.
+	Added class forward decl to make sure the right class is being
+	talked about.
+
+	* StreamFDModule.cxx: Added some commented out debugging.
+	(StreamFDModule::~StreamFDModule): Now calls
+	UNIXpollManager::freeFD for the descriptor the StreamFDModule was
+	taking care of.
+
+	* StrMod/StreamFDModule.h: Made more const correct.  Added cop-out
+	getFD method for getting the file descriptor if need be.
+
+	* StrMod/SockListenModule.h:
+	* SockListenModule.cxx: Rewritten to make this fit withing the new
+	StreamModule framework.
+
+1999-01-12  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testsplit.cxx: Removed spurious include.  Added check for
+	an empty write buffer so we don't die prematurely.
+
+	* tests/testsock.cxx: A new test for the SocketModule class.
+
+	* SocketModule.cxx:
+	* StrMod/SocketModule.h: Various changes to clean up the interface
+	a little.  No changes really needed to make it part of the new
+	StreamModule system.
+
+	* StrMod/StreamFDModule.h: Various small changes designed to make
+	the interface more generally useful.
+
+1999-01-08  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StrChunk.h:
+	* StrMod/DBStrChunk.h: Added better comments.
+
+1998-12-30  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* tests/testsplit.cxx: A new test that tests StreamFDModules,
+	EchoModules, and StreamSplitterModules together.  It just copies
+	stdin to stdout.
+
+	* StreamSplitter.cxx:
+	* StrMod/StreamSplitter.h: Completely overhauled this class to fit
+	within the new StreamModule system.
+
+	* StrMod/StreamModule.h: Numerous changes to cause StreamModules
+	to have a much more aggresive policy with regards to pushing data
+	through the system.  The creation of the SplitterModule had
+	introduced a case in which the data stream could become stalled.
+	These have been fixed.
+
+	* StrChunkPtr.cxx:
+	* StrMod/StrChunkPtrT.h:
+	* StrMod/StrChunkPtr.h:
+	* StrMod/StrChunk.h: Changed the whole face of the StrChunkPtr
+	class to be derived from RefCountPtrT<StrChunk> because with
+	current compiler has rendered this a safe thing to do, and it more
+	accurately reflects semantics anyway.  As part of this, StrChunk
+	has also been changed to derive from ReferenceCounting, because
+	that is also more consistent with semantics, and allows the
+	previously mentioned change.
+
+	* STR_ClassIdent.cxx: Changed some class name comments to reflect
+	new class names.
+
+	* EchoModule.cxx (otherIsWriteable):
+	(otherIsReadable): Added some code to make sure all of the plug
+	readable/writeable flags were set properly in all situations.
+
+1998-12-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* DBStrChunk.cxx: Removed a couple of lines that were used for
+	debugging.
+
+1998-11-02  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* STR_ClassIdent.cxx: Changed a couple of comments to better
+	reflect reality.
+
+	* GroupVector.cxx: Fixed small syntax errors that g++ should've
+	caught.
+
+	* GV_Iterator.cxx: Fixed small syntax errors that g++ should've
+	caught.
+
+	* EchoModule.cxx (EchoModule::EchoModule): Changed call of plug
+	constructor in module constructor to conform to new interface.
+
+	* StrMod/StreamModule.h: Changed comments now that I've fixed the
+	perceps multi-line comment bug.
+
+	* StrMod/StrChunkPtr.h (class StrChunkPtr): Changed operator bool
+	to the more proper (with my bool.h) bool_cst.
+
+	* StrMod/EchoModule.h (class EchoModule): Fixes a few things that
+	g++ shoud've caught, but didn't somehow.  Added a destructor and
+	constructor for EchoModule::EPlug.
+
+	* tests/teststrfd.cxx: Added this file for simple StreamFDModule
+	and EchoModule test.
+
+	* StreamFDModule.cxx:
+	* StrMod/StreamFDModule.h: Initial checkin of StreamFDModule
+	conforming to splendiferous new architecture.
+
+1998-08-23  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/EchoModule.h (class EchoModule):
+	* StrMod/StreamModule.h (class StreamModule): Changed interface of
+	ownsPlug to be more const correct.
+
+	* GroupVector.cxx (GroupVector): Changed order of members in
+	initialization list to correspond to actual initialization order.
+	Changed type of index to be correct.
+
+	* GroupChunk.cxx (AccumulateRange): Added initializations for two
+	local variables to prevent possible bugs.
+
+	* LinearExtentStrmOp.cxx (operator <<): Changed to return the
+	value it's supposed to return.
+
+	* InSerializer.cxx (Impl constructor): Changed order of members in
+	initialization list to correspond to actual initialization order.
+
+	* StrMod/StrChunk.h: Removed RCS id thingy from header file.
+
+1998-06-29  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/EchoModule.h:
+	* EchoModule.cxx: A complete retooling as part of my StreamModule
+	makeover.  Not tested yet.
+
+	* StrMod/StreamModule.h:
+	* StreamModule.cxx: Began my total StreamModule framework
+	makeover.  The purpose of this is to make writing new modules
+	simpler and less pitfall laden.  I also want to make use of the
+	new UniEvent framework, and make the modules that talk to the
+	outside world use the new mechanism built into the UniEvent
+	framework.  Not tested yet.
+
+Mon Apr 14 18:55:24 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in: Added new .cxx files to library.  Added
+	testserial test program.  Changed CCNAMES to be composed of all
+	the different kinds of cxx/cc files instead of having a whole
+	bunch of unspecified files tacked on the end.
+
+	* InSerializer.cxx:
+	* StrMod/InSerializer.h: Added class to aid in serialization of
+ 	simple data tyes.
+
+Fri Apr 11 12:42:30 1997  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* OutSerializer.cxx:
+	* StrMod/OutSerializer.h: Added OutSerializer class for simple
+	serialization of basic data types.
+
+Mon Dec  9 19:52:10 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GroupVector.cxx (FillIOVecDesc): Fixed an error involving a
+	misplaced increment.
+
+Wed Oct 23 05:12:12 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamModule.h: Made a number of cosmetic readability
+ 	improvements.
+
+	* StrMod/StreamFDModule.h (CanWrite): Cosmetic change to make
+	operator precedence more obvious.
+
+	* StrFDPlug.cxx (outputReady): Fixed an = vs. == bug that caused
+	StreamFDModule to stop being able to write.
+
+Sat Sep 21 13:35:04 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in: Changed .cc to .cxx to reflect new naming
+ 	scheme.  This should probably be done retroactively, but that
+ 	would be a BIG pain.
+
+	* StrMod/GV_Iterator.h (GroupVector::Iterator::operator +=): Fixed
+ 	stupid bug that caused advances of only one character, no matter
+ 	what skip said.
+
+	* utils/writelots.c: Used memset instead of for loop to set
+	block.  Used more appropriate looping construct.
+
+	* StrMod/StreamFDModule.h:
+	* StrFDPlug.cxx: Moved the guts of the file I/O (the stuff that
+	actually reads on writes to the file descriptor) out of StrFDPlug,
+	and put it into StreamFDModule::DoWriteFD, and
+	StreamFDModule::DoReadFD.  This makes StreamFDModule a little
+	easier to inherit from.
+
+	* StrMod/LinearExtent.h:
+	* LinearExtent.cxx (LinearExtent::SubExtent_eq): Changed to return
+ 	const LinearExtent & to be more like x= operators.
+
+Wed Sep 11 18:07:12 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamProcessor.h (CanAddIncoming): Changed to use
+	StrChunkPtr operator ! instead of comparison to 0.
+
+	* StrMod/GroupVector.h:
+	* GroupVector.cxx: Changed class GroupVector to be a little more
+	STL like.  Added SafeToDelete method.
+
+Mon Sep  2 18:04:03 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* ProcessorModule.cc (i_Write): Commented out all kinds of
+ 	debugging stuff.
+
+	* GNUmakefile.in (LIBCCS): Added new library source modules for
+	CharChopper, PassThrough, NewlineChopper, StreamProcessor, and
+	ProcessorModule classes.
+
+	* tests/testmulti.cc: Added code to test the ProcessorModule,
+ 	NewlineChopper, PassThrough, and StreamProcessor classes.
+
+	* StrChunkid.cc: Removed a file that's no longer needed because
+ 	identifiers are now declared inside the main source modules for
+ 	the classes they identify.
+
+	* StrMod/StreamProcessor.h: * StreamProcessor.cc: Created abstract
+ 	class for handling simple dataflows where one grabbed incoming
+ 	data, did stuff to it, and sent the result along.
+
+	* StrMod/ProcessorModule.h:
+	* ProcessorModule.cc: Added class that would turn two
+ 	StreamProcessors into a StreamModule that used one StreamProcessor
+ 	for the data flowing in each direction.
+
+	* StrMod/CharChopper.h:
+	* CharChopper.cc: Added CharChopper class so users would have a
+ 	simple class that would break up and recombine streams using
+ 	whatever character they chose as a separator.
+
+	* StrMod/PassThrough.h:
+	* PassThrough.cc: Added PassThrough class to use when you needed a
+	StreamProcessor that did nothing except buffer one Chunk worth of
+	data.
+
+	* StrMod/NewlineChopper.h:
+	* NewlineChopper.cc: Added NewlineChopper class so users would
+ 	have a simple class that would break up and recombine streams
+ 	using '\n' as a separator.
+
+	* STR_ClassIdent.cc: Added new classes to class id comment list.
+
+	* StrMod/DBStrChunk.h (DataBlockStrChunk): Changed inline
+ 	definition of constructor to take correct type as argument.
+
+	* config.h:
+	* sockdecl.h:
+	* StrFDPlug.cc:
+	* SocketModule.cc:
+	* SockListenModule.cc: Added a crude attempt at fixing
+	deficiencies in AIX 3.2.5's include files with respect to socket
+	calls.
+
+	* StreamFDModule.cc (BestChunkSize): Changed to try to handle
+	systems that don't set st_blksize for sockets.  Used 4096 as a
+	default block size.
+
+Sat Aug 31 10:42:12 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/EchoModule.h:
+ 	* EchoModule.cc (class EchoModule): Changed to use
+ 	StrChunkPtr::operator bool a little more explicity.  Used to
+ 	compare pointer values to 0.
+
+	* SimpleMulti.cc: Fixed several bugs in class SimpleMultiplexer
+	that caused it to lock up when searching for the plug list.
+
+Sat Aug 24 07:37:48 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StrChunkPtr.h (class StrChunkPtr): Added new operator !
+	method as a counterpart to the operator bool conversion.
+
+	* tests/testmulti.cc: Added new test program for SimpleMultiplexer
+	class.
+
+	* StrMod/SimpleMulti.h:
+	* SimpleMulti.cc: Added new SimpleMultiplexer class, and related
+ 	plug classes.  This implements a simple multiplexer that
+ 	duplicates all input on the 'single' side to all the plugs
+ 	attached to the 'multi' side, and combines all the data from the
+ 	'multi' side into one flow on the 'single' side.
+
+	* StrMod/SimplePlug.h:
+	* SimplePlug.cc: Added new SimplePlug class, and SimplePlug
+ 	template.  These are abstract classes that handle details of read
+ 	and write locking on a plug.  Classes derived from these have much
+ 	simpler implementations.
+
+	* STR_ClassIdent.cc: Added new class numbers for SimplePlug and
+	SimpleMulti related classes.
+
+Sun Jul  7 00:09:41 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StrChunkPtr.h (class StrChunkPtr): Fixed default
+	implementation of i_CheckType to actually be correct.
+
+	* StrMod/StreamFDModule.h (class StreamFDModule): Arranged for
+	max_block_size to be initialized correctly.
+
+	* StreamFDModule.cc: Fixed a problem with the initialization of
+ 	max_block_size.  Used to rely on StrChunkio crud for a solution.
+
+	* StrFDPlug.cc: Added, then commented out some debugging.
+	Rearranged statements to make logic clearer.
+
+	* StreamModule.cc: Added, then commented out some debugging.  I
+	left it there because it might be useful someday.
+
+Fri Jul  5 13:19:20 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrChunkio.cc: Dropped.  Functionality split between StrChunk.cc
+ 	and StrFDPlug.cc.  Some functionality no longer necessary because
+ 	of new StrChunkPtr system.
+
+	* EchoModule.cc: Killed OS2 garbage.
+	(DeletePlug): Removed reference to obsolete PutIntoFd funtion.
+	(InternalRead): Changed to use new StrChunkPtr system.
+	(ReadableNotify):
+	(WriteableNotify): Removed because default implementation is
+	correct.
+	(Write): Changed to use new StrChunkPtr interface.
+
+	* StrMod/EchoModule.h (class EchoModule): Changed to use new
+	StrChunkPtr system.
+	(class EchoPlug): Change to use new StrChunkPtr system, and new
+	parent module system.
+
+	* StrMod/StreamModule.h (StrPlug): Added assert to check for bad
+	parent pointers.
+
+	* StrChunkPtr.cc (StrChunkPtr::i_SetPtr): Removed unused addref
+	parameter,
+
+	* StrMod/StrChunkPtr.h (class StrChunkPtr): Changed i_SetPtr to be
+ 	non-virtual.  Removed unused addref parameter.  Added i_CheckType
+	so implementing StrChunkPtrT would be easier and result in more
+	efficient code.
+	(StrChunkPtr::operator =): Added call to i_CheckType to make
+	StrCunkPtr's typesafe.  Changed call to internal i_GetPtr to
+	external GetPtr.  Added missing returns.
+
+	* SockListenModule.cc (SockListenModule): Formatting changes so it
+	looks prettier.
+	(my_InternalRead): Adapted from old InternalRead.  Changed to use
+	new StrChunkPtr stuff.
+	(inputReady): Changed the way the address buffer was handled in an
+	attempt to reduce executable size, and make re-entrant.
+	(inputReady): Changed to used ANSI C string concatenation instead
+	of multiple cerr << statements to reduce code size.
+	(ListeningPlug): Changed to use new parent module handling.
+	(ListeningPlug::Write): Changed to use new StrChunkPtr style
+	interface.
+	(SocketModule::junk): Removed, no longer needed for StrChunkPtr
+	style StrChunk handling.
+
+	* StrMod/SockListenModule.h (class SocketModuleChunk): Moved
+	declaration so I could have StrChunkPtrT<SocketModuleChunk>. Also
+	changed interface for new StrChunk stuff.
+	Added typedef SocketModuleChunkPtr StrChunkPtrT<SocketModuleChunk>
+	(class ListeningPlug): Changed interface to use new StrChunkPtr
+	stuff.  And new parent module handling from StrPlug.
+
+Sat Jun 29 01:26:16 1996  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StrMod/StreamModule.h (class StrPlug): Moved data members to
+	private section.  Made copy constructor and assignment private to
+	prevent accidental use.
+
+	* StreamSplitter.cc (InternalRead): Changed to use StrChunkPtr
+	instead of StrChunk *
+	(Write): Changed to use StrChunkPtr instead of StrChunk *
+
+	* StrMod/StreamSplitter.h (class SplitterPlug): Changed to use
+	StrChunkPtr instead of StrChunk *
+
+	* StrFDPlug.cc (InternalRead): Changed to used StrChunkPtr instead
+ 	of StrChunk *
+	(inputReady):
+	(outputReady): Changed to use new StrChunk style.
+	(ReadableNotify):
+	(WriteableNotify): Changed to be close to safer 'standard'
+ 	implementation.
+	(Write): Changed to use StrChunkPtr instead of StrChunk *
+
+	* StreamFDModule.cc: Changed include for StrChunk.h to
+	DBStrChunk.h now that DataBlockStrChunk has been split out.
+	(StreamFDModule): Changed constructor to initialize new members,
+	and to use an initialization list.
+
+	* StrMod/StreamModule.h (class StrPlug): Changed interfaces to use
+ 	const StrChunkPtr & instead of StrChunk *, and also changed things
+ 	so StrPlug now has a parent_ member, and a good default
+ 	implementation of ReadableNotify, and WriteableNotify.
+
+	Removed old obsolete chunk identification stuff.
+	* StrMod/ChunkType.h:
+	* ChunType.cc:
+
+	StrChunk_done tag
+
+	* GNUmakefile.in (LIBCCS): Arranged to be more rational.
+	(CCNAMES): Arranged to be more rational.
+	(CNAMES): Arranged to be more rational.
+	(tests/testchunk): Updated target to avoid linking library.
+	(tests/testextent): New target.  Test class LinearExtent.
+	(tests/testGV): New target.  Test lots, especially GroupVector.
+
+	* tests/testextent.cc: Attempt to extensively test LinearExtent
+	class, both in terms of performance and functionality.
+
+	* tests/testGV.cc: New test to work the GroupVector, and some of
+	the other components of the new StrChunk style.
+
+	* tests/testchunk.cc: Changed to use new StrChunk style.
+
+	New class StrSubChunk used to make a part of an existing chunk
+	look like a full chunk to the outside world.
+	* StrMod/StrSubChunk.h:
+	* StrSubChunk.cc:
+
+	New class StrChunkPtr that acts as a reference counted pointer to
+	StrChunk
+	* StrMod/StrChunkPtr.h:
+	* StrChunkPtr.cc:
+
+	* LinearExtentStrmOp.cc: New file for implementation of stream
+	operator for class LinearExtent.
+
+	New class GroupChunk to hold a group of chunks and make them
+	appear to be one chunk.
+	* StrMod/GroupChunk.h:
+	* GroupChunk.cc:
+
+	* STR_ClassIdent.cc: Changed comment style to be more rational and
+	added comments for new classes.
+
+	* LinearExtent.cc (SubExtent): Added const qualifier.
+	(SubExtent_eq): New function, in place SubExtent calc.
+
+	Added totallength_ field to class GroupVector.
+	* StrMod/GroupVector.h: Update totallength_ field when needed.
+	* GroupVector.cc: Added initialization for totallength_
+
+	Moved from StrChunk.h and StrChunk.cc along with re-working for
+	new StrChunk handling.
+	* StrMod/DBStrChunk.h:
+	* DBStrChunk.cc:
+
+ 	Completely re-worked for new StrChunk handling.
+	* StrMod/StrChunk.h:
+	* StrChunk.cc:

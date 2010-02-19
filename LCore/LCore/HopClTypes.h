@@ -67,8 +67,12 @@
 
 #define _LCORE_HopClTypes_H_
 
+namespace strmod {
+namespace lcore {
+
 class LCore_ClassIdent;
 
+//! A ClassNum of one of Eric Hopper's classes.
 class EH_ClassNum : public ClassNum {
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
@@ -111,6 +115,9 @@ class EH_ClassIdent : public ClassIdent {
 
 //----------
 
+/** \class LCore_ClassIdent HopClTypes.h LCore/HopClTypes.h
+ * A class identifier for a class in the LCore library.
+*/
 class LCore_ClassIdent : public EH_ClassIdent {
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
@@ -187,5 +194,8 @@ inline LCore_ClassIdent::LCore_ClassIdent(U4Byte cnum) :
      EH_ClassIdent(EH_ClassNum(EH_ClassNum::LCore, cnum))
 {
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

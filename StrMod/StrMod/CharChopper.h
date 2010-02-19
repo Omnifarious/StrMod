@@ -1,7 +1,7 @@
 #ifndef _STR_CharChopper_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -32,34 +32,58 @@
 // a separator.
 //
 
+#include <cstddef>
+#include <cassert>
 #include <StrMod/StreamProcessor.h>
 #include <StrMod/StrChunkPtrT.h>
 #include <StrMod/BufferChunk.h>
 #include <StrMod/GroupChunk.h>
-#include <cstddef>
-#include <cassert>
 
 #define _STR_CharChopper_H_
 
+namespace strmod {
+namespace strmod {
+
 class GroupVector;
 
-class CharChopper : public StreamProcessor {
+/** \class CharChopper CharChopper.h StrMod/CharChopper.h
+ * \brief Chops up the data in chunks delimited by a character.
+ *
+ * If an object of this class is constructed with a 'g', and you have
+ * an incoming stream of data that arrives in the following chunks:
+ *
+ * \code <This ghost> < went to the gilded post t> <o admire the gold.> \endcode
+ *
+ * You'll end up with an outgoing stream of data that looks like this:
+ *
+ * \code <This g> <host went to the g> <ilded post to admire the g> \endcode
+ *
+ * It will hold the last few characters <old.>, waiting for another 'g' before
+ * it send them off again.
+ */
+class CharChopper : public StreamProcessor
+{
  public:
    static const STR_ClassIdent identifier;
 
+   /** Make a CharChopper
+    * @param chopchar The character to split by.
+    *
+    * The character can be anything, including '\\0'.
+    */
    CharChopper(char chopchar) : chopchar_(chopchar)    { }
    // Derived class destructor doesn't do anything base class one doesn't do.
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
- protected:
+ private:
    const char chopchar_;
    StrChunkPtrT<GroupChunk> groupdata_;
    StrChunkPtrT<BufferChunk> curdata_;
    size_t usedsize_;
    enum { INYes, INNo, INMaybe } incoming_is_bc_;
 
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual void processIncoming();
 
@@ -74,7 +98,7 @@ class CharChopper : public StreamProcessor {
 
 //-----------------------------inline functions--------------------------------
 
-inline int CharChopper::AreYouA(const ClassIdent &cid) const
+inline int CharChopper::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamProcessor::AreYouA(cid));
 }
@@ -105,5 +129,8 @@ inline void CharChopper::replaceIncoming(const StrChunkPtr &data)
 {
    incoming_ = data;
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

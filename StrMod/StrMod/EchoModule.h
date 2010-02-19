@@ -1,7 +1,7 @@
 #ifndef _STR_EchoModule_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -36,17 +36,22 @@
 #   include <StrMod/StrChunkPtr.h>
 #endif
 
-#include <assert.h>
+#include <cassert>
 
 #define _STR_EchoModule_H_
 
+namespace strmod {
+namespace strmod {
+
 class StrChunk;
 
-//: This module echoes everything that comes in.
-// <p>Everything that is written to its one plug is read from that same
-// plug.</p>
-// <p>See the parent class for any member functions not described here.</p>
-class EchoModule : public StreamModule {
+/** \class EchoModule EchoModule.h StrMod/EchoModule.h
+ * This module echoes everything that comes in.
+ *
+ * Everything that is written to its one plug is read from that same plug.
+*/
+class EchoModule : public StreamModule
+{
    class EPlug;
    friend class EPlug;
  public:
@@ -55,32 +60,27 @@ class EchoModule : public StreamModule {
    EchoModule();
    virtual ~EchoModule();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
-   /*lint -save -e1735 */
    inline virtual bool canCreate(int side = 0) const;
-   /*lint -e1511 */
    inline Plug *makePlug(int side = 0);
-   /*lint -restore */
-   virtual bool ownsPlug(const Plug *plug) const   { return(i_OwnsPlug(plug)); }
+   virtual bool ownsPlug(const Plug *plug) const   { return i_OwnsPlug(plug); }
    virtual bool deletePlug(Plug *plug);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const    { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual void plugDisconnected(Plug *plug);
 
    inline virtual Plug *i_MakePlug(int side);
 
  private:
-   //: This is the magical plug that does most of EchoModule's work.
-   // <p>See the parent class for descriptions of these member functions.</p>
    class EPlug : public Plug {
       friend class EchoModule;
     public:
       static const STR_ClassIdent identifier;
 
-      inline virtual int AreYouA(const ClassIdent &cid) const;
+      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       inline EchoModule &getParent() const;
 
@@ -90,7 +90,9 @@ class EchoModule : public StreamModule {
       inline EPlug(EchoModule &parnt);
       inline virtual ~EPlug();
 
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       virtual bool needsNotifyReadable() const          { return(true); }
       virtual bool needsNotifyWriteable() const         { return(true); }
@@ -110,7 +112,7 @@ class EchoModule : public StreamModule {
 
 //-------------------------------inline functions------------------------------
 
-inline int EchoModule::AreYouA(const ClassIdent &cid) const
+inline int EchoModule::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
@@ -149,7 +151,7 @@ inline EchoModule::EPlug::~EPlug()
 {
 }
 
-inline int EchoModule::EPlug::AreYouA(const ClassIdent &cid) const
+inline int EchoModule::EPlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }
@@ -158,5 +160,8 @@ inline EchoModule &EchoModule::EPlug::getParent() const
 {
    return(static_cast<EchoModule &>(Plug::getParent()));
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

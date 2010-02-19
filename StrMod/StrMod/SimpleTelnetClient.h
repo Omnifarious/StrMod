@@ -1,7 +1,7 @@
 #ifndef _STR_SimpleTelnet_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -31,12 +31,18 @@
 
 #define _STR_SimpleTelnet_H_
 
-//: Only will handle the case when the server will do supress go ahead, and
-//: echo.
-// <p>This is a very simple telnet protocol handler.  It won't support ANY
-// options besides the server doing supress go ahead, and echo, and it
-// requires the server to support and enable those options.  This means that
-// it will only do 'character at a time' mode.</p>
+namespace strmod {
+namespace strmod {
+
+/** \class SimpleTelnetClient SimpleTelnetClient.h StrMod/SimpleTelnetClient.h
+ * \brief Only will handle the case when the server will do supress go ahead,
+ * and echo.
+ *
+ * This is a very simple telnet protocol handler.  It won't support ANY options
+ * besides the server doing supress go ahead, and echo, and it requires the
+ * server to support and enable those options.  This means that it will only do
+ * 'character at a time' mode.
+ */
 class SimpleTelnetClient : public StreamModule {
    class UPlug;
    class SPlug;
@@ -49,23 +55,20 @@ class SimpleTelnetClient : public StreamModule {
    SimpleTelnetClient();
    ~SimpleTelnetClient();
 
-   //: See base class.
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
-   //: See base class.
    inline virtual bool canCreate(int side) const;
-   //: See base class.
    inline virtual bool ownsPlug(const Plug *plug) const;
-   //: See base class.
    virtual bool deletePlug(Plug *plug);
 
-   //: Resets the states of the sent_do_supga_ and sent_do_echo_ flags.
-   // <p>Resetting these flags has the effect of causing the client to attempt
-   // to renegotiate these options</p>
+   /** Resets the states of the sent_do_supga_ and sent_do_echo_ flags.
+    * Resetting these flags has the effect of causing the client to attempt to
+    * renegotiate these options
+    */
    void reset();
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual Plug *i_MakePlug(int side);
 
@@ -87,19 +90,21 @@ class SimpleTelnetClient : public StreamModule {
     public:
       friend class SimpleTelnetClient;
 		friend class SPlug;
-      
+
       static const STR_ClassIdent identifier;
 
       UPlug(SimpleTelnetClient &parent) : Plug(parent)  { }
       ~UPlug()                                          { }
 
-      inline virtual int AreYouA(const ClassIdent &cid) const;
+      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       inline SimpleTelnetClient &getParent() const;
       virtual int side() const                          { return(ToUser); }
 
     protected:
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       virtual bool needsNotifyReadable() const          { return(true); }
       inline virtual void otherIsReadable();
@@ -114,19 +119,21 @@ class SimpleTelnetClient : public StreamModule {
     public:
       friend class SimpleTelnetClient;
 		friend class UPlug;
-      
+
       static const STR_ClassIdent identifier;
 
       SPlug(SimpleTelnetClient &parent) : Plug(parent)  { }
       ~SPlug()                                          { }
 
-      inline virtual int AreYouA(const ClassIdent &cid) const;
+      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       inline SimpleTelnetClient &getParent() const;
       virtual int side() const                          { return(ToServer); }
 
     protected:
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       virtual bool needsNotifyWriteable() const         { return(true); }
       inline virtual void otherIsWriteable();
@@ -150,7 +157,7 @@ class SimpleTelnetClient : public StreamModule {
 
 //------------------------------inline function--------------------------------
 
-inline int SimpleTelnetClient::AreYouA(const ClassIdent &cid) const
+inline int SimpleTelnetClient::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((cid == identifier) || StreamModule::AreYouA(cid));
 }
@@ -169,7 +176,7 @@ inline  bool SimpleTelnetClient::ownsPlug(const Plug *plug) const
 
 //--
 
-inline int SimpleTelnetClient::UPlug::AreYouA(const ClassIdent &cid) const
+inline int SimpleTelnetClient::UPlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }
@@ -197,7 +204,7 @@ inline bool SimpleTelnetClient::UPlug::canReadOther() const
 
 //--
 
-inline int SimpleTelnetClient::SPlug::AreYouA(const ClassIdent &cid) const
+inline int SimpleTelnetClient::SPlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }
@@ -222,5 +229,8 @@ inline bool SimpleTelnetClient::SPlug::canWriteOther() const
    Plug *other = pluggedInto();
    return((other == NULL) ? false : getFlagsFrom(*other).canwrite_);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

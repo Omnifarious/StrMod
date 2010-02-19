@@ -26,13 +26,16 @@
 
 // For a log, see ../ChangeLog
 
+#include <cstddef>
+#include <stdexcept>
 #include <LCore/Protocol.h>
 #include <StrMod/STR_ClassIdent.h>
 #include <StrMod/LinearExtent.h>
-#include <stdexcept>
-#include <cstddef>
 
 #define _STR_ChunkVisitor_H_
+
+namespace strmod {
+namespace strmod {
 
 class StrChunkPtr;
 class StrChunk;
@@ -40,9 +43,8 @@ class StrChunk;
 /** \class ChunkVisitor ChunkVisitor.h StrMod/ChunkVisitor.h
  * The interface for a StrChunk visitor.
  *
- * Part of an implementation of the <a
- * href="http://exciton.cs.oberlin.edu/javaresources/DesignPatterns/VisitorPattern.htm">Visitor
- * pattern</a> for traversing StrChunk DAGs.
+ * Part of an implementation of the <A HREF="http://exciton.cs.oberlin.edu/javaresources/DesignPatterns/VisitorPattern.htm">Visitor  pattern</A>
+ * for traversing StrChunk DAGs.
  *
  * A StrChunk may be visited many times because the StrChunk containment
  * hierarchy is a DAG.  This means that a given StrChunk can be contained
@@ -56,7 +58,7 @@ class StrChunk;
  * here because many visitor classes will have build up and tear down
  * operations to perform before visiting.
  */
-class ChunkVisitor : public Protocol {
+class ChunkVisitor : public lcore::Protocol {
    friend class StrChunk;
  public:
    //! An exception to allow the visitor to halt the traversal.
@@ -69,12 +71,12 @@ class ChunkVisitor : public Protocol {
    //! Do nothing virtual destructor for interface class.
    virtual ~ChunkVisitor()                          { }
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || Protocol::AreYouA(cid));
    }
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 
    /** \name StrChunk visit functions
     */
@@ -108,5 +110,8 @@ class ChunkVisitor : public Protocol {
    void call_acceptVisitor(const StrChunkPtr &chnk)
       throw(halt_visitation);
 };
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

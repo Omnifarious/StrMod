@@ -32,7 +32,10 @@
 #include <StrMod/StrChunkPtr.h>
 #include <StrMod/StrChunk.h>
 #include <StrMod/LinearExtent.h>
-// #include <iostream.h>
+// #include <iostream>
+
+namespace strmod {
+namespace strmod {
 
 const STR_ClassIdent GroupChunk::identifier(20UL);
 
@@ -89,3 +92,6 @@ void GroupChunk::acceptVisitor(ChunkVisitor &visitor)
       call_visitStrChunk(visitor, *i);
    }
 }
+
+}  // End namespace strmod
+}  // End namespace strmod

@@ -1,7 +1,7 @@
 #ifndef _UNEVT_SimpleDispatcher_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -30,65 +30,73 @@
 
 #define _UNEVT_SimpleDispatcher_H_
 
-class UNIEvent;
+namespace strmod {
+namespace unievent {
 
-/** \class UNISimpleDispatcher SimpleDispatcher.h UniEvent/SimpleDispatcher.h
- * \brief A class that does the minimum necessary to support the UNIDispatcher
+class Event;
+
+/** \class SimpleDispatcher SimpleDispatcher.h UniEvent/SimpleDispatcher.h
+ * \brief A class that does the minimum necessary to support the Dispatcher
  * interface.
  */
-class UNISimpleDispatcher : public UNIDispatcher {
-   class Imp;
+class SimpleDispatcher : public Dispatcher
+{
  public:
    static const UNEVT_ClassIdent identifier;
 
    //! Create one.
-   UNISimpleDispatcher();
+   SimpleDispatcher();
    //! Destroy one.
-   virtual ~UNISimpleDispatcher();
+   virtual ~SimpleDispatcher();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
-   virtual void addEvent(const UNIEventPtr &ev);
+   virtual void addEvent(const EventPtr &ev);
 
    virtual void dispatchEvents(unsigned int numevents,
-			       UNIDispatcher *enclosing = 0);
-   virtual void dispatchUntilEmpty(UNIDispatcher *enclosing = 0);
+			       Dispatcher *enclosing = 0);
+   virtual void dispatchUntilEmpty(Dispatcher *enclosing = 0);
    inline virtual void stopDispatching();
+   virtual void interrupt();
 
    virtual bool isQueueEmpty() const;
 
-   virtual void addBusyPollEvent(const UNIEventPtr &ev);
-
-   virtual bool onQueueEmpty(const UNIEventPtr &ev);
+   virtual void addBusyPollEvent(const EventPtr &ev);
+   virtual bool onQueueEmpty(const EventPtr &ev);
+   virtual bool onInterrupt(const EventPtr &ev);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
+   class Imp;
    Imp &imp_;
    bool stop_flag_;
 
-   inline void i_DispatchEvent(Imp &imp, UNIDispatcher *enclosing);
+   inline void i_DispatchEvent(Imp &imp, Dispatcher *enclosing);
    unsigned int i_dispatchNEvents(unsigned int n, bool checkbusypoll,
-                                  UNIDispatcher *enclosing);
+                                  Dispatcher *enclosing);
    inline unsigned int checkEmptyBusy(Imp &imp, bool &checkbusy);
-   void dispatchNEvents(unsigned int n, UNIDispatcher *enclosing);
+   void dispatchNEvents(unsigned int n, Dispatcher *enclosing);
 
    // Purposely left undefined.
-   UNISimpleDispatcher(const UNISimpleDispatcher &b);
-   const UNISimpleDispatcher &operator =(const UNISimpleDispatcher &b);
+   SimpleDispatcher(const SimpleDispatcher &b);
+   const SimpleDispatcher &operator =(const SimpleDispatcher &b);
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline int UNISimpleDispatcher::AreYouA(const ClassIdent &cid) const
+inline int SimpleDispatcher::AreYouA(const lcore::ClassIdent &cid) const
 {
-   return((identifier == cid) || UNIDispatcher::AreYouA(cid));
+   return((identifier == cid) || Dispatcher::AreYouA(cid));
 }
 
-void UNISimpleDispatcher::stopDispatching()
+void SimpleDispatcher::stopDispatching()
 {
    stop_flag_ = true;
 }
+
+}; // namespace unievent
+}; // namespace strmod
 
 #endif

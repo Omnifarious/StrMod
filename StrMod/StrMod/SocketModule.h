@@ -1,7 +1,7 @@
 #ifndef _STR_SocketModule_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -26,61 +26,71 @@
 
 // See ../ChangeLog for a change log.
 
+#include <EHnet++/SocketAddress.h>
+
 #ifndef _STR_StreamFDModule_H_
 #  include <StrMod/StreamFDModule.h>
 #endif
 
 #define _STR_SocketModule_H_
 
-class SocketAddress;
-class SockListenModule;
-class UNIDispatcher;
+namespace strmod {
+namespace strmod {
 
-class SocketModule : public StreamFDModule {
+class SockListenModule;
+
+class SocketModule : public StreamFDModule
+{
    friend class SockListenModule;  // This is so SockListenModule's can access
                                    // that one protected constructor down there
  public:
    static const STR_ClassIdent identifier;
 
-   //: Create a SocketModule connected to the given address.
-   SocketModule(const SocketAddress &addr,
-                UNIDispatcher &disp, UNIXpollManager &pollmgr,
-		bool hangdelete = true, bool blockconnect = true);
+   //! Create a SocketModule connected to the given address.
+   SocketModule(const ehnet::SocketAddress &addr,
+                unievent::Dispatcher &disp,
+                unievent::UnixEventRegistry &ureg,
+                bool blockconnect = true) throw(unievent::UNIXError);
    virtual ~SocketModule();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //: Who are we connected to?
-   const SocketAddress &GetPeerAddr()                  { return(peer); }
+   const ehnet::SocketAddress &GetPeerAddr()           { return(peer_); }
+
+   //: What is the local IP address?
+   const ehnet::SocketAddress &GetSelfAddr()           { return(*self_); }
 
  protected:
-   //: An EOF indication has been written.  This function has to handle it.
-   // This function follows the template method pattern from Design Patterns.
-   // Return true if the fd can now be written to, and return false if it
-   // can't.  It would probably also be best to set some kind of error
-   // condition if it can't be written to.
-   virtual bool writeEOF();
+   virtual void writeEOF();
 
-   //: Create a SocketModule using the given fd
-   // Note that ownership of pr is being passed.
-   SocketModule(int fd, SocketAddress *pr,
-                UNIDispatcher &disp, UNIXpollManager &pollmgr);
+   /** Create a SocketModule using the given fd.
+    * Note that ownership of peer is being passed.
+    */
+   SocketModule(int fd, ehnet::SocketAddress *peer,
+                unievent::Dispatcher &disp,
+                unievent::UnixEventRegistry &ureg);
 
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
-   static int MakeSocket(SocketModule &obj,
-			 const SocketAddress &addr, bool blockconnect);
+   static int MakeSocket(SocketModule &obj, const ehnet::SocketAddress &addr,
+                         bool blockconnect) throw(unievent::UNIXError);
 
  private:
-   SocketAddress &peer;
-   int makesock_errno;
+   ehnet::SocketAddress &peer_;
+   ehnet::SocketAddress *self_;
+
+   void setSelfAddr(int fd);
 };
 
 //-------------------------------inline functions------------------------------
 
-inline int SocketModule::AreYouA(const ClassIdent &cid) const
+inline int SocketModule::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamFDModule::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

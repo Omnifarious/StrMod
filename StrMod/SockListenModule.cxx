@@ -22,11 +22,6 @@
 
 // $Revision$
 
-#ifndef NO_RcsID
-static char _SockListenModule_CC_rcsID[] =
-      "$Id$";
-#endif
-
 #ifdef __GNUG__
 #  pragma implementation "SockListenModule.h"
 #endif
@@ -43,27 +38,38 @@ static char _SockListenModule_CC_rcsID[] =
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <errno.h>
+#include <cerrno>
 #include <unistd.h>
 #include <netinet/in.h>
-#include <assert.h>
+#include <cassert>
+#include <new>
 #include "config.h"
 #include "sockdecl.h"
+#include <iostream>
+
+namespace strmod {
+namespace strmod {
+
+using ehnet::SocketAddress;
+using lcore::LCoreError;
 
 const STR_ClassIdent SockListenModule::identifier(13UL);
 const STR_ClassIdent SockListenModule::SLPlug::identifier(14UL);
 const STR_ClassIdent SocketModuleChunk::identifier(15UL);
 
-//: A parent class for the three sub event classes.
-// <p>The sub event classes don't do anything except call parent class
-// protected functions.  The only reason they exist is to avoid having
-// a switch statement in the parent.</p>
-class SockListenModule::FDPollEv : public UNIXpollManager::PollEvent {
+/**A parent class for the three sub event classes.
+ *
+ * The sub event classes don't do anything except call parent class protected
+ * functions.  The only reason they exist is to avoid having a switch statement
+ * in the parent.
+*/
+class SockListenModule::FDPollEv : public unievent::Event
+{
  public:
    inline FDPollEv(SockListenModule &parent);
    virtual ~FDPollEv()                                 { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) = 0;
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) = 0;
 
    inline void parentGone()                            { hasparent_ = false; }
 
@@ -86,9 +92,7 @@ inline void SockListenModule::FDPollEv::triggerRead()
    // cerr << "In triggerRead\n";
    if (hasparent_)
    {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      parent_.eventRead(condbits);
+      parent_.eventRead();
    }
 }
 
@@ -97,43 +101,46 @@ inline void SockListenModule::FDPollEv::triggerError()
    // cerr << "In triggerError\n";
    if (hasparent_)
    {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      parent_.eventError(condbits);
+      parent_.eventError();
    }
 }
 
 //: This is one of the three helper classes for SockListenModule::FDPollEv
-class SockListenModule::FDPollRdEv : public SockListenModule::FDPollEv {
+class SockListenModule::FDPollRdEv : public SockListenModule::FDPollEv
+{
  public:
    inline FDPollRdEv(SockListenModule &parent) : FDPollEv(parent)   { }
-   virtual ~FDPollRdEv()                                          { }
+   virtual ~FDPollRdEv()                                            { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerRead(); }
+   virtual void triggerEvent(Dispatcher *dispatcher = 0)     { triggerRead(); }
 };
 
 //: This is one of the three helper classes for SockListenModule::FDPollEv
 class SockListenModule::FDPollErEv : public SockListenModule::FDPollEv {
  public:
    inline FDPollErEv(SockListenModule &parent) : FDPollEv(parent)   { }
-   virtual ~FDPollErEv()                                          { }
+   virtual ~FDPollErEv()                                            { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)  { triggerError(); }
+   virtual void triggerEvent(Dispatcher *dispatcher = 0)     { triggerError(); }
 };
 
 SockListenModule::SockListenModule(const SocketAddress &bind_addr,
-                                   UNIDispatcher &disp,
-				   UNIXpollManager &pmgr,
+                                   unievent::Dispatcher &disp,
+				   unievent::UnixEventRegistry &ureg,
 				   int qlen)
-      : sockfd_(-1), last_err_(0), lplug_(*this),
+      : sockfd_(-1), has_error_(false), lplug_(*this),
         plug_pulled_(false), checking_read_(false), newmodule_(0),
 	myaddr_(*(bind_addr.Copy())),
-	disp_(disp), pmgr_(pmgr), readevptr_(0), errorevptr_(0)
+	disp_(disp), ureg_(ureg), readevptr_(0), errorevptr_(0)
 {
+   using unievent::UNIXError;
    sockfd_ = socket(myaddr_.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC);
    if (sockfd_ < 0)
    {
-      last_err_ = errno;
+      const int myerrno = UNIXError::getErrno();
+      setError(UNIXError("socket", myerrno,
+                         LCoreError("Creating listening socket",
+                                    LCORE_GET_COMPILERINFO())));
       return;
    }
    {
@@ -141,42 +148,65 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
 
       if (temp < 0)
       {
-	 last_err_ = errno;
+         const int myerrno = UNIXError::getErrno();
+         setError(UNIXError("fcntl", myerrno,
+                            LCoreError("Setting non-blocking mode",
+                                       LCORE_GET_COMPILERINFO())));
 	 close(sockfd_);
 	 sockfd_ = -1;
 	 return;
       }
-      temp &= O_NDELAY;
+      temp &= ~O_NDELAY;
       if (fcntl(sockfd_, F_SETFL, temp | O_NONBLOCK) < 0)
       {
-	 last_err_ = errno;
+         const int myerrno = UNIXError::getErrno();
+         setError(UNIXError("fcntl", myerrno,
+                            LCoreError("Setting non-blocking mode",
+                                       LCORE_GET_COMPILERINFO())));
 	 close(sockfd_);
 	 sockfd_ = -1;
 	 return;
       }
    }
-   if (bind(sockfd_, myaddr_.SockAddr(), myaddr_.AddressSize()) < 0) {
-      last_err_ = errno;
+   if (bind(sockfd_, myaddr_.SockAddr(), myaddr_.AddressSize()) < 0)
+   {
+      const int myerrno = UNIXError::getErrno();
+//      int myerrno = errno;
+//      std::cerr << "errno == " << myerrno << "\n";
+      setError(UNIXError("bind", myerrno,
+                         LCoreError("Binding listening socket",
+                                    LCORE_GET_COMPILERINFO())));
       close(sockfd_);
       sockfd_ = -1;
       return;
    }
    if (listen(sockfd_, qlen) < 0)
    {
-      last_err_ = errno;
+      const int myerrno = UNIXError::getErrno();
+      setError(UNIXError("listen", myerrno,
+                         LCoreError("Listening on listening socket",
+                                    LCORE_GET_COMPILERINFO())));
       close(sockfd_);
       sockfd_ = -1;
       return;
    }
-   readev_ = readevptr_ = new FDPollRdEv(*this);
-   errorev_ = errorevptr_ = new FDPollErEv(*this);
+   readevptr_ = new FDPollRdEv(*this);
+   std::cerr << "readevptr_ == " << readevptr_ << "\n";
+   readev_ = readevptr_;
+   errorevptr_ = new FDPollErEv(*this);
+   std::cerr << "errorevptr_ == " << errorevptr_ << "\n";
+   errorev_ = errorevptr_;
    checking_read_ = true;
-   pmgr_.registerFDCond(sockfd_,
-			UNIXpollManager::FD_Error
-			| UNIXpollManager::FD_Closed
-			| UNIXpollManager::FD_Invalid,
-			errorev_);
-   pmgr_.registerFDCond(sockfd_, UNIXpollManager::FD_Readable, readev_);
+   {
+      static const UnixEventRegistry::FDCondSet
+         errorconds(UnixEventRegistry::FD_Error,
+                    UnixEventRegistry::FD_Closed,
+                    UnixEventRegistry::FD_Invalid);
+      static const UnixEventRegistry::FDCondSet
+         readcond(UnixEventRegistry::FD_Readable);
+      ureg_.registerFDCond(sockfd_, errorconds, errorev_);
+      ureg_.registerFDCond(sockfd_, readcond, readev_);
+   }
 }
 
 SockListenModule::~SockListenModule()
@@ -184,7 +214,7 @@ SockListenModule::~SockListenModule()
    if (sockfd_ >= 0)
    {
       close(sockfd_);
-      pmgr_.freeFD(sockfd_);
+      ureg_.freeFD(sockfd_);
    }
    delete &myaddr_;
    if (readevptr_)
@@ -197,26 +227,27 @@ SockListenModule::~SockListenModule()
    }
 }
 
-void SockListenModule::eventRead(unsigned int condbits)
+void SockListenModule::eventRead()
 {
+   using unievent::UNIXError;
    checking_read_ = false;
-   if (!(condbits & UNIXpollManager::FD_Readable))
-   {
-      last_err_ = -1;
-   }
-   else if (newmodule_ == 0)
+   if (newmodule_ == 0)
    {
       doAccept();
    }
 }
 
-void SockListenModule::eventError(unsigned int condbits)
+void SockListenModule::eventError()
 {
-   last_err_ = -1;
+   using unievent::UNIXError;
+   setError(UNIXError("<none>", 0,
+                      LCoreError("Got error condition",
+                                 LCORE_GET_COMPILERINFO())));
 }
 
 void SockListenModule::doAccept()
 {
+   using unievent::UNIXError;
    assert(newmodule_ == 0);
 
    if (newmodule_ != 0)
@@ -227,26 +258,23 @@ void SockListenModule::doAccept()
 
    unsigned char addrbuf[8192];
    struct sockaddr *saddr = reinterpret_cast<struct sockaddr *>(addrbuf);
-   size_t length = sizeof(addrbuf);
-#ifdef ACCEPT_NEEDS_INT
-   int stupid_compatibility_trick = length;
-   int tempfd = accept(sockfd_, saddr, &stupid_compatibility_trick);
-   length = stupid_compatibility_trick;
-#else
+   socklen_t length = sizeof(addrbuf);
    int tempfd = accept(sockfd_, saddr, &length);
-#endif
 
    if (tempfd < 0)
    {
-      if (errno != EAGAIN)
+      const int myerrno = UNIXError::getErrno();
+      if (myerrno != EAGAIN)
       {
-	 last_err_ = errno;
+         setError(UNIXError("accept", myerrno,
+                            LCoreError("Error accepting connection",
+                                       LCORE_GET_COMPILERINFO())));
       }
       else if (!checking_read_)
       {
-	 pmgr_.registerFDCond(sockfd_,
-			      UNIXpollManager::FD_Readable,
-			      readev_);
+         static const UnixEventRegistry::FDCondSet
+            readcond(UnixEventRegistry::FD_Readable);
+	 ureg_.registerFDCond(sockfd_, readcond, readev_);
 	 checking_read_ = true;
       }
    }
@@ -255,7 +283,9 @@ void SockListenModule::doAccept()
       if (saddr->sa_family != AF_INET)
       {
 	 close(tempfd);
-	 last_err_ = -1;
+         setError(UNIXError("<none>", 0,
+                            LCoreError("Got connection from non-AF_INET peer",
+                                       LCORE_GET_COMPILERINFO())));
       }
       else
       {
@@ -264,16 +294,22 @@ void SockListenModule::doAccept()
 
 	    if (temp < 0)
 	    {
-	       last_err_ = errno;
+               const int myerrno = UNIXError::getErrno();
+               setError(UNIXError("fcntl", myerrno,
+                                  LCoreError("Setting accepted connection non-blocking",
+                                             LCORE_GET_COMPILERINFO())));
 	       close(tempfd);
 	       tempfd = -1;
 	    }
 	    else
 	    {
-	       temp &= O_NDELAY;
+	       temp &= ~O_NDELAY;
 	       if (fcntl(tempfd, F_SETFL, temp | O_NONBLOCK) < 0)
 	       {
-		  last_err_ = errno;
+                  const int myerrno = UNIXError::getErrno();
+                  setError(UNIXError("fcntl", myerrno,
+                                     LCoreError("Setting accepted connection non-blocking",
+                                                LCORE_GET_COMPILERINFO())));
 		  close(tempfd);
 		  tempfd = -1;
 		  return;
@@ -285,9 +321,9 @@ void SockListenModule::doAccept()
 	 {
 	    sockaddr_in *sinad
 	       = reinterpret_cast<struct sockaddr_in *>(saddr);
-	    InetAddress *addr = new InetAddress(*sinad);
+	    ehnet::InetAddress *addr = new ehnet::InetAddress(*sinad);
 
-	    newmodule_ = makeSocketModule(tempfd, addr, disp_, pmgr_);
+	    newmodule_ = makeSocketModule(tempfd, addr, disp_, ureg_);
 	 }
       }
    }
@@ -301,6 +337,38 @@ void SockListenModule::doAccept()
    }
 }
 
+void SockListenModule::clearError() throw()
+{
+   using unievent::UNIXError;
+   if (has_error_)
+   {
+      (reinterpret_cast<UNIXError *>(errorstore_))->~UNIXError();
+      has_error_ = false;
+   }
+}
+
+const unievent::UNIXError &SockListenModule::getError() const throw()
+{
+   using unievent::UNIXError;
+   const void *raw = errorstore_;
+   return *reinterpret_cast<const UNIXError *>(raw);
+}
+
+void SockListenModule::setError(const unievent::UNIXError &err) throw()
+{
+   using unievent::UNIXError;
+   void *raw = errorstore_;
+   UNIXError *store = reinterpret_cast<UNIXError *>(raw);
+   if (has_error_)
+   {
+      store->~UNIXError();
+   }
+   else
+   {
+      has_error_ = true;
+   }
+   new(raw) UNIXError(err);
+}
 
 SocketModule *SockListenModule::getNewModule()
 {
@@ -328,3 +396,6 @@ void SockListenModule::SLPlug::i_Write(const StrChunkPtr &chunk)
 {
    assert(false);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

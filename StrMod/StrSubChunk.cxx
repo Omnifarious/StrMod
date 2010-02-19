@@ -38,7 +38,10 @@
 #include "StrMod/StrChunkPtr.h"
 #include "StrMod/ChunkVisitor.h"
 #include <cassert>
-// #include <iostream.h>
+// #include <iostream>
+
+namespace strmod {
+namespace strmod {
 
 const STR_ClassIdent StrSubChunk::identifier(18UL);
 
@@ -64,7 +67,7 @@ StrSubChunk::StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent)
 
 //      cerr << "chunkext == " << chunkext
 //	   << " && subext_ == " << subext_ << "\n";
-	 subext_.SubExtent_eq(chunkext);
+	 subext_ = chunkext.SubExtent(subext_);
 //      cerr << "subext_ == " << subext_ << "\n";
       }
    }
@@ -75,3 +78,6 @@ void StrSubChunk::acceptVisitor(ChunkVisitor &visitor)
 {
    call_visitStrChunk(visitor, subchunk_, subext_);
 }
+
+}  // End namespace strmod
+}  // End namespace strmod

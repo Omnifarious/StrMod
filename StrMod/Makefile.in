@@ -49,12 +49,13 @@ LIBCXX = EchoModule.cxx  STR_ClassIdent.cxx  StreamModule.cxx  \
          TelnetChars.cxx  TelnetChunkBuilder.cxx  LocalCopy.cxx \
          ChunkVisitor.cxx  UseTrackingVisitor.cxx  GraphVizVisitor.cxx \
          ChunkIterator.cxx  StaticBuffer.cxx  ApplyVisitor.cxx \
-         SimpleTelnetClient.cxx  RouterModule.cxx
+         SimpleTelnetClient.cxx  RouterModule.cxx  StrChunkDecorator.cxx \
+         StrChunkUDPDecorator.cxx # UDPSocketModule.cxx  MCastSocketModule.cxx
 
 TESTCCS = tests/testchunk.cxx  tests/server.cxx  tests/testdist.cxx  \
           tests/testecho.cxx   tests/testsock.cxx tests/echoserv.cxx  \
           tests/testextent.cxx tests/testGV.cxx  tests/testmulti.cxx \
-	  tests/testserial.cxx tests/TelnetToAscii.cxx tests/ttelnet.cxx \
+          tests/testserial.cxx tests/TelnetToAscii.cxx tests/ttelnet.cxx \
           tests/testPreAlloc.cxx tests/testinfinite.cxx  tests/tstelnet.cxx \
           tests/testvisitor.cxx  tests/testrouter.cxx
 
@@ -78,7 +79,7 @@ pwd_test: always
 	fi; fi
 
 $(MYINCLUDEDIR): pwd_test
-	$(MYMAKE) $(MYINCLUDEBASE) 
+	$(MYMAKE) $(MYINCLUDEBASE)
 	rm -f $@
 	ln -s `$(CAT) pwd_test`/StrMod $@
 

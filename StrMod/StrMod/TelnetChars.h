@@ -1,7 +1,7 @@
 #ifndef _STR_TelnetChars_H_  // -*-c++-*-
 
 /*
- * Copyright 2001 by Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2001-2002 by Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -30,6 +30,9 @@
 
 #define _STR_TelnetChars_H_
 
+namespace strmod {
+namespace strmod {
+
 /** \class TelnetChars TelnetChars.h StrMod/TelnetChars.h
  * A class holding a bunch of telnet character constants.
  *
@@ -37,6 +40,7 @@
  */
 class TelnetChars {
  public:
+   typedef lcore::U1Byte U1Byte;
    static const U1Byte  TEOF = 236U;  //!< End Of File
    static const U1Byte  SUSP = 237U;  //!< Suspend process
    static const U1Byte ABORT = 238U;  //!< Abort process
@@ -64,12 +68,9 @@ class TelnetChars {
     * want instead of generically expecting a character and being upset when
     * it doesn't qualify.
     *
-    * These are defined in RFCs <a
-    * href="http://info.internet.isi.edu/in-notes/rfc/files/rfc854.txt">854</a>,
-    * <a
-    * href="http://info.internet.isi.edu/in-notes/rfc/files/rfc885.txt">885</a>,
-    * and <a
-    * href="http://info.internet.isi.edu/in-notes/rfc/files/rfc1184.txt">1184</a>
+    * These are defined in RFCs <A HREF="http://info.internet.isi.edu/in-notes/rfc/files/rfc854.txt">854</A>,
+    * <A HREF="http://info.internet.isi.edu/in-notes/rfc/files/rfc885.txt">885</A>,
+    * and <A HREF="http://info.internet.isi.edu/in-notes/rfc/files/rfc1184.txt">1184</A>
     */
    enum Commands {
       C_EOF = TEOF,	//!< See TEOF
@@ -147,5 +148,8 @@ TelnetChars::convertCharToOptionNegotiation(
    }
    return false;
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

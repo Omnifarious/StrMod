@@ -58,6 +58,9 @@
 
 #define _LCORE_SPSClTypes_H_
 
+namespace strmod {
+namespace lcore {
+
 class SPSCORE_ClassIdent;
 
 class SPS_ClassNum : public ClassNum {
@@ -179,5 +182,8 @@ inline SPSCORE_ClassIdent::SPSCORE_ClassIdent(U4Byte cnum) :
      SPS_ClassIdent(SPS_ClassNum(SPS_ClassNum::Core, cnum))
 {
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef _STR_DynamicBuffer_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -30,29 +30,38 @@
 
 #define _STR_DynamicBuffer_H_
 
-//: A completely dyanmically allocated bag of bytes.
-class DynamicBuffer : public BufferChunk {
+namespace strmod {
+namespace strmod {
+
+/** \class DynamicBuffer DynamicBuffer.h StrMod/DynamicBuffer.h
+ * \brief A completely dyamically allocated bag of bytes.
+ */
+class DynamicBuffer : public BufferChunk
+{
  public:
    static const STR_ClassIdent identifier;
 
    DynamicBuffer()                                      { }
-   DynamicBuffer(unsigned int len) throw(bad_alloc);
-   DynamicBuffer(const void *data, unsigned int len) throw(bad_alloc);
+   DynamicBuffer(unsigned int len) throw(std::bad_alloc);
+   DynamicBuffer(const void *data, unsigned int len) throw(std::bad_alloc);
    virtual ~DynamicBuffer();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
-   virtual void resize(unsigned int newsize) throw(bad_alloc);
+   virtual void resize(unsigned int newsize) throw(std::bad_alloc);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline int DynamicBuffer::AreYouA(const ClassIdent &cid) const
+inline int DynamicBuffer::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || BufferChunk::AreYouA(cid));
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

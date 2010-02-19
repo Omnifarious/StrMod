@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -20,8 +20,6 @@
 
 // For log, see ChangeLog
 //
-// $Revision$
-//
 // Revision 1.2  1998/06/02 01:08:15  hopper
 // Changed a static_cast to a more correct reinterpret_cast.
 //
@@ -36,19 +34,17 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/param.h>
+#include <string>
 
-/* My UNIX (UnixWare) has no declaration for gethostname in any header
-   file anywhere.  I should get GNU configure to check for this, and
-   only use the declaration below conditionally, but that'll have to
-   wait. */
-extern "C" int gethostname(char *name, int namelen);
+namespace strmod {
+namespace ehnet {
 
 bool InetAddress::NameToIaddr(const char *name_addr, U4Byte &num)
 {
-   struct hostent *hostinfo;
+   ::hostent *hostinfo;
    char *temp_name = const_cast<char *>(name_addr);
 
-   hostinfo = gethostbyname(temp_name);
+   hostinfo = ::gethostbyname(temp_name);
    if (hostinfo == 0 || hostinfo->h_addrtype != AF_INET) {
       return(false);
    } else {
@@ -57,10 +53,10 @@ bool InetAddress::NameToIaddr(const char *name_addr, U4Byte &num)
    }
 }
 
-string InetAddress::IaddrToName(const sockaddr_in &inaddr)
+::std::string InetAddress::IaddrToName(const sockaddr_in &inaddr)
 {
-   string hostname;
-   struct hostent *hostinfo;
+   ::std::string hostname;
+   ::hostent *hostinfo;
 
    /* If we're dealing with a non-INADDR_ANY address. */
    if (inaddr.sin_addr.s_addr != INADDR_ANY) {
@@ -70,7 +66,7 @@ string InetAddress::IaddrToName(const sockaddr_in &inaddr)
       cast_addr = const_cast<char *>(
 	 reinterpret_cast<const char *>(&inaddr.sin_addr));
       /* Look up the name for the given address.*/
-      hostinfo = gethostbyaddr(cast_addr, sizeof(inaddr.sin_addr), AF_INET);
+      hostinfo = ::gethostbyaddr(cast_addr, sizeof(inaddr.sin_addr), AF_INET);
 
       if (hostinfo != 0) {
 	 /* Eureka! We found a 'real' hostname for our internet number. */
@@ -106,8 +102,8 @@ string InetAddress::IaddrToName(const sockaddr_in &inaddr)
 
       char buf[MAXHOSTNAMELEN + 1];
 
-      gethostname(buf, MAXHOSTNAMELEN + 1);
-      hostinfo = gethostbyname(buf);
+      ::gethostname(buf, MAXHOSTNAMELEN + 1);
+      hostinfo = ::gethostbyname(buf);
       hostname = "INADDR_ANY(";
       if (hostinfo != 0) {
 	 hostname += hostinfo->h_name;
@@ -118,3 +114,6 @@ string InetAddress::IaddrToName(const sockaddr_in &inaddr)
    }
    return(hostname);
 }
+
+} // end namespace ehnet
+} // end namespace lcore

@@ -1,51 +1,59 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
-                      "http://www.w3.org/TR/REC-html40/loose.dtd">
-<html>
-<!-- Copyright 1999 by Eric Hopper. -->
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- Copyright 1999-2002 by Eric Hopper. -->
 <!-- You should've received a copy of the GNU Lesser General Public License -->
 <!-- along with this document; if not, write to the Free Software           -->
 <!-- Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.              -->
 <head>
-  <title>UNIDispatcher subsystem manual</title>
-  <meta name="description" content="A Manual describing how to use a          
-                  UNIDispatcher, and other, related classes.">
-  <meta name="revision" content="$Revision$" </head>
+  <title>strmod::unievent::Dispatcher subsystem manual</title>
+  <meta name="AUTHOR" content="Eric Hopper" />
+  <meta name="description"
+  content="A Manual describing how to use a                             Dispatcher, and other, related classes."
+  />
+  <meta name="Revision" content="$Rev$ $URL$" />
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 </head>
 
 <body>
-<h1 align="center">Introductory manual for the UNIDispatcher subsystem</h1>
+<h1 align="center">Introductory manual for the Dispatcher subsystem</h1>
 <!-- Yes, I'm fond of dl lists.  I tend to think in outlines, and dl lists -->
 <!-- seem the ideal vehicle for them. -->
+
+<p>All classes that are part of the Dispatcher subsystem are in the
+strmod::unievent namespace.</p>
 <dl>
   <dt><h2>Overview</h2>
   </dt>
     <dd><dl>
-        <dt><h3>What the heck's a UNIDispatcher?</h3>
+        <dt><h3>What the heck's a <a
+        href="../doxygen/classstrmod_1_1unievent_1_1Dispatcher.html">Dispatcher</a>?</h3>
         </dt>
-          <dd><p>A UNIDispatcher is an interface class the provides simple
-            event dispatching capabilities.  It has methods (that subclasses
-            must implement) to allow you to add events to its queue, and
-            methods that cause it to 'fire' one or more of these events.</p>
+          <dd><p>A Dispatcher is an interface class the provides simple event
+            dispatching capabilities. It has methods (that subclasses must
+            implement) to allow you to add events to its queue, and methods
+            that cause it to 'fire' one or more of these events.</p>
           </dd>
-        <dt><h3>What's a UNIEvent?</h3>
+        <dt><h3>What's an <a
+        href="../doxygen/classstrmod_1_1unievent_1_1Event.html">Event</a>?</h3>
         </dt>
-          <dd><p>A UNIEvent is the object that the UNIDispatcher holds in a
-            qeue and 'fires' by calling its <a
-            href="../classdoc/UNIEvent.html#TriggerEvent(UNIDispatcher*dispatcher=0)">TriggerEvent</a>
-            method.  It behaves a little like a function pointer that's
+          <dd><p>An Event is the object that the Dispatcher holds in a queue
+            and 'fires' by calling its <a
+            href="../doxygen/classstrmod_1_1unievent_1_1Event.html#a3">TriggerEvent</a>
+            method. It behaves a little like a function pointer that's
             pointing at a function that takes as an argument the dispatcher
-            that fired the event.  UNIEvents are supposed to be re-used, and
-            not created individually for each event. That's why they inherit
-            from ReferenceCounting and have the UNIEventPtr type.</p>
+            that fired the event. Events are supposed to be re-used, and not
+            created individually for each event. That's why they inherit from
+            strmod::lcore::ReferenceCounting and have the EventPtr type.</p>
           </dd>
-        <dt><h3>Why would I use an implementation of UNIDispatcher?</h3>
+        <dt><h3>Why would I use an implementation of Dispatcher?</h3>
         </dt>
-          <dd><p>This is a complicated question.  The short answer is that
+          <dd><p>This is a complicated question. The short answer is that
             you'd use it when you need to use events to communicate between
             different parts of your program.</p>
             <p>Of course, this begs the question of why you'd use events
-            instead of simple function call, so here are a list of
-            reasons:</p>
+            instead of simple function call, so here are a list of reasons:
             <ul>
               <li>The function you're calling may do something to the object
                 you're calling it from that's hard to deal with. (i.e. In the
@@ -54,54 +62,50 @@
               <li>You may not want the function call to be carried out right
                 away, in order to give other things a chance to do stuff.</li>
               <li>The function you want to call may be part of an object that
-                logically belongs in a different thread, and you want the call
-                to occur in the control flow of that thread to avoid locking
-                issues.</li>
-              <li>You may not have any good way of actually figuring out which
-                function you need to call on which object.</li>
+                logically belongs in a different thread, and you want the
+                call to occur in the control flow of that thread to avoid
+                locking issues.</li>
+              <li>You may not have any good way of knowing, when you write
+                your class, which function you need to call on which object.
+                You can use an event as sort of a function pointer that will
+                be queued up to be called whenever you need to call your
+                function. The new Java AWT and Swing frameworks, for example,
+                turn a GUI button press into an event.</li>
             </ul>
+            </p>
           </dd>
         <dt><h3>So, what's this got to do with the StreamModule sytem?</h3>
         </dt>
-          <dd><p>There are a few ways in which the UNIEvent subsystem is used
-            in the StreamModule system.</p>
+          <dd><p>There are a few ways in which the Dispatcher subsystem is
+            used in the StreamModule system.</p>
             <ul>
-              <li>The UNIXPollManager uses events to notify interested parties
-                about the state of file descriptors.</li>
-              <li>The SimpleMultiplexer uses events to give other things a
-                chance to run.  This is so one stream can't hog the
-                many-to-one direction of the multiplexer.</li>
-              <li>The StreamFDModule will be changed to use events to notify
-                interested parties about error conditions.</li>
+              <li>The <a
+                href="../doxygen/classstrmod_1_1unievent_1_1UNIXpollManager.html">UNIXPollManager</a>
+                uses events to notify interested parties about the state of
+                file descriptors.</li>
+              <li>The <a
+                href="../doxygen/classstrmod_1_1strmod_1_1SimpleMultiplexer.html">SimpleMultiplexer</a>
+                uses events to give other things a chance to run. This is so
+                one stream can't hog the many-to-one direction of the
+                multiplexer.</li>
+              <li>The <a
+                href="../doxygen/classstrmod_1_1strmod_1_1StreamFDModule.html">StreamFDModule</a>
+                will be changed to use events to notify interested parties
+                about error conditions.</li>
               <li>When signal handling is finished, the signal handler will
                 use events to fold signals back into the normal flow of
                 control.</li>
-              <li>When multi-threading is supported, and the InterThreadModule
-                is done, the InterThreadModule will use events to notify
-                itself (in the proper thread context) about items on the
-                queue.</li>
-              <li>Modules that need to destroy themselves (or the modules they
-                communicate with) will post an event, and the event will do
-                the destruction in order to avoid having this pointers on the
-                stack that point to a dead object.</li>
+              <li>When multi-threading is supported, and the
+                InterThreadModule is done, the InterThreadModule will use
+                events to notify itself (in the proper thread context) about
+                items on the queue.</li>
+              <li>Modules that need to destroy themselves (or the modules
+                they communicate with) will post an event, and the event will
+                do the destruction in order to avoid having this pointers on
+                the stack that point to a dead object.</li>
             </ul>
           </dd>
       </dl>
-    </dd>
-  <dt><h2>Tutorial</h2>
-  </dt>
-    <dd><p>In order to show you some uses of UNIDispatcher that actually make
-      sense, other facilities, like the UNIXpollManager need to be explained.
-      Look for examples there.</p>
-    </dd>
-  <dt><h2>Other Helpful Information</h2>
-  </dt>
-    <dd><ul>
-        <li><a href="../classdoc/UNIDispatcher.html">Documentation for the
-          UNIDispatcher class</a>.</li>
-        <li><a href="../classdoc/UNIEvent.html">Documentation for the UNIEvent
-          class</a>.</li>
-      </ul>
     </dd>
 </dl>
 </body>

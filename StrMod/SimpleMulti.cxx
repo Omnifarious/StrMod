@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -40,15 +40,19 @@
 #include <algorithm>
 #include <cassert>
 
+namespace strmod {
+namespace strmod {
+
 /** A private class for StrPlugs on the 'many' side of a SimpleMultiplexer.
  */
-class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
+class SimpleMultiplexer::MultiPlug : public StreamModule::Plug
+{
    friend class SimpleMultiplexer;
    friend class SinglePlug;
  public:
    static const STR_ClassIdent identifier;
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline SimpleMultiplexer &getParent() const;
 
@@ -66,11 +70,11 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
    //! A destructor.  Calls unPlug()
    inline virtual ~MultiPlug();
 
-   virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual const StrChunkPtr i_Read();
 
-   virtual void i_Write(const StrChunkPtr &ptr); 
+   virtual void i_Write(const StrChunkPtr &ptr);
 
    virtual bool needsNotifyWriteable() const        { return(true); }
    virtual bool needsNotifyReadable() const         { return(true); }
@@ -100,25 +104,29 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
    bool other_isreadable_;
 };
 
-class SimpleMultiplexer::ScanEvent : public UNIEvent {
+//! The event that is triggered when the SimpleMultiplexer should scan the
+//! MultiPlugs for ones that are readable.
+class SimpleMultiplexer::ScanEvent : public unievent::Event {
+ private:
+   typedef unievent::Dispatcher Dispatcher;
  public:
    static const STR_ClassIdent identifier;
 
-   //: This keeps a reference to parent.
+   //! This keeps a reference to parent.
    ScanEvent(SimpleMultiplexer &parent) : parent_(&parent)                   { }
 
-   inline virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
+   inline virtual void triggerEvent(Dispatcher *dispatcher = 0);
 
    void parentGone()                                    { parent_ = 0; }
 
  protected:
-   virtual const ClassIdent *i_GetIdent()               { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent()        { return &identifier; }
 
  private:
    SimpleMultiplexer *parent_;
 };
 
-int SimpleMultiplexer::MultiPlug::AreYouA(const ClassIdent &cid) const
+int SimpleMultiplexer::MultiPlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }
@@ -258,7 +266,7 @@ void SimpleMultiplexer::MultiPlug::otherIsWriteable()
    }
 }
 
-void SimpleMultiplexer::ScanEvent::triggerEvent(UNIDispatcher *dispatcher)
+void SimpleMultiplexer::ScanEvent::triggerEvent(Dispatcher *dispatcher)
 {
    if (parent_ != 0)
    {
@@ -319,7 +327,7 @@ class SimpleMultiplexer::auto_mpptr
 //: Find MultiPlugs that are plugged in.
 class SimpleMultiplexer::mp_notpluggedin_p {
  public:
-   bool operator ()(MultiPlug *p) {
+   bool operator ()(Plug *p) {
       return(p->pluggedInto() == 0);
    }
 };
@@ -355,7 +363,7 @@ void SimpleMultiplexer::SinglePlug::i_Write(const StrChunkPtr &chnk)
    }
 }
 
-//: Find MultiPlugs that haven't been written to.
+//! Find MultiPlugs that haven't been written to.
 class SimpleMultiplexer::mp_written_p {
  public:
    bool operator ()(MultiPlug *p) {
@@ -384,7 +392,7 @@ void SimpleMultiplexer::SinglePlug::otherIsWriteable()
    }
 }
 
-SimpleMultiplexer::SimpleMultiplexer(UNIDispatcher &disp)
+SimpleMultiplexer::SimpleMultiplexer(unievent::Dispatcher &disp)
      : splug_(*this), splug_created_(false), scan_posted_(false),
        scan_(new ScanEvent(*this)), dispatcher_(disp),
        readable_multis_(0), readable_multiothers_(0), writeable_multiothers_(0)
@@ -441,7 +449,7 @@ void SimpleMultiplexer::multiDidRead(MultiPlug &mplug)
 //     cerr << "readable_multis_ == " << readable_multis_ << "\n";
    assert(readable_multis_ > 0);
    setReadableFlagFor(&mplug, false);
-   
+
    if (--readable_multis_ == 0)
    {
 //        cerr << "readable_multis_ == 0 && writeable_multiothers_ == "
@@ -614,5 +622,8 @@ bool SimpleMultiplexer::deletePlug(Plug *plug)
 	 return(true);
       }
    }
-   assert(false);
+   return false;
 }
+
+}  // End namespace strmod
+}  // End namespace strmod

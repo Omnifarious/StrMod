@@ -35,5 +35,11 @@
 
 #include <StrMod/StrChunkPtr.h>
 
+namespace strmod {
+namespace strmod {
+
 //! A unique identifier for this class.
 const STR_ClassIdent StrChunkPtr::identifier(19UL);
+
+}  // End namespace strmod
+}  // End namespace strmod

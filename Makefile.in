@@ -6,8 +6,13 @@ CAT = @cat@
 PROCLIBSRC = @proclibsrc@
 CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@
+CONFIGCPPFLAGS = @CPPFLAGS@
 CC = @CC@
 CFLAGS = @CFLAGS@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+DESTLIB = @libdir@
+DESTINC = @includedir@
 
 MYMAKE = $(MAKE) CC='$(CC)' CFLAGS='$(CFLAGS)' CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS)'
 
@@ -36,15 +41,23 @@ LIBDIR = $(MYOUTDIR)/lib
 LIBSRC = $(MYOUTDIR)/lib_src
 RULESDIR = $(MYOUTDIR)/rules
 
-CPPFLAGS = -I$(INCLUDEDIR)
+CPPFLAGS = $(CONFIGCPPFLAGS) -I$(INCLUDEDIR)
 
-COMPONENTS = LCore UniEvent EHnet++ StrMod
+COMPONENTS = LCore UniEvent EHnet++ StrMod xml
 
 .PHONY: directories always all
 
 UNIQUEDIRS = $(sort $(INCLUDEDIR) $(OUTDIR) $(MYOUTDIR) $(RULESDIR) $(OBJDIR) $(LIBDIR))
 
 all : $(LIBDIR) $(LIBDIR)/libNet.a
+
+install : $(LIBDIR) $(LIBDIR)/libNet.a
+	install -d $(DESTLIB)
+	install -m 0644 $(LIBDIR)/libNet.a $(DESTLIB)
+	for dir in $(INCLUDEDIR); do \
+	   rm -rf $(DESTINC)/"$$dir"; \
+	done
+	tar --mode=-w -h -C $(INCLUDEDIR) -cf - . | tar -C $(DESTINC) -xf -
 
 directories: $(UNIQUEDIRS)
 	@for dir in $(COMPONENTS); do \

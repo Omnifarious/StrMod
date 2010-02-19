@@ -21,136 +21,187 @@
 // For a log, see ./ChangeLog
 // $Revision$
 
-#ifndef NO_RcsID
-static char _SocketModule_CC_rcsID[] =
-      "$Id$";
-#endif
-
 #ifdef __GNUG__
 #  pragma implementation "SocketModule.h"
 #endif
 
 #include <EHnet++/SocketAddress.h>
+#include <EHnet++/InetAddress.h>
 #include "StrMod/SocketModule.h"
 #include "StrMod/FDUtil.h"
-#include <string.h>
+#include <cstring>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <errno.h>
+#include <cerrno>
 #include <unistd.h>
 #include "config.h"
 #include "sockdecl.h"
+
+#include <iostream>
 
 #ifndef SHUT_WR
 #define SHUT_WR 1
 #endif
 
+namespace strmod {
+namespace strmod {
+
+using unievent::UNIXError;
+using ehnet::SocketAddress;
+using lcore::LCoreError;
+
 const STR_ClassIdent SocketModule::identifier(12UL);
 
-// MakeSocket sets makesock_errno.
+// MakeSocket sets makesock_errno_.
 SocketModule::SocketModule(const SocketAddress &addr,
-                           UNIDispatcher &disp, UNIXpollManager &pollmgr,
-			   bool hangdelete, bool blockconnect)
-     : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, pollmgr,
-		      StreamFDModule::CheckBoth,  hangdelete),
-       peer(*(addr.Copy()))
+                           unievent::Dispatcher &disp,
+                           unievent::UnixEventRegistry &ureg,
+                           bool blockconnect)
+   throw(UNIXError)
+     : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, ureg,
+                      StreamFDModule::CheckBoth),
+       peer_(*(addr.Copy())),
+       self_(0)
 {
-   if (makesock_errno != 0)
-   {
-      setErrorIn(ErrFatal, makesock_errno);
-   }
    setMaxChunkSize(64U * 1024U);
+   setSelfAddr(getFD());
 }
 
 SocketModule::~SocketModule()  // This might be changed later to add
 {                              // a shutdown message sent to the
-   delete &peer;               // socket on the other side of the
-}                              // connection.
-
-SocketModule::SocketModule(int fd, SocketAddress *pr,
-                           UNIDispatcher &disp, UNIXpollManager &pollmgr)
-     : StreamFDModule(fd, disp, pollmgr, StreamFDModule::CheckBoth, true),
-       peer(*pr),
-       makesock_errno(0)
-{
-   setMaxChunkSize(64U * 1024U);
+   delete &peer_;              // socket on the other side of the
+   delete self_;               // connection.
 }
 
-bool SocketModule::writeEOF()
+SocketModule::SocketModule(int fd, SocketAddress *pr,
+                           unievent::Dispatcher &disp,
+                           unievent::UnixEventRegistry &ureg)
+     : StreamFDModule(fd, disp, ureg, StreamFDModule::CheckBoth),
+       peer_(*pr),
+       self_(0)
+{
+   setMaxChunkSize(64U * 1024U);
+   setSelfAddr(fd);
+}
+
+void SocketModule::writeEOF()
 {
    if (getFD() >= 0)
    {
-      if (readEOF())
+      if (hasErrorIn(ErrRead) && getErrorIn(ErrRead).isEOF())
       {
-	 return(StreamFDModule::writeEOF());
+         StreamFDModule::writeEOF();
       }
       else
       {
-//  	 cerr << "Wheee 1\n";
-	 shutdown(getFD(), SHUT_WR);
-//  	 cerr << "Wheee 2\n";
-	 setErrorIn(ErrWrite, EBADF);
+//         ::std::cerr << "Wheee 1\n";
+         if (shutdown(getFD(), SHUT_WR) != 0)
+         {
+//            ::std::cerr << "Wheee 2\n";
+            const int myerrno = UNIXError::getErrno();
+            setErrorIn(ErrWrite,
+                       UNIXError("shutdown", myerrno,
+                                 LCoreError(LCORE_GET_COMPILERINFO())));
+         }
+         else
+         {
+            setErrorIn(ErrWrite,
+                       UNIXError("shutdown",
+                                 LCoreError(LCORE_GET_COMPILERINFO())));
+         }
       }
    }
-   return(false);
 }
 
-static inline int setNonBlock(int fd, int &errval)
+static inline void setNonBlock(int fd) throw(UNIXError)
 {
-//     cerr << "In setNonBlock(" << fd << ", " << errval << ")\n";
+   int errval = 0;
+//     ::std::cerr << "In setNonBlock(" << fd << ", " << errval << ")\n";
    if (!FDUtil::setNonBlock(fd, errval))
    {
-      close(fd);
-      fd = -1;
-//        cerr << "setNonBlock::errval == " << errval << "\n";
+      throw UNIXError("FDUtil::setNonBlock", errval,
+                      LCoreError(LCORE_GET_COMPILERINFO()));
+//        ::std::cerr << "setNonBlock::errval == " << errval << "\n";
    }
-
-   return(fd);
 }
 
-static inline int doConnect(int fd, SocketAddress &peer, int &errval)
+static inline void doConnect(int fd, SocketAddress &peer) throw(UNIXError)
 {
    if (connect(fd, peer.SockAddr(), peer.AddressSize()) < 0)
    {
-      if (errno != EINPROGRESS)
+      const int myerrno = UNIXError::getErrno();
+      if (myerrno != EINPROGRESS)
       {
-	 errval = errno;
-	 close(fd);
-	 fd = -1;
+         throw UNIXError("connect", myerrno,
+                         LCoreError(LCORE_GET_COMPILERINFO()));
       }
    }
-   return(fd);
+}
+
+void SocketModule::setSelfAddr(int fd)
+{
+   unsigned char addrbuf[8192];
+   struct sockaddr *saddr = reinterpret_cast<struct sockaddr *>(addrbuf);
+   socklen_t length = sizeof(addrbuf);
+
+   if (getsockname(fd, saddr, &length) == 0)
+   {
+      if (saddr->sa_family != AF_INET)
+      {
+//         std::cerr << "Got connection from non-AF_INET peer" << std::endl;
+         // Got connection from non-AF_INET peer.
+         setErrorIn(ErrWrite,
+                    UNIXError("<none>", 0,
+                              LCoreError("Got connection from non-AF_INET peer",
+                                         LCORE_GET_COMPILERINFO())));
+      }
+      else
+      {
+         sockaddr_in *sinad = reinterpret_cast<struct sockaddr_in *>(saddr);
+         self_ = new ehnet::InetAddress(*sinad);
+         // ::std::cerr << "self_ = " << *(self_) << std::endl;
+      }
+   }
 }
 
 int SocketModule::MakeSocket(SocketModule &obj,
-			     const SocketAddress &addr, bool blockconnect)
+                             const SocketAddress &addr, bool blockconnect)
+   throw(UNIXError)
 {
-   obj.makesock_errno = 0;
-   int fd;
-   SocketAddress &peer = *(addr.Copy());
+   int fd = -1;
+   try {
+      SocketAddress &peer = *(addr.Copy());
 
-   if ((fd = socket(peer.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC)) < 0)
-   {
-      return(fd);
-   }
-
-   if (blockconnect)
-   {
-      fd = doConnect(fd, peer, obj.makesock_errno);
-      if (fd >= 0)
+      if ((fd = socket(peer.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC)) < 0)
       {
-	 fd = setNonBlock(fd, obj.makesock_errno);
+         const int myerrno = UNIXError::getErrno();
+         throw UNIXError("socket", myerrno,
+                         LCoreError(LCORE_GET_COMPILERINFO()));
+      }
+
+      if (blockconnect)
+      {
+          doConnect(fd, peer);
+          setNonBlock(fd);
+      }
+      else
+      {
+         setNonBlock(fd);
+         doConnect(fd, peer);
       }
    }
-   else
+   catch(UNIXError e)
    {
-      fd = setNonBlock(fd, obj.makesock_errno);
       if (fd >= 0)
       {
-	 fd = doConnect(fd, peer, obj.makesock_errno);
+         close(fd);
+         fd = -1;
       }
+      throw;
    }
-
    return(fd);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

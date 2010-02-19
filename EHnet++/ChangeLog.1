@@ -1,0 +1,55 @@
+2002-09-10  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* EHnet++/SocketAddress.h, EHnet++/InetAddress.h: Added some
+	Doxygen class documentation.
+
+	* NET_ClassIdent.cxx: Added some namespace documentation.
+
+2002-02-05  Eric Hopper  <hopper@omnifarious.org>
+
+	* Everything: Fixed up things to work with new C++ standard
+	library that insists on the std:: namespace.  Removed RCS id
+	string because it isn't consistently included and of dubious
+	value.
+
+2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* InetAddress.cxx: Fixed some compiler warnings about unused
+	variables.
+
+2001-03-06  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* libNet-0.2.2 is released.
+
+1999-11-18  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Everything: Added copyright notices everywhere!
+
+1999-10-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* GNUmakefile.in: Removed because now there's Makefile.in
+
+	* Makefile.in: Added the wondrous, splendiferous new makefile that
+	reports a list of dependencies to the root level makefile so one,
+	big make can be done at the top level.
+
+1999-07-20  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* EHnet++/NET_ClassIdent.h: Removed a redundant operator == that
+	was only there because some C++ compilers had a hard time properly
+	resolving the operator == that took base class types.
+
+1999-01-17  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* EHnet++/InetAddress.h:
+	* InetAddress.cxx:
+	* InetAddrNetDB.cxx: More changes to make things more type correct.
+
+	* InedtAddrNetDB.cxx (NameToIaddr): Fixed to be more compatible
+	with what the hostent structure actually contains.
+
+	* InetAddrNetDB.cxx:
+	* EHnet++/InetAddress.h:
+	* InetAddress.cxx: Changed some method signatures to use unsigned
+	int & instead of unsigned long &.  This is because now that
+	architectures are 32/64 bit, int is more likely to be 32 bits.

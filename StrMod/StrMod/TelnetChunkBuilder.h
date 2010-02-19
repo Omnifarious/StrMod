@@ -1,7 +1,7 @@
 #ifndef _STR_TelnetChunkBuilder_H_  // -*-c++-*-
 
 /*
- * Copyright 2001 by Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2002 by Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -26,13 +26,16 @@
 
 // For a log, see ../ChangeLog
 
-#include <StrMod/STR_ClassIdent.h>
-#include <StrMod/TelnetChars.h>
+#include <cstddef>
 #include <LCore/Protocol.h>
 #include <LCore/HopClTypes.h>
-#include <cstddef>
+#include <StrMod/STR_ClassIdent.h>
+#include <StrMod/TelnetChars.h>
 
 #define _STR_TelnetChunkBuilder_H_
+
+namespace strmod {
+namespace strmod {
 
 class BufferChunk;
 template <class T> class StrChunkPtrT;
@@ -44,11 +47,12 @@ template <class T> class StrChunkPtrT;
  * block by block.  The TelnetParser uses it, and the TelnetChunker implements
  * it to build up TelnetChunker::TelnetChunk objects.
  */
-class TelnetChunkBuilder : virtual public Protocol {
+class TelnetChunkBuilder : virtual public lcore::Protocol
+{
  public:
    static const STR_ClassIdent identifier;
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    /** Add a data block to the stream.
     * \param regionbegin Where the region begins in some data buffer the child
@@ -65,7 +69,7 @@ class TelnetChunkBuilder : virtual public Protocol {
     * willing to communicate more about it through suboption negotiation.
     */
    virtual void addNegotiationCommand(TelnetChars::OptionNegotiations negtype,
-                                      U1Byte opt_type) = 0;
+                                      lcore::U1Byte opt_type) = 0;
    /** Add a suboption to the data stream.
     * This function will cause a suboption of the specified type to be added to
     * the stream.
@@ -76,19 +80,22 @@ class TelnetChunkBuilder : virtual public Protocol {
     * buffer the child class should know about (STL style).
     * \param cooked The 'cooked' data with all the escapes processed.
     */
-   virtual void addSuboption(U1Byte opt_type,
+   virtual void addSuboption(lcore::U1Byte opt_type,
                              size_t regionbegin, size_t regionend,
                              StrChunkPtrT<BufferChunk> &cooked) = 0;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline int TelnetChunkBuilder::AreYouA(const ClassIdent &cid) const
+inline int TelnetChunkBuilder::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

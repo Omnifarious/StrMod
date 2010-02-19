@@ -53,9 +53,12 @@
 #  pragma interface
 #endif
 
-#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define _LCORE_GenTypes_H_
+
+namespace strmod {
+namespace lcore {
 
 #ifdef BYTE_ORDER_DEFINED
 #   if !(defined(ORDER_UNIX) || defined(ORDER_XINU))
@@ -316,5 +319,8 @@
       }
    #endif
 #endif
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

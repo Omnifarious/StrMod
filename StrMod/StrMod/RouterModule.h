@@ -1,7 +1,7 @@
 #ifndef _STR_RouterModule_H_  // -*-c++-*-
 
 /*
- * Copyright 2000 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2000-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -26,34 +26,46 @@
 
 // For a log, see ../ChangeLog
 
-#include <StrMod/StreamModule.h>
-#include <StrMod/STR_ClassIdent.h>
-#include <deque>
-#include <iterator>
 #include <cstddef>
+#include <iterator>
+#include <deque>
+#include <StrMod/STR_ClassIdent.h>
+#include <StrMod/StreamModule.h>
 
 #define _STR_RouterModule_H_
 
-class UNIDispatcher;
+namespace strmod {
+namespace unievent {
+class Dispatcher;
+};
+};
+
+namespace strmod {
+namespace strmod {
 
 /** \class RouterModule RouterModule.h StrMod/RouterModule.h
  * \brief Provides an abstract base for classes that route chunks from a plug to
  * a set of other plugs based on contents.
  */
-class RouterModule : public StreamModule {
+class RouterModule : public StreamModule
+{
  protected:
    class RPlug;
    friend class RPlug;
-   typedef deque<RPlug *> RPlugList;
-   typedef back_insert_iterator<RPlugList> RPlugAdder;
+   //! Just a type alias to avoid errors in typing deque<RPlug *>.
+   typedef std::deque<RPlug *> RPlugList;
+   //! Just a type alias to avoid errors in typing back_insert_iterator<RPlugList>
+   typedef std::back_insert_iterator<RPlugList> RPlugAdder;
 
  public:
    static const STR_ClassIdent identifier;
 
-   RouterModule(UNIDispatcher &disp);
+   //! Construct, given the strmod::unievent::Dispatcher to use to post scan events.
+   explicit RouterModule(unievent::Dispatcher &disp);
+   //! Destroy the RouterModule and all of its plugs.
    virtual ~RouterModule();
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || StreamModule::AreYouA(cid));
    }
 
@@ -64,7 +76,7 @@ class RouterModule : public StreamModule {
    virtual bool deletePlug(Plug *plug);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual Plug *i_MakePlug(int side) = 0;
 
@@ -96,7 +108,7 @@ class RouterModule : public StreamModule {
  private:
    class ScanEvent;
    friend class ScanEvent;
-   UNIDispatcher &disp_;
+   unievent::Dispatcher &disp_;
    bool scan_posted_;
    ScanEvent * const scan_;
    bool inroutingdone_;
@@ -116,12 +128,12 @@ class RouterModule : public StreamModule {
 
 //---
 
-class RouterModule::RPlug : public Plug {
+class RouterModule::RPlug : public StreamModule::Plug {
    friend class RouterModule;
  public:
    static const STR_ClassIdent identifier;
 
-   inline virtual int AreYouA(const ClassIdent &cid) const {
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || Plug::AreYouA(cid));
    }
 
@@ -138,10 +150,10 @@ class RouterModule::RPlug : public Plug {
  protected:
    inline RPlug(RouterModule &parent);
 
-   virtual const ClassIdent *i_GetIdent() const          { return &identifier; }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual const StrChunkPtr i_Read();
-   virtual void i_Write(const StrChunkPtr &ptr); 
+   virtual void i_Write(const StrChunkPtr &ptr);
 
  private:
    bool deleted_;
@@ -169,5 +181,8 @@ inline RouterModule::RPlug::RPlug(RouterModule &parent)
      : Plug(parent), deleted_(false)
 {
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

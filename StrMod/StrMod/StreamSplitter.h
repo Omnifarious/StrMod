@@ -1,7 +1,7 @@
 #ifndef _STR_StreamSplitter_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -28,6 +28,7 @@
 
 //! author="Eric Hopper" lib=StrMod
 
+#include <cstddef>  // NULL
 #ifndef _STR_STR_ClassIdent_H_
 #   include <StrMod/STR_ClassIdent.h>
 #endif
@@ -37,9 +38,11 @@
 #ifndef _STR_StreamModule_H_
 #   include <StrMod/StreamModule.h>
 #endif
-#include <stddef.h>  // NULL
 
 #define _STR_StreamSplitter_H_
+
+namespace strmod {
+namespace strmod {
 
 /** \class StreamSplitterModule StreamSplitter.h StrMod/StreamSplitter.h
  * \brief This module is for treating two uni-directional streams as one
@@ -67,11 +70,14 @@
  * <p>The SideOut plug is <b>never</b> writeable, and the SideIn plug is
  * <b>never</b> readable..</p>
  */
-class StreamSplitterModule : public StreamModule {
+class StreamSplitterModule : public StreamModule
+{
  public:
    static const STR_ClassIdent identifier;
 
+   //! Create a splitter module who's plugs are connected to nothing.
    StreamSplitterModule();
+   //! Delete splitter module and destroy all plugs it owns.
    virtual ~StreamSplitterModule();
 
    //! On what sides can a plug be created?
@@ -88,7 +94,7 @@ class StreamSplitterModule : public StreamModule {
  protected:
    class SPPlug;
    friend class SPPlug;
-   /** 
+   /* Not Doxygen yet. 
     * \brief This does most of the work.  It just forwards stuff to the other
     * plugs.
     */
@@ -105,7 +111,9 @@ class StreamSplitterModule : public StreamModule {
       virtual int side() const                          { return(side_); }
 
     protected:
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       virtual const StrChunkPtr i_Read();
       virtual void i_Write(const StrChunkPtr &ptr);
@@ -123,7 +131,7 @@ class StreamSplitterModule : public StreamModule {
       Sides side_;
    };
 
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    /** See base class.  This one sets the read/writeable flags on the other
     * plugs to be right.
@@ -214,5 +222,8 @@ StreamSplitterModule::SPPlug::getWritePartner() const
       return(NULL);
    }
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

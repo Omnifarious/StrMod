@@ -33,6 +33,9 @@
 #include "StrMod/StreamProcessor.h"
 #include "StrMod/StrChunkPtr.h"
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent StreamProcessor::identifier(25UL);
 
 StreamProcessor::~StreamProcessor()
@@ -40,3 +43,6 @@ StreamProcessor::~StreamProcessor()
    // outgoing_ and incoming_ are smart pointers and will automagically handle
    // the deletion themselves.
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -1,7 +1,7 @@
 #ifndef _STR_BufferChunk_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -33,14 +33,20 @@
 #include <LCore/GenTypes.h>
 #include <LCore/Debugable.h>
 #include <new>
+#include <iosfwd>
 
 #define _STR_BufferChunk_H_
+
+namespace strmod {
+namespace strmod {
 
 /** \class BufferChunk BufferChunk.h StrMod/BufferChunk.h
  * This is an abstract base class for StrChunks that are really just bags of
  * bytes.
  */
-class BufferChunk : public StrChunk, virtual public Debugable {
+class BufferChunk : public StrChunk, virtual public lcore::Debugable
+{
+   typedef lcore::U1Byte U1Byte;
  public:
    class Factory;
    static const STR_ClassIdent identifier;
@@ -57,11 +63,11 @@ class BufferChunk : public StrChunk, virtual public Debugable {
     */
    virtual ~BufferChunk()                               { }
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool invariant() const;
 
-   virtual void printState(ostream &os) const;
+   virtual void printState(std::ostream &os) const;
 
    virtual unsigned int Length() const                  { return(buflen_); }
 
@@ -90,10 +96,10 @@ class BufferChunk : public StrChunk, virtual public Debugable {
     *
     * Throws bad_alloc if the allocation fails, just like operator new.
     */
-   virtual void resize(unsigned int newsize) throw(bad_alloc) = 0;
+   virtual void resize(unsigned int newsize) throw(std::bad_alloc) = 0;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
@@ -126,7 +132,7 @@ class BufferChunk : public StrChunk, virtual public Debugable {
 
 //-----------------------------inline functions--------------------------------
 
-inline int BufferChunk::AreYouA(const ClassIdent &cid) const
+inline int BufferChunk::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }
@@ -136,7 +142,7 @@ inline bool BufferChunk::invariant() const
    return((buflen_ == 0) || (buf_ != 0));
 }
 
-inline U1Byte &BufferChunk::operator [](unsigned int bnum)
+inline lcore::U1Byte &BufferChunk::operator [](unsigned int bnum)
 {
    return((bnum < buflen_) ? static_cast<U1Byte *>(buf_)[bnum] : junk_);
 }
@@ -146,9 +152,12 @@ inline void *BufferChunk::getVoidP()
    return((buflen_ > 0) ? buf_ : &junk_);
 }
 
-inline U1Byte *BufferChunk::getCharP()
+inline lcore::U1Byte *BufferChunk::getCharP()
 {
    return((buflen_ > 0) ? static_cast<U1Byte *>(buf_) : &junk_);
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

@@ -47,11 +47,15 @@
 
 #define _STR_STR_ClassIdent_H_
 
+namespace strmod {
+namespace strmod {
+
 /** \class STR_ClassIdent STR_ClassIdent.h StrMod/STR_ClassIdent.h
  * The class identifier class that sets the library number section of the
  * class number to be correct for the classes in the StrMod library.
  */
-class STR_ClassIdent : public EH_ClassIdent {
+class STR_ClassIdent : public lcore::EH_ClassIdent {
+   typedef lcore::U4Byte U4Byte;
  public:
    //! The unique class identifier for this class.
    static const STR_ClassIdent identifier;
@@ -70,7 +74,7 @@ class STR_ClassIdent : public EH_ClassIdent {
     * compare against the identifier, then call the AreYouA methods of all the
     * superclasses.
     *
-    * @param cid Usually <class>::identifier for the class you want to ask if
+    * @param cid Usually &lt;class>::identifier for the class you want to ask if
     * the object is an instance of.
     */
    inline virtual int AreYouA(const ClassIdent &cid) const;
@@ -89,12 +93,12 @@ class STR_ClassIdent : public EH_ClassIdent {
 
 //---------------------------inline functions--------------------------------
 
-inline const ClassIdent *STR_ClassIdent::i_GetIdent() const
+inline const lcore::ClassIdent *STR_ClassIdent::i_GetIdent() const
 {
    return(&identifier);
 }
 
-inline int STR_ClassIdent::AreYouA(const ClassIdent &cid) const
+inline int STR_ClassIdent::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
 }
@@ -105,8 +109,11 @@ inline int STR_ClassIdent::AreYouA(const ClassIdent &cid) const
 //  }
 
 inline STR_ClassIdent::STR_ClassIdent(U4Byte cnum) :
-     EH_ClassIdent(EH_ClassNum(EH_ClassNum::StrMod, cnum))
+     lcore::EH_ClassIdent(lcore::EH_ClassNum(lcore::EH_ClassNum::StrMod, cnum))
 {
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

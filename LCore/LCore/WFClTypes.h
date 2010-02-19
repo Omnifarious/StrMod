@@ -40,8 +40,15 @@
 
 #define _LCORE_WFClTypes_H_
 
+namespace strmod {
+namespace lcore {
+
 class WFCORE_ClassIdent;
 
+/** \class WF_ClassNum WFClTypes.h StrMod/WFClTypes.h
+ * A ClassNum for a WinterFire Software class.  WinterFire Software no
+ * longer exists, but some of its code is still around.
+ */
 class WF_ClassNum : public ClassNum {
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
@@ -84,6 +91,7 @@ class WF_ClassIdent : public ClassIdent {
 
 //----------
 
+//! Class identifier for a core library class of WinterFire software.
 class WFCORE_ClassIdent : public EH_ClassIdent {
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
@@ -108,12 +116,10 @@ inline int WF_ClassNum::AreYouA(const ClassIdent &cid) const
    return((identifier == cid) || ClassNum::AreYouA(cid));
 }
 
-#pragma warn -sig
 inline U2Byte WF_ClassNum::GetLibNum() const
 {
    return((0xfff00000UL & ClassNum::GetClNum()) >> 20);
 }
-#pragma warn .sig
 
 inline U4Byte WF_ClassNum::GetClNum() const
 {
@@ -162,5 +168,8 @@ inline WFCORE_ClassIdent::WFCORE_ClassIdent(U4Byte cnum) :
      WF_ClassIdent(WF_ClassNum(WF_ClassNum::Core, cnum))
 {
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

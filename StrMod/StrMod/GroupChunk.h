@@ -35,25 +35,44 @@
 
 #define _STR_GroupChunk_H_
 
+namespace strmod {
+namespace strmod {
+
 class StrChunkPtr;
 
-class GroupChunk : public StrChunk {
-   typedef deque<StrChunk *> ChunkList;
+/** \class GroupChunk GroupChunk.h StrMod/GroupChunk.h
+ * \brief A StrChunk that consists of a concatentation of other StrChunks.
+ *
+ * GroupChunks are used to concatenate together a bunch of StrChunks without
+ * having to move any of their memory.  To the outside, a GroupChunk appears as
+ * a single, contiguous StrChunk, but internally it is composed of a list of
+ * pointers to it's subsidiary StrChunks.
+ *
+ * This class plays the role of Composite in the <a href="http://exciton.cs.oberlin.edu/javaresources/DesignPatterns/composite.htm">Composite</a>
+ * pattern.
+ */
+class GroupChunk : public StrChunk
+{
+   typedef std::deque<StrChunk *> ChunkList;
  public:
    static const STR_ClassIdent identifier;
 
+   //! Construct an empty GroupChunk
    GroupChunk();
+   //! Dereferences all direct children.
    virtual ~GroupChunk();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual unsigned int Length() const                 { return(totalsize_); }
 
+   //! Concatenate a StrChunk to the end of the GroupChunk
    void push_back(const StrChunkPtr &chnk);
+   //! Prepend a StrChunk to this GroupChunk
    void push_front(const StrChunkPtr &chnk);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
@@ -69,9 +88,12 @@ class GroupChunk : public StrChunk {
 
 //-----------------------------inline functions--------------------------------
 
-inline int GroupChunk::AreYouA(const ClassIdent &cid) const
+inline int GroupChunk::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

@@ -16,7 +16,8 @@
  *     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/* $Header$ */
+/* $URL$ */
+// $Rev$
 
 // For a log, see ChangeLog
 
@@ -35,21 +36,34 @@
 #   include "StrMod/UseTrackingVisitor.h"
 #endif
 
+#include <UniEvent/UNIXError.h>
+#include <UniEvent/EventPtr.h>
+#include <UniEvent/Event.h>
 #include <UniEvent/Dispatcher.h>
 
+#include <LCore/enum_set.h>
+
+#include <vector>
+#include <new>
 #include <unistd.h>  // read  (and maybe sysconf)
 #include <sys/types.h>  // writev and struct iovec
 #include <sys/uio.h>    // writev and struct iovec
 #include <sys/stat.h>
-#include <assert.h>
-#include <stddef.h>  // NULL
-#include <errno.h> // ESUCCESS
-#include <vector>
+#include <cassert>
+#include <cstddef>  // NULL
+#include <cerrno> // ESUCCESS
 #ifndef ESUCCESS
 #  define ESUCCESS 0
 #endif
 
+namespace strmod {
+namespace strmod {
+
 typedef struct stat statbuf_t;
+using unievent::Dispatcher;
+using unievent::UnixEventRegistry;
+using unievent::UNIXError;
+using lcore::LCoreError;
 
 const STR_ClassIdent StreamFDModule::identifier(8UL);
 const STR_ClassIdent StreamFDModule::FPlug::identifier(9UL);
@@ -67,7 +81,7 @@ class StreamFDModule::EvMixin {
         : hasparent_(true), parent_(parent)
    {
    }
-   //! Whee, I'm a destructor!
+   //! Virtual because this is a mixin designed to have derived classes.
    virtual ~EvMixin()                           { assert(hasparent_ == false); }
 
    //! This method is called by StreamFDModule when it goes away.
@@ -75,11 +89,11 @@ class StreamFDModule::EvMixin {
 
  protected:
    //! Call the right StreamFDModule function for the event.
-   inline void triggerRead(unsigned int condbits);
+   inline void triggerRead();
    //! Call the right StreamFDModule function for the event.
-   inline void triggerWrite(unsigned int condbits);
+   inline void triggerWrite();
    //! Call the right StreamFDModule function for the event.
-   inline void triggerError(unsigned int condbits);
+   inline void triggerError();
    //! Call the right StreamFDModule function for the event.
    inline void triggerResumeRead();
    //! Call the right StreamFDModule function for the event.
@@ -90,30 +104,30 @@ class StreamFDModule::EvMixin {
    StreamFDModule &parent_;
 };
 
-inline void StreamFDModule::EvMixin::triggerRead(unsigned int condbits)
+inline void StreamFDModule::EvMixin::triggerRead()
 {
    // cerr << "In triggerRead\n";
    if (hasparent_)
    {
-      parent_.eventRead(condbits);
+      parent_.eventRead();
    }
 }
 
-inline void StreamFDModule::EvMixin::triggerWrite(unsigned int condbits)
+inline void StreamFDModule::EvMixin::triggerWrite()
 {
    // cerr << "In triggerWrite\n";
    if (hasparent_)
    {
-      parent_.eventWrite(condbits);
+      parent_.eventWrite();
    }
 }
 
-inline void StreamFDModule::EvMixin::triggerError(unsigned int condbits)
+inline void StreamFDModule::EvMixin::triggerError()
 {
    // cerr << "In triggerError\n";
    if (hasparent_)
    {
-      parent_.eventError(condbits);
+      parent_.eventError();
    }
 }
 
@@ -121,7 +135,7 @@ inline void StreamFDModule::EvMixin::triggerResumeRead()
 {
    if (hasparent_)
    {
-      parent_.eventRead(UNIXpollManager::FD_Readable);
+      parent_.eventResumeRead();
    }
 }
 
@@ -129,57 +143,52 @@ inline void StreamFDModule::EvMixin::triggerResumeWrite()
 {
    if (hasparent_)
    {
-      parent_.eventRead(UNIXpollManager::FD_Writeable);
+      parent_.eventResumeWrite();
    }
 }
 
-//: This is one of the three helper classes for StreamFDModule::EvMixin
+//! This is one of the five helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollRdEv
-   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    inline FDPollRdEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollRdEv()                                        { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      triggerRead(condbits);
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+      triggerRead();
    }
 };
 
-//: This is one of the three helper classes for StreamFDModule::EvMixin
+//! This is one of the five helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollWrEv
-   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    inline FDPollWrEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollWrEv()                                        { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      triggerWrite(condbits);
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+      triggerWrite();
    }
 };
 
-//: This is one of the three helper classes for StreamFDModule::EvMixin
+//! This is one of the five helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollErEv
-   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    inline FDPollErEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollErEv()                                        { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      triggerError(condbits);
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+      triggerError();
    }
 };
 
+//! This is one of the five helper classes for StreamFDModule::EvMixin
 class StreamFDModule::ResumeReadEv
-   : public StreamFDModule::EvMixin, public UNIEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    ResumeReadEv(StreamFDModule &parent)
@@ -188,14 +197,15 @@ class StreamFDModule::ResumeReadEv
    }
    virtual ~ResumeReadEv()                            { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)
+   virtual void triggerEvent(Dispatcher *dispatcher = 0)
    {
       triggerResumeRead();
    }
 };
 
+//! This is one of the five helper classes for StreamFDModule::EvMixin
 class StreamFDModule::ResumeWriteEv
-   : public StreamFDModule::EvMixin, public UNIEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    ResumeWriteEv(StreamFDModule &parent)
@@ -204,14 +214,15 @@ class StreamFDModule::ResumeWriteEv
    }
    virtual ~ResumeWriteEv()                            { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)
+   virtual void triggerEvent(Dispatcher *dispatcher = 0)
    {
       triggerResumeWrite();
    }
 };
 
 /**
- * The ChunkVisitor that gathers data for the writev calls.  */
+ * The ChunkVisitor that gathers data for the writev calls.
+ */
 class StreamFDModule::BufferList : public UseTrackingVisitor {
  public:
    //! ChunkVisitors never have very interesting constructors
@@ -230,8 +241,8 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    void startChunk(const StrChunkPtr &chunk)
    {
       iovecs_.clear();
+      curvecidx_ = 0;
       totalbytes_ = curbyte_ = 0;
-      curvec_ = 0;
       curchunk_ = chunk;
       try
       {
@@ -248,16 +259,16 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
       }
       else
       {
-         curvec_ = iovecs_.begin();
+         curvecidx_ = 0;
       }
    }
 
    //! How many bytes are left in the currently visited StrChunk?
-   size_t bytesLeft() const                { return totalbytes_ - curbyte_; }
+   size_t bytesLeft() const              { return totalbytes_ - curbyte_; }
    //! What iovec should be passed to the writev call?
-   inline iovec *getIOVec() const          { return curvec_; }
+   inline const iovec *getIOVec() const  { return &iovecs_[curvecidx_]; }
    //! How many iovec structures are left?
-   inline size_t numVecs() const           { return iovecs_.end() - curvec_; }
+   inline size_t numVecs() const         { return iovecs_.size() - curvecidx_; }
    //! Move forward by numbytes, setting it up so the other functions return the right values.
    void advanceBy(size_t numbytes);
 
@@ -268,7 +279,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
     */
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
-      throw(halt_visitation)               { }
+      throw(halt_visitation)             { }
 
    /*!
     * Add this new chunk of data to our list.
@@ -291,11 +302,11 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    }
 
  private:
-   typedef vector<iovec> iovecvec;
+   typedef std::vector<iovec> iovecvec;
    StrChunkPtr curchunk_;
    size_t totalbytes_;
    size_t curbyte_;
-   iovecvec::iterator curvec_;
+   size_t curvecidx_;
    iovecvec iovecs_;
 
    // Private and left undefined on purpose.
@@ -304,7 +315,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
 };
 
 inline StreamFDModule::BufferList::BufferList()
-     : UseTrackingVisitor(true), totalbytes_(0), curbyte_(0), curvec_(0)
+     : UseTrackingVisitor(true), totalbytes_(0), curbyte_(0), curvecidx_(0)
 {
 }
 
@@ -319,95 +330,155 @@ inline void StreamFDModule::BufferList::advanceBy(size_t numbytes)
    {
       totalbytes_ = curbyte_ = 0;
       curchunk_.ReleasePtr();
-      curvec_ = 0;
+      curvecidx_ = 0;
       iovecs_.clear();
       return;
    }
 
    for (size_t bytestomove = numbytes; bytestomove > 0; )
    {
-      if (curvec_->iov_len <= bytestomove)
+      iovec &curvec = iovecs_[curvecidx_];
+      if (curvec.iov_len <= bytestomove)
       {
-         bytestomove -= curvec_->iov_len;
-         ++curvec_;
+         bytestomove -= curvec.iov_len;
+         ++curvecidx_;
       }
       else
       {
-         curvec_->iov_base =
-            static_cast<unsigned char *>(curvec_->iov_base) + bytestomove;
-         curvec_->iov_len -= bytestomove;
+         curvec.iov_base =
+            reinterpret_cast<unsigned char *>(curvec.iov_base) + bytestomove;
+         curvec.iov_len -= bytestomove;
          bytestomove = 0;
       }
    }
    curbyte_ += numbytes;
-   assert(curvec_ != iovecs_.end());
+   assert(curvecidx_ < iovecs_.size());
 }
 
-void StreamFDModule::setErrorIn(ErrCategory ecat, int err)
+//---
+
+struct StreamFDModule::ErrorInfo {
+   unievent::EventPtr events_[(ErrFatal - ErrRead) + 1];
+   unsigned char errdata_[(ErrFatal - ErrRead) + 1][sizeof(UNIXError)];
+   ErrorSet used_;
+};
+
+//------
+
+bool StreamFDModule::hasErrorIn(ErrorType err) const throw ()
 {
-   if (err == ESUCCESS)
-   {
-      resetErrorIn(ecat);
-   }
-   errvals[ecat] = err;
+   // ::std::cerr << " ----> Entering StreamFDModule::hasErrorIn(ErrorType err).\n";
+   return errorinfo_.used_.test(err);
 }
 
-bool StreamFDModule::resetErrorIn(ErrCategory ecat)
+bool StreamFDModule::hasErrorIn(const ErrorSet &set) const throw ()
 {
-   if (ecat == ErrFatal)
-   {
-      return(false);
-   }
-   if (!hasErrorIn(ecat))
-   {
-      return(false);
-   }
-
-   bool retval = false;
-
-   switch (ecat)
-   {
-    case ErrRead:
-      errvals[ErrRead] = ESUCCESS;
-      maybeShouldReadFD();
-      retval = true;
-      break;
-    case ErrWrite:
-      errvals[ErrWrite] = ESUCCESS;
-      maybeShouldWriteFD();
-      retval = true;
-      break;
-    case ErrOther:
-      errvals[ErrOther] = ESUCCESS;
-      maybeShouldReadFD();
-      maybeShouldWriteFD();
-      retval = true;
-      break;
-    default:
-      break;
-   }
-   return(retval);
+   // ::std::cerr << " ----> Entering StreamFDModule::hasErrorIn(const ErrorSet &set).\n";
+   ErrorSet tmp = errorinfo_.used_;
+   tmp &= set;
+   return tmp.any();
 }
 
-void StreamFDModule::setReadEOF(bool newval)
+void StreamFDModule::onErrorIn(ErrorType err,
+                               const unievent::EventPtr &ev) throw()
 {
-   flags_.readeof = newval;
-   maybeShouldReadFD();
+   // ::std::cerr << " ----> Entering StreamFDModule::onErrorIn().\n";
+   errorinfo_.events_[err] = ev;
 }
 
-void StreamFDModule::resetReadEOF()
+void StreamFDModule::resetErrorIn(ErrorType err) throw ()
 {
-   if (flags_.readeof)
+   // ::std::cerr << " ----> Entering StreamFDModule::resetErrorIn().\n";
+   if ((err != ErrFatal) && errorinfo_.used_.test(err))
    {
-      flags_.readeof = 0;
-      maybeShouldReadFD();
+      reinterpret_cast<UNIXError *>(errorinfo_.errdata_[err])->~UNIXError();
+      errorinfo_.used_.reset(err);
+      if ((err == ErrGeneral) || (err == ErrRead))
+      {
+         if (! (errorinfo_.used_.test(ErrGeneral) ||
+                errorinfo_.used_.test(ErrRead) ||
+                errorinfo_.used_.test(ErrFatal)))
+         {
+            if ((fd_ >= 0) && !flags_.checkingrd)
+            {
+               if (!buffed_read_)
+               {
+                  static const UnixEventRegistry::FDCondSet
+                     readset(UnixEventRegistry::FD_Readable);
+                  ureg_.registerFDCond(fd_, readset, readev_);
+                  flags_.checkingrd = true;
+               }
+               else
+               {
+                  disp_.addEvent(resumeread_);
+               }
+            }
+         }
+      }
+      if ((err == ErrGeneral) || (err == ErrWrite))
+      {
+         if (! (errorinfo_.used_.test(ErrGeneral) ||
+                errorinfo_.used_.test(ErrWrite) ||
+                errorinfo_.used_.test(ErrFatal)))
+         {
+            if ((fd_ >= 0) && !flags_.checkingwr)
+            {
+               if (cur_write_)
+               {
+                  static const UnixEventRegistry::FDCondSet
+                     writeset(UnixEventRegistry::FD_Writeable);
+                  ureg_.registerFDCond(fd_, writeset, writeev_);
+                  flags_.checkingwr = true;
+               }
+               else
+               {
+                  disp_.addEvent(resumewrite_);
+               }
+            }
+         }
+      }
+   }
+}
+
+const UNIXError &StreamFDModule::getErrorIn(ErrorType err) const throw ()
+{
+   // ::std::cerr << " ----> Entering StreamFDModule::getErrorIn(ErrorType err).\n";
+   if (! errorinfo_.used_.test(err))
+   {
+      return UNIXError::S_noerror;
+   }
+   else
+   {
+      return *(reinterpret_cast<UNIXError *>(errorinfo_.errdata_[err]));
+   }
+}
+
+void StreamFDModule::setErrorIn(ErrorType err,
+                                const unievent::UNIXError &errval)
+{
+   // ::std::cerr << " ----> Entering StreamFDModule::setErrorIn(ErrorType err, const unievent::UNIXError &errval).\n";
+   void *rawmem = errorinfo_.errdata_[err];
+   if (errorinfo_.used_.test(err))
+   {
+      (reinterpret_cast<UNIXError *>(rawmem))->~UNIXError();
+   }
+   else
+   {
+      errorinfo_.used_.set(err);
+   }
+   new(rawmem) UNIXError(errval);
+   if (errorinfo_.events_[err])
+   {
+      disp_.addEvent(errorinfo_.events_[err]);
+      errorinfo_.events_[err].ReleasePtr();
    }
 }
 
 size_t StreamFDModule::getBestChunkSize() const
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::getBestChunkSize().\n";
    static const size_t default_size = 4096U;
-   static const size_t smallest = 64U;
+   static const size_t smallest = 128U;
    static const size_t largest = (128U * 1024U);
 
    size_t retval = default_size;
@@ -433,87 +504,148 @@ size_t StreamFDModule::getBestChunkSize() const
    return(retval);
 }
 
-void StreamFDModule::plugWrite(const StrChunkPtr &ptr)
-{
-   assert(!cur_write_);
-   cur_write_ = ptr;
-   if (cur_write_->AreYouA(EOFStrChunk::identifier))
-   {
-      // Try to get around some things that end up blocking when they close
-      // the 'write' half.
-      setWriteableFlagFor(&plug_, false);
-      maybeShouldWriteFD();
-   }
-   else
-   {
-      doWriteFD();
-   }
-}
-
 const StrChunkPtr StreamFDModule::plugRead()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::plugRead().\n";
    assert(buffed_read_);
 
    StrChunkPtr retval = buffed_read_;
    buffed_read_.ReleasePtr();
-   if (!hasErrorIn(ErrRead) && !hasErrorIn(ErrFatal) && !readEOF() && fd_ >= 0)
-   {
-      doReadFD();
-   }
-   else
+   doReadFD();
+   read_since_read_posted_ += retval->Length();
+   if (!buffed_read_ ||
+       (read_since_read_posted_ >= S_max_bytes_without_dispatch))
    {
       setReadableFlagFor(&plug_, false);
-      maybeShouldReadFD();
+      if (read_since_read_posted_ >= S_max_bytes_without_dispatch)
+      {
+         disp_.addEvent(resumeread_);
+      }
    }
    return(retval);
 }
 
+void StreamFDModule::eventRead()
+{
+   // ::std::cerr << " ----> Entering StreamFDModule::eventRead().\n";
+   assert(!buffed_read_);
+   flags_.checkingrd = false;
+   read_since_read_posted_ = 0;
+   if (!buffed_read_)
+   {
+      doReadFD();
+   }
+   if (buffed_read_)
+   {
+      setReadableFlagFor(&plug_, true);
+   }
+}
+
+void StreamFDModule::eventResumeRead()
+{
+   // ::std::cerr << " ----> Entering StreamFDModule::eventResumeRead().\n";
+   read_since_read_posted_ = 0;
+   if (buffed_read_)
+   {
+      setReadableFlagFor(&plug_, true);
+   }
+}
+
+void StreamFDModule::plugWrite(const StrChunkPtr &ptr)
+{
+   // ::std::cerr << " ----> Entering StreamFDModule::plugWrite().\n";
+   assert(!cur_write_);
+   assert(ptr);
+   cur_write_ = ptr;
+   doWriteFD();
+   written_since_write_posted_ += ptr->Length();
+   if (cur_write_ ||
+       (written_since_write_posted_ > S_max_bytes_without_dispatch))
+   {
+      setWriteableFlagFor(&plug_, false);
+      if (written_since_write_posted_ > S_max_bytes_without_dispatch)
+      {
+         disp_.addEvent(resumewrite_);
+      }
+   }
+}
+
+void StreamFDModule::eventWrite()
+{
+   // ::std::cerr << " ----> Entering StreamFDModule::eventWrite().\n";
+   assert(cur_write_);
+   flags_.checkingwr = false;
+   written_since_write_posted_ = 0;
+   if (cur_write_)
+   {
+      doWriteFD();
+   }
+   if (! (hasErrorIn(ErrWrite) ||
+          hasErrorIn(ErrGeneral) ||
+          hasErrorIn(ErrFatal)))
+   {
+      if ((fd_ >= 0) && !cur_write_)
+      {
+         setWriteableFlagFor(&plug_, true);
+      }
+   }
+}
+
+void StreamFDModule::eventResumeWrite()
+{
+   // ::std::cerr << " ----> Entering StreamFDModule::eventResumeWrite().\n";
+   written_since_write_posted_ = 0;
+   if (!cur_write_)
+   {
+      setWriteableFlagFor(&plug_, true);
+   }
+}
+
+void StreamFDModule::eventError()
+{
+   // ::std::cerr << " ----> Entering StreamFDModule::eventError().\n";
+   setErrorIn(ErrFatal, UNIXError("<none>", EBADF,
+                                  LCoreError("Bad FD",
+                                             LCORE_GET_COMPILERINFO())));
+}
+
 void StreamFDModule::doReadFD()
 {
-   // cerr << fd_ << ": In doReadFD\n";
+   // ::std::cerr << fd_ << ": In doReadFD\n";
    assert(!buffed_read_);
-   assert(!hasErrorIn(ErrRead));
-   assert(!hasErrorIn(ErrFatal));
-   assert(!readEOF());
-   assert(fd_ >= 0);
+
+   if ((fd_ < 0) ||
+       hasErrorIn(ErrRead) || hasErrorIn(ErrFatal) || hasErrorIn(ErrGeneral))
+   {
+      return;
+   }
 
    ssize_t size = -1;
    int myerrno = ESUCCESS;
 
-   if (read_since_read_posted_ > (256U * 1024U))
-   {
-      setReadableFlagFor(&plug_, false);
-      disp_.addEvent(resumeread_);
-      read_since_read_posted_ = 0;
-      size = -1;
-      myerrno = EAGAIN;
-      return;
-   }
-   else
    {
       // A normal pointer offers a speed advantage, and we don't know whether
       // we want to set buffed_read until the read succeeds.
-      size_t maxsize = getMaxChunkSize();
+      const size_t maxsize = getMaxChunkSize();
       DynamicBuffer *dbchunk = new DynamicBuffer(maxsize);
 
       errno = 0;
-      // cerr << "Reading...\n";
+      // ::std::cerr << "Reading...\n";
       size = ::read(fd_, dbchunk->getVoidP(), maxsize);
       // I may have an error, capture errno to make sure nothing happens to it.
       myerrno = errno;
-      // cerr << fd_ << ": just read " << size << " bytes.\n";
+      // ::std::cerr << fd_ << ": just read " << size << " bytes.\n";
 
       if (size > 0) {
-         read_since_read_posted_ += size;
-	 dbchunk->resize(size);
-	 buffed_read_ = dbchunk;
-//  	 cerr << fd_ << ": just read: <";
-//  	 cerr.write(dbchunk->GetCharP(), dbchunk->Length());
-//  	 cerr << ">\n";
-	 dbchunk = 0;
+         dbchunk->resize(size);
+         buffed_read_ = dbchunk;
+//  	 ::std::cerr << fd_ << ": just read: <";
+//  	 ::std::cerr.write(dbchunk->GetCharP(), dbchunk->Length());
+//  	 ::std::cerr << ">\n";
+         dbchunk = 0;
       } else {
-	 delete dbchunk;
-	 dbchunk = 0;
+         delete dbchunk;
+         dbchunk = 0;
       }
 
       assert(dbchunk == 0);
@@ -521,29 +653,42 @@ void StreamFDModule::doReadFD()
 
    if (size <= 0)
    {
-      // cerr << "Handling read error.\n";
+      // ::std::cerr << "Handling read error.\n";
       assert(!buffed_read_);
 
       if (size == 0)
       {
-	 setReadEOF(true);  // We've read the EOF marker.
-	 // cerr << fd_ << ": read EOF\n";
+         setErrorIn(ErrRead,
+                    UNIXError("read", LCoreError(LCORE_GET_COMPILERINFO())));
+         // ::std::cerr << fd_ << ": read EOF\n";
 	 if (flags_.chunkeof)
 	 {
 	    buffed_read_ = new EOFStrChunk;
-	    // cerr << fd_ << ": sending EOF chunk\n";
+	    // ::std::cerr << fd_ << ": sending EOF chunk\n";
 	 }
       }
       else  // size MUST be < 0, and so errno must also be set.
       {
 	 // myerrno was set up there right after the read call.
-	 if (myerrno != EAGAIN)
+	 if (myerrno == EAGAIN)
+         {
+            if (!flags_.checkingrd && (fd_ >= 0))
+            {
+               static const UnixEventRegistry::FDCondSet
+                  readset(UnixEventRegistry::FD_Readable);
+               ureg_.registerFDCond(fd_, readset, readev_);
+               flags_.checkingrd = true;
+            }
+         }
+         else // (myerrno != EAGAIN)
 	 {
 	    // EAGAIN just means I need to read later, so it's OK, but anything
 	    // else isn't.
-	    // cerr << "Handling non-EAGAIN error.\n";
-	    // cerr << fd_ << ": setting ErrRead to " << myerrno << "\n";
-	    setErrorIn(ErrRead, myerrno);
+	    // ::std::cerr << "Handling non-EAGAIN error.\n";
+	    // ::std::cerr << fd_ << ": setting ErrRead to " << myerrno << "\n";
+            setErrorIn(ErrRead,
+                       UNIXError("read", myerrno,
+                                 LCoreError(LCORE_GET_COMPILERINFO())));
 	 }
       }
    }
@@ -551,50 +696,23 @@ void StreamFDModule::doReadFD()
    {
       assert(buffed_read_);
    }
-   if (!buffed_read_)
-   {
-      // cerr << "We're not readable now.\n";
-      setReadableFlagFor(&plug_, false);
-      maybeShouldReadFD();
-   }
-   else
-   {
-      // cerr << "We're readable now!\n";
-      // cerr << "Currently plug ";
-//        if (plug_.isReadable())
-//        {
-//  	 // cerr << "is readable ";
-//        }
-//        if (plug_.isWriteable())
-//        {
-//  	 // cerr << "is writeable ";
-//        }
-//        cerr << "\n";
-      setReadableFlagFor(&plug_, true);
-   }
 }
 
 void StreamFDModule::doWriteFD()
 {
-   // cerr << fd_ << ": in doWriteFD()\n";
+   // ::std::cerr << fd_ << ": in doWriteFD()\n";
 #ifndef MAXIOVCNT  // UnixWare 7 has this undefined.  *sigh*
 #ifndef _SC_IOV_MAX  // Linux has this undefined.  *bigger sigh*
-   static const int MAXIOVCNT = 16;
+   static const unsigned int MAXIOVCNT = 16;
 #else
-   static const int MAXIOVCNT = sysconf(_SC_IOV_MAX);
+   static const unsigned int MAXIOVCNT = sysconf(_SC_IOV_MAX);
 #endif
 #endif
 
    assert(cur_write_);
-   assert(!hasErrorIn(ErrWrite));
-   assert(!hasErrorIn(ErrFatal));
-   assert(fd_ >= 0);
 
-   if (written_since_write_posted_ > (256U * 1024U))
+   if (fd_ < 0)
    {
-      setWriteableFlagFor(&plug_, false);
-      disp_.addEvent(resumewrite_);
-      written_since_write_posted_ = 0;
       return;
    }
 
@@ -602,16 +720,13 @@ void StreamFDModule::doWriteFD()
    {
       if (cur_write_->AreYouA(EOFStrChunk::identifier))
       {
-	 cur_write_.ReleasePtr();
-	 if (writeEOF())
-	 {
-	    setWriteableFlagFor(&plug_, true);
-	 }
-	 else
-	 {
-	    setWriteableFlagFor(&plug_, false);
-	 }
-	 return;
+         if (!flags_.eofwritten)
+         {
+            writeEOF();
+            // an EOF besides this flag.
+            flags_.eofwritten = 1;
+         }
+         return;
       }
       else
       {
@@ -621,226 +736,114 @@ void StreamFDModule::doWriteFD()
 
    assert(curbuflist_.bytesLeft() > 0);
 
-   // Tell the compiler how I intend to use this value.
+   // Save the value so compiler can do better optimization
    size_t length = curbuflist_.bytesLeft();
 
    // This loop is also broken out of when there's an error writing.
    while (length > 0)
    {
       int written;
-      bool result;
       size_t numvecs = curbuflist_.numVecs();
       if (numvecs > MAXIOVCNT)
       {
-	 numvecs = MAXIOVCNT;
+	     numvecs = MAXIOVCNT;
       }
       written = ::writev(fd_, curbuflist_.getIOVec(), numvecs);
-      // cerr << fd_ << ": just wrote: <";
-      // cerr.write(ioveclst.iov[0].iov_base, ioveclst.iov[0].iov_len);
-      // cerr << ">\n";
+      // ::std::cerr << fd_ << ": just wrote: <";
+      // ::std::cerr.write(ioveclst.iov[0].iov_base, ioveclst.iov[0].iov_len);
+      // ::std::cerr << ">\n";
       // Save errno for later to make sure it isn't clobbered.
       int myerrno = errno;
 
       if (written < 0)
       {
-	 if (myerrno != EAGAIN)
+	 if (myerrno == EAGAIN)
 	 {
-	    setErrorIn(ErrWrite, myerrno);
+            if (!flags_.checkingwr && (fd_ >= 0))
+            {
+               static const UnixEventRegistry::FDCondSet
+                  writeset(UnixEventRegistry::FD_Writeable);
+               ureg_.registerFDCond(fd_, writeset, writeev_);
+               flags_.checkingwr = true;
+            }
+         }
+         else
+         {
+            setErrorIn(ErrWrite,
+                       UNIXError("write", myerrno,
+                                 LCoreError(LCORE_GET_COMPILERINFO())));
 	 }
 	 break;
       }
       else
       {
-         written_since_write_posted_ += written;
          curbuflist_.advanceBy(written);
-         length = curbuflist_.bytesLeft();
+         length -= written;
       }
    }
 
-   if (curbuflist_.bytesLeft() <= 0)
+   assert(length == curbuflist_.bytesLeft());
+
+   if (length <= 0)
    {
       cur_write_.ReleasePtr();
    }
-
-   if (!cur_write_ && !(hasErrorIn(ErrWrite) || hasErrorIn(ErrOther)))
-   {
-      setWriteableFlagFor(&plug_, true);
-   }
-   else
-   {
-      setWriteableFlagFor(&plug_, false);
-      maybeShouldWriteFD();
-   }
 }
 
-bool StreamFDModule::writeEOF()
+void StreamFDModule::writeEOF()
 {
+   // ::std::cerr << " ----> Entering StreamFDModule::writeEOF().\n";
    if (fd_ >= 0)
    {
       ::close(fd_);
-      pollmgr_.freeFD(fd_);
+      ureg_.freeFD(fd_);
       fd_ = -1;
-   }
-//   cerr << fd_ << ": setting ErrRead to " << EBADF << "\n";
-   setErrorIn(ErrRead, EBADF);
-   setErrorIn(ErrWrite, EBADF);
-   setErrorIn(ErrFatal, EBADF);
-   return(false);
-}
-
-void StreamFDModule::maybeShouldReadFD()
-{
-//     cerr << "In maybeShouldReadFD\n";
-   if (!flags_.checkingrd && (fd_ >= 0) && !readEOF() && !hasErrorIn(ErrRead)
-       && !hasErrorIn(ErrOther) && !hasErrorIn(ErrFatal) && !buffed_read_)
-   {
-      static const unsigned int condbits = UNIXpollManager::FD_Readable;
-
-      pollmgr_.registerFDCond(fd_, condbits, readev_);
-      read_since_read_posted_ = 0;
-      flags_.checkingrd = true;
-   }
-//     else
-//     {
-//        cerr << "fd: " << fd_ << " ";
-//        if (flags_.checkingrd)
-//        {
-//  	 cerr << "flags_.checkingrd ";
-//        }
-//        if (fd_ < 0)
-//        {
-//  	 cerr << "fd_ < 0 ";
-//        }
-//        if (readEOF())
-//        {
-//  	 cerr << "readEOF() ";
-//        }
-//        if (hasErrorIn(ErrRead))
-//        {
-//  	 cerr << "hasErrorIn(ErrRead) ";
-//        }
-//        if (hasErrorIn(ErrOther))
-//        {
-//  	 cerr << "hasErrorIn(ErrOther) ";
-//        }
-//        if (hasErrorIn(ErrFatal))
-//        {
-//  	 cerr << "hasErrorIn(ErrFatal) ";
-//        }
-//        if (buffed_read_)
-//        {
-//  	 cerr << "buffed_read_ ";
-//        }
-//        cerr << "\n";
-//     }
-}
-
-void StreamFDModule::maybeShouldWriteFD()
-{
-//     cerr << "In maybeShouldWriteFD\n";
-   if (!flags_.checkingwr && (fd_ >= 0) && !hasErrorIn(ErrWrite)
-       && !hasErrorIn(ErrOther) && !hasErrorIn(ErrFatal) && cur_write_)
-   {
-      static const unsigned int condbits = UNIXpollManager::FD_Writeable;
-
-//        cerr << "fd: " << fd_ << " registering for writing.\n";
-      pollmgr_.registerFDCond(fd_, condbits, writeev_);
-      written_since_write_posted_ = 0;
-      flags_.checkingwr = true;
-   }
-}
-
-void StreamFDModule::eventRead(unsigned int condbits)
-{
-   // cerr << fd_ << ": In eventRead(" << condbits << ")\n";
-   flags_.checkingrd = false;
-   if (!(condbits & UNIXpollManager::FD_Readable))
-   {
-      setErrorIn(ErrFatal, -1);
-   }
-   else
-   {
-//      if (!hasErrorIn(ErrRead) && !hasErrorIn(ErrFatal)
-//	  && !readEOF() && (fd_ >= 0) && !buffed_read_)
-      if (!buffed_read_)
+      setErrorIn(ErrWrite,
+                  UNIXError("write", LCoreError(LCORE_GET_COMPILERINFO())));
       {
-	 doReadFD();
+         UNIXError tmp("write", EBADF, LCoreError(LCORE_GET_COMPILERINFO()));
+         setErrorIn(ErrFatal, tmp);
+         setErrorIn(ErrRead, tmp);
       }
-//        cerr << "Calling maybeShouldReadFD\n";
-      maybeShouldReadFD();
    }
+//   ::std::cerr << fd_ << ": setting ErrRead to " << EBADF << "\n";
+//     setErrorIn(ErrRead, EBADF);
+//     setErrorIn(ErrWrite, EBADF);
+//     setErrorIn(ErrFatal, EBADF);
 }
 
-void StreamFDModule::eventWrite(unsigned int condbits)
-{
-//     cerr << fd_ << ": In eventWrite(" << condbits << ")\n";
-   flags_.checkingwr = false;
-   if (!(condbits & UNIXpollManager::FD_Writeable))
-   {
-      setErrorIn(ErrFatal, -1);
-   }
-   else
-   {
-      if (cur_write_)
-      {
-//  	 cerr << fd_ << ": in eventWrite cur_write_\n";
-	 doWriteFD();
-//  	 cerr << fd_ << ": after doWriteFD\n";
-      }
-      else if (!hasErrorIn(ErrFatal) && !hasErrorIn(ErrWrite) && (fd_ >= 0))
-      {
-//  	 cerr << fd_ << ": in eventWrite !cur_write_\n";
-	 setWriteableFlagFor(&plug_, true);
-      }
-//        cerr << fd_ << ": after\n";
-      maybeShouldWriteFD();
-   }
-}
-
-void StreamFDModule::eventError(unsigned int condbits)
-{
-//      cerr << "In eventError\n";
-   if (condbits & (UNIXpollManager::FD_Writeable
-		   | UNIXpollManager::FD_Readable
-		   | UNIXpollManager::FD_Invalid))
-   {
-      setErrorIn(ErrFatal, -1);
-   }
-   else
-   {
-      setErrorIn(ErrOther, -1);
-   }
-}
-
-StreamFDModule::StreamFDModule(int fd, UNIDispatcher &disp,
-                               UNIXpollManager &pollmgr,
-			       IOCheckFlags f, bool hangdelete)
+StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
+                               UnixEventRegistry &ureg,
+			       IOCheckFlags checkmask)
      : fd_(fd),
        plug_(*this),
        curbuflist_(*(new BufferList)),
        max_block_size_(4096),
        read_since_read_posted_(0),
        written_since_write_posted_(0),
+       errorinfo_(*(new ErrorInfo)),
        disp_(disp),
-       pollmgr_(pollmgr)
+       ureg_(ureg)
 {
-   for (int i = 0;
+   // ::std::cerr << " ----> Intializing a new StreamFDModule." << std::endl;
+
+   for (unsigned int i = 0;
         i < (sizeof(parenttrackers_) / sizeof(parenttrackers_[0]));
         ++i)
    {
       parenttrackers_[i] = 0;
    }
-   errvals[ErrRead] = errvals[ErrWrite]
-      = errvals[ErrOther] = errvals[ErrFatal] = ESUCCESS;
    setMaxToBest();
-   flags_.hangdelete = hangdelete;
-   flags_.plugmade = flags_.hangdelete =
-      flags_.readeof = flags_.chunkeof = false;
-   // This seems a bit odd, but if you claim to be checking read and
-   // write when you really aren't, then the class will never get
-   // around to doing it.
+   flags_.plugmade = flags_.readeof = flags_.eofwritten = flags_.chunkeof = false;
+
+   // This seems a bit odd, but if you claim to be checking read and write when
+   // you really aren't, then the class will never actually register the event
+   // with the poll manager that does the read and write checking.
    flags_.checkingrd = flags_.checkingwr = true;
+
+   // Just here to limit the scope of some variables.
    {
+      // Assignments done in a careful order to try to be exception safe.
       FDPollRdEv *readev = new FDPollRdEv(*this);
       readev_ = readev;
       FDPollWrEv *writeev = new FDPollWrEv(*this);
@@ -852,33 +855,49 @@ StreamFDModule::StreamFDModule(int fd, UNIDispatcher &disp,
       ResumeWriteEv *rwrite = new ResumeWriteEv(*this);
       resumewrite_ = rwrite;
 
+      // Set up these pointers so there's a set of things to call the
+      // 'parentGone' method on.
       parenttrackers_[0] = readev;
       parenttrackers_[1] = writeev;
       parenttrackers_[2] = errorev;
       parenttrackers_[3] = rread;
       parenttrackers_[4] = rwrite;
    }
-   
-   pollmgr_.registerFDCond(fd_,
-			   UNIXpollManager::FD_Error
-			   | UNIXpollManager::FD_Closed
-			   | UNIXpollManager::FD_Invalid,
-			   errorev_);
-   if ((f == CheckBoth) || (f == CheckRead))
+
    {
-//        cerr << "Registering for reads.\n";
-      pollmgr_.registerFDCond(fd_, UNIXpollManager::FD_Readable, readev_);
+      UnixEventRegistry::FDCondSet
+         allerrors(UnixEventRegistry::FD_Error,
+                   UnixEventRegistry::FD_Closed,
+                   UnixEventRegistry::FD_Invalid);
+      ureg_.registerFDCond(fd_, allerrors, errorev_);
+      // ::std::cerr << " ----> Registering FD error events.\n";
    }
-   if ((f == CheckBoth) || (f == CheckWrite))
+   if (fd_ >= 0)
    {
-//        cerr << "Registering for writes.\n";
-      pollmgr_.registerFDCond(fd_, UNIXpollManager::FD_Writeable, writeev_);
+      if ((checkmask == CheckBoth) || (checkmask == CheckRead))
+      {
+         // ::std::cerr << " ----> Doing a CheckRead.\n";
+         flags_.checkingrd = false;
+         doReadFD();
+         if (buffed_read_)
+         {
+            setReadableFlagFor(&plug_, true);
+         }
+      }
+      if ((checkmask == CheckBoth) || (checkmask == CheckWrite))
+      {
+         // ::std::cerr << " ----> Doing a CheckWrite.\n";
+         flags_.checkingwr = false;
+         setWriteableFlagFor(&plug_, true);
+      }
    }
 }
 
 StreamFDModule::~StreamFDModule()
 {
-   for (int i = 0;
+   // ::std::cerr << " ----> Destroying an existing StreamFDModule.\n";
+
+   for (unsigned int i = 0;
         i < (sizeof(parenttrackers_) / sizeof(parenttrackers_[0]));
         ++i)
    {
@@ -891,8 +910,21 @@ StreamFDModule::~StreamFDModule()
    if (fd_ >= 0)
    {
       ::close(fd_);
-      pollmgr_.freeFD(fd_);
+      ureg_.freeFD(fd_);
       fd_ = -1;
    }
+   for (int i = ErrRead; i <= ErrFatal; ++i)
+   {
+      ErrorType err = static_cast<ErrorType>(i);
+      if (errorinfo_.used_[err])
+      {
+         (reinterpret_cast<UNIXError *>(errorinfo_.errdata_[i]))->~UNIXError();
+         errorinfo_.used_.reset(err);
+      }
+   }
    delete &curbuflist_;
+   delete &errorinfo_;
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -26,4 +26,10 @@
 
 #include "LCore/Debugable.h"
 
+namespace strmod {
+namespace lcore {
+
 const LCore_ClassIdent Debugable::identifier(10UL);
+
+} // namespace lcore
+} // namespace strmod

@@ -1,7 +1,7 @@
 #ifndef _STR_TelnetParser_H_  // -*-c++-*-
 
 /*
- * Copyright 2001 by Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2001-2002 by Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -26,22 +26,26 @@
 
 // For a log, see ../ChangeLog
 
-#define _STR_TelnetParser_H_
-
-#include <StrMod/TelnetChars.h>
-#include <StrMod/STR_ClassIdent.h>
+#include <cstddef>
 #include <LCore/Protocol.h>
 #include <LCore/HopClTypes.h>
-#include <cstddef>
+#include <StrMod/TelnetChars.h>
+#include <StrMod/STR_ClassIdent.h>
+
+#define _STR_TelnetParser_H_
+
+namespace strmod {
+namespace strmod {
 
 class TelnetChunkBuilder;
-template <int n> class PreAllocBuffer;
+template <unsigned int n> class PreAllocBuffer;
 
 /** \class TelnetParser TelnetParser.h StrMod/TelnetParser.h
  * Class for parsing out a stream of characters into telnet protocol
  * elements using the TelnetChunkBuilder class.
  */
-class TelnetParser : virtual public Protocol {
+class TelnetParser : virtual public lcore::Protocol
+{
  public:
    static const STR_ClassIdent identifier;
 
@@ -50,7 +54,7 @@ class TelnetParser : virtual public Protocol {
    //! Destroy a parser.
    virtual ~TelnetParser();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Process a buffer, calling the builder, and advancing the state.
    void processData(const void *data, size_t len,
@@ -83,13 +87,14 @@ class TelnetParser : virtual public Protocol {
       PS_Escape,  //!< Saw an IAC character in normal data
       PS_SubNeg,  //!< Saw an IAC {WILL,WONT,DO,DONT}, expecting option number
       PS_SuboptNum, //!< Saw an IAC SE and expecting an option number
-      PS_Subopt,  //!< Between IAC SE <num> and IAC SE
+      PS_Subopt,  //!< Between IAC SE &lt;num> and IAC SE
       PS_SuboptEscape  //!< Saw an IAC while in PS_Subopt
    };
 
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
+   typedef lcore::U1Byte U1Byte;
    TelnetChars::OptionNegotiations negtype_;
    U1Byte subopt_type_;
    size_t curpos_;
@@ -115,7 +120,7 @@ class TelnetParser : virtual public Protocol {
 
 //-----------------------------inline functions--------------------------------
 
-inline int TelnetParser::AreYouA(const ClassIdent &cid) const
+inline int TelnetParser::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
@@ -128,5 +133,8 @@ inline void TelnetParser::dropBytes(size_t bytes)
       curpos_ -= bytes;
    }
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

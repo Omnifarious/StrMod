@@ -45,7 +45,7 @@
 // StrChunk
 //
 
-#include <assert.h>
+#include <cassert>
 #include <LCore/Protocol.h>
 #include <LCore/RefCountPtrT.h>
 #ifndef _STR_STR_ClassIdent_H_
@@ -57,16 +57,20 @@
 
 #define _STR_StrChunkPtr_H_
 
+namespace strmod {
+namespace strmod {
+
 class StrChunk;
 
 /** \class StrChunkPtr StrChunkPtr.h StrMod/StrChunkPtr.h
  * A smart pointer class that points a StrChunks and handles their reference
  * counts.
  */
-class StrChunkPtr : public RefCountPtrT<StrChunk> {
+class StrChunkPtr : public lcore::RefCountPtrT<StrChunk>
+{
  public:
    //! An easier way to refer to RefCountPtrT<StrChunk>
-   typedef RefCountPtrT<StrChunk> super1;
+   typedef lcore::RefCountPtrT<StrChunk> super1;
    static const STR_ClassIdent identifier;
 
    //@{
@@ -80,7 +84,7 @@ class StrChunkPtr : public RefCountPtrT<StrChunk> {
    //@}
 
    //! See class Protocol
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //@{
    /**
@@ -93,8 +97,7 @@ class StrChunkPtr : public RefCountPtrT<StrChunk> {
    //@}
 
  protected:
-   //! See class Protocol
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 };
 
 //-----------------------------inline functions--------------------------------
@@ -111,7 +114,7 @@ inline StrChunkPtr::StrChunkPtr(StrChunk *stptr) : super1(stptr)
 {
 }
 
-inline int StrChunkPtr::AreYouA(const ClassIdent &cid) const
+inline int StrChunkPtr::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
@@ -133,5 +136,8 @@ inline const StrChunkPtr &StrChunkPtr::operator =(StrChunk *b)
    super1::operator =(b);
    return(*this);
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

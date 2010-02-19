@@ -1,7 +1,7 @@
 #ifndef _STR_GraphVizVisitor_H_  // -*-mode: c++; c-file-style: "gmtellemtel";-*-
 
 /*
- * Copyright 2000 by Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2000-2002 by Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -32,14 +32,17 @@
 
 #define _STR_GraphVizVisitor_H_
 
-class ostream;
+namespace strmod {
+namespace strmod {
+
 class BufferChunk;
 
 /** \class GraphVizVisitor GraphVizVisitor.h StrMod/GraphVizVisitor.h
  * Generates output suitable for AT&T's Open Source GraphViz program, found at
  * http://www.research.att.com/sw/tools/graphviz/
  */
-class GraphVizVisitor : public UseTrackingVisitor {
+class GraphVizVisitor : public UseTrackingVisitor
+{
  public:
    static const STR_ClassIdent identifier;
 
@@ -48,7 +51,7 @@ class GraphVizVisitor : public UseTrackingVisitor {
    //! Destructor, also doesn't do much.
    virtual ~GraphVizVisitor()       { }
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || UseTrackingVisitor::AreYouA(cid));
    }
 
@@ -56,10 +59,10 @@ class GraphVizVisitor : public UseTrackingVisitor {
     * Visits the chunk DAG printing out a GraphViz parsable graph description,
     * returning a StrChunk containing the data for the chunk DAG.
     */
-   const StrChunkPtr visit(const StrChunkPtr &root, ostream &out);
+   const StrChunkPtr visit(const StrChunkPtr &root, std::ostream &out);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
@@ -72,12 +75,15 @@ class GraphVizVisitor : public UseTrackingVisitor {
    void printData(const void *data, size_t len);
 
  private:
-   typedef pair<const void *, const void *> edge_t;
-   typedef set<edge_t> edgeset_t;
-   ostream *out_;
+   typedef std::pair<const void *, const void *> edge_t;
+   typedef std::set<edge_t> edgeset_t;
+   std::ostream *out_;
    BufferChunk *data_;
    size_t rootpos_;
    edgeset_t edges_;
 };
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

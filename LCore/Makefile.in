@@ -40,7 +40,8 @@ LIBCXX = classimp.cxx  defproto.cxx  hopclimp.cxx  objctstr.cxx \
          progrimp.cxx  clsprgid.cxx  cltpsstr.cxx  gentyimp.cxx \
          objctstd.cxx  objecimp.cxx  protoimp.cxx  defeh_cl.cxx \
          defspscl.cxx  defrefco.cxx  refcoimp.cxx  rfcntptr.cxx \
-         rfcntptt.cxx  debugabl.cxx
+         rfcntptt.cxx  debugabl.cxx  lcerror.cxx   enum_set.cxx \
+         simple_bitset.cxx
 
 TESTCCS = tests/refcnt.cxx
 
@@ -64,7 +65,7 @@ pwd_test: always
 	fi; fi
 
 $(MYINCLUDEDIR): pwd_test
-	$(MYMAKE) $(MYINCLUDEBASE) 
+	$(MYMAKE) $(MYINCLUDEBASE)
 	rm -f $@
 	ln -s `$(CAT) pwd_test`/LCore $@
 

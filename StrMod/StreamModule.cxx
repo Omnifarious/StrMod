@@ -20,16 +20,15 @@
 
 // For log information, see ChangeLog
 
-#ifndef NO_RcsID
-static char _EH_StreamModule_CC_rcsID[] = "$Id$";
-#endif
-
 #ifdef __GNUG__
 #  pragma implementation "StreamModule.h"
 #endif
 
 #include "StrMod/StreamModule.h"
 #include "StrMod/StrChunkPtr.h"
+
+namespace strmod {
+namespace strmod {
 
 //! A unique identifier for this class.
 const STR_ClassIdent StreamModule::identifier(1UL);
@@ -176,3 +175,6 @@ void StreamModule::Plug::pullLoop()
    }
 }
 //@}
+
+}  // End namespace strmod
+}  // End namespace strmod

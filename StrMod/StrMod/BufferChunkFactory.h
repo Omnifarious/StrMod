@@ -30,32 +30,39 @@
 // An interface for things that create BufferChunks.
 //
 
-#include <StrMod/BufferChunk.h>
-#include <StrMod/STR_ClassIdent.h>
 #include <LCore/Protocol.h>
+#include <StrMod/STR_ClassIdent.h>
+#include <StrMod/BufferChunk.h>
 
 #define _STR_BufferChunkFactory_H_
 
-class BufferChunk::Factory : virtual public Protocol {
+namespace strmod {
+namespace strmod {
+
+class BufferChunk::Factory : virtual public lcore::Protocol
+{
  public:
    static const STR_ClassIdent identifier;
 
    Factory()                                            { }
    virtual ~Factory()                                   { }
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual BufferChunk *makeChunk() = 0;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 };
 
 //-----------------------------inline functions--------------------------------
 
-inline int BufferChunk::Factory::AreYouA(const ClassIdent &cid) const
+inline int BufferChunk::Factory::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

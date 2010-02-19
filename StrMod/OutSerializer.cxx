@@ -36,6 +36,9 @@
 #include "StrMod/BufferChunkFactory.h"
 #include "StrMod/DynamicBuffer.h"
 
+namespace strmod {
+namespace strmod {
+
 inline OutSerializer::State::State(BufferChunk::Factory *fact)
      : fact_(fact), cur_chunk_(0), buf_(0), chnklen_(0), cur_pos_(0)
 {
@@ -112,14 +115,14 @@ static void SAddCharStr(OutSerializer &out, const char *data, size_t len)
       len = 65534;
    }
 
-   U2Byte netlen = len;
+   lcore::U2Byte netlen = len;
 
    out.addU2Byte(netlen + 1);  // Add 1 for trailing '\0';
    out.addRaw(data, netlen);
    out.addU1Byte('\0');  // Add trailing '\0';
 }
 
-void OutSerializer::addString(const string &str)
+void OutSerializer::addString(const ::std::string &str)
 {
    size_t len = str.length();
 
@@ -161,3 +164,6 @@ void OutSerializer::resizeChunk(size_t newsize)
    state_.chnklen_ = state_.cur_chunk_->Length();
    assert(state_.chnklen_ >= newsize);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

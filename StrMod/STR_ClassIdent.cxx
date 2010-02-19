@@ -26,7 +26,22 @@
 
 #include "StrMod/STR_ClassIdent.h"
 
+namespace strmod {
+/** The heart of the StreamModule System (<A HREF="http://www.omnifarious.org/StrMod">Homepage</A>)
+ *
+ * This is the namespace for classes in the StreamModule and StrChunk
+ * subsystems.  Here are a list of the important top-level classes:
+ *    - StreamModule A component in a communications pipeline or web.
+ *    - StrChunk A reference counted piece of data moved around between StreamModule's.
+ *    - StreamProcessor Implements a buffered filter that has an input that is processed in some way to produce an output.
+ *    - ProcessorModule A kind of StreamModule that allows you to put together two StreamProcessor objects to make a bidirectional StreamModule.
+ */
+namespace strmod {
+
 const STR_ClassIdent STR_ClassIdent::identifier(0UL);
+
+}  // End namespace strmod
+}  // End namespace strmod
 
 /*
    0UL	STR_ClassIdent

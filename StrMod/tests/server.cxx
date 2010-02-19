@@ -21,7 +21,7 @@
 #include "StrMod/StreamFDModule.h"
 #include <EHnet++/InetAddress.h>
 #include <Dispatch/dispatcher.h>
-#include <iostream.h>
+#include <iostream>
 #include <string>
 
 extern "C" int atoi(const char *);

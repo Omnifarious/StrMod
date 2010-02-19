@@ -26,18 +26,40 @@
 
 #include "UniEvent/UNEVT_ClassIdent.h"
 
-const UNEVT_ClassIdent UNEVT_ClassIdent::identifier(0UL);
+namespace strmod {
+/** A generic, 'unified' event system.
+ * This namespace is used for a set of classes implementing a fairly generic
+ * event subsystem.  It also has some OS specific classes for capturing OS
+ * events and bring them into the generic event subsystem.
+ */
+namespace unievent {
 
-/*
+//* \class UNEVT_ClassIdent
+/**
+ * Use of the ClassIdent classes is being phased out in favor of RTTI.
+ *
+ * Here is a list of currently used identifiers:
+ * <pre>
  *   0UL  UNEVT_ClassIdent
- *   1UL  UNIDispatcher
- *   2UL  UNIEvent
+ *   1UL  Dispatcher
+ *   2UL  Event
  *   3UL  OSConditionManager
- *   4UL  UNISimpleDispatcher
- *   5UL  UNIEventPtr
- *   6UL  OSObjectConditions
+ *   4UL  SimpleDispatcher
+ *   5UL  EventPtr
+ *   6UL  UNIXSignalHandler
  *   7UL  UNIXpollManager
  *   8UL  UNIXpollManager::PollEvent
  *   9UL  UNIXpollManagerImp
- *  10UL  UNIXError
+ *  10UL  <nothing, was UNIXError>
+ *  11UL  UNIXSignalHandler
+ *  12UL  Timer
+ *  13UL  UNIXTimer
+ *  14UL  TimerEventTracker
+ *  15UL  UnixEventPoll
+ * </pre>
  */
+
+const UNEVT_ClassIdent UNEVT_ClassIdent::identifier(0UL);
+
+};
+};

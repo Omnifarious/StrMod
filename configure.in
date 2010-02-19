@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT()
+AC_INIT(The StreamModule System, 0.5.3, hopper@omnifarious.org)
 AC_CONFIG_AUX_DIR(distbin)
 
 dnl Checks for programs.
@@ -19,6 +19,36 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AC_OUTPUT(Makefile LCore/Makefile UniEvent/Makefile EHnet++/Makefile StrMod/Makefile distbin/proclibsrc.pl)
+dnl Checks for specific strange quirks
+AC_LANG_PUSH(C++)
+  AC_MSG_CHECKING(if we have socklen_t)
+  AC_COMPILE_IFELSE(
+    [AC_LANG_SOURCE([[#include <sys/socket.h>
+int main()
+{
+   socklen_t saddrsize;
+   return 0;
+}]])], AC_MSG_RESULT(yes),
+   AC_MSG_RESULT(no)
+   CPPFLAGS="$CPPFLAGS -DHAVE_NO_SOCKLEN_T"
+   AC_MSG_CHECKING(if accept wants int or size_t)
+   AC_COMPILE_IFELSE(
+     [AC_LANG_SOURCE([[#include <sys/types.h>
+#include <sys/socket.h>
+#include <cstddef>
+int main()
+{
+   unsigned char addrbuf[8192];
+   struct sockaddr *saddr = reinterpret_cast<struct sockaddr *>(addrbuf);
+   size_t length = sizeof(addrbuf);
+   accept(0, saddr, &length);
+   return 0;
+})]])], AC_MSG_RESULT(size_t)
+        CPPFLAGS="$CPPFLAGS -DSOCKLEN_IS_SIZE_T",
+        AC_MSG_RESULT(int)))
+
+AC_LANG_POP()
+
+AC_OUTPUT(Makefile LCore/Makefile UniEvent/Makefile EHnet++/Makefile StrMod/Makefile xml/Makefile distbin/proclibsrc.pl)
 
 chmod 755 distbin/proclibsrc.pl

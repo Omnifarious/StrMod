@@ -5,7 +5,7 @@
 #endif
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -34,7 +34,14 @@
 
 #define _NET_NET_ClassIdent_H_
 
-class NET_ClassIdent : public EH_ClassIdent {
+namespace strmod {
+namespace ehnet {
+
+class NET_ClassIdent : public lcore::EH_ClassIdent {
+ private:
+   typedef lcore::ClassIdent ClassIdent;
+   typedef lcore::U4Byte U4Byte;
+   typedef lcore::EH_ClassNum EH_ClassNum;
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
 
@@ -53,7 +60,7 @@ inline NET_ClassIdent::NET_ClassIdent(U4Byte cnum) :
 {
 }
 
-inline const ClassIdent *NET_ClassIdent::i_GetIdent() const
+inline const lcore::ClassIdent *NET_ClassIdent::i_GetIdent() const
 {
    return(&identifier);
 }
@@ -62,5 +69,8 @@ inline int NET_ClassIdent::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || EH_ClassIdent::AreYouA(cid));
 }
+
+} // end namespace ehnet
+} // end namespace strmod
 
 #endif
