@@ -50,13 +50,16 @@ class SocketModule : public StreamFDModule
    SocketModule(const ehnet::SocketAddress &addr,
                 unievent::Dispatcher &disp,
                 unievent::UnixEventRegistry &ureg,
-		bool blockconnect = true) throw(unievent::UNIXError);
+                bool blockconnect = true) throw(unievent::UNIXError);
    virtual ~SocketModule();
 
    inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //: Who are we connected to?
    const ehnet::SocketAddress &GetPeerAddr()           { return(peer_); }
+
+   //: What is the local IP address?
+   const ehnet::SocketAddress &GetSelfAddr()           { return(*self_); }
 
  protected:
    virtual void writeEOF();
@@ -75,6 +78,9 @@ class SocketModule : public StreamFDModule
 
  private:
    ehnet::SocketAddress &peer_;
+   ehnet::SocketAddress *self_;
+
+   void setSelfAddr(int fd);
 };
 
 //-------------------------------inline functions------------------------------
