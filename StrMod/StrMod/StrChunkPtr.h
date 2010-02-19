@@ -45,7 +45,7 @@
 // StrChunk
 //
 
-#include <assert.h>
+#include <cassert>
 #include <LCore/Protocol.h>
 #include <LCore/RefCountPtrT.h>
 #ifndef _STR_STR_ClassIdent_H_
@@ -56,6 +56,9 @@
 #endif
 
 #define _STR_StrChunkPtr_H_
+
+namespace strmod {
+namespace strmod {
 
 class StrChunk;
 
@@ -133,5 +136,8 @@ inline const StrChunkPtr &StrChunkPtr::operator =(StrChunk *b)
    super1::operator =(b);
    return(*this);
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

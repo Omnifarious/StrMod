@@ -42,9 +42,12 @@
 // First functional revision
 //
 
+#include <iosfwd>  // For ostream
+
 #define _STR_LinearExtent_H_
 
-class ostream;
+namespace strmod {
+namespace strmod {
 
 /** \class LinearExtent LinearExtent.h StrMod/LinearExtent.h
  * A simple class describing a subrange of a contiguous sequence.
@@ -136,7 +139,8 @@ class LinearExtent {
    length_t m_length;
 };
 
-ostream &operator <<(ostream &os, const LinearExtent &ext);
+//! Print out a LinearExtent on an iostream.
+std::ostream &operator <<(std::ostream &os, const LinearExtent &ext);
 
 //-----------------------------inline functions--------------------------------
 
@@ -221,5 +225,8 @@ inline void LinearExtent::ShortenRight(length_t by)
       m_length = 0;
    }
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

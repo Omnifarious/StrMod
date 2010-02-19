@@ -31,12 +31,18 @@
 
 #define _STR_SimpleTelnet_H_
 
-//: Only will handle the case when the server will do supress go ahead, and
-//: echo.
-// <p>This is a very simple telnet protocol handler.  It won't support ANY
-// options besides the server doing supress go ahead, and echo, and it
-// requires the server to support and enable those options.  This means that
-// it will only do 'character at a time' mode.</p>
+namespace strmod {
+namespace strmod {
+
+/** \class SimpleTelnetClient SimpleTelnetClient.h StrMod/SimpleTelnetClient.h
+ * \brief Only will handle the case when the server will do supress go ahead,
+ * and echo.
+ *
+ * This is a very simple telnet protocol handler.  It won't support ANY options
+ * besides the server doing supress go ahead, and echo, and it requires the
+ * server to support and enable those options.  This means that it will only do
+ * 'character at a time' mode.
+ */
 class SimpleTelnetClient : public StreamModule {
    class UPlug;
    class SPlug;
@@ -49,19 +55,16 @@ class SimpleTelnetClient : public StreamModule {
    SimpleTelnetClient();
    ~SimpleTelnetClient();
 
-   //: See base class.
    inline virtual int AreYouA(const ClassIdent &cid) const;
 
-   //: See base class.
    inline virtual bool canCreate(int side) const;
-   //: See base class.
    inline virtual bool ownsPlug(const Plug *plug) const;
-   //: See base class.
    virtual bool deletePlug(Plug *plug);
 
-   //: Resets the states of the sent_do_supga_ and sent_do_echo_ flags.
-   // <p>Resetting these flags has the effect of causing the client to attempt
-   // to renegotiate these options</p>
+   /** Resets the states of the sent_do_supga_ and sent_do_echo_ flags.
+    * Resetting these flags has the effect of causing the client to attempt to
+    * renegotiate these options
+    */
    void reset();
 
  protected:
@@ -222,5 +225,8 @@ inline bool SimpleTelnetClient::SPlug::canWriteOther() const
    Plug *other = pluggedInto();
    return((other == NULL) ? false : getFlagsFrom(*other).canwrite_);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

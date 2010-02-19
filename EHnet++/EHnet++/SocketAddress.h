@@ -60,13 +60,13 @@
  // $Revision$
 
 #include <string>
+#include <iosfwd>  // ostream
 #include <LCore/Protocol.h>
 #include <EHnet++/NET_ClassIdent.h>
 
 #define _EHNET_SocketAddress_H_
 
 struct sockaddr;
-class ostream;
 
 class SocketAddress : virtual public Protocol {
  public:
@@ -79,12 +79,12 @@ class SocketAddress : virtual public Protocol {
       return((identifier == cid) || Protocol::AreYouA(cid));
    }
 
-   virtual void PrintOn(ostream &);
+   virtual void PrintOn(std::ostream &);
 
    virtual struct sockaddr *SockAddr() = 0;
    SocketAddress *Copy() const                  { return(MakeCopy()); }
    virtual int AddressSize() const = 0;
-   virtual string AsString() = 0;
+   virtual std::string AsString() = 0;
 
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
@@ -99,7 +99,7 @@ inline const ClassIdent *SocketAddress::i_GetIdent() const
    return(&identifier);
 }
 
-inline ostream &operator <<(ostream &os, SocketAddress &sa)
+inline std::ostream &operator <<(std::ostream &os, SocketAddress &sa)
 {
    sa.PrintOn(os);
    return(os);

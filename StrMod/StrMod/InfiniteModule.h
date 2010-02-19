@@ -31,9 +31,16 @@
 
 #define _STR_InfiniteModule_H_
 
-//: Sends a particular chunk repeatedly forever.  Eats any chunk sent to it.
-// <p>The strongly resembles a /dev/zero where you decide what comes out
-// instead of an infinite string of zeros.</p>
+namespace strmod {
+namespace strmod {
+
+/** \class InfiniteModule InfiniteModule.h StrMod/InfiniteModule.h
+ * \brief Sends a particular chunk repeatedly forever.  Eats any chunk sent to
+ * it.
+ *
+ * This strongly resembles a /dev/zero where you decide what comes out instead
+ * of an infinite string of zeros.
+ */
 class InfiniteModule : public StreamModule {
    class IPlug;
    friend class IPlug;
@@ -41,9 +48,11 @@ class InfiniteModule : public StreamModule {
  public:
    static const STR_ClassIdent identifier;
 
-   //: Repeatedly sends chnk.
+   /** Construct given a chunk to repeatedly send.
+    * @param chnk The chunk to repeatedly send.
+   */
    InfiniteModule(const StrChunkPtr &chnk);
-   //: Defaults to a PreAllocBuffer containing 8192 zeros.
+   //! Destroy an InfiniteModule
    InfiniteModule();
    virtual ~InfiniteModule();
 
@@ -128,5 +137,8 @@ const StrChunkPtr InfiniteModule::IPlug::i_Read()
 void InfiniteModule::IPlug::i_Write(const StrChunkPtr &ptr)
 {
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

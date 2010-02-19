@@ -33,8 +33,12 @@
 #include <LCore/GenTypes.h>
 #include <LCore/Debugable.h>
 #include <new>
+#include <iosfwd>
 
 #define _STR_BufferChunk_H_
+
+namespace strmod {
+namespace strmod {
 
 /** \class BufferChunk BufferChunk.h StrMod/BufferChunk.h
  * This is an abstract base class for StrChunks that are really just bags of
@@ -61,7 +65,7 @@ class BufferChunk : public StrChunk, virtual public Debugable {
 
    inline virtual bool invariant() const;
 
-   virtual void printState(ostream &os) const;
+   virtual void printState(std::ostream &os) const;
 
    virtual unsigned int Length() const                  { return(buflen_); }
 
@@ -90,7 +94,7 @@ class BufferChunk : public StrChunk, virtual public Debugable {
     *
     * Throws bad_alloc if the allocation fails, just like operator new.
     */
-   virtual void resize(unsigned int newsize) throw(bad_alloc) = 0;
+   virtual void resize(unsigned int newsize) throw(std::bad_alloc) = 0;
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
@@ -150,5 +154,8 @@ inline U1Byte *BufferChunk::getCharP()
 {
    return((buflen_ > 0) ? static_cast<U1Byte *>(buf_) : &junk_);
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

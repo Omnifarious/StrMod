@@ -39,7 +39,10 @@
 #endif
 
 #include <StrMod/LinearExtent.h>
-#include <limits.h>
+#include <climits>
+
+namespace strmod {
+namespace strmod {
 
 const LinearExtent LinearExtent::full_extent(0, UINT_MAX);
 
@@ -124,3 +127,6 @@ void LinearExtent::ShortenCenter(length_t by)
    m_offset += off_adj;
    m_length -= by;
 }
+
+}  // End namespace strmod
+}  // End namespace strmod

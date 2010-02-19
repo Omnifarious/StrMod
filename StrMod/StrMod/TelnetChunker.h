@@ -26,10 +26,13 @@
 
 // For a log, see ../ChangeLog
 
-#include <StrMod/StreamProcessor.h>
 #include <StrMod/STR_ClassIdent.h>
+#include <StrMod/StreamProcessor.h>
 
 #define _STR_TelnetChunker_H_
+
+namespace strmod {
+namespace strmod {
 
 /** \class TelnetChunker TelnetChunker.h StrMod/TelnetChunker.h
  * This class parses out a stream of data into seperate telnet protocol
@@ -73,6 +76,7 @@ class TelnetChunker : public StreamProcessor {
  private:
    class DataFunctor;
    class Internals;
+   friend class Internals;
    Internals &data_;
 };
 
@@ -82,5 +86,8 @@ inline int TelnetChunker::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || StreamProcessor::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

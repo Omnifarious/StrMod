@@ -37,6 +37,7 @@
 
 #include <UniEvent/UNIXError.h>
 #include <UniEvent/EventPtr.h>
+#include <UniEvent/Event.h>
 #include <UniEvent/Dispatcher.h>
 
 #include <LCore/enum_set.h>
@@ -54,7 +55,13 @@
 #  define ESUCCESS 0
 #endif
 
+namespace strmod {
+namespace strmod {
+
 typedef struct stat statbuf_t;
+using unievent::Dispatcher;
+using unievent::UnixEventRegistry;
+using unievent::UNIXError;
 
 const STR_ClassIdent StreamFDModule::identifier(8UL);
 const STR_ClassIdent StreamFDModule::FPlug::identifier(9UL);
@@ -80,11 +87,11 @@ class StreamFDModule::EvMixin {
 
  protected:
    //! Call the right StreamFDModule function for the event.
-   inline void triggerRead(unsigned int condbits);
+   inline void triggerRead();
    //! Call the right StreamFDModule function for the event.
-   inline void triggerWrite(unsigned int condbits);
+   inline void triggerWrite();
    //! Call the right StreamFDModule function for the event.
-   inline void triggerError(unsigned int condbits);
+   inline void triggerError();
    //! Call the right StreamFDModule function for the event.
    inline void triggerResumeRead();
    //! Call the right StreamFDModule function for the event.
@@ -95,30 +102,30 @@ class StreamFDModule::EvMixin {
    StreamFDModule &parent_;
 };
 
-inline void StreamFDModule::EvMixin::triggerRead(unsigned int condbits)
+inline void StreamFDModule::EvMixin::triggerRead()
 {
    // cerr << "In triggerRead\n";
    if (hasparent_)
    {
-      parent_.eventRead(condbits);
+      parent_.eventRead();
    }
 }
 
-inline void StreamFDModule::EvMixin::triggerWrite(unsigned int condbits)
+inline void StreamFDModule::EvMixin::triggerWrite()
 {
    // cerr << "In triggerWrite\n";
    if (hasparent_)
    {
-      parent_.eventWrite(condbits);
+      parent_.eventWrite();
    }
 }
 
-inline void StreamFDModule::EvMixin::triggerError(unsigned int condbits)
+inline void StreamFDModule::EvMixin::triggerError()
 {
    // cerr << "In triggerError\n";
    if (hasparent_)
    {
-      parent_.eventError(condbits);
+      parent_.eventError();
    }
 }
 
@@ -140,51 +147,45 @@ inline void StreamFDModule::EvMixin::triggerResumeWrite()
 
 //: This is one of the three helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollRdEv
-   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    inline FDPollRdEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollRdEv()                                        { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      triggerRead(condbits);
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+      triggerRead();
    }
 };
 
 //: This is one of the three helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollWrEv
-   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    inline FDPollWrEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollWrEv()                                        { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      triggerWrite(condbits);
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+      triggerWrite();
    }
 };
 
 //: This is one of the three helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollErEv
-   : public StreamFDModule::EvMixin, public UNIXpollManager::PollEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    inline FDPollErEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollErEv()                                        { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0) {
-      unsigned int condbits = getCondBits();
-      setCondBits(0);
-      triggerError(condbits);
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+      triggerError();
    }
 };
 
 class StreamFDModule::ResumeReadEv
-   : public StreamFDModule::EvMixin, public UNIEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    ResumeReadEv(StreamFDModule &parent)
@@ -193,14 +194,14 @@ class StreamFDModule::ResumeReadEv
    }
    virtual ~ResumeReadEv()                            { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)
+   virtual void triggerEvent(Dispatcher *dispatcher = 0)
    {
       triggerResumeRead();
    }
 };
 
 class StreamFDModule::ResumeWriteEv
-   : public StreamFDModule::EvMixin, public UNIEvent
+   : public StreamFDModule::EvMixin, public unievent::Event
 {
  public:
    ResumeWriteEv(StreamFDModule &parent)
@@ -209,7 +210,7 @@ class StreamFDModule::ResumeWriteEv
    }
    virtual ~ResumeWriteEv()                            { }
 
-   virtual void triggerEvent(UNIDispatcher *dispatcher = 0)
+   virtual void triggerEvent(Dispatcher *dispatcher = 0)
    {
       triggerResumeWrite();
    }
@@ -236,8 +237,8 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    void startChunk(const StrChunkPtr &chunk)
    {
       iovecs_.clear();
+      curvecidx_ = 0;
       totalbytes_ = curbyte_ = 0;
-      curvec_ = 0;
       curchunk_ = chunk;
       try
       {
@@ -254,16 +255,16 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
       }
       else
       {
-         curvec_ = iovecs_.begin();
+         curvecidx_ = 0;
       }
    }
 
    //! How many bytes are left in the currently visited StrChunk?
-   size_t bytesLeft() const                { return totalbytes_ - curbyte_; }
+   size_t bytesLeft() const              { return totalbytes_ - curbyte_; }
    //! What iovec should be passed to the writev call?
-   inline iovec *getIOVec() const          { return curvec_; }
+   inline const iovec *getIOVec() const  { return &iovecs_[curvecidx_]; }
    //! How many iovec structures are left?
-   inline size_t numVecs() const           { return iovecs_.end() - curvec_; }
+   inline size_t numVecs() const         { return iovecs_.size() - curvecidx_; }
    //! Move forward by numbytes, setting it up so the other functions return the right values.
    void advanceBy(size_t numbytes);
 
@@ -274,7 +275,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
     */
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
-      throw(halt_visitation)               { }
+      throw(halt_visitation)             { }
 
    /*!
     * Add this new chunk of data to our list.
@@ -297,11 +298,11 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    }
 
  private:
-   typedef vector<iovec> iovecvec;
+   typedef std::vector<iovec> iovecvec;
    StrChunkPtr curchunk_;
    size_t totalbytes_;
    size_t curbyte_;
-   iovecvec::iterator curvec_;
+   size_t curvecidx_;
    iovecvec iovecs_;
 
    // Private and left undefined on purpose.
@@ -310,7 +311,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
 };
 
 inline StreamFDModule::BufferList::BufferList()
-     : UseTrackingVisitor(true), totalbytes_(0), curbyte_(0), curvec_(0)
+     : UseTrackingVisitor(true), totalbytes_(0), curbyte_(0), curvecidx_(0)
 {
 }
 
@@ -325,34 +326,35 @@ inline void StreamFDModule::BufferList::advanceBy(size_t numbytes)
    {
       totalbytes_ = curbyte_ = 0;
       curchunk_.ReleasePtr();
-      curvec_ = 0;
+      curvecidx_ = 0;
       iovecs_.clear();
       return;
    }
 
    for (size_t bytestomove = numbytes; bytestomove > 0; )
    {
-      if (curvec_->iov_len <= bytestomove)
+      iovec &curvec = iovecs_[curvecidx_];
+      if (curvec.iov_len <= bytestomove)
       {
-         bytestomove -= curvec_->iov_len;
-         ++curvec_;
+         bytestomove -= curvec.iov_len;
+         ++curvecidx_;
       }
       else
       {
-         curvec_->iov_base =
-            static_cast<unsigned char *>(curvec_->iov_base) + bytestomove;
-         curvec_->iov_len -= bytestomove;
+         curvec.iov_base =
+            static_cast<unsigned char *>(curvec.iov_base) + bytestomove;
+         curvec.iov_len -= bytestomove;
          bytestomove = 0;
       }
    }
    curbyte_ += numbytes;
-   assert(curvec_ != iovecs_.end());
+   assert(curvecidx_ < iovecs_.size());
 }
 
 //---
 
 struct StreamFDModule::ErrorInfo {
-   UNIEventPtr events_[(ErrFatal - ErrRead) + 1];
+   unievent::EventPtr events_[(ErrFatal - ErrRead) + 1];
    unsigned char errdata_[(ErrFatal - ErrRead) + 1][sizeof(UNIXError)];
    ErrorSet used_;
 };
@@ -371,7 +373,8 @@ bool StreamFDModule::hasErrorIn(const ErrorSet &set) const throw ()
    return tmp.any();
 }
 
-void StreamFDModule::onErrorIn(ErrorType err, const UNIEventPtr &ev) throw()
+void StreamFDModule::onErrorIn(ErrorType err,
+                               const unievent::EventPtr &ev) throw()
 {
    errorinfo_.events_[err] = ev;
 }
@@ -382,6 +385,50 @@ void StreamFDModule::resetErrorIn(ErrorType err) throw ()
    {
       reinterpret_cast<UNIXError *>(errorinfo_.errdata_[err])->~UNIXError();
       errorinfo_.used_.reset(err);
+      if ((err == ErrGeneral) || (err == ErrRead))
+      {
+         if (! (errorinfo_.used_.test(ErrGeneral) ||
+                errorinfo_.used_.test(ErrRead) ||
+                errorinfo_.used_.test(ErrFatal)))
+         {
+            if ((fd_ >= 0) && !flags_.checkingrd)
+            {
+               if (!buffed_read_)
+               {
+                  static const UnixEventRegistry::FDCondSet
+                     readset(UnixEventRegistry::FD_Readable);
+                  ureg_.registerFDCond(fd_, readset, readev_);
+                  flags_.checkingrd = true;
+               }
+               else
+               {
+                  disp_.addEvent(resumeread_);
+               }
+            }
+         }
+      }
+      if ((err == ErrGeneral) || (err == ErrWrite))
+      {
+         if (! (errorinfo_.used_.test(ErrGeneral) ||
+                errorinfo_.used_.test(ErrWrite) ||
+                errorinfo_.used_.test(ErrFatal)))
+         {
+            if ((fd_ >= 0) && !flags_.checkingwr)
+            {
+               if (cur_write_)
+               {
+                  static const UnixEventRegistry::FDCondSet
+                     writeset(UnixEventRegistry::FD_Writeable);
+                  ureg_.registerFDCond(fd_, writeset, writeev_);
+                  flags_.checkingwr = true;
+               }
+               else
+               {
+                  disp_.addEvent(resumewrite_);
+               }
+            }
+         }
+      }
    }
 }
 
@@ -465,25 +512,18 @@ const StrChunkPtr StreamFDModule::plugRead()
    return(retval);
 }
 
-void StreamFDModule::eventRead(unsigned int condbits)
+void StreamFDModule::eventRead()
 {
    assert(!buffed_read_);
    flags_.checkingrd = false;
-   if (!(condbits & UNIXpollManager::FD_Readable))
+   read_since_read_posted_ = 0;
+   if (!buffed_read_)
    {
-      // ERROR_HANDLING!  Complain about some kind of fatal error here
+      doReadFD();
    }
-   else
+   if (buffed_read_)
    {
-      read_since_read_posted_ = 0;
-      if (!buffed_read_)
-      {
-	 doReadFD();
-      }
-      if (buffed_read_)
-      {
-         setReadableFlagFor(&plug_, true);
-      }
+      setReadableFlagFor(&plug_, true);
    }
 }
 
@@ -514,25 +554,22 @@ void StreamFDModule::plugWrite(const StrChunkPtr &ptr)
    }
 }
 
-void StreamFDModule::eventWrite(unsigned int condbits)
+void StreamFDModule::eventWrite()
 {
    assert(cur_write_);
    flags_.checkingwr = false;
-   if (!(condbits & UNIXpollManager::FD_Writeable))
+   written_since_write_posted_ = 0;
+   if (cur_write_)
    {
-      // ERROR_HANDLING!  Complain about some kind of fatal error here
+      doWriteFD();
    }
-   else
+   if (! (hasErrorIn(ErrWrite) ||
+          hasErrorIn(ErrGeneral) ||
+          hasErrorIn(ErrFatal)))
    {
-      written_since_write_posted_ = 0;
-      if (cur_write_)
-      {
-	 doWriteFD();
-      }
-      // ERROR_HANDLING!  Check for errors before declaring ourselves writeable
       if ((fd_ >= 0) && !cur_write_)
       {
-	 setWriteableFlagFor(&plug_, true);
+         setWriteableFlagFor(&plug_, true);
       }
    }
 }
@@ -546,18 +583,11 @@ void StreamFDModule::eventResumeWrite()
    }
 }
 
-void StreamFDModule::eventError(unsigned int condbits)
+void StreamFDModule::eventError()
 {
-   if (condbits & (UNIXpollManager::FD_Writeable
-		   | UNIXpollManager::FD_Readable
-		   | UNIXpollManager::FD_Invalid))
-   {
-      // ERROR_HANDLING!  Complain about some kind of fatal error here
-   }
-   else
-   {
-      // ERROR_HANDLING!  Complain about some kind of fatal error here
-   }
+   setErrorIn(ErrFatal, UNIXError("<none>", EBADF,
+                                  LCoreError("Bad FD",
+                                             LCORE_GET_COMPILERINFO())));
 }
 
 void StreamFDModule::doReadFD()
@@ -565,7 +595,8 @@ void StreamFDModule::doReadFD()
    // cerr << fd_ << ": In doReadFD\n";
    assert(!buffed_read_);
 
-   if (fd_ < 0)
+   if ((fd_ < 0) ||
+       hasErrorIn(ErrRead) || hasErrorIn(ErrFatal) || hasErrorIn(ErrGeneral))
    {
       return;
    }
@@ -608,7 +639,9 @@ void StreamFDModule::doReadFD()
 
       if (size == 0)
       {
-         // ERROR_HANDLING!  Something needs to be done about getting an EOF.
+         setErrorIn(ErrRead,
+                    UNIXError("read", LCoreError(LCORE_GET_COMPILERINFO()),
+                              true));
 	 // cerr << fd_ << ": read EOF\n";
 	 if (flags_.chunkeof)
 	 {
@@ -623,8 +656,9 @@ void StreamFDModule::doReadFD()
          {
             if (!flags_.checkingrd && (fd_ >= 0))
             {
-               pollmgr_.registerFDCond(fd_,
-                                       UNIXpollManager::FD_Readable, readev_);
+               static const UnixEventRegistry::FDCondSet
+                  readset(UnixEventRegistry::FD_Readable);
+               ureg_.registerFDCond(fd_, readset, readev_);
                flags_.checkingrd = true;
             }
          }
@@ -634,7 +668,9 @@ void StreamFDModule::doReadFD()
 	    // else isn't.
 	    // cerr << "Handling non-EAGAIN error.\n";
 	    // cerr << fd_ << ": setting ErrRead to " << myerrno << "\n";
-            // ERROR_HANDLING!  Something needs to be done about read errors
+            setErrorIn(ErrRead,
+                       UNIXError("read", myerrno,
+                                 LCoreError(LCORE_GET_COMPILERINFO())));
 	 }
       }
    }
@@ -669,7 +705,6 @@ void StreamFDModule::doWriteFD()
          if (!flags_.eofwritten)
          {
             writeEOF();
-            // ERROR_HANDLING!  Something needs to be done about having written
             // an EOF besides this flag.
             flags_.eofwritten = 1;
          }
@@ -708,21 +743,24 @@ void StreamFDModule::doWriteFD()
 	 {
             if (!flags_.checkingwr && (fd_ >= 0))
             {
-               pollmgr_.registerFDCond(fd_,
-                                       UNIXpollManager::FD_Writeable, writeev_);
+               static const UnixEventRegistry::FDCondSet
+                  writeset(UnixEventRegistry::FD_Writeable);
+               ureg_.registerFDCond(fd_, writeset, writeev_);
                flags_.checkingwr = true;
             }
          }
          else
          {
-             // ERROR_HANDLING!  Something needs to be done about write errors.
+            setErrorIn(ErrWrite,
+                       UNIXError("write", myerrno,
+                                 LCoreError(LCORE_GET_COMPILERINFO())));
 	 }
 	 break;
       }
       else
       {
          curbuflist_.advanceBy(written);
-         length = curbuflist_.bytesLeft();
+         length -= written;
       }
    }
 
@@ -739,8 +777,16 @@ void StreamFDModule::writeEOF()
    if (fd_ >= 0)
    {
       ::close(fd_);
-      pollmgr_.freeFD(fd_);
+      ureg_.freeFD(fd_);
       fd_ = -1;
+      setErrorIn(ErrWrite,
+                 UNIXError("write", LCoreError(LCORE_GET_COMPILERINFO()),
+                           true));
+      {
+         UNIXError tmp("write", EBADF, LCoreError(LCORE_GET_COMPILERINFO()));
+         setErrorIn(ErrFatal, tmp);
+         setErrorIn(ErrRead, tmp);
+      }
    }
 //   cerr << fd_ << ": setting ErrRead to " << EBADF << "\n";
 //     setErrorIn(ErrRead, EBADF);
@@ -748,70 +794,8 @@ void StreamFDModule::writeEOF()
 //     setErrorIn(ErrFatal, EBADF);
 }
 
-//  void StreamFDModule::maybeShouldReadFD()
-//  {
-//  //     cerr << "In maybeShouldReadFD\n";
-//     if (!flags_.checkingrd && (fd_ >= 0) && !readEOF() && !hasErrorIn(ErrRead)
-//         && !hasErrorIn(ErrOther) && !hasErrorIn(ErrFatal) && !buffed_read_)
-//     {
-//        static const unsigned int condbits = UNIXpollManager::FD_Readable;
-
-//        pollmgr_.registerFDCond(fd_, condbits, readev_);
-//        read_since_read_posted_ = 0;
-//        flags_.checkingrd = true;
-//     }
-//  //     else
-//  //     {
-//  //        cerr << "fd: " << fd_ << " ";
-//  //        if (flags_.checkingrd)
-//  //        {
-//  //  	 cerr << "flags_.checkingrd ";
-//  //        }
-//  //        if (fd_ < 0)
-//  //        {
-//  //  	 cerr << "fd_ < 0 ";
-//  //        }
-//  //        if (readEOF())
-//  //        {
-//  //  	 cerr << "readEOF() ";
-//  //        }
-//  //        if (hasErrorIn(ErrRead))
-//  //        {
-//  //  	 cerr << "hasErrorIn(ErrRead) ";
-//  //        }
-//  //        if (hasErrorIn(ErrOther))
-//  //        {
-//  //  	 cerr << "hasErrorIn(ErrOther) ";
-//  //        }
-//  //        if (hasErrorIn(ErrFatal))
-//  //        {
-//  //  	 cerr << "hasErrorIn(ErrFatal) ";
-//  //        }
-//  //        if (buffed_read_)
-//  //        {
-//  //  	 cerr << "buffed_read_ ";
-//  //        }
-//  //        cerr << "\n";
-//  //     }
-//  }
-
-//  void StreamFDModule::maybeShouldWriteFD()
-//  {
-//  //     cerr << "In maybeShouldWriteFD\n";
-//     if (!flags_.checkingwr && (fd_ >= 0) && !hasErrorIn(ErrWrite)
-//         && !hasErrorIn(ErrOther) && !hasErrorIn(ErrFatal) && cur_write_)
-//     {
-//        static const unsigned int condbits = UNIXpollManager::FD_Writeable;
-
-//  //        cerr << "fd: " << fd_ << " registering for writing.\n";
-//        pollmgr_.registerFDCond(fd_, condbits, writeev_);
-//        written_since_write_posted_ = 0;
-//        flags_.checkingwr = true;
-//     }
-//  }
-
-StreamFDModule::StreamFDModule(int fd, UNIDispatcher &disp,
-                               UNIXpollManager &pollmgr,
+StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
+                               UnixEventRegistry &ureg,
 			       IOCheckFlags checkmask)
      : fd_(fd),
        plug_(*this),
@@ -821,7 +805,7 @@ StreamFDModule::StreamFDModule(int fd, UNIDispatcher &disp,
        written_since_write_posted_(0),
        errorinfo_(*(new ErrorInfo)),
        disp_(disp),
-       pollmgr_(pollmgr)
+       ureg_(ureg)
 {
    for (unsigned int i = 0;
         i < (sizeof(parenttrackers_) / sizeof(parenttrackers_[0]));
@@ -859,12 +843,14 @@ StreamFDModule::StreamFDModule(int fd, UNIDispatcher &disp,
       parenttrackers_[3] = rread;
       parenttrackers_[4] = rwrite;
    }
-   
-   pollmgr_.registerFDCond(fd_,
-			   UNIXpollManager::FD_Error
-			   | UNIXpollManager::FD_Closed
-			   | UNIXpollManager::FD_Invalid,
-			   errorev_);
+
+   {
+      UnixEventRegistry::FDCondSet
+         allerrors(UnixEventRegistry::FD_Error,
+                   UnixEventRegistry::FD_Closed,
+                   UnixEventRegistry::FD_Invalid);
+      ureg_.registerFDCond(fd_, allerrors, errorev_);
+   }
    if (fd_ >= 0)
    {
       if ((checkmask == CheckBoth) || (checkmask == CheckRead))
@@ -899,7 +885,7 @@ StreamFDModule::~StreamFDModule()
    if (fd_ >= 0)
    {
       ::close(fd_);
-      pollmgr_.freeFD(fd_);
+      ureg_.freeFD(fd_);
       fd_ = -1;
    }
    for (int i = ErrRead; i <= ErrFatal; ++i)
@@ -914,3 +900,6 @@ StreamFDModule::~StreamFDModule()
    delete &curbuflist_;
    delete &errorinfo_;
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

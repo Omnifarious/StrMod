@@ -25,10 +25,16 @@
 #endif
 
 #include "StrMod/StreamSplitter.h"
-#include <assert.h>
-#include <iostream.h>
+#include <cassert>
+// #include <iostream>
 
+namespace strmod {
+namespace strmod {
+
+namespace {
 static StreamSplitterModule test;
+};
+
 const STR_ClassIdent StreamSplitterModule::identifier(10UL);
 const STR_ClassIdent StreamSplitterModule::SPPlug::identifier(11UL);
 
@@ -201,3 +207,6 @@ void StreamSplitterModule::SPPlug::otherIsWriteable()
       partner->setWriteable((other != NULL) && getFlagsFrom(*other).canwrite_);
    }
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

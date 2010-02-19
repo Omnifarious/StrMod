@@ -23,10 +23,10 @@
 #include <UniEvent/UNIXpollManagerImp.h>
 #include <UniEvent/SimpleDispatcher.h>
 #include <EHnet++/InetAddress.h>
-#include <iostream.h>
+#include <iostream>
 #include <unistd.h>
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 int main(int argc, char *argv[])
 {

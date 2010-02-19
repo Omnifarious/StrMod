@@ -1,10 +1,12 @@
- 1. Change StreamFDModule to use events to indicate error conditions.
+(Tasks with an asterisk instead of a period are done.)
 
- 2. A timer mechanism
+ 1* Change StreamFDModule to use events to indicate error conditions.
+
+ 2* A timer mechanism
 
  3. making the dispatcher thread safe
 
- 4. a signal handling mechanism
+ 4* a signal handling mechanism
 
  5. a signal based timer mechanism
 

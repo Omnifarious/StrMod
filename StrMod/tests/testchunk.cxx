@@ -19,9 +19,9 @@
 #include <StrMod/DynamicBuffer.h>
 #include <StrMod/GroupVector.h>
 #include <unistd.h>
-#include <iostream.h>
+#include <iostream>
 #include <fcntl.h>
-#include <errno.h>
+#include <cerrno>
 #include <cstring>
 
 class NoStrChunk : public StrChunk {

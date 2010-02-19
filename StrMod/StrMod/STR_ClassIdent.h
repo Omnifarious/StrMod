@@ -47,6 +47,9 @@
 
 #define _STR_STR_ClassIdent_H_
 
+namespace strmod {
+namespace strmod {
+
 /** \class STR_ClassIdent STR_ClassIdent.h StrMod/STR_ClassIdent.h
  * The class identifier class that sets the library number section of the
  * class number to be correct for the classes in the StrMod library.
@@ -108,5 +111,8 @@ inline STR_ClassIdent::STR_ClassIdent(U4Byte cnum) :
      EH_ClassIdent(EH_ClassNum(EH_ClassNum::StrMod, cnum))
 {
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

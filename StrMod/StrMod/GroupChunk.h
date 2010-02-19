@@ -35,10 +35,13 @@
 
 #define _STR_GroupChunk_H_
 
+namespace strmod {
+namespace strmod {
+
 class StrChunkPtr;
 
 class GroupChunk : public StrChunk {
-   typedef deque<StrChunk *> ChunkList;
+   typedef std::deque<StrChunk *> ChunkList;
  public:
    static const STR_ClassIdent identifier;
 
@@ -73,5 +76,8 @@ inline int GroupChunk::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

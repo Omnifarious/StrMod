@@ -28,6 +28,9 @@
 #include "StrMod/TelnetChunkerData.h"
 #include "StrMod/TelnetChars.h"
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent SimpleTelnetClient::identifier(43UL);
 const STR_ClassIdent SimpleTelnetClient::UPlug::identifier(44UL);
 const STR_ClassIdent SimpleTelnetClient::SPlug::identifier(45UL);
@@ -236,3 +239,6 @@ void SimpleTelnetClient::UPlug::i_Write(const StrChunkPtr &ptr)
       setIsWriting(writeto, false);
    }
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

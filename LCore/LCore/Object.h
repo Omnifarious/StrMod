@@ -36,19 +36,20 @@
 #  pragma interface
 #endif
 
+#include <iosfwd>
+
 #define _LCORE_Object_H_
 
 class ClassIdent;
-class ostream;
 
 class Object {
    friend int operator ==(const Object &a, const Object &b);
-   friend ostream &operator <<(ostream &os, const Object &ob);
-   friend ostream &operator <<(ostream &os, Object &ob);
+   friend std::ostream &operator <<(std::ostream &os, const Object &ob);
+   friend std::ostream &operator <<(std::ostream &os, Object &ob);
 
  protected:
-   virtual void PrintOn(ostream &os) const;
-   inline virtual void PrintOn(ostream &os);
+   virtual void PrintOn(std::ostream &os) const;
+   inline virtual void PrintOn(std::ostream &os);
    virtual int IsEqual(const Object &b) const       { return(this == &b); }
    int DoEqual(const Object &b) const;
    inline virtual const ClassIdent *i_GetIdent() const;
@@ -74,7 +75,7 @@ class Object {
    #include <LCore/ClassTypes.h>
 #endif
 
-inline void Object::PrintOn(ostream &os)
+inline void Object::PrintOn(std::ostream &os)
 {
    ((const Object *)(this))->PrintOn(os);
 }
@@ -99,13 +100,13 @@ inline int operator !=(const Object &a, const Object &b)
    return (!(a == b));
 }
 
-inline ostream &operator <<(ostream &os, const Object &ob)
+inline std::ostream &operator <<(std::ostream &os, const Object &ob)
 {
    ob.PrintOn(os);
    return(os);
 }
 
-inline ostream &operator <<(ostream &os, Object &ob)
+inline std::ostream &operator <<(std::ostream &os, Object &ob)
 {
    ob.PrintOn(os);
    return(os);

@@ -36,6 +36,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/param.h>
+#include <string>
 
 /* My UNIX (UnixWare) has no declaration for gethostname in any header
    file anywhere.  I should get GNU configure to check for this, and
@@ -57,9 +58,9 @@ bool InetAddress::NameToIaddr(const char *name_addr, U4Byte &num)
    }
 }
 
-string InetAddress::IaddrToName(const sockaddr_in &inaddr)
+std::string InetAddress::IaddrToName(const sockaddr_in &inaddr)
 {
-   string hostname;
+   std::string hostname;
    struct hostent *hostinfo;
 
    /* If we're dealing with a non-INADDR_ANY address. */

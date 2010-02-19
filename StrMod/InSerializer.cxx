@@ -37,6 +37,9 @@
 #include <StrMod/ChunkIterator.h>
 #include <StrMod/StaticBuffer.h>
 
+namespace strmod {
+namespace strmod {
+
 struct InSerializer::Impl {
    inline Impl(const void *buf, size_t size);
    inline Impl(const StrChunkPtr &ptr);
@@ -209,7 +212,7 @@ U4Byte InSerializer::GetU4Byte()
    }
 }
 
-const string InSerializer::GetString()
+const std::string InSerializer::GetString()
 {
    if (HadError()) {
       return("");
@@ -230,7 +233,7 @@ const string InSerializer::GetString()
 	 had_error_ = true;
 	 return("");
       } else {
-	 string result;
+	 std::string result;
 	 U2Byte templen = len - 1;  // Skip trailing '\0'
 
 	 result.reserve(templen);  // Weak attempt to optimize performance.
@@ -265,3 +268,6 @@ size_t InSerializer::BytesLeft()
 {
    return(impl_.BytesLeft());
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

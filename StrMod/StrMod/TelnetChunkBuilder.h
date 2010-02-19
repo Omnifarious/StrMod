@@ -26,13 +26,16 @@
 
 // For a log, see ../ChangeLog
 
-#include <StrMod/STR_ClassIdent.h>
-#include <StrMod/TelnetChars.h>
+#include <cstddef>
 #include <LCore/Protocol.h>
 #include <LCore/HopClTypes.h>
-#include <cstddef>
+#include <StrMod/STR_ClassIdent.h>
+#include <StrMod/TelnetChars.h>
 
 #define _STR_TelnetChunkBuilder_H_
+
+namespace strmod {
+namespace strmod {
 
 class BufferChunk;
 template <class T> class StrChunkPtrT;
@@ -90,5 +93,8 @@ inline int TelnetChunkBuilder::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

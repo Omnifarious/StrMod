@@ -28,6 +28,9 @@
 #include <iostream>
 #include <cassert>
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent BufferChunk::identifier(24UL);
 
 U1Byte BufferChunk::junk_;
@@ -38,7 +41,10 @@ void BufferChunk::acceptVisitor(ChunkVisitor &visitor)
    call_visitDataBlock(visitor, getVoidP(), buflen_);
 }
 
-void BufferChunk::printState(ostream &os) const
+void BufferChunk::printState(std::ostream &os) const
 {
    os << "BufferChunk(buf_ == " << buf_ << ", buflen_ == " << buflen_ << ")";
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -37,6 +37,9 @@
 
 #define _STR_StrSubChunk_H_
 
+namespace strmod {
+namespace strmod {
+
 class StrSubChunk : public StrChunk {
  public:
    static const STR_ClassIdent identifier;
@@ -71,5 +74,8 @@ inline unsigned int StrSubChunk::Length() const
 {
    return(subext_.Length());
 }
+
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

@@ -1,3 +1,7 @@
+2001-07-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Makefile.in: Added 'install' target.
+
 2001-07-04  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* distbin/proclibsrc.pl.in: Fixed the generation of rules.mk to

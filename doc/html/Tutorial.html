@@ -1,0 +1,1131 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- Copyright 1999-2002 by Eric Hopper. -->
+<!-- You should've received a copy of the GNU Lesser General Public License -->
+<!-- along with this document; if not, write to the Free Software           -->
+<!-- Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.              -->
+<head>
+  <title>PortForwader: A Tutorial</title>
+  <meta name="AUTHOR" content="Eric Hopper" />
+  <meta name="description"
+  content="A Manual describing how to use a Dispatcher, and other, related classes."
+  />
+  <meta name="revision" content="$Revision$" />
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <style type="text/css">
+
+h1.title {text-align: center}
+div.centered {text-align: center}
+pre.codeblock {margin-left: 1cm;
+               background: #c0c0c0}
+pre.line {margin-left: 1cm }
+span.new {color: green }
+span.changed {color: red }
+span.input {color: blue }</style>
+</head>
+
+<body bgcolor="#d0d0d0" text="black">
+<h1 class="title">Tutorial</h1>
+
+<h2>Description and requirements</h2>
+
+<p>For a tutorial, we're going to write a program I call a <em>port
+forwarder</em>. Our port forwarder will accept incoming connections on one
+TCP/IP port (port 1), or socket, and makes matching outgoing connections to a
+different port (port 2). It then sends any data sent to port 1 to port 2, and
+any data sent to port 2 to port 1. The net effect is a program that seems to
+make one resource (like www.microsoft.com port 80) to also appear at another
+place (like fred.omnifarious.org port 3000).</p>
+
+<p>I use the program we will write to make specific tunnels around firewalls.
+I also use it to send IRC connections through an encrypted IP tunnel to my
+computer at home, then forward them to their eventual destination.</p>
+
+<p>Here's a diagram (it may not look right in browsers other than Mozilla,
+which is the only browser I've found that correctly handles alpha channels)
+of a typical running PortForward session:</p>
+
+<div class="centered">
+<img src="PortForward-running.png" alt="A diagram" /></div>
+
+<p>As you can see, anything I type into my xchat client goes to the port
+forwarder program, then is sent from there to an openprojects.net IRC server.
+Any data coming from the openprojects.net IRC server gets sent to the port
+forwarder program, and it sends it to my xchat client. If, for example, I
+cannot get directly to the irc.openprojects.net server from someplace, I can
+install the port forwarder someplace I can get to, and it will act as a sort
+of proxy and enable me to get there.</p>
+
+<p>I have two other requirements of the port forwarder that make it hard to
+implement in a traditional way. One requirement is that the forwarder be able
+to forward multiple connections at the same time. The other is that I allow
+several different ports to be forwarded with the same executable.</p>
+
+<p>For an example of the first requirement, I may want to allow many people
+to get to irc.openprojects.net from inside my network. Or I may be forwarding
+an HTTP connection, and therefor need to allow several simultaneous
+connections.</p>
+
+<p>For the second requirement, it may be that the firewall blocks all
+connections to port 6667 (the IRC port) and I want to connect to two
+different IRC servers at the same time. Or maybe, I need to do both ssh and
+imaps to my computer at home.</p>
+
+<h2>Design and Code</h2>
+
+<p>This project is small enough that the design can be created along with the
+code, so I won't have a separate coding step.</p>
+
+<h3>The config</h3>
+
+<p>Looking at the requirements, the configuration information needed to
+implement them is pretty cut and dried. We need a list consisting of (port to
+listen on, address to connect to, port to connect to). These things would
+probably best go in a config file, but for simplicity's sake, I'm going to
+just read them from stdin. Here's a code snippet that will do just that.</p>
+<pre class="codeblock">unsigned int inport = 0;
+string outaddr;
+unsigned int outport = 0;
+
+while (cin)
+{
+   cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
+   cout &lt;&lt; "Accepting connections on port " &lt;&lt; inport
+        &lt;&lt; " and redirecting data to a connection to "
+        &lt;&lt; outaddr &lt;&lt; " port " &lt;&lt; outport &lt;&lt; "\n";
+}</pre>
+
+<p>Of course, this code bucks Unix tradition, and actually prints out what it
+read in, even if it wasn't in error, but no matter. As you can see, this just
+reads in the config file, and does nothing about acting on it. We'll get to
+some of that in a bit.</p>
+
+<h3>The SockListenModule</h3>
+
+<p>Next thing we need is a way to actually listen on the ports we're supposed
+to listen on. Looking through the StreamModule library, it looks like
+SockListenModule from StrMod/SockListenModule.h is what will fit that
+need.</p>
+
+<p>The SockListenModuleModule constructor looks like this:</p>
+<pre class="line">SockListenModule(const SocketAddress &amp;bind_addr, unievent::Dispatcher &amp;disp,
+                 unievent::UnixEventRegistry &amp;ureg, int qlen = 1);</pre>
+
+<p>It takes some mysterious arguments. The first, <code>SocketAddress
+&amp;bind_addr</code>, is the address to listen on, the address the listening
+socket is 'bound' to. One might think a port number is enough, but sometimes
+you want to listen at a particular IP address (the computer may have several)
+so that only certain things can connect to you.</p>
+
+<p>The second is a Dispacher. The Dispatcher is used to to queue up events
+for dispatching. We should worry about the details of this now, except to not
+that one is needed.</p>
+
+<p>The third is a UnixEventRegistry. A UnixEventRegistry is used to generate
+StreamModule system events based on operating system events. In this case,
+Unix telling us that a file descriptor we're interested in can now be written
+to or read from without blocking our program. The SockListenModule needs to
+know this for two reasons. One reason is that it needs to tell the
+SocketModule created when it processes an incoming connection. The second
+reason is that the OS tells it that there is an incoming connection to
+accept, by saying the file descriptor can be read without blocking.</p>
+
+<p>The last, <code>int qlen</code> is given directly to the operating system
+as a parameter when creating the listening socket. It tells the operating
+system how many connections it can queue up without the program accepting
+any. Too low, and people will get 'connection refused' errors, even though
+our program is running because it hasn't processed an incoming connection.
+Too high, and we'll get a huge backlog of incoming connections to work
+through. Since we don't expect a very high volume of incoming connections
+(presumably PortForward will be used on a personal basis, and not as a
+frontend for a popular web or IRC server), we will set it at a fairly
+conservative '2'.</p>
+
+<p>Now, of these parameters, the Dispatcher, UnixEventRegistry, and
+SocketAddress are abstract base classes. In order to instantiate one of them,
+we have to figure out which derived class we need.</p>
+
+<p>In the case of SocketAddress, it's easy. There is currently only one
+derived class, and moreover, it make perfect sense given what it's supposed
+to represet. That class is <code>InetAddress</code>. SocketAddress represents
+any address a socket could connect or bind to. These would include IPX
+addresses, Appletalk addresses, IP addresses and so on. InetAddress
+represents an IP address. Since the port forwader is for TCP/IP connections,
+it's the kind of address we need.</p>
+
+<p>InetAddress has several constructors. We will pick the one that best
+represents that data we have, the port to listen on:</p>
+<pre class="line">InetAddress(U2Byte port);</pre>
+
+<p>For Dispatcher, we will use <code>SimpleDispatcher</code> because we don't
+need any more complicated facilities that may be provided by a more
+sophisticated dispatcher. And, in truth, there is no more sophisticated
+dispatcher written yet.</p>
+
+<p>SimpleDispatcher only has one constructor, and that takes no arguments:</p>
+<pre class="line">SimpleDispatcher();</pre>
+
+<p>For UnixEventRegistry, there is also only the UnixEventPoll derived class.
+There will be other UnixEventRegistry implementations that use select on
+machines that don't have poll, and also SIGIO or the BSD kernel queue on some
+Unices.  For now though, there is only UnixEventPoll.</p>
+
+<p>UnixEventPoll also only has one constructor. That constructor takes a
+Dispatcher as an argument, meaning that the Dispatcher will have to be
+created before the UnixEventPoll:</p>
+<pre class="line">UnixEventPoll(Dispatcher *disp);</pre>
+
+<p>Then, there's a class to tie them together.  This class exists because, in
+the future, the Dispatcher interface is going to be greatly simplified, and
+UnixEventPoll won't be able to count on a certain technique to get itself run
+to look for other Unix events when the queue is empty, or when the system is
+busy.</p>
+
+<p>So, there's a glue class, RegistryDispatcherGlue, that ties together the
+current Dispatcher interface, and a UnixEventRegistry implementation (like
+UnixEventPoll is).  This glue class registers the appropriate events with the
+Dispatcher and calls UnixEventRegitry's doPoll method at the appropriate
+times, with the appropriate values for 'wait'.</p>
+
+<p>Putting this all together yields code that looks something like this:</p>
+<pre class="codeblock">SimpleDispatcher dispatcher;
+UnixEventPoll pollmanager(&amp;dispatcher);
+RegistryDispatcherGlue glue(&dispatcher, &pollmanager);
+
+do
+{
+   U2Byte inport = 0;
+   string outaddr;
+   unsigned int outport = 0;
+
+   cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
+   if (cin)
+   {
+      InetAddress listenaddr(inport);
+      SockListenModule *slm = new SockListenModule(listenaddr, dispatcher,
+                                                   pollmanager, 2);
+      cout &lt;&lt; "Accepting connections on port " &lt;&lt; inport
+           &lt;&lt; " and redirecting data to a connection to "
+           &lt;&lt; outaddr &lt;&lt; " port " &lt;&lt; outport &lt;&lt; "\n";
+   }
+} while (cin);</pre>
+
+<p>This, of course, isn't at all a complete program. Aside from the lack of
+any function (not even <code>main</code>) it has a big memory leak, and will
+also implicitly (because of the memory leak) leave dangling pointers to
+dispatcher and pollmanager. It doesn't even really do anything useful,
+though, if you (under Linux) enclose it in a main, put a long sleep at the
+end, run it, giving a file of port mappings on stdin, then look at the output
+of <code>netstat -aA inet</code>, you'll see that all the ports are being
+listened to, so it does do a little something.</p>
+
+<p>The main things missing if we are to implementing our requirements are
+these: First, we aren't tracking the place to connect to if we should get an
+incoming connection on any of our listening ports. Second, though we are
+putting out listening sockets, we aren't doing anything with any incoming
+connections. Lastly, we aren't making any outgoing connections in response to
+our incoming ones.</p>
+
+<p>Lets tackle the first thing. Obviously, we need a data structure that
+tracks the listening socket, and the outgoing address. It also might be nice
+to remember what the port number we are listening to. Since we'll need these
+values in the form of SocketAddresses when we use them, we might as well
+store them as SocketAddresses.</p>
+<pre class="codeblock">class Listener {
+ public:
+   Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+            Dispatcher &amp;disp, UnixEventRegistry &amp;ureg);
+   ~Listener();
+
+ private:
+   SockListenModule *listener_;
+   SocketAddress * const from_;
+   SocketAddress * const to_;
+};
+
+Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+		   Dispatcher &amp;disp, UnixEventRegistry &amp;ureg)
+    : listener_(NULL), from_(from.Copy()), to_(to.Copy())
+{
+   listener_ = new SockListenModule(*from_, disp, ureg, 2);
+}
+
+Listener::~Listener()
+{
+   delete listener_;
+   delete from_;
+   delete to_;
+}</pre>
+
+<p>That was pretty straightforward. One thing that is a bit tricky is the
+<code>from.Copy()</code> and <code>to.Copy()</code> bits in the
+constructor.</p>
+
+<p>As I've said before, a SocketAddress is an abstract base class, so you
+can't actually have a SocketAddress. Also, the SocketAddress objects we are
+being passed are not 'owned' by the Listener, so it needs copies that it owns
+so it can control their lifetime. This also means that they need to be
+destroyed in the destructor.</p>
+
+<p>Hence, the <code>Copy()</code> method. That method is defined as a virtual
+function on SocketAddress, and its intent is to return a full copy of the
+object. If the <code>SocketAddress &amp;</code> refers to an InetAddress, it
+returns a copy of the InetAddress. If it refers to a UnixSocketAddress, it
+returns a UnixSocketAddress and so on.</p>
+
+<p>Now, to put it all together. Since we want to create a program here that
+you could compile, this program will contain the proper #include and
+namespace directives.</p>
+<pre class="codeblock">#include &lt;StrMod/SockListenModule.h&gt;
+#include &lt;EHnet++/SocketAddress.h&gt;
+#include &lt;EHnet++/InetAddress.h&gt;
+#include &lt;UniEvent/Dispatcher.h&gt;
+#include &lt;UniEvent/SimpleDispatcher.h&gt;
+#include &lt;UniEvent/UnixEventRegistry.h&gt;
+#include &lt;UniEvent/UnixEventPoll.h&gt;
+#include &lt;UniEvent/RegistryDispatcherGlue.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+using strmod::strmod::SockListenModule;
+using strmod::unievent::Dispatcher;
+using strmod::unievent::UnixEventRegistry;
+
+// The EHnet++ library has not yet been converted to use namespaces.
+
+class Listener {
+ public:
+   Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+            Dispatcher &amp;disp, UnixEventRegistry &amp;ureg);
+   ~Listener();
+
+ private:
+   SockListenModule *listener_;
+   SocketAddress * const from_;
+   SocketAddress * const to_;
+};
+
+Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+                   Dispatcher &amp;disp, UnixEventRegistry &amp;ureg)
+    : listener_(NULL), from_(from.Copy()), to_(to.Copy())
+{
+   listener_ = new SockListenModule(*from_, disp, ureg, 2);
+}
+
+Listener::~Listener()
+{
+   delete listener_;
+   delete from_;
+   delete to_;
+}
+
+int main()
+{
+   strmod::unievent::SimpleDispatcher dispatcher;
+   strmod::unievent::UnixEventPoll pollmanager(&amp;dispatcher);
+   strmod::unievent::RegistryDispatcherGlue glue(&amp;dispatcher, &amp;pollmanager);
+   using std::cin;
+   using std::cout;
+   using std::string;
+
+   do
+   {
+      U2Byte inport = 0;
+      string outaddr;
+      unsigned int outport = 0;
+
+      cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
+      if (cin)
+      {
+         InetAddress listenaddr(inport);
+         InetAddress destaddr(outaddr, outport);
+         Listener *listener = new Listener(listenaddr, destaddr,
+                                           dispatcher, pollmanager);
+         cout &lt;&lt; "Accepting connections on port " &lt;&lt; inport
+              &lt;&lt; " and redirecting data to a connection to "
+              &lt;&lt; outaddr &lt;&lt; " port " &lt;&lt; outport &lt;&lt; "\n";
+      }
+   } while (cin);
+   return 0;
+}</pre>
+
+<p>That code should compile if you have the libNet library from StreamModule
+installed somewhere with its include files. It still has a nasty memory leak,
+though it keeps track of the port to connect to. Lets fix the leak by adding
+the following lines in the appriate places:</p>
+<pre class="codeblock">#include &lt;list&gt;
+
+typedef std::list&lt;Listener *&gt; ListenerList;
+
+ListenerList listeners;
+
+listeners.push_front(listener);  // Reverse order so they get deleted in reverse order later.
+
+for (ListenerList::iterator i = listeners.begin(); i != listeners.end(); ++i)
+{
+   delete *i;
+   *i = 0;
+}</pre>
+
+<p>I bet you can figure out where to add those. If you want to see if you're
+right, see the next place where the code is written out in full again.</p>
+
+<p>This fixes the problem of keeping track of where to connect. The next task
+is to do something with incoming connections. This gets a bit more
+complicated and involves more of the framework.</p>
+
+<h3>Dispatcher</h3>
+
+<p>A Dispatcher is supposed to provide an implementation of an Event queue.
+Things can add (post) events to the queue, and the main program can tell the
+Dispatcher to trigger them. This is used for couple of purposes.</p>
+
+<p>One purpose is for callbacks. Oftentimes, there is a need for things of a
+lower level of abstraction (like buttons on a GUI) to call back to things at
+a higher level to tell them something important has happened.</p>
+
+<p>Another purpose is for cooperative multitasking. Things can post an event
+when they are only partly done with a task, and that event will be fired so
+it can complete its task sometime later, after some other things have had a
+chance to run. Since control is voluntarily surrendered, no context
+information needs to be explicitly kept by the event mechanism. Also control
+flow doesn't involve any interrupts, and is likely to not have an adverse
+effect on CPU caches and such.</p>
+
+<p>In our case, the Dispatcher will mainly be used for callbacks, though we
+won't yet deal directly with events.</p>
+
+<p>One of the more important generators of callback events is the
+UnixEventRegistry. It's job is to get the OS to tell it when some event (like
+a file descriptor becoming readable or writeable) has happened. It then posts
+this event to the Dispatcher. That's why the UnixEventRegistry needs a
+Dispatcher as a constructor argument, and also why things that work with the
+OS (like SockListenModule) need to know about a UnixEventRegistry.</p>
+
+<p>SockListenModule opens up a listening socket in its constructor, and
+registers an interest in whether or not it is 'readable' (the secret Unix
+code meaning that it has an incoming connection) with the UnixEventRegistry.
+The UnixEventRegistry tells the Dispatcher that it needs to run when things
+are idle to check for OS events. When it notices that the file descriptor is
+readable, the UnixEventRegistry posts the event that the SockListenModule
+registered with it.</p>
+
+<p>So, in order to have the SockListenModule wake up and process the event,
+or even have the Dispatcher to call UnixEventRegistry when it's 'idle', we
+have to call the Dispatcher somehow. The Dispatcher has a family of methods
+for this, but we will use this one:<br />
+<pre class="line">Dispatcher::dispatchEvent()</pre>
+<br />
+because our framework is incomplete and requires (ugh) polling for certain
+things. We will need to dispatch one event at a time to periodically regain
+control to do out polling.</p>
+
+<p>Here is how the dispatching loop will be added into the code:</p>
+<pre class="codeblock">        }                                   // in reverse order later.
+     } while (cin);
+
++    while (!dispatcher.isQueueEmpty())
++    {
++       dispatcher.dispatchEvent();
++    }
+
+     for (ListenerList::iterator i = listeners.begin(); i != listeners.end(); ++i)
+   {</pre>
+
+<p>Now, we are calling the Dispatcher, which in turn calls UnixEventRegistry,
+which in turn posts other events to the Dispatcher on behalf of our various
+SockListenModules when an incoming connection can be accepted. But, we're
+still not doing anything with any of these incoming connections. Now, it's
+time to tackle that problem.</p>
+
+<h3>Ugh, polling!</h3>
+
+<p>Sadly, this is probably the most complicated part of the program, and
+where you actually have to do polling.</p>
+
+<p>The basic way you retrieve acceped connections is through the
+SockListenModule's `plug´. The plug has to be asked if there's a connection
+to read, and then the connection has to be read from it. Also, the only way
+to check for errors that may have occured on the listening socket is to ask
+the SockListenModule if any errors have occured. It has no way of signalling
+error conditions through events.</p>
+
+<p>Both of these things require various parts of the SockListenModule to be
+polled periodically. This will have to happen in the dispatching loop. There
+will also be a method added to the Listener so that all the actual polling
+can happen in that method, keeping the dispatching loop fairly clean.</p>
+
+<p>First though, you should go <a href="StreamModule.html#Plug">over here</a>
+and read <a href="StreamModule.html#Plug">what a plug is</a>.</p>
+
+<p>There, now that you've done that, it should be apparent why we need to
+'pull a plug' from SockListenModule and read connections from it. The added
+method is named <code>Listener::doPoll</code>, and it requires a new member
+variable, <code>lplug_</code> to be added to the Listener class.
+<code>lplug_</code> must initialied in the <code>Listener::Listener</code>
+constructor. And finally, the code to scan through the listening modules and
+poll each of them is added to the dispatching loop. Here is the final
+code:</p>
+
+<p><ul>
+  Note: 
+  <li><span class="new">green</span> is new code</li>
+  <li><span class="changed">red</span> is changed code.</li>
+</ul>
+</p>
+<pre class="codeblock">#include &lt;StrMod/SockListenModule.h&gt;
+<span class="new">#include &lt;StrMod/SocketModule.h&gt;</span>
+#include &lt;EHnet++/SocketAddress.h&gt;
+#include &lt;EHnet++/InetAddress.h&gt;
+#include &lt;UniEvent/Dispatcher.h&gt;
+#include &lt;UniEvent/SimpleDispatcher.h&gt;
+#include &lt;UniEvent/UnixEventRegistry.h&gt;
+#include &lt;UniEvent/UnixEventPoll.h&gt;
+#include &lt;UniEvent/RegistryDispatcherGlue.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+<span class="new">#include &lt;list&gt;</span>
+
+using strmod::strmod::SockListenModule;
+<span class="new">using strmod::strmod::SocketModule;</span>
+using strmod::unievent::Dispatcher;
+using strmod::unievent::UnixEventRegistry;
+
+// The EHnet++ library has not yet been converted to use namespaces.
+
+class Listener {
+ public:
+   Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+            Dispatcher &amp;disp, UnixEventRegistry &amp;ureg);
+   ~Listener();
+
+<span class="new">   //! Called once a loop from the event dispatching loop.
+   void doPoll();
+</span>
+ private:
+   SockListenModule *listener_;
+<span class="new">   SockListenModule::SLPlug *lplug_;</span>
+   SocketAddress * const from_;
+   SocketAddress * const to_;
+<span class="new">   Dispatcher &amp;disp_;
+   UnixEventRegistry &amp;ureg_;</span>
+};
+
+Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+                   Dispatcher &amp;disp, UnixEventRegistry &amp;ureg)
+<span class="changed">     : listener_(NULL), lplug_(NULL), from_(from.Copy()), to_(to.Copy()),
+       disp_(disp), ureg_(ureg)</span>
+{
+   listener_ = new SockListenModule(*from_, disp, ureg, 2);
+<span class="new">   lplug_ = listener_-&gt;makePlug();</span>
+}
+
+Listener::~Listener()
+{
+<span class="new">   if (lplug_)
+   {
+      listener_-&gt;deletePlug(lplug_);
+      lplug_ = NULL;
+   }</span>
+   delete listener_;
+   delete from_;
+   delete to_;
+}
+
+<span class="new">void Listener::doPoll()
+{
+   if (listener_ &amp;&amp; listener_-&gt;hasError())
+   {
+      // If the listener has an error, print the error.
+      {
+         using std::cerr;
+         char errbuf[256];  // Magic number!
+         listener_-&gt;getError().getErrorString(errbuf, sizeof(errbuf) - 1);
+         cerr &lt;&lt; "Listening socket has this error: ("
+              &lt;&lt; listener_-&gt;getError().getSyscallName()
+              &lt;&lt; ") " &lt;&lt; errbuf &lt;&lt; "\n";
+      }
+
+      // Then tear down the listening socket and try to rebuild it.
+      if (lplug_)
+      {
+         listener_-&gt;deletePlug(lplug_);
+         lplug_ = NULL;
+      }
+      delete listener_;
+      listener_ = NULL;
+   }
+   if (!listener_)
+   {
+      listener_ = new SockListenModule(*from_, disp_, ureg_, 2);
+      lplug_ = listener_-&gt;makePlug();
+   }
+   if (lplug_ &amp;&amp; lplug_-&gt;isReadable())
+   {
+      strmod::strmod::SocketModuleChunkPtr smcp = lplug_-&gt;getConnection();
+      SocketModule *incoming = smcp-&gt;getModule();
+      delete incoming;
+   }
+}
+
+typedef std::list&lt;Listener *&gt; ListenerList;
+</span>
+int main()
+{
+   strmod::unievent::SimpleDispatcher dispatcher;
+   strmod::unievent::UnixEventPoll pollmanager(&amp;dispatcher);
+   strmod::unievent::RegistryDispatcherGlue glue(&amp;dispatcher, &pollmanager);
+<span class="new">   ListenerList listeners;</span>
+   using std::cin;
+   using std::cout;
+   using std::string;
+
+   do
+   {
+      U2Byte inport = 0;
+      string outaddr;
+      unsigned int outport = 0;
+
+      cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
+      if (cin)
+      {
+         InetAddress listenaddr(inport);
+         InetAddress destaddr(outaddr, outport);
+         Listener *listener = new Listener(listenaddr, destaddr,
+                                          dispatcher, pollmanager);
+         cout &lt;&lt; "Accepting connections on port " &lt;&lt; inport
+              &lt;&lt; " and redirecting data to a connection to "
+              &lt;&lt; outaddr &lt;&lt; " port " &lt;&lt; outport &lt;&lt; "\n";
+<span class="new">         listeners.push_front(listener);  // Reverse order so they get deleted</span>
+      }<span class="new">                                   // in reverse order later.</span>
+   } while (cin);
+<span class="new">   while (1)
+   {
+      dispatcher.dispatchEvent();
+      {
+         // This is a technique for lowering the cost of the i != end statement
+         const ListenerList::iterator end = listeners.end();
+         for (ListenerList::iterator i = listeners.begin(); i != end; ++i)
+         {
+            (*i)-&gt;doPoll();
+         }
+      }
+   }
+
+   {
+      // This is a technique for lowering the cost of the i != end statement
+      const ListenerList::iterator end = listeners.end();
+      for (ListenerList::iterator i = listeners.begin(); i != end; ++i)
+      {
+         delete *i;
+         *i = NULL;
+      }
+   }</span>
+   return 0;
+}</pre>
+
+<p>Well, that's over with now. On to picking it apart for what it doesn't
+do.</p>
+
+<p>This program now properly accepts connections. And, as an added bonus, it
+also tries to resurrect dead listening sockets. Sadly, every time it gets a
+connection, it just closes it down. No outbound connections, no data
+forwarding. It's rather sad, really.</p>
+
+<p>Now, to more explicitly enumerate what the program doesn't do yet, and how
+those things might be accomplished.</p>
+
+<p>It does not make an outgoing connection in response to an incoming one. It
+doesn't forward data back and forth between the incoming connection and the
+non-existent (so far) outgoing connection. There is also one last thing it
+should do, and that's closing down the incoming and outgoing connections when
+they are no longer needed.</p>
+
+<p>The first two are actually pretty trivial to solve. Here is some code that
+can be added into the Listeners::doPoll function that will fix the
+problem:</p>
+<pre class="codeblock">if (incoming)
+{
+   SocketModule *outgoing = new SocketModule(*to_, disp_, ureg_, false);
+   incoming-&gt;makePlug(0)-&gt;plugInto( *(outgoing-&gt;makePlug(0)) );
+}</pre>
+
+<p>The magic of the UnixEventRegistry and the Dispatcher (which, as you
+noticed, are passed into the SocketModule constructor) keep the data moving
+between the two SocketModules after they've been connected through their
+plugs. It is, of course, not magic, but a detailed explanation is beyond the
+scope of ths tutorial.</p>
+
+<p>But, this code has some obvious, serious memory leaks. Nobody manages the
+existence of incoming or outgoing. And, there is no management of error
+conditions, or what happens when a connection is close somewhere.</p>
+
+<p>In order to make all this happen, we need another data structure that
+represents an active 'forwarding', essentially, an incoming/outgoing
+connection pair. Since memory management of this entity is also closely tied
+to error handling, which are handled using events, we won't have to do
+external memory management. In other words, the connection pair object can
+manage its own existence.</p>
+
+<p>Here's some preliminary code for <code>ForwardedConnection</code>:</p>
+<pre class="codeblock">class ForwardedConnection {
+ public:
+   ForwardedConnection(SocketModule &amp;incoming, SocketModule &amp;outgoing);
+   ~ForwardedConnection();
+
+ private:
+   SocketModule &amp;incoming_;
+   SocketModule &amp;outgoing_;
+};
+
+ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
+                                         SocketModule &amp;outgoing)
+    : incoming_(incoming), outgoing_(outgoing)
+{
+   incoming_.makePlug(0)-&gt;plugInto( *(outgoing_.makePlug(0)) );
+}
+
+ForwardedConnection::~ForwardedConnection()
+{
+   delete &amp;incoming_;
+   delete &amp;outgoing_;
+}</pre>
+
+<p>This doesn't do much to actually fix the problem, but it does now provide
+a nice bucket for the values we would like to save. As stated previously, we
+will need to handle errors, and we will need to use events. SocketModule is
+derived from StreamFDModule and has an interface for requesting that events
+be posted in certain situations. Here are the the StreamFDModule methods:</p>
+<pre class="line">void StreamFDModule::onErrorIn(ErrorType err, const unievent::EventPtr &amp;ev);</pre>
+
+<p>And, here's the declaration for <code>StreamFDModule::ErrorType</code>:</p>
+<pre class="line">enum ErrorType {
+   ErrRead,  //!&lt; Error while reading, might have read an EOF.  Must be lowest enum value.
+   ErrWrite, //!&lt; Error while writing, might have written an EOF.
+   ErrGeneral,  //!&lt; General error affecting both reading and writing.
+   ErrFatal  //!&lt; General, fatal error affecting both reading and writing.  Must be highest enum value.
+};</pre>
+
+<p>So, StreamFDModule lets us register an event to be posted when an error in
+a particular category occurs. And, that error includes an EOF condition.
+Since we want the forward to continue until the parties disconnect or there's
+some kind of error, this matches our needs perfectly.</p>
+
+<p>Notice, that the interface wants an EventPtr. This means we need to create
+the event object ourselves, and that we need to dynamically allocate it.
+Since we're passing in a reference counted pointer, we essentially have joint
+ownership after we register it. That means we had best use our own reference
+counted pointer to keep track of it. Lastly, the event will need to call on
+of our own functions when triggered, so we'll need to create our own event
+class that knows what thing it needs to call back.</p>
+
+<p>Here's a preliminary sketch of what the event class would look like:</p>
+<pre class="codeblock">class EerrorEvent : public strmod::unievent::Event {
+ public:
+   ErrorEvent(ForwardedConnection &amp;parent)
+        : parent_(parent), parentgood_(true)
+   {
+   }
+   virtual ~ErrorEvent() {}
+
+   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+      if (parentgood_)
+      {
+         parent_.errorOccurred();
+      }
+   }
+
+   void parentGone() { parentgood_ = false; }
+
+ private:
+   ForwardedConnection &amp;parent_;
+   bool parentgood_;
+};</pre>
+
+<p>As you notice, the ErrorEvent object will need a pointer the the
+ForwardedConnection object it's associated with. Also, the
+ForwardedConnection will have to add an errorOccured method. Lastly, the
+ForwardConnection will have to call parentGone() when it disappears so the
+event won't do anything wrong if it is fired after the parent disappears.</p>
+
+<p>Also, ErrorEvent is largely a vaguely named class that has an intimate
+relationship with ForwardedConnection. It's a utility class. I like to make
+those into nested classes because their names shouldn't be around polluting
+the namespace, and often, the class isn't even needed outside the class that
+uses it.</p>
+
+<p>So, with these ideas in mind, here's a re-done ForwardedConnection and
+ErrorEvent:</p>
+<pre class="codeblock">class ForwardedConnection {
+ public:
+   ForwardedConnection(SocketModule &amp;incoming, SocketModule &amp;outgoing);
+   ~ForwardedConnection();
+
+ private:
+   class ErrorEvent : public strmod::unievent::Event {
+    public:
+      ErrorEvent(ForwardedConnection &amp;parent)
+           : parent_(parent), parentgood_(true)
+      {
+      }
+      virtual ~ErrorEvent() {}
+
+      virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+         if (parentgood_)
+         {
+            parent_.errorOccurred();
+         }
+      }
+
+      void parentGone() { parentgood_ = false; }
+
+    private:
+      ForwardedConnection &amp;parent_;
+      bool parentgood_;
+   };
+   friend class ErrorEvent;
+
+   SocketModule &amp;incoming_;
+   SocketModule &amp;outgoing_;
+   strmod::unievent::EventPtrT&lt;ErrorEvent&gt; errev_;
+
+   void errorOccurred();
+};
+
+ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
+                                         SocketModule &amp;outgoing)
+     : incoming_(incoming), outgoing_(outgoing), errev_(new ErrorEvent(*this))
+{
+   incoming_.makePlug(0)-&gt;plugInto( *(outgoing_.makePlug(0)) );
+}
+
+ForwardedConnection::~ForwardedConnection()
+{
+   errev_-&gt;parentGone();
+   delete &amp;incoming_;
+   delete &amp;outgoing_;
+}</pre>
+
+<p>There, now the ErrorEvent will properly connect back to the parent, and
+all the naming is OK and everything. Sadly, the parent doesn't yet have an
+<code>errorOccured()</code> method, nor does it arrange for the SocketModules
+to post the error event when something happens.</p>
+
+<p>The StreamFDModule (which SocketModule is derived from) method that lets
+us register to have events posted is <code>void onErrorIn(ErrorType err,
+const unievent::EventPtr &amp;ev)</code>. As you can see, it has several
+error types or categories you can register for errors in. I want to register
+for errors in all of those categories because they are all relevant. Here is
+a rewrite of the ForwardedConnection constructor that accomplishes this:</p>
+<pre class="codeblock">ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
+                                         SocketModule &amp;outgoing)
+     : incoming_(incoming), outgoing_(outgoing), errev_(new ErrorEvent(*this))
+{
+   using strmod::strmod::StreamFDModule;
+
+   incoming_.makePlug(0)-&gt;plugInto( *(outgoing_.makePlug(0)) );
+
+   incoming_.onErrorIn(StreamFDModule::ErrRead, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrWrite, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrGeneral, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrFatal, errev_);
+
+   outgoing_.onErrorIn(StreamFDModule::ErrRead, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrWrite, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrGeneral, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrFatal, errev_);
+}</pre>
+
+<p>Yes, it <strong>is</strong> a lot of repetive code. You are not mistaken.
+Now, all that's left is implementing
+<code>ForwardedConnect::errorOccurred()</code>. This can be a bit tricky if
+we want to do it 'correctly'. Doing it correctly is not strictly necessary
+for a functioning system. In this case, correctly means that connections are
+not closed until they should be.</p>
+
+<p>The main issue is 'half-open' connections. Since TCP connections are
+bi-directional, it is possible for a connection to be in a half-open state,
+so only one direction has data flowing. If you immediately close both
+connections on error, this state cannot exist on connections going through
+the forwarder. Some programs and protocols do require half-open connections
+to function, but most do not.</p>
+
+<p>Here is an implementation of
+<code>ForwardedConnect::errorOccurred()</code> that does not hand half-open
+connections properly:</p>
+<pre class="codeblock">void ForwardedConnect::errorOccurred()
+{
+   delete this;
+}</pre>
+
+<p>As you see, the ForwardedConnection uses events to manage its own
+existence, and that's why it doesn't need to be put into a data structure
+that will manage its existence like the Listener objects need.</p>
+
+<p>If you look at the ForwardedConnection destructor, you can see that it
+just deletes the SocketModules it's keeping track of, and tell its event that
+it's going away. Deleting the SocketModules has the effect of closing
+them.</p>
+
+<p>If you put all this together now, you should have a largely functional
+port forwarder:</p>
+<pre class="codeblock">#include &lt;StrMod/SockListenModule.h&gt;
+#include &lt;StrMod/SocketModule.h&gt;
+#include &lt;EHnet++/SocketAddress.h&gt;
+#include &lt;EHnet++/InetAddress.h&gt;
+#include &lt;UniEvent/Dispatcher.h&gt;
+#include &lt;UniEvent/SimpleDispatcher.h&gt;
+#include &lt;UniEvent/UnixEventRegistry.h&gt;
+#include &lt;UniEvent/UnixEventPoll.h&gt;
+#include &lt;UniEvent/RegistryDispatcherGlue.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;list&gt;
+
+using strmod::strmod::SockListenModule;
+using strmod::strmod::SocketModule;
+using strmod::unievent::Dispatcher;
+using strmod::unievent::UnixEventRegistry;
+
+// The EHnet++ library has not yet been converted to use namespaces,
+// so SocketAddress and InetAddress can be used 'bare'.
+
+class ForwardedConnection {
+ public:
+   ForwardedConnection(SocketModule &amp;incoming, SocketModule &amp;outgoing);
+   ~ForwardedConnection();
+
+ private:
+   class ErrorEvent : public strmod::unievent::Event {
+    public:
+      ErrorEvent(ForwardedConnection &amp;parent)
+           : parent_(parent), parentgood_(true)
+      {
+      }
+      virtual ~ErrorEvent() {}
+
+      virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+         if (parentgood_)
+         {
+            parent_.errorOccurred();
+         }
+      }
+
+      void parentGone() { parentgood_ = false; }
+
+    private:
+      ForwardedConnection &amp;parent_;
+      bool parentgood_;
+   };
+   friend class ErrorEvent;
+
+   SocketModule &amp;incoming_;
+   SocketModule &amp;outgoing_;
+   strmod::unievent::EventPtrT&lt;ErrorEvent&gt; errev_;
+
+   void errorOccurred();
+};
+
+ForwardedConnection::ForwardedConnection(SocketModule &amp;incoming,
+                                         SocketModule &amp;outgoing)
+     : incoming_(incoming), outgoing_(outgoing), errev_(new ErrorEvent(*this))
+{
+   using strmod::strmod::StreamFDModule;
+
+   incoming_.makePlug(0)-&gt;plugInto( *(outgoing_.makePlug(0)) );
+
+   incoming_.onErrorIn(StreamFDModule::ErrRead, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrWrite, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrGeneral, errev_);
+   incoming_.onErrorIn(StreamFDModule::ErrFatal, errev_);
+
+   outgoing_.onErrorIn(StreamFDModule::ErrRead, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrWrite, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrGeneral, errev_);
+   outgoing_.onErrorIn(StreamFDModule::ErrFatal, errev_);
+}
+
+ForwardedConnection::~ForwardedConnection()
+{
+   delete &amp;incoming_;
+   delete &amp;outgoing_;
+   errev_-&gt;parentGone();
+}
+
+void ForwardedConnection::errorOccurred()
+{
+   std::cerr &lt;&lt; "Closing down a connection due to an error!\n";
+   delete this;
+}
+
+//----
+
+class Listener {
+ public:
+   Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+            Dispatcher &amp;disp, UnixEventRegistry &amp;ureg);
+   ~Listener();
+
+   //! Called once a loop from the event dispatching loop.
+   void doPoll();
+
+ private:
+   SockListenModule *listener_;
+   SockListenModule::SLPlug *lplug_;
+   SocketAddress * const from_;
+   SocketAddress * const to_;
+   Dispatcher &amp;disp_;
+   UnixEventRegistry &amp;ureg_;
+};
+
+Listener::Listener(const SocketAddress &amp;from, const SocketAddress &amp;to,
+                   Dispatcher &amp;disp, UnixEventRegistry &amp;ureg)
+     : listener_(NULL), lplug_(NULL), from_(from.Copy()), to_(to.Copy()),
+       disp_(disp), ureg_(ureg)
+{
+   listener_ = new SockListenModule(*from_, disp, ureg, 2);
+   lplug_ = listener_-&gt;makePlug();
+}
+
+Listener::~Listener()
+{
+   if (lplug_)
+   {
+      listener_-&gt;deletePlug(lplug_);
+      lplug_ = NULL;
+   }
+   delete listener_;
+   delete from_;
+   delete to_;
+}
+
+void Listener::doPoll()
+{
+   if (listener_ &amp;&amp; listener_-&gt;hasError())
+   {
+      // If the listener has an error, print the error.
+      {
+         using std::cerr;
+         char errbuf[256];  // Magic number!
+         listener_-&gt;getError().getErrorString(errbuf, sizeof(errbuf) - 1);
+         cerr &lt;&lt; "Listening socket has this error: ("
+              &lt;&lt; listener_-&gt;getError().getSyscallName()
+              &lt;&lt; ") " &lt;&lt; errbuf &lt;&lt; "\n";
+      }
+
+      // Then tear down the listening socket and try to rebuild it.
+      if (lplug_)
+      {
+         listener_-&gt;deletePlug(lplug_);
+         lplug_ = NULL;
+      }
+      delete listener_;
+      listener_ = NULL;
+   }
+   if (!listener_)
+   {
+      listener_ = new SockListenModule(*from_, disp_, ureg_, 2);
+      lplug_ = listener_-&gt;makePlug();
+   }
+   if (lplug_ &amp;&amp; lplug_-&gt;isReadable())
+   {
+      strmod::strmod::SocketModuleChunkPtr smcp = lplug_-&gt;getConnection();
+      SocketModule *incoming = smcp-&gt;getModule();
+      if (incoming)
+      {
+         SocketModule *outgoing = new SocketModule(*to_, disp_, ureg_, false);
+         new ForwardedConnection(*incoming, *outgoing);
+      }
+   }
+}
+
+typedef std::list&lt;Listener *&gt; ListenerList;
+
+int main()
+{
+   strmod::unievent::SimpleDispatcher dispatcher;
+   strmod::unievent::UnixEventPoll pollmanager(&amp;dispatcher);
+   strmod::unievent::RegistryDispatcherGlue glue(&amp;dispatcher, &amp;pollmanager);
+   ListenerList listeners;
+   using std::cin;
+   using std::cout;
+   using std::string;
+
+   do
+   {
+      U2Byte inport = 0;
+      string outaddr;
+      unsigned int outport = 0;
+
+      cin &gt;&gt; inport &gt;&gt; outaddr &gt;&gt; outport;
+      if (cin)
+      {
+         InetAddress listenaddr(inport);
+         InetAddress destaddr(outaddr, outport);
+         Listener *listener = new Listener(listenaddr, destaddr,
+                                          dispatcher, pollmanager);
+         cout &lt;&lt; "Accepting connections on port " &lt;&lt; inport
+              &lt;&lt; " and redirecting data to a connection to "
+              &lt;&lt; outaddr &lt;&lt; " port " &lt;&lt; outport &lt;&lt; "\n";
+         listeners.push_front(listener);  // Reverse order so they get deleted
+      }                                   // in reverse order later.
+   } while (cin);
+
+   while (1)
+   {
+      dispatcher.dispatchEvent();
+      {
+         // This is a technique for lowering the cost of the i != end statement
+         const ListenerList::iterator end = listeners.end();
+         for (ListenerList::iterator i = listeners.begin(); i != end; ++i)
+         {
+            (*i)-&gt;doPoll();
+         }
+      }
+   }
+
+   {
+      // This is a technique for lowering the cost of the i != end statement
+      const ListenerList::iterator end = listeners.end();
+      for (ListenerList::iterator i = listeners.begin(); i != end; ++i)
+      {
+         delete *i;
+         *i = NULL;
+      }
+   }
+   return 0;
+}</pre>
+
+<p>Now, it might be nice to test this out on a Linux box.  Here are some tests
+you can run.  Commands here will be preceeded by '%' signs.  Things you type
+will be in blue, and the output will be in black.</p>
+
+<pre class="codeblock">% <span class="input">g++3 -I ../libNet/include PortForward.cxx -o portforward -L ../libNet/generated/lib -lNet</span>
+% <span class="input">(echo '7000 localhost 22' ; echo '7001 irc.openprojects.net 6667')</span>
+7000 localhost 22
+7001 irc.openprojects.net 6667
+% <span class="input">(echo '7000 localhost 22' ; echo '7001 irc.openprojects.net 6667') | ./portforward</span>
+readevptr_ == 0x808f760
+errorevptr_ == 0x8090118
+Accepting connections on port 7000 and redirecting data to a connection to localhost port 22
+readevptr_ == 0x8090f70
+errorevptr_ == 0x8090f88
+Accepting connections on port 7001 and redirecting data to a connection to
+irc.openprojects.net port 6667</pre>
+
+<p>In another window type:</p>
+
+<pre class="line">% <span class="input">ssh -p 7000 localhost</span></pre>
+
+<p>You'll get an ssh session to your own computer (provided you are running an
+ssh daemon).  If you start up an IRC client and point it to localhost, port
+7001 as your server, it will act like it connects to irc.openprojects.net
+(provided of course, that you are connected to the Internet at large).  You'll
+be able to start up multiple ssh sessions, and use them simultaneously with
+your IRC session.</p>
+
+</pre>
+</body>
+</html>

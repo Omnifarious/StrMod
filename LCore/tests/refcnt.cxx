@@ -24,10 +24,12 @@
 // Preliminary, possibly incomplete test of RefCountPtr classes.
 //
 
-#include <iostream.h>
+#include <iostream>
 #include "LCore/RefCounting.h"
 #include "LCore/RefCountPtr.h"
 #include "LCore/RefCountPtrT.h"
+
+using std::ostream;
 
 static inline ostream &operator <<(ostream &os, const ReferenceCounting &obj)
 {

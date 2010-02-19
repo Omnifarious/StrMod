@@ -20,22 +20,48 @@
 #include "StrMod/SocketModule.h"
 #include "StrMod/EchoModule.h"
 #include <EHnet++/InetAddress.h>
-#include <UniEvent/UNIXpollManagerImp.h>
+#include <UniEvent/UnixEventPoll.h>
 #include <UniEvent/SimpleDispatcher.h>
-#include <vector>
-#include <iostream.h>
+#include <UniEvent/RegistryDispatcherGlue.h>
+#include <iostream>
+
+using std::cerr;
 
 extern "C" int atoi(const char *);
 
-struct EchoConnection {
+using ::strmod::strmod::SocketModule;
+using ::strmod::strmod::StreamModule;
+using ::strmod::strmod::StreamFDModule;
+using ::strmod::strmod::EchoModule;
+
+class EchoConnection;
+
+class ConnectionError : public strmod::unievent::Event
+{
+ public:
+   ConnectionError(EchoConnection *econ) : econ_(econ)
+   {
+   }
+   virtual ~ConnectionError();
+
+   virtual void triggerEvent(::strmod::unievent::Dispatcher *disp = 0);
+
+ private:
+   EchoConnection *econ_;
+};
+
+struct EchoConnection
+{
    SocketModule *socket;
    EchoModule echo;
+   ::strmod::unievent::EventPtr conerr_;
 
    inline EchoConnection(SocketModule *sock);
    inline virtual ~EchoConnection();
 };
 
-inline EchoConnection::EchoConnection(SocketModule *sock) : socket(sock)
+inline EchoConnection::EchoConnection(SocketModule *sock)
+     : socket(sock), conerr_(new ConnectionError(this))
 {
    sock->setSendChunkOnEOF(true);
 
@@ -43,6 +69,10 @@ inline EchoConnection::EchoConnection(SocketModule *sock) : socket(sock)
    StreamModule::Plug *p2 = echo.makePlug(0);
 
    p1->plugInto(*p2);
+   sock->onErrorIn(StreamFDModule::ErrRead, conerr_);
+   sock->onErrorIn(StreamFDModule::ErrWrite, conerr_);
+   sock->onErrorIn(StreamFDModule::ErrGeneral, conerr_);
+   sock->onErrorIn(StreamFDModule::ErrFatal, conerr_);
 }
 
 inline EchoConnection::~EchoConnection()
@@ -51,10 +81,17 @@ inline EchoConnection::~EchoConnection()
    delete socket;
 }
 
-template class vector<EchoConnection *>;
-typedef vector<EchoConnection *> ConAry;
+void ConnectionError::triggerEvent(::strmod::unievent::Dispatcher *disp)
+{
+   ::std::cerr << "The socket had an error.\n";
+   delete econ_;
+   econ_ = 0;
+}
 
-static void MaintainList(ConAry &lst);
+ConnectionError::~ConnectionError()
+{
+   ::std::cerr << "ConnectionError going away!\n";
+}
 
 int main(int argc, char *argv[])
 {
@@ -63,59 +100,31 @@ int main(int argc, char *argv[])
       return(1);
    }
 
-   UNISimpleDispatcher disp;
-   UNIXpollManagerImp pm(&disp);
+   ::strmod::unievent::SimpleDispatcher disp;
+   ::strmod::unievent::UnixEventPoll upoll(&disp);
+   ::strmod::unievent::RegistryDispatcherGlue glue(&disp, &upoll);
    InetAddress      here(atoi(argv[1]));
-   SockListenModule slm(here, pm, 8);
-   SockListenModule::SLPlug *slmp = slm.makePlug();
-   ConAry           connections;
+   ::strmod::strmod::SockListenModule slm(here, disp, upoll, 8);
+   ::strmod::strmod::SockListenModule::SLPlug *slmp = slm.makePlug();
 
-   while (!slm.hasError()) {
-      disp.DispatchEvents(1);
-      // cerr << "Tick!\n";
-      if (connections.size() > 0) {
-	 MaintainList(connections);
-      }
-
-      if (slmp->isReadable()) {
+   while (!slm.hasError())
+   {
+      disp.dispatchEvents(1);
+      if (slmp->isReadable())
+      {
+         using ::strmod::strmod::SocketModuleChunkPtr;
 	 SocketModuleChunkPtr attemptedchunk = slmp->getConnection();
-	 SocketModule *attempted = attemptedchunk->GetModule();
+	 SocketModule *attempted = attemptedchunk->getModule();
 
 	 cerr << "Got connection from "
 	      << const_cast<SocketAddress &>(attempted->GetPeerAddr())
 	      << "\n";
-	 attemptedchunk->ReleaseModule();
-	 attemptedchunk.ReleasePtr();
-
-	 connections.push_back(new EchoConnection(attempted));
+         new EchoConnection(attempted);
       }
    }
-   cerr << '\n' << slm.getError().getErrorString() << '\n';
-}
-
-static void MaintainList(ConAry &lst)
-{
-   for (ConAry::iterator i = lst.begin(); i != lst.end();)
    {
-      EchoConnection *ec = *i;
-
-      if (ec->socket->readEOF() || ec->socket->hasError())
-      {
-	 if (ec->socket->readEOF())
-	 {
-	    cerr << "Sucking an empty pipe.\n";
-	 }
-	 else
-	 {
-	    cerr << "The socket had an error.\n";
-	 }
-	 lst.erase(i);
-	 delete ec;
-	 ec = 0;
-      }
-      else
-      {
-	 ++i;
-      }
+      char buf[256];
+      slm.getError().getErrorString(buf, sizeof(buf) - 1);
+      cerr << '\n' << buf << '\n';
    }
 }

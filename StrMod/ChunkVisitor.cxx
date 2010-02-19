@@ -28,6 +28,9 @@
 #include "StrMod/StrChunk.h"
 #include "StrMod/StrChunkPtr.h"
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent ChunkVisitor::identifier(7UL);
 
 void ChunkVisitor::call_acceptVisitor(const StrChunkPtr &chnk)
@@ -35,3 +38,6 @@ void ChunkVisitor::call_acceptVisitor(const StrChunkPtr &chnk)
 {
    chnk->acceptVisitor(*this);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

@@ -28,6 +28,9 @@
 
 #define _STR_StackSwapper_H_
 
+namespace strmod {
+namespace strmod {
+
 /** \class StackSwapper StackSwapper.h StrMod/StackSwapper.h
  * A class to make a certain means of doing dynamic scoping in a lexically
  * scoped language exception safe.
@@ -79,5 +82,8 @@ inline StackSwapper<T>::~StackSwapper()
 {
    classvar_ = oldval_;
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

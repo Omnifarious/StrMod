@@ -26,7 +26,7 @@
 
 // For a log, see ../ChangeLog
 
-#include <bitset>
+#include <LCore/simple_bitset.h>
 #include <string>
 
 #define _LCORE_enum_set_H_
@@ -42,16 +42,19 @@
  * \param last The highest valued enum flag.
  */
 template <class enum_t, enum_t first, enum_t last>
-class enum_set : private std::bitset<last - first + 1> {
+//class enum_set : private std::bitset<last - first + 1>
+class enum_set : private simple_bitset<last - first + 1>
+{
   private:
    typedef enum_set<enum_t, first, last> self_t;
    //! Used to refer to private parent type to avoid errors in template parameter.
-   typedef std::bitset<last - first + 1> parent_t;
+   typedef simple_bitset<last - first + 1> parent_t;
+//     typedef simple_bitset<last - first + 1>::reference pref;
   public:
    //! Construct an enum_set with no bits set.
    inline enum_set();
    //! Construct a copy of a different enum_set.
-   inline enum_set(const enum_set<enum_t, first, last> &b);
+//     inline enum_set(const enum_set<enum_t, first, last> &b);
    //! Construct an enum_set with at most one bit set.
    explicit inline enum_set(enum_t val);
    //! Construct an enum_set with at most two bits set.
@@ -67,7 +70,7 @@ class enum_set : private std::bitset<last - first + 1> {
    inline enum_set(enum_t val1, enum_t val2, enum_t val3, enum_t val4,
                    enum_t val5, enum_t val6);
    //! Copy an enum_set.
-   inline enum_set(self_t &other);
+   inline enum_set(const self_t &other);
 
    //! Compute bit1 & bit2 for all corresponding bits in both bitsets.
    inline self_t &operator &=(const self_t &__rhs);
@@ -85,14 +88,17 @@ class enum_set : private std::bitset<last - first + 1> {
    inline self_t &reset(enum_t __pos);
    //! Flip a bit from 0 to 1 or 1 to 0
    inline self_t &flip(enum_t __pos);
-   //! Allow bitset[enum_val] syntax.
-   inline parent_t::reference operator[](enum_t __pos);
+//     //! Allow bitset[enum_val] syntax.
+//     inline pref operator[](enum_t __pos);
    //! Allow bitset[enum_val] syntax.
    inline bool operator [](enum_t __pos) const;
    //! How many bits are set?
    size_t count() const                            { return parent_t::count(); }
    //! How many total bits?
    size_t size() const                             { return parent_t::size(); }
+
+   //! Copy one bitset into another
+   inline const self_t &operator =(const self_t &b);
 
    //! Do all corresponding bits match in both bitsets?
    inline bool operator==(const self_t &__rhs) const; 
@@ -105,6 +111,7 @@ class enum_set : private std::bitset<last - first + 1> {
    //! Are all bits clear (0, false)?
    bool none() const                               { return parent_t::none(); }
 
+   //! Return an ASCII representation of the bitset.
    inline std::string to_string() const;
 
    //! Are any bits set (1, true)?
@@ -115,12 +122,6 @@ class enum_set : private std::bitset<last - first + 1> {
 
 template <class enum_t, enum_t first, enum_t last>
 inline enum_set<enum_t, first, last>::enum_set()
-{
-}
-
-template <class enum_t, enum_t first, enum_t last> inline
-enum_set<enum_t, first, last>::enum_set(const enum_set<enum_t, first, last> &b)
-     : parent_t(*this)
 {
 }
 
@@ -182,8 +183,8 @@ inline enum_set<enum_t, first, last>::enum_set(enum_t val1, enum_t val2,
 }
 
 template <class enum_t, enum_t first, enum_t last>
-inline enum_set<enum_t, first, last>::enum_set(self_t &other)
-     : parent_t(*this)
+inline enum_set<enum_t, first, last>::enum_set(const enum_set<enum_t, first, last> &other)
+     : parent_t(other)
 {
 }
 
@@ -251,17 +252,25 @@ enum_set<enum_t, first, last>::flip(enum_t __pos)
    return *this;
 }
 
-template <class enum_t, enum_t first, enum_t last>
-inline enum_set<enum_t, first, last>::parent_t::reference
-enum_set<enum_t, first, last>::operator[](enum_t __pos)
-{
-   return parent_t::operator[](__pos - first);
-}
+//  template <class enum_t, enum_t first, enum_t last>
+//  inline typename enum_set<enum_t, first, last>::pref
+//  enum_set<enum_t, first, last>::operator[](enum_t __pos)
+//  {
+//     return parent_t::operator[](__pos - first);
+//  }
 
 template <class enum_t, enum_t first, enum_t last>
 inline bool enum_set<enum_t, first, last>::operator[](enum_t __pos) const
 {
    return parent_t::operator [](__pos - first);
+}
+
+template <class enum_t, enum_t first, enum_t last>
+inline const enum_set<enum_t, first, last> &
+enum_set<enum_t, first, last>::operator =(const enum_set<enum_t, first, last> &b)
+{
+   parent_t::operator =(b);
+   return *this;
 }
 
 template <class enum_t, enum_t first, enum_t last>
@@ -285,9 +294,10 @@ inline bool enum_set<enum_t, first, last>::test(enum_t __pos) const
 template <class enum_t, enum_t first, enum_t last>
 inline std::string enum_set<enum_t, first, last>::to_string() const
 {
-   string fred;
-   parent_t::_M_copy_to_string(fred);
-   return fred;
+//     std::string fred;
+//     parent_t::_M_copy_to_string(fred);
+//     return fred;
+   return parent_t::to_string();
 }
 
 //--
@@ -299,8 +309,8 @@ operator&(const enum_set<enum_t, first, last> &__x,
           const enum_set<enum_t, first, last> &__y)
 {
    enum_set<enum_t, first, last> result(__x);
-  __result &= __y;
-  return __result;
+   result &= __y;
+   return result;
 }
 
 //! Return bitset containing result of bit1 | bit2 for all corresponding bits.
@@ -310,8 +320,8 @@ operator|(const enum_set<enum_t, first, last> &__x,
           const enum_set<enum_t, first, last> &__y)
 {
    enum_set<enum_t, first, last> result(__x);
-  __result |= __y;
-  return __result;
+   result |= __y;
+   return result;
 }
 
 //! Return bitset containing result of bit1 ^ bit2 for all corresponding bits.
@@ -321,8 +331,8 @@ operator^(const enum_set<enum_t, first, last> &__x,
           const enum_set<enum_t, first, last> &__y)
 {
    enum_set<enum_t, first, last> result(__x);
-  __result ^= __y;
-  return __result;
+   result ^= __y;
+   return result;
 }
 
 #endif

@@ -36,6 +36,9 @@
 
 #define _STR_PassThrough_H_
 
+namespace strmod {
+namespace strmod {
+
 class PassThrough : public StreamProcessor {
  public:
    static const STR_ClassIdent identifier;
@@ -68,5 +71,8 @@ inline void PassThrough::processIncoming()
    outgoing_ready_ = true;
    incoming_.ReleasePtr();
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

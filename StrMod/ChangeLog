@@ -1,3 +1,124 @@
+2002-03-26  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/tests/echoserv.cxx:
+
+	Revamped echoserv test to work with UnixEventPoll and
+	StreamFDModule error events.
+
+	* SocketModule.cxx, SockListenModule.cxx, StreamFDModule.cxx,
+	StrMod/SocketModule.h, StrMod/SockListenModule.h,
+	StrMod/StreamFDModule.h:
+	
+	Various changes to start using UnixEventRegistry instead of
+	UNIXpollManager.
+
+2002-03-13  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* SimpleMulti.cxx, SockListenModule.cxx, StrMod/ChunkIterator.h,
+	StrMod/RouterModule.h, StrMod/SimpleMulti.h,
+	StrMod/SockListenModule.h, StrMod/StreamFDModule.h,
+	StrMod/TelnetChunker.h, StrMod/TelnetParser.h:
+	
+	Numerous good changes to appease AIX's much stricter compiler.
+	Now much more tight about exactly where names are accessible.
+
+2002-03-12  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/BufferChunk.h, StrMod/ChunkVisitor.h,
+	StrMod/DynamicBuffer.h, StrMod/EchoModule.h, StrMod/EOFStrChunk.h,
+	StrMod/GroupChunk.h, StrMod/LinearExtent.h, StrMod/StrChunk.h,
+	StrMod/StrChunkPtr.h, StrMod/StrChunkPtrT.h,
+	StrMod/STR_ClassIdent.h, StrMod/StreamFDModule.h,
+	StrMod/StreamModule.h, StrMod/StrSubChunk.h,
+	StrMod/UseTrackingVisitor.h, EchoModule.cxx, GroupChunk.cxx,
+	LinearExtent.cxx, StrChunk.cxx, StrChunkPtr.cxx,
+	STR_ClassIdent.cxx, StreamModule.cxx, StrSubChunk.cxx:
+	
+	Fixed many small things the Solaris compiler doesn't like.
+	
+	Removed ;'s after the closing } of namespaces.
+	
+	Removed redeclaration of default argument values in a few places.
+
+2002-02-20  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/StreamModule.h:
+
+	Removed spurious 'inline' that's no longer true.
+
+2002-02-10  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* SockListenModule.cxx:
+
+	More small changes to make work better with standard C++.
+
+	* SockListenModule.cxx, StrMod/LinearExtent.h, tests/echoserv.cxx,
+	tests/server.cxx, tests/testchunk.cxx, tests/testdist.cxx,
+	tests/testecho.cxx, tests/testextent.cxx, tests/testGV.cxx,
+	tests/testserial.cxx, tests/testsock.cxx, tests/testsplit.cxx,
+	tests/teststrfd.cxx:
+
+	More changes to make work better with standard C++.
+	
+	Also, added a bit of documentation to try to make doxygen happy.
+
+2002-02-09  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* SockListenModule.cxx, StrMod/SockListenModule.h:
+
+	Added code for SockListenModule::getError.
+	
+	Changed interface for SocetModuleChunk.  Removed GetModule and
+	ReleaseModule and put in new getModule that combines both
+	interfaces in one call.
+
+2002-02-05  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/BufferChunk.h, StrMod/DynamicBuffer.h,
+	StrMod/GraphVizVisitor.h, StrMod/OutSerializer.h,
+	StrMod/PreAllocBuffer.h, StrMod/SimpleMulti.h,
+	StrMod/TelnetChunkerData.h, BufferChunk.cxx, ChangeLog,
+	CharChopper.cxx, DynamicBuffer.cxx, GraphVizVisitor.cxx,
+	InSerializer.cxx, LinearExtentStrmOp.cxx, OutSerializer.cxx,
+	PreAllocBuffer.cxx, SocketModule.cxx, SockListenModule.cxx,
+	StreamFDModule.cxx, StreamModule.cxx:
+
+	Fixed up things to work with new C++ standard library that insists
+	on the std:: namespace.
+
+	Removed RCS id string because it isn't consistently included and
+	of dubious value.
+
+2002-02-05  Eric Hopper  <hopper@omnifarious.org>
+
+	* Everything: Fixed up things to work with new C++ standard
+	library that insists on the std:: namespace.  Removed RCS id
+	string because it isn't consistently included and of dubious
+	value.
+
+2001-09-14  Eric Hopper  <hopper@omnifarious.org>
+
+	* SimpleMulti.cxx (deletePlug): Changed an assert to a return of
+	'false', which is what it should've been.
+
+2001-09-07  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Everything: I moved this entire subsection into the
+	strmod::strmod namespace.
+
+2001-08-18  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* StrMod/RouterModule.h, RouterModule.cxx, StrMod/SimpleMulti.h,
+	SimpleMulti.cxx, StrMod/SockListenModule.h, SockListenModule.cxx,
+	StrMod/SocketModule.h, SocketModule.cxx, StrMod/StreamFDModule.h,
+	StreamFDModule.cxx: Lots of fixups to make work with namespace
+	changes in the UniEvent headers.
+
+2001-08-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* StreamFDModule.cxx: More support for error events.  Filled on
+	all those ERROR HANDLING comments I forgot to fill in before.  :-(
+
 2001-07-04  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* StrMod/StreamFDModule.h, StreamFDModule.cxx: Preliminary support

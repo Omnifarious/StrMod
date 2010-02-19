@@ -19,9 +19,9 @@
 /* $Header$ */
 
 #include <StrMod/LinearExtent.h>
-#include <iostream.h>
+#include <iostream>
 
-ostream &operator <<(ostream &os, LinearExtent &ext)
+std::ostream &operator <<(std::ostream &os, LinearExtent &ext)
 {
    os << '[' << ext.Offset() << '_' << ext.Length() << "_)";
 }

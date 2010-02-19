@@ -27,8 +27,11 @@
 #endif
 
 #include "StrMod/FDUtil.h"
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
+
+namespace strmod {
+namespace strmod {
 
 bool FDUtil::setNonBlock(int fd, int &myerrno)
 {
@@ -61,3 +64,6 @@ bool FDUtil::setBlock(int fd, int &myerrno)
    }
    return(true);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

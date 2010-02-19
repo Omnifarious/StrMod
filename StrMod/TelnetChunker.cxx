@@ -43,6 +43,9 @@
 #include <cassert>
 #include <deque>
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent TelnetChunker::identifier(33UL);
 const STR_ClassIdent TelnetChunker::TelnetData::identifier(34UL);
 const STR_ClassIdent TelnetChunker::SingleChar::identifier(35UL);
@@ -80,7 +83,7 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
    const StrChunkPtr getFromQueue();
 
  private:
-   deque<StrChunk *> chunks_;
+   std::deque<StrChunk *> chunks_;
    StrChunkPtr curchunk_;
    size_t curlen_;
 
@@ -421,3 +424,6 @@ void TelnetChunker::OptionNegotiation::acceptVisitor(ChunkVisitor &visitor)
 {
    call_visitDataBlock(visitor, buf_, 3);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

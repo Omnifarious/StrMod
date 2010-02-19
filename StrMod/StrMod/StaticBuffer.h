@@ -31,6 +31,9 @@
 
 #define _STR_StaticBuffer_H_
 
+namespace strmod {
+namespace strmod {
+
 /** \class StaticBuffer StaticBuffer.h StrMod/StaticBuffer.h
  * This class is for pointing at a bunch of data already in memory that will
  * not change or move for the lifetime of the StaticBuffer.  Oftentimes, these
@@ -91,5 +94,8 @@ inline void StaticBuffer::acceptVisitor(ChunkVisitor &visitor)
 {
    call_visitDataBlock(visitor, const_cast<void *>(buf_), buflen_);
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

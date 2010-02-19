@@ -40,6 +40,9 @@
 #include <algorithm>
 #include <cassert>
 
+namespace strmod {
+namespace strmod {
+
 /** A private class for StrPlugs on the 'many' side of a SimpleMultiplexer.
  */
 class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
@@ -100,14 +103,16 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug {
    bool other_isreadable_;
 };
 
-class SimpleMultiplexer::ScanEvent : public UNIEvent {
+class SimpleMultiplexer::ScanEvent : public unievent::Event {
+ private:
+   typedef unievent::Dispatcher Dispatcher;
  public:
    static const STR_ClassIdent identifier;
 
    //: This keeps a reference to parent.
    ScanEvent(SimpleMultiplexer &parent) : parent_(&parent)                   { }
 
-   inline virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
+   inline virtual void triggerEvent(Dispatcher *dispatcher = 0);
 
    void parentGone()                                    { parent_ = 0; }
 
@@ -258,7 +263,7 @@ void SimpleMultiplexer::MultiPlug::otherIsWriteable()
    }
 }
 
-void SimpleMultiplexer::ScanEvent::triggerEvent(UNIDispatcher *dispatcher)
+void SimpleMultiplexer::ScanEvent::triggerEvent(Dispatcher *dispatcher)
 {
    if (parent_ != 0)
    {
@@ -319,7 +324,7 @@ class SimpleMultiplexer::auto_mpptr
 //: Find MultiPlugs that are plugged in.
 class SimpleMultiplexer::mp_notpluggedin_p {
  public:
-   bool operator ()(MultiPlug *p) {
+   bool operator ()(Plug *p) {
       return(p->pluggedInto() == 0);
    }
 };
@@ -384,7 +389,7 @@ void SimpleMultiplexer::SinglePlug::otherIsWriteable()
    }
 }
 
-SimpleMultiplexer::SimpleMultiplexer(UNIDispatcher &disp)
+SimpleMultiplexer::SimpleMultiplexer(unievent::Dispatcher &disp)
      : splug_(*this), splug_created_(false), scan_posted_(false),
        scan_(new ScanEvent(*this)), dispatcher_(disp),
        readable_multis_(0), readable_multiothers_(0), writeable_multiothers_(0)
@@ -614,5 +619,8 @@ bool SimpleMultiplexer::deletePlug(Plug *plug)
 	 return(true);
       }
    }
-   assert(false);
+   return false;
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

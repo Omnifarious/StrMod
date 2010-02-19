@@ -21,11 +21,6 @@
 // For a log, see ./ChangeLog
 // $Revision$
 
-#ifndef NO_RcsID
-static char _SocketModule_CC_rcsID[] =
-      "$Id$";
-#endif
-
 #ifdef __GNUG__
 #  pragma implementation "SocketModule.h"
 #endif
@@ -33,11 +28,11 @@ static char _SocketModule_CC_rcsID[] =
 #include <EHnet++/SocketAddress.h>
 #include "StrMod/SocketModule.h"
 #include "StrMod/FDUtil.h"
-#include <string.h>
+#include <cstring>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <errno.h>
+#include <cerrno>
 #include <unistd.h>
 #include "config.h"
 #include "sockdecl.h"
@@ -46,14 +41,20 @@ static char _SocketModule_CC_rcsID[] =
 #define SHUT_WR 1
 #endif
 
+namespace strmod {
+namespace strmod {
+
+using unievent::UNIXError;
+
 const STR_ClassIdent SocketModule::identifier(12UL);
 
 // MakeSocket sets makesock_errno_.
 SocketModule::SocketModule(const SocketAddress &addr,
-                           UNIDispatcher &disp, UNIXpollManager &pollmgr,
+                           unievent::Dispatcher &disp,
+                           unievent::UnixEventRegistry &ureg,
                            bool blockconnect)
    throw(UNIXError)
-     : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, pollmgr,
+     : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, ureg,
 		      StreamFDModule::CheckBoth),
        peer_(*(addr.Copy()))
 {
@@ -66,8 +67,9 @@ SocketModule::~SocketModule()  // This might be changed later to add
 }                              // connection.
 
 SocketModule::SocketModule(int fd, SocketAddress *pr,
-                           UNIDispatcher &disp, UNIXpollManager &pollmgr)
-     : StreamFDModule(fd, disp, pollmgr, StreamFDModule::CheckBoth),
+                           unievent::Dispatcher &disp,
+                           unievent::UnixEventRegistry &ureg)
+     : StreamFDModule(fd, disp, ureg, StreamFDModule::CheckBoth),
        peer_(*pr)
 {
    setMaxChunkSize(64U * 1024U);
@@ -159,3 +161,6 @@ int SocketModule::MakeSocket(SocketModule &obj,
    }
    return(fd);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

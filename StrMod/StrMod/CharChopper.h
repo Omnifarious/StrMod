@@ -32,14 +32,17 @@
 // a separator.
 //
 
+#include <cstddef>
+#include <cassert>
 #include <StrMod/StreamProcessor.h>
 #include <StrMod/StrChunkPtrT.h>
 #include <StrMod/BufferChunk.h>
 #include <StrMod/GroupChunk.h>
-#include <cstddef>
-#include <cassert>
 
 #define _STR_CharChopper_H_
+
+namespace strmod {
+namespace strmod {
 
 class GroupVector;
 
@@ -105,5 +108,8 @@ inline void CharChopper::replaceIncoming(const StrChunkPtr &data)
 {
    incoming_ = data;
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

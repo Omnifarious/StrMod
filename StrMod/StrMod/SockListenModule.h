@@ -28,9 +28,11 @@
 
 // $Revision$
 
-#ifndef _STR_SocketModule_H_
-#  include <StrMod/SocketModule.h>
-#endif
+#include <string>
+
+#include <UniEvent/EventPtr.h>
+#include <UniEvent/UnixEventRegistry.h>
+#include <UniEvent/UNIXError.h>
 
 #ifndef _STR_StreamModule_H_
 #   include <StrMod/StreamModule.h>
@@ -44,18 +46,20 @@
 #  include <StrMod/StrChunkPtrT.h>
 #endif
 
-#include <UniEvent/EventPtrT.h>
-#include <UniEvent/UNIXpollManager.h>
-#include <UniEvent/UNIXError.h>
+#ifndef _STR_SocketModule_H_
+#  include <StrMod/SocketModule.h>
+#endif
 
-#include <string>
 
 #define _STR_SockListenModule_H_
 
+class SocketAddress;
+
+namespace strmod {
+namespace strmod {
+
 class ListeningPlug;
 class SocketModuleChunk;
-class SocketAddress;
-class UNIDispatcher;
 
 /** \class SocketModuleChunk SockListenModule.h StrMod/SockListenModule.h
  * \brief A special 'zero length' chunk that contains a SocketModule.
@@ -81,10 +85,20 @@ class SocketModuleChunk : public StrChunk {
 
    virtual unsigned int Length() const                 { return 0; }
 
-   //! Returns the wrapped SocketModule
-   SocketModule *GetModule() const                     { return module_; }
-   //! Tells the SocketModuleChunk it is no longer responsible for the module it wraps.
-   void ReleaseModule()                                { module_ = 0; }
+   /** Returns the wrapped SocketModule, and possibly forget about its existence.
+    * @param release If this parameter is true, the SocketModuleChunk forgets
+    * the wrapped SocketModule and you become responsible for managing its
+    * existence (ie you must delete it at the proper time).
+    */
+   SocketModule *getModule(bool release = true)
+   {
+      SocketModule *ret = module_;
+      if (release)
+      {
+         module_ = 0;
+      }
+      return ret;
+   }
 
  protected:
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
@@ -111,7 +125,9 @@ class SockListenModule : public StreamModule {
    class FDPollEv;
    friend class FDPollEv;
    class FDPollRdEv;
+   friend class FDPollRdEv;
    class FDPollErEv;
+   friend class FDPollErEv;
 
  public:
    class SLPlug;  // Declared at end of public section for clarity.
@@ -122,7 +138,8 @@ class SockListenModule : public StreamModule {
     * the pending connection queue?
     */
    SockListenModule(const SocketAddress &bind_addr,
-                    UNIDispatcher &disp, UNIXpollManager &pmgr,
+                    unievent::Dispatcher &disp,
+                    unievent::UnixEventRegistry &ureg,
 		    int qlen = 1);
    //! Closes the socket being listened to.
    virtual ~SockListenModule();
@@ -137,7 +154,7 @@ class SockListenModule : public StreamModule {
    //! Has there been an error of any kind?
    bool hasError() const throw()               { return has_error_; }
    //! What was the error, if any?
-   const UNIXError &getError() const throw();
+   const unievent::UNIXError &getError() const throw();
    //! Pretend no error happened.
    void clearError() throw();
 
@@ -186,33 +203,36 @@ class SockListenModule : public StreamModule {
     * Note, ownership of <code>peer</code> is being passed here.
     */
    inline SocketModule *makeSocketModule(int fd, SocketAddress *peer,
-					 UNIDispatcher &disp,
-                                         UNIXpollManager &pmgr);
+					 unievent::Dispatcher &disp,
+                                         unievent::UnixEventRegistry &ureg);
 
    //! Set an error so that hasError and getError return something.
-   inline void setError(const UNIXError &err) throw();
+   inline void setError(const unievent::UNIXError &err) throw();
 
    //! Return the new module (if any) and try to 'accept' another connection.
    SocketModule *getNewModule();
 
  private:
+   typedef unievent::Dispatcher Dispatcher;
+   typedef unievent::UnixEventRegistry UnixEventRegistry;
+
    int sockfd_;
-   unsigned char errorstore_[sizeof(UNIXError)];
+   unsigned char errorstore_[sizeof(unievent::UNIXError)];
    bool has_error_;
    SLPlug lplug_;
    bool plug_pulled_;
    bool checking_read_;
    SocketModule *newmodule_;
    SocketAddress &myaddr_;
-   UNIDispatcher &disp_;
-   UNIXpollManager &pmgr_;
+   Dispatcher &disp_;
+   UnixEventRegistry &ureg_;
    FDPollEv *readevptr_;
-   UNIEventPtrT<UNIXpollManager::PollEvent> readev_;
+   unievent::EventPtr readev_;
    FDPollEv *errorevptr_;
-   UNIEventPtrT<UNIXpollManager::PollEvent> errorev_;
+   unievent::EventPtr errorev_;
 
-   void eventRead(unsigned int condbits);
-   void eventError(unsigned int condbits);
+   void eventRead();
+   void eventError();
    void doAccept();
 };
 
@@ -278,13 +298,13 @@ inline StreamModule::Plug *SockListenModule::i_MakePlug(int side)
    }
 }
 
-inline SocketModule *SockListenModule::makeSocketModule(int fd,
-							SocketAddress *peer,
-                                                        UNIDispatcher &disp,
-							UNIXpollManager &pmgr)
+inline SocketModule *
+SockListenModule::makeSocketModule(int fd, SocketAddress *peer,
+                                   unievent::Dispatcher &disp,
+                                   unievent::UnixEventRegistry &ureg)
 {
    // Ownership of peer is passed here.
-   return(new SocketModule(fd, peer, disp, pmgr));
+   return(new SocketModule(fd, peer, disp, ureg));
 }
 
 //----------------------ListeningPlug inline functions-------------------------
@@ -298,5 +318,8 @@ inline SockListenModule &SockListenModule::SLPlug::getParent() const
 {
    return(static_cast<SockListenModule &>(Plug::getParent()));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

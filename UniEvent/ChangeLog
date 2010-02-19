@@ -1,3 +1,298 @@
+2002-03-26  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* tests/testUPoll.cxx:
+	Remove obsolete test for UNIXpollManager, which is gone now.
+
+	* tests/testtimer.cxx:
+	Fixed up testtimer to use the new event system.
+
+	* Makefile.in, UniEvent/UNIXpollManager.h,
+	UniEvent/UNIXpollManagerImp.h, UniEvent/UNIXSignalHandler.h,
+	UniEvent/UNIXTimer.h, UNIXpollManager.cxx, UNIXpollManagerImp.cxx,
+	UNIXSignalHandler.cxx, UNIXTimer.cxx:
+
+	Removed obsolete Unix event system.
+
+	* UniEvent/TimerEventTracker.h, UniEvent/Timer.h:
+
+	Hoisted currentTime up the hierarchy because it makes sense.
+
+	* Makefile.in:
+
+	Added RegisterDispatcherGlue.cxx to main library.
+
+	* RegistryDispatcherGlue.cxx, UniEvent/RegistryDispatcherGlue.h:
+
+	Finished version of RegistryDispatcherGlue.
+
+2002-03-22  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/RegistryDispatcherGlue.h:
+	Added a destructor.
+
+	* RegistryDispatcherGlue.cxx:
+	Fleshed out the class a bit.
+
+	* RegistryDispatcherGlue.cxx, UniEvent/RegistryDispatcherGlue.h:
+	Preliminary, uninished cut of event glue between a Dispatcher
+	and a UnixEventRegistry.
+
+2002-03-21  hopper  <hopper@dev-ehopper>
+
+	* UniEvent/TimerEventTracker.h: Additionally derive from
+	Debugable, and implement printState method.
+
+	* UniEvent/Timer.h, Timer.cxx: Added methods to print out
+	Timer::absolute_t and Timer::interval_t
+
+	* TimerEventTracker.cxx: Fixed stupid compare function bug.  Fixed
+	another stupid bug where I pull the wrong value out of the map
+	when determining the chronological next event.  Added a printState
+	method.
+
+	* UnixEventPoll.cxx: Removed debugging prints.  Added a call to
+	the TimerEventTracker::printState method in
+	UnixEventPoll::printState.
+
+	* UnixEventPoll.cxx: Added debugging prints.
+
+	* TimerEventTracker.cxx: Minor cleanups and a small bug fix
+	involving not returning maxtime sometimes.
+
+	* UniEvent/UnixEventPoll.h, UnixEventPoll.cxx: Added stuff to
+	implement the Timer functionality by tying into TimerEventTracker
+
+	* TimerEventTracker.cxx: Implemented last remaining method,
+	nextExpirationIn.
+
+	* Timer.cxx: Added the operator - that the interface promises, but
+	had not yet been provided.
+
+	* Makefile.in: Added TimerEventTracker.cxx
+
+	* UniEvent/UNIXTimer.h: Added forward declaration of Dispatcher
+	class.  Was relying on one in <UniEvent/Timer.h> before.
+
+	* TimerEventTracker.cxx, UniEvent/TimerEventTracker.h: Fleshed out
+	TimerEventTracker class, and implemented most methods.
+
+	* UniEvent/Timer.h: Added some class documentation.
+
+2002-03-19  hopper  <hopper@dev-ehopper>
+
+	* UniEvent/TimerEventTracker.h: Initial class for inhereting an
+	implementation from.
+
+2002-03-16  hopper  <hopper@dev-ehopper>
+
+	* UniEvent/UnixEventPoll.h, UnixEventPoll.cxx: Added all the code
+	needed to make signal handling work.  Maybe I'll split out the
+	signal handling code to a separate file (though not a separate
+	class) someday.
+
+2002-03-15  hopper  <hopper@dev-ehopper>
+
+	* UniEvent/UnixEventPoll.h, UnixEventPoll.cxx: Partway towards
+	functional signal handling.
+
+	* UniEvent/UnixEventRegistry.h, UnixEventRegistry.cxx: Added a
+	couple of common static member variables that all subclasses will
+	need to share.
+
+2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UnixEventPoll.cxx: Added inheritance from Timer interface
+	because UnixEventPoll is going to implement Timer later.
+	
+	Moved dispatcher_ down here from parent class.
+	
+	Made printState do something useful.
+
+	* UniEvent/UnixEventPoll.h: Added inheritance from Timer interface
+	because UnixEventPoll is going to implement Timer later.
+
+	Moved dispatcher_ down here from parent class.
+
+	* UniEvent/UnixEventRegistry.h, UniEvent/Timer.h,
+	UniEvent/UNIXTimer.h, UNIXTimer.cxx: I forgot the maxim: Push data
+	down the hierarchy as far as it'll go.  Fixed by moving
+	dispatcher_ to derived classes.
+
+2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/Timer.h, UniEvent/UNIXTimer.h, UNIXTimer.cxx: I forgot
+	the maxim: Push data down the hierarchy as far as it'll go.  Fixed
+	by putting dispatcher_ in UNIXTimer instead of the Timer interface
+	where it didn't belong.
+
+2002-03-14  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UnixEventPoll.cxx: Fixed a big bug which would cause doPoll to
+	fail if ever more than one file descriptor was registered.
+	(Forgot to increment i at the end of a while loop.)
+
+	Changed to automatically kick out file descriptors that have been
+	closed or are invalid to kill off infinite loops.
+
+2002-03-13  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* tests/testupoll.cxx: The test works now.  Removed code to chop
+	newline from the end if the string read by getline because getline
+	already does it.
+
+	* UnixEventPoll.cxx: Removed lots of debugging prints.
+
+	* SimpleDispatcherImp.cxx: Put an anonymous namespace wrapper
+	around a couple of functions that needed it.
+
+	* UniEvent/UNIXpollManagerImp.h, SimpleDispatcherImp.cxx,
+	UNIXError.cxx, UnixEventPoll.cxx, UNIXSignalHandler.cxx,
+	UNIXTimer.cxx: Numerous good changes to appease AIX's much
+	stricter compiler.  Now much more tight about exactly where names
+	are accessible.
+
+2002-03-12  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/Dispatcher.h, UniEvent/Event.h, UniEvent/EventPtr.h,
+	UniEvent/EventPtrT.h, UniEvent/UNEVT_ClassIdent.h,
+	UniEvent/UNIXError.h, UniEvent/UNIXpollManager.h: Fixed many small
+	things the Solaris compiler doesn't like.  Removed ;'s after the
+	closing } of namespaces.  Removed redeclaration of default
+	argument values in a few places.
+
+	* tests/testupoll.cxx: More attempts to ferret out the problem.
+	GCC bug?
+
+	* UnixEventPoll.cxx: Added in new simple_bitset class so I have
+	cleaner bitset code in order to debug things.
+
+2002-03-08  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* InterruptibleDispatcher.cxx, UniEvent/InterruptibleDispatcher.h,
+	UnixEventPoll.cxx: More testing, seems something's wrong with STLs
+	bitset.
+
+	* Makefile.in, tests/testupoll.cxx, UniEvent/UnixEventPoll.h,
+	UnixEventPoll.cxx: In the middle of testing and debugging.  Added
+	to library makefile.
+
+2002-03-07  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UnixEventPoll.cxx: Fleshed out doPoll even more.
+
+	* UnixEventPoll.cxx: Fleshed out doPoll some more.
+
+	* UnixEventPoll.cxx: Fleshed out doPoll a bit.
+
+	* UnixEventPoll.cxx: Partly done, needs more work.
+
+	* UniEvent/UnixEventPoll.h, UniEvent/UnixEventRegistry.h: Minor
+	cleanups.  Changed bool function to void.
+
+2002-03-06  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/UnixEventPoll.h: Moved forward a bit.
+
+	* UniEvent/UnixEventRegistry.h: Changed default sense of doPoll.
+
+2002-03-01  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/UnixEventPoll.h, UniEvent/UnixEventRegistry.h: Half
+	finished beginning of a new Unix event system.
+
+2002-02-28  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UnixEventRegistry.cxx: Initial version.  Just the .cxx
+	stub for an interface.
+
+	* UniEvent/UnixEventRegistry.h: Changed name to UnixEventRegistry
+	and added interface for signals.
+
+2002-02-27  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/UnixEventRegistry.h: More tiny changes.
+
+2002-02-26  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/UnixEventRegistry.h: More editing.  :-)
+
+	* UniEvent/UnixEventRegistry.h: Building a replacement for
+	UNIXpollManager and the signal handling stuff.
+
+2002-02-10  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UniEvent/UNIXpollManagerImp.h: More small changes to make work
+	better with standard C++.
+
+	* tests/testdisp.cxx, tests/testsimple.cxx, tests/testUPoll.cxx,
+	UNEVT_ClassIdent.cxx, UniEvent/UNEVT_ClassIdent.h,
+	UniEvent/UNIXpollManager.h: More changes to make work better with
+	standard C++.  Also, added a bit of documentation to try to make
+	doxygen happy.
+
+2002-02-05  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* UNIXSignalHandler.cxx:
+	Fixed up things to work with new C++ standard library that insists on
+	the std:: namespace.  Removed RCS id string because it isn't
+	consistently included and of dubious value.
+
+2002-02-05  Eric Hopper  <hopper@omnifarious.org>
+
+	* Everything: Fixed up things to work with new C++ standard
+	library that insists on the std:: namespace.  Removed RCS id
+	string because it isn't consistently included and of dubious
+	value.
+
+2001-09-23  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/Timer.h, Timer.cxx, UniEvent/UNIXTimer.h,
+	UNIXTimer.cxx, tests/testtimer.cxx, UNEVT_ClassIdent.cxx,
+	Makefile.in: Added a new interface, Timer, and an implementation
+	of the Timer interface, UNIXTimer.  These classes are used to
+	schedule events at particular times.  Currently, UNIXTimer relies
+	on a UNIXSignalHandler and uses the SIGALRM signal.
+
+2001-09-04  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/UNIXSignalHandler.h, UNIXSignalHandler.cxx: This class
+	is now semi-finished.  In the spirit of extreme programming, it's
+	only as complicated as it has to be to get just what I want out of
+	signals right now.
+
+	* SimpleDispatcherImp.cxx: Added a few commented out debugging
+	messages to debug signal handling.  Making signals work has made
+	me realize this code needs rewriting yet again.  :-(
+
+2001-08-24  Eric Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/UNIXSignalHandler.h: Initial cut of interface for
+	signal handling.
+
+2001-08-23  Eric Hopper  <hopper@omnifarious.mn.org>
+
+	* SimpleDispatcherImp.cxx: Added support for the interrupt method
+	in Dispatcher.
+
+2001-08-18  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* Lots of files: More changes to add namespace support to at least
+	the UniEvent section.  Also, updated the doxygen documentation
+	both for namespaces, and to make it more complete.
+
+2001-08-10  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* Event.cxx, EventPtr.cxx, SimpleDispatcher.cxx,
+	SimpleDispatcherImp.cxx, UniEvent/Dispatcher.h, UniEvent/Event.h,
+	UniEvent/EventPtr.h, UniEvent/EventPtrT.h,
+	UniEvent/UNEVT_ClassIdent.h: First pass at adding namespace
+	support to libNet.  Also, spruced up the documentation a bit.
+
+2001-07-16  Eric M. Hopper  <hopper@omnifarious.mn.org>
+
+	* UniEvent/Event.h, UniEvent/Dispatcher.h: Added preliminary
+	interface changes for interrupt method.  Spruced up documentation.
+
 2001-07-03  Eric M. Hopper  <hopper@omnifarious.mn.org>
 
 	* UNIXpollManagerImp.cxx (doPoll): Fixed likely error.

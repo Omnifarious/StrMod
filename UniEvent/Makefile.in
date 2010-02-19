@@ -38,7 +38,8 @@ LIBSRC = $(MYOUTDIR)/lib_src
 
 LIBCXX = Event.cxx                Dispatcher.cxx          SimpleDispatcher.cxx \
          SimpleDispatcherImp.cxx  UNEVT_ClassIdent.cxx    UNIXError.cxx \
-         UNIXpollManager.cxx      UNIXpollManagerImp.cxx  EventPtr.cxx
+         EventPtr.cxx             Timer.cxx               UnixEventRegistry.cxx\
+         UnixEventPoll.cxx        TimerEventTracker.cxx   RegistryDispatcherGlue.cxx
 
 TESTCCS = tests/testdisp.cxx  tests/testsimple.cxx  tests/testUPoll.cxx
 
@@ -72,6 +73,11 @@ $(LIBSRC): Makefile $(MYINCLUDEDIR)
 	$(PROCLIBSRC) -a $@ $(LIBCXX) Makefile
 
 $(LIBDIR)/libUniEvent.a:
+
+tests/testsig : tests/testsig.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -L$(libdir) \
+             tests/testsig.o -lNet \
+             -o tests/testsig
 
 tests/testsimple : tests/testdisp.o tests/testsimple.o $(libdir)/libUniEvent.a
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -L$(libdir) \

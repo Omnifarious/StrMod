@@ -33,9 +33,11 @@
 #define _STR_SocketModule_H_
 
 class SocketAddress;
+
+namespace strmod {
+namespace strmod {
+
 class SockListenModule;
-class UNIDispatcher;
-class UNIXError;
 
 class SocketModule : public StreamFDModule {
    friend class SockListenModule;  // This is so SockListenModule's can access
@@ -45,8 +47,9 @@ class SocketModule : public StreamFDModule {
 
    //! Create a SocketModule connected to the given address.
    SocketModule(const SocketAddress &addr,
-                UNIDispatcher &disp, UNIXpollManager &pollmgr,
-		bool blockconnect = true) throw(UNIXError);
+                unievent::Dispatcher &disp,
+                unievent::UnixEventRegistry &ureg,
+		bool blockconnect = true) throw(unievent::UNIXError);
    virtual ~SocketModule();
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
@@ -61,12 +64,13 @@ class SocketModule : public StreamFDModule {
     * Note that ownership of peer is being passed.
     */
    SocketModule(int fd, SocketAddress *peer,
-                UNIDispatcher &disp, UNIXpollManager &pollmgr);
+                unievent::Dispatcher &disp,
+                unievent::UnixEventRegistry &ureg);
 
    virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
 
    static int MakeSocket(SocketModule &obj, const SocketAddress &addr,
-                         bool blockconnect) throw(UNIXError);
+                         bool blockconnect) throw(unievent::UNIXError);
 
  private:
    SocketAddress &peer_;
@@ -78,5 +82,8 @@ inline int SocketModule::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || StreamFDModule::AreYouA(cid));
 }
+
+};  // namespace strmod
+};  // namespace strmod
 
 #endif

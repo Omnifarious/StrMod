@@ -20,7 +20,7 @@
 #include <StrMod/InSerializer.h>
 #include <StrMod/BufferChunk.h>
 #include <StrMod/StrChunkPtr.h>
-#include <iostream.h>
+#include <iostream>
 
 #define HAVE_MREMAP 1
 #define USE_MEMCPY 1

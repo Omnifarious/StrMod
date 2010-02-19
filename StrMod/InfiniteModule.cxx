@@ -28,6 +28,9 @@
 #include "StrMod/PreAllocBuffer.h"
 #include <cstring>  // memset
 
+namespace strmod {
+namespace strmod {
+
 const STR_ClassIdent InfiniteModule::identifier(41UL);
 const STR_ClassIdent InfiniteModule::IPlug::identifier(42UL);
 
@@ -74,3 +77,6 @@ StreamModule::Plug *InfiniteModule::i_MakePlug(int side)
    setWriteableFlagFor(&plug_, true);
    return(&plug_);
 }
+
+};  // End namespace strmod
+};  // End namespace strmod

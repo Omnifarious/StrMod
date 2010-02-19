@@ -26,7 +26,7 @@
 #include "LCore/LCoreError.h"
 #include <iostream>
 
-ostream &operator <<(ostream &os, const LCoreError &err)
+std::ostream &operator <<(std::ostream &os, const LCoreError &err)
 {
    bool out = false;
    if (err.getSourceFile())
