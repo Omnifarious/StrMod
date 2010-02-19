@@ -128,6 +128,8 @@ class InetAddress : public SocketAddress {
    ::std::string GetHostname(bool forcelookup);
    //! Get the port number
    U2Byte GetPort() const                               { return port; }
+   //! Get IP address
+   U4Byte getRawIP() const 		{ return ntohl(inaddr.sin_addr.s_addr); }
 
    //! Only necessary because of the DNS lookups.
    const InetAddress &operator =(const InetAddress &b);
