@@ -104,13 +104,15 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug
    bool other_isreadable_;
 };
 
+//! The event that is triggered when the SimpleMultiplexer should scan the
+//! MultiPlugs for ones that are readable.
 class SimpleMultiplexer::ScanEvent : public unievent::Event {
  private:
    typedef unievent::Dispatcher Dispatcher;
  public:
    static const STR_ClassIdent identifier;
 
-   //: This keeps a reference to parent.
+   //! This keeps a reference to parent.
    ScanEvent(SimpleMultiplexer &parent) : parent_(&parent)                   { }
 
    inline virtual void triggerEvent(Dispatcher *dispatcher = 0);
@@ -361,7 +363,7 @@ void SimpleMultiplexer::SinglePlug::i_Write(const StrChunkPtr &chnk)
    }
 }
 
-//: Find MultiPlugs that haven't been written to.
+//! Find MultiPlugs that haven't been written to.
 class SimpleMultiplexer::mp_written_p {
  public:
    bool operator ()(MultiPlug *p) {

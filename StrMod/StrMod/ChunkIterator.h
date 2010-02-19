@@ -35,7 +35,7 @@
 namespace strmod {
 namespace strmod {
 
-/** \clsss StrChunk::__iterator ChunkIterator.h StrMod/ChunkIterator.h
+/** \class StrChunk::__iterator ChunkIterator.h StrMod/ChunkIterator.h
  * The const_iterator class for StrChunk.
  */
 class StrChunk::__iterator

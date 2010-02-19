@@ -1,0 +1,15 @@
+------------------------------------------------------------------------
+rev 65: 	hopper | 2003-01-28 11:08:24
+Changed paths:
+   D /trunk/C++/libNet/LCore/ChangeLog
+   A /trunk/C++/libNet/LCore/ChangeLog.1 (from /trunk/C++/libNet/LCore/ChangeLog:60)
+
+Moved ChangeLog files around to prepare for new Subversion log style
+ChangeLogs that will be added in each release.
+------------------------------------------------------------------------
+rev 14: 	hopper | 2003-01-10 15:00:06
+Changed paths:
+   M /trunk/C++/libNet/LCore
+   D /trunk/C++/libNet/LCore/.cvsignore
+
+Setting up 'ignore' lists so svn will understand them.

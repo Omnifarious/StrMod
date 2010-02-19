@@ -44,7 +44,7 @@
 namespace strmod {
 namespace strmod {
 
-const LinearExtent LinearExtent::full_extent(0, UINT_MAX);
+const LinearExtent LinearExtent::full_extent(0, LinearExtent::LENGTH_MAX);
 
 const LinearExtent LinearExtent::SubExtent(const LinearExtent &extent) const
 {
@@ -94,18 +94,6 @@ void LinearExtent::LengthenLeft(length_t by)
    m_offset -= by;
 }
 
-void LinearExtent::LengthenCenter(length_t by)
-{
-   off_t off_adj = by / 2;
-
-   m_length += by;
-   if (m_offset > off_adj) {
-      m_offset -= off_adj;
-   } else {
-      m_offset = 0;
-   }
-}
-
 void LinearExtent::ShortenLeft(length_t by)
 {
    if (m_length < by) {
@@ -114,18 +102,6 @@ void LinearExtent::ShortenLeft(length_t by)
 
    m_length -= by;
    m_offset += by;
-}
-
-void LinearExtent::ShortenCenter(length_t by)
-{
-   if (m_length < by) {
-      by = m_length;
-   }
-
-   off_t off_adj = by / 2;
-
-   m_offset += off_adj;
-   m_length -= by;
 }
 
 }  // End namespace strmod

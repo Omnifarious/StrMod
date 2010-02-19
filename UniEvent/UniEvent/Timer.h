@@ -69,7 +69,7 @@ class Timer : virtual public lcore::Protocol
 {
  public:
    /** \class interval_t Timer.h UniEvent/Timer.h
-    * \brief A time interval.
+    * \brief A span of time.
     * This interval is of only nanosecond precision.  If you need to time lasers
     * for photographing molecular interactions or schedule oscilloscope sweeps,
     * this class is probably not precise enough for you.  Then again, most OSes
@@ -86,7 +86,11 @@ class Timer : virtual public lcore::Protocol
       inline interval_t(unsigned long secs = 0, lcore::U4Byte nanosecs = 0);
       inline void normalize();
    };
+   //! The system time type.
    typedef ::time_t time_t;
+   /** \class absolute_t Timer.h UniEvent/Timer.h
+    * A particular nanosecond in all of eternity.
+    */
    struct absolute_t : private interval_t {
       friend bool operator <(const absolute_t &a, const absolute_t &b);
       friend bool operator ==(const absolute_t &a, const absolute_t &b);

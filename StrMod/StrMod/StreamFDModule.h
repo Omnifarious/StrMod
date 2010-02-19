@@ -60,7 +60,7 @@ class GroupVector;
  * everything read from the file descriptor is read from the plug.
  *
  * There are (or will be) ways of asking for events to be posted when stuff
- * happens that the StreamFDModule can't deal with directly, such has EOF,
+//  * happens that the StreamFDModule can't deal with directly, such has EOF,
  * read or write errors, or unexpected file descriptor closings.
  */
 class StreamFDModule : public StreamModule
@@ -71,17 +71,17 @@ class StreamFDModule : public StreamModule
  private:
    class BufferList;
    class EvMixin;
-   friend class EvMixin;
+   friend class StreamFDModule::EvMixin;
    class FDPollRdEv;
-   friend class FDPollRdEv;
+   friend class StreamFDModule::FDPollRdEv;
    class FDPollWrEv;
-   friend class FDPollWrEv;
+   friend class StreamFDModule::FDPollWrEv;
    class FDPollErEv;
-   friend class FDPollErEv;
+   friend class StreamFDModule::FDPollErEv;
    class ResumeReadEv;
-   friend class ResumeReadEv;
+   friend class StreamFDModule::ResumeReadEv;
    class ResumeWriteEv;
-   friend class ResumeWriteEv;
+   friend class StreamFDModule::ResumeWriteEv;
 
  public:
    /** What directions is IO checked in?
@@ -132,9 +132,9 @@ class StreamFDModule : public StreamModule
     * to when it becomes apparent that this module is in danger of hogging the
     * CPU.
     *
-    * @param pollmgr The poll manager to use.  A reference to the poll manager
-    * is kept until object destruction.  The StreamFDModule doesn't 'own' the
-    * poll manager.
+    * @param ureg The strmod::unievent::UnixEventRegistry to use to register to
+    * recieve file descriptor events.  A reference to the event registry is kept
+    * until object destruction.  The StreamFDModule doesn't 'own' the registry.
     *
     * @param checkmask Describes what kinds of IO that can be done (and
     * therefore, should be checked for) on <code>fd</code>.
@@ -245,8 +245,9 @@ class StreamFDModule : public StreamModule
     * Assumes that buffed_read_ is empty, that there are no read errors, no
     * fatal errors, and that EOF has not been read.
     *
-    * If the read returns '0' and the EOF on read flag is set, buffed_read_ will
-    * contain an EOFStrChunk.
+    * If the read returns '0' and the EOF on read flag (flags_.chunkeof,
+    * possibly set by setSendChunkOnEOF() ) is set, buffed_read_ will contain an
+    * EOFStrChunk.
     */
    virtual void doReadFD();
    /** Write to fd from cur_write_, using the info in write_vec_.
@@ -343,22 +344,6 @@ inline bool StreamFDModule::deletePlug(Plug *p)
    } else
       return(false);
 }
-
-//  inline bool StreamFDModule::hasErrorIn(ErrCategory ecat) const
-//  {
-//     return(errvals[ecat] != 0);
-//  }
-
-//  inline const UNIXError StreamFDModule::getErrorIn(ErrCategory ecat) const
-//  {
-//     return(UNIXError(errvals[ecat]));
-//  }
-
-//  inline bool StreamFDModule::hasError() const
-//  {
-//     return(hasErrorIn(ErrRead) || hasErrorIn(ErrWrite)
-//  	  || hasErrorIn(ErrOther) || hasErrorIn(ErrFatal));
-//  }
 
 inline void StreamFDModule::setSendChunkOnEOF(bool newval) throw()
 {

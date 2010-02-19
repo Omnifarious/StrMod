@@ -1,0 +1,112 @@
+------------------------------------------------------------------------
+rev 48: 	hopper | 2003-01-16 22:21:54
+Changed paths:
+   M /trunk/C++/libNet/xml/xml/utf8/Builder.h
+
+Arranged formatting so things fit in 80 columns.
+
+------------------------------------------------------------------------
+rev 39: 	hopper | 2003-01-13 03:50:51
+Changed paths:
+   M /trunk/C++/libNet/xml/xml/utf8/Builder.h
+
+Arranged for the new xml directory to be properly docuemented.
+------------------------------------------------------------------------
+rev 38: 	hopper | 2003-01-13 03:49:40
+Changed paths:
+   M /trunk/C++/libNet/xml/xml/utf8/Lexer.h
+
+Changes to document Lexer and make the docuementation a little better.
+
+------------------------------------------------------------------------
+rev 37: 	hopper | 2003-01-13 03:25:49
+Changed paths:
+   D /trunk/C++/libNet/xml/XMLUTF8Parser.cpp
+
+Moved the 'XMLUTF8Parser.cpp' file over to the tests-cppunit directory where
+it will be massaged into a test.
+------------------------------------------------------------------------
+rev 36: 	hopper | 2003-01-13 03:22:31
+Changed paths:
+   M /trunk/C++/libNet/xml/Makefile.in
+
+Set svn:keywords property.
+------------------------------------------------------------------------
+rev 35: 	hopper | 2003-01-13 03:20:43
+Changed paths:
+   M /trunk/C++/libNet/xml
+   M /trunk/C++/libNet/xml/Makefile.in
+
+Integrated xml stuff into the whole make package.
+Also, ignore a few more files.
+------------------------------------------------------------------------
+rev 33: 	hopper | 2003-01-13 01:49:22
+Changed paths:
+   D /trunk/C++/libNet/xml/Makefile
+   A /trunk/C++/libNet/xml/Makefile.in
+   A /trunk/C++/libNet/xml/makefile.sav (from /trunk/C++/libNet/xml/Makefile:32)
+
+Converting over to new make process and saving 'super-optimizaion' options.
+------------------------------------------------------------------------
+rev 32: 	hopper | 2003-01-13 00:10:50
+Changed paths:
+   M /trunk/C++/libNet/xml/Makefile
+   D /trunk/C++/libNet/xml/XMLUTF8Builder.cpp
+   D /trunk/C++/libNet/xml/XMLUTF8Builder.h
+   D /trunk/C++/libNet/xml/XMLUTF8Lexer.cpp
+   D /trunk/C++/libNet/xml/XMLUTF8Lexer.h
+   D /trunk/C++/libNet/xml/XMLUTF8LexerSane.cpp
+   M /trunk/C++/libNet/xml/XMLUTF8Parser.cpp
+   A /trunk/C++/libNet/xml/utf8_Builder.cpp (from /trunk/C++/libNet/xml/XMLUTF8Builder.cpp:31)
+   A /trunk/C++/libNet/xml/utf8_Lexer.cpp (from /trunk/C++/libNet/xml/XMLUTF8Lexer.cpp:31)
+   A /trunk/C++/libNet/xml/utf8_LexerSane.cpp (from /trunk/C++/libNet/xml/XMLUTF8LexerSane.cpp:31)
+   A /trunk/C++/libNet/xml/xml/utf8/Builder.h (from /trunk/C++/libNet/xml/XMLUTF8Builder.h:31)
+   A /trunk/C++/libNet/xml/xml/utf8/Lexer.h (from /trunk/C++/libNet/xml/XMLUTF8Lexer.h:31)
+
+Moved and changed names of files to conform to libNet naming standards.
+Also, altered everything to use the new names.
+------------------------------------------------------------------------
+rev 31: 	hopper | 2003-01-12 22:05:58
+Changed paths:
+   D /trunk/C++/libNet/xml/xml/fred
+
+Removed silly test.
+------------------------------------------------------------------------
+rev 30: 	hopper | 2003-01-12 22:05:07
+Changed paths:
+   A /trunk/C++/libNet/xml/xml/utf8
+
+Added utf8 directory.
+------------------------------------------------------------------------
+rev 29: 	hopper | 2003-01-12 22:04:07
+Changed paths:
+   A /trunk/C++/libNet/xml/xml/fred
+
+A test.
+------------------------------------------------------------------------
+rev 28: 	hopper | 2003-01-12 21:51:19
+Changed paths:
+   M /trunk/C++/libNet/xml/XMLUTF8Builder.h
+
+Moved into UTF-8 namespace.
+
+------------------------------------------------------------------------
+rev 27: 	hopper | 2003-01-12 21:49:55
+Changed paths:
+   A /trunk/C++/libNet/xml/xml
+
+Added 'xml' directory for header files.
+------------------------------------------------------------------------
+rev 26: 	hopper | 2003-01-11 18:44:42
+Changed paths:
+   A /trunk/C++/libNet/xml (from /trunk/C++/libNet/scratch:24)
+   R /trunk/C++/libNet/xml/Makefile (from /trunk/C++/libNet/scratch/Makefile:25)
+   R /trunk/C++/libNet/xml/XMLUTF8Builder.cpp (from /trunk/C++/libNet/scratch/XMLUTF8Builder.cpp:25)
+   R /trunk/C++/libNet/xml/XMLUTF8Builder.h (from /trunk/C++/libNet/scratch/XMLUTF8Builder.h:25)
+   R /trunk/C++/libNet/xml/XMLUTF8Lexer.cpp (from /trunk/C++/libNet/scratch/XMLUTF8Lexer.cpp:25)
+   R /trunk/C++/libNet/xml/XMLUTF8Lexer.h (from /trunk/C++/libNet/scratch/XMLUTF8Lexer.h:25)
+   R /trunk/C++/libNet/xml/XMLUTF8LexerSane.cpp (from /trunk/C++/libNet/scratch/XMLUTF8LexerSane.cpp:25)
+   R /trunk/C++/libNet/xml/XMLUTF8Parser.cpp (from /trunk/C++/libNet/scratch/XMLUTF8Parser.cpp:25)
+
+Move scratch directory to be named 'xml' and added it to the directories to
+be scanned for documentation.

@@ -1,0 +1,21 @@
+------------------------------------------------------------------------
+rev 65: 	hopper | 2003-01-28 11:08:24
+Changed paths:
+   D /trunk/C++/libNet/StrMod/ChangeLog
+   A /trunk/C++/libNet/StrMod/ChangeLog.1 (from /trunk/C++/libNet/StrMod/ChangeLog:60)
+
+Moved ChangeLog files around to prepare for new Subversion log style
+ChangeLogs that will be added in each release.
+------------------------------------------------------------------------
+rev 15: 	hopper | 2003-01-10 15:01:03
+Changed paths:
+   D /trunk/C++/libNet/StrMod/StrMod/.cvsignore
+
+Removing old .cvsignore files.
+------------------------------------------------------------------------
+rev 14: 	hopper | 2003-01-10 15:00:06
+Changed paths:
+   M /trunk/C++/libNet/StrMod
+   D /trunk/C++/libNet/StrMod/.cvsignore
+
+Setting up 'ignore' lists so svn will understand them.

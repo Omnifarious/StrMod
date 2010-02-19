@@ -1,0 +1,75 @@
+# $URL$
+# $Author$
+# $Date$
+# $Rev$
+
+rootdir = @top_srcdir@
+PWD = @pwd@
+CMP = @cmp@
+CAT = @cat@
+PROCLIBSRC = @proclibsrc@
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
+CC = @CC@
+CFLAGS = @CFLAGS@
+
+MYMAKE = $(MAKE) CC='$(CC)' CFLAGS='$(CFLAGS)' CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS\)'
+
+SUBDIR = .
+ifeq ($(SUBDIR),.)
+   SUBPREFIX =
+else
+   SUBPREFIX = $(SUBDIR)/
+endif
+
+INCLUDEDIR = $(rootdir)/include
+MYINCLUDEBASE = $(INCLUDEDIR)
+MYINCLUDEDIR = $(MYINCLUDEBASE)/xml
+
+ifeq ($(rootdir),.)
+   OUTDIR = generated
+else
+   OUTDIR = $(rootdir)/generated
+endif
+ifeq ($(SUBDIR),.)
+   MYOUTDIR = $(OUTDIR)
+else
+   MYOUTDIR = $(OUTDIR)/$(SUBDIR)
+endif
+
+OBJDIR = $(MYOUTDIR)/obj
+LIBDIR = $(MYOUTDIR)/lib
+LIBSRC = $(MYOUTDIR)/lib_src
+
+LIBCXX = utf8_Builder.cpp utf8_Lexer.cpp utf8_LexerSane.cpp
+
+TESTCCS =
+
+.PHONY: directories always
+
+UNIQUEDIRS = $(sort $(INCLUDEDIR) $(MYINCLUDEBASE) $(OUTDIR) $(MYOUTDIR))
+
+all: $(LIBDIR)/libxml.a
+
+directories: $(UNIQUEDIRS) $(MYINCLUDEDIR)
+
+$(UNIQUEDIRS):
+	mkdir -p $@
+
+$(MYOUTDIR)/lib_src: $(MYOUTDIR)
+
+pwd_test: always
+	@if [ ! -f pwd_test ]; then $(PWD) >pwd_test; else \
+	if $(PWD) | $(CMP) - pwd_test >/dev/null 2>/dev/null; then :; else \
+	   $(PWD) >pwd_test; \
+	fi; fi
+
+$(MYINCLUDEDIR): pwd_test
+	$(MYMAKE) $(MYINCLUDEBASE)
+	rm -f $@
+	ln -s `$(CAT) pwd_test`/xml $@
+
+$(LIBSRC): Makefile $(MYINCLUDEDIR)
+	$(PROCLIBSRC) -a $@ $(LIBCXX) Makefile
+
+$(LIBDIR)/libstrm_xml.a:

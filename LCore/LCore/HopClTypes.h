@@ -72,6 +72,7 @@ namespace lcore {
 
 class LCore_ClassIdent;
 
+//! A ClassNum of one of Eric Hopper's classes.
 class EH_ClassNum : public ClassNum {
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;
@@ -114,6 +115,9 @@ class EH_ClassIdent : public ClassIdent {
 
 //----------
 
+/** \class LCore_ClassIdent HopClTypes.h LCore/HopClTypes.h
+ * A class identifier for a class in the LCore library.
+*/
 class LCore_ClassIdent : public EH_ClassIdent {
  protected:
    inline virtual const ClassIdent *i_GetIdent() const;

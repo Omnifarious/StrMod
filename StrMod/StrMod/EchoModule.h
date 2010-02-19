@@ -45,10 +45,11 @@ namespace strmod {
 
 class StrChunk;
 
-//: This module echoes everything that comes in.
-// <p>Everything that is written to its one plug is read from that same
-// plug.</p>
-// <p>See the parent class for any member functions not described here.</p>
+/** \class EchoModule EchoModule.h StrMod/EchoModule.h
+ * This module echoes everything that comes in.
+ *
+ * Everything that is written to its one plug is read from that same plug.
+*/
 class EchoModule : public StreamModule
 {
    class EPlug;
@@ -61,11 +62,8 @@ class EchoModule : public StreamModule
 
    inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
-   /*lint -save -e1735 */
    inline virtual bool canCreate(int side = 0) const;
-   /*lint -e1511 */
    inline Plug *makePlug(int side = 0);
-   /*lint -restore */
    virtual bool ownsPlug(const Plug *plug) const   { return i_OwnsPlug(plug); }
    virtual bool deletePlug(Plug *plug);
 
@@ -77,8 +75,6 @@ class EchoModule : public StreamModule
    inline virtual Plug *i_MakePlug(int side);
 
  private:
-   //: This is the magical plug that does most of EchoModule's work.
-   // <p>See the parent class for descriptions of these member functions.</p>
    class EPlug : public Plug {
       friend class EchoModule;
     public:

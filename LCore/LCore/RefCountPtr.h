@@ -75,7 +75,7 @@ class RefCountPtr : virtual public Protocol
     */
    inline virtual ~RefCountPtr();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Smart pointer operator, if _LCORE_RefCountPtr_H_DEBUG is set, asserts non-null
    inline RC &operator *() const;

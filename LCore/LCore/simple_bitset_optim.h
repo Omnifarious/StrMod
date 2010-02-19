@@ -166,6 +166,7 @@ _single_int_bitset<Tsize>::to_string() const
 
 //--
 
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<1> : public _single_int_bitset<1>
 {
   public:
@@ -174,6 +175,7 @@ template <> class simple_bitset<1> : public _single_int_bitset<1>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<2> : public _single_int_bitset<2>
 {
   public:
@@ -182,6 +184,7 @@ template <> class simple_bitset<2> : public _single_int_bitset<2>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<3> : public _single_int_bitset<3>
 {
   public:
@@ -190,6 +193,7 @@ template <> class simple_bitset<3> : public _single_int_bitset<3>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<4> : public _single_int_bitset<4>
 {
   public:
@@ -198,6 +202,7 @@ template <> class simple_bitset<4> : public _single_int_bitset<4>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<5> : public _single_int_bitset<5>
 {
   public:
@@ -206,6 +211,7 @@ template <> class simple_bitset<5> : public _single_int_bitset<5>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<6> : public _single_int_bitset<6>
 {
   public:
@@ -214,6 +220,7 @@ template <> class simple_bitset<6> : public _single_int_bitset<6>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<7> : public _single_int_bitset<7>
 {
   public:
@@ -222,6 +229,7 @@ template <> class simple_bitset<7> : public _single_int_bitset<7>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<8> : public _single_int_bitset<8>
 {
   public:
@@ -230,6 +238,7 @@ template <> class simple_bitset<8> : public _single_int_bitset<8>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<9> : public _single_int_bitset<9>
 {
   public:
@@ -238,6 +247,7 @@ template <> class simple_bitset<9> : public _single_int_bitset<9>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<10> : public _single_int_bitset<10>
 {
   public:
@@ -246,6 +256,7 @@ template <> class simple_bitset<10> : public _single_int_bitset<10>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<11> : public _single_int_bitset<11>
 {
   public:
@@ -254,6 +265,7 @@ template <> class simple_bitset<11> : public _single_int_bitset<11>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<12> : public _single_int_bitset<12>
 {
   public:
@@ -262,6 +274,7 @@ template <> class simple_bitset<12> : public _single_int_bitset<12>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<13> : public _single_int_bitset<13>
 {
   public:
@@ -270,6 +283,7 @@ template <> class simple_bitset<13> : public _single_int_bitset<13>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<14> : public _single_int_bitset<14>
 {
   public:
@@ -278,6 +292,7 @@ template <> class simple_bitset<14> : public _single_int_bitset<14>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<15> : public _single_int_bitset<15>
 {
   public:
@@ -286,6 +301,7 @@ template <> class simple_bitset<15> : public _single_int_bitset<15>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<16> : public _single_int_bitset<16>
 {
   public:
@@ -294,6 +310,7 @@ template <> class simple_bitset<16> : public _single_int_bitset<16>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<17> : public _single_int_bitset<17>
 {
   public:
@@ -302,6 +319,7 @@ template <> class simple_bitset<17> : public _single_int_bitset<17>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<18> : public _single_int_bitset<18>
 {
   public:
@@ -310,6 +328,7 @@ template <> class simple_bitset<18> : public _single_int_bitset<18>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<19> : public _single_int_bitset<19>
 {
   public:
@@ -318,6 +337,7 @@ template <> class simple_bitset<19> : public _single_int_bitset<19>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<20> : public _single_int_bitset<20>
 {
   public:
@@ -326,6 +346,7 @@ template <> class simple_bitset<20> : public _single_int_bitset<20>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<21> : public _single_int_bitset<21>
 {
   public:
@@ -334,6 +355,7 @@ template <> class simple_bitset<21> : public _single_int_bitset<21>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<22> : public _single_int_bitset<22>
 {
   public:
@@ -342,6 +364,7 @@ template <> class simple_bitset<22> : public _single_int_bitset<22>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<23> : public _single_int_bitset<23>
 {
   public:
@@ -350,6 +373,7 @@ template <> class simple_bitset<23> : public _single_int_bitset<23>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<24> : public _single_int_bitset<24>
 {
   public:
@@ -358,6 +382,7 @@ template <> class simple_bitset<24> : public _single_int_bitset<24>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<25> : public _single_int_bitset<25>
 {
   public:
@@ -366,6 +391,7 @@ template <> class simple_bitset<25> : public _single_int_bitset<25>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<26> : public _single_int_bitset<26>
 {
   public:
@@ -374,6 +400,7 @@ template <> class simple_bitset<26> : public _single_int_bitset<26>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<27> : public _single_int_bitset<27>
 {
   public:
@@ -382,6 +409,7 @@ template <> class simple_bitset<27> : public _single_int_bitset<27>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<28> : public _single_int_bitset<28>
 {
   public:
@@ -390,6 +418,7 @@ template <> class simple_bitset<28> : public _single_int_bitset<28>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<29> : public _single_int_bitset<29>
 {
   public:
@@ -398,6 +427,7 @@ template <> class simple_bitset<29> : public _single_int_bitset<29>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<30> : public _single_int_bitset<30>
 {
   public:
@@ -406,6 +436,7 @@ template <> class simple_bitset<30> : public _single_int_bitset<30>
       {
       }
 };
+//! Specialized to make the compiler optimize better.
 template <> class simple_bitset<31> : public _single_int_bitset<31>
 {
   public:

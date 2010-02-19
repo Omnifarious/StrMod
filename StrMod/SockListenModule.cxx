@@ -57,10 +57,12 @@ const STR_ClassIdent SockListenModule::identifier(13UL);
 const STR_ClassIdent SockListenModule::SLPlug::identifier(14UL);
 const STR_ClassIdent SocketModuleChunk::identifier(15UL);
 
-//: A parent class for the three sub event classes.
-// <p>The sub event classes don't do anything except call parent class
-// protected functions.  The only reason they exist is to avoid having
-// a switch statement in the parent.</p>
+/**A parent class for the three sub event classes.
+ *
+ * The sub event classes don't do anything except call parent class protected
+ * functions.  The only reason they exist is to avoid having a switch statement
+ * in the parent.
+*/
 class SockListenModule::FDPollEv : public unievent::Event
 {
  public:

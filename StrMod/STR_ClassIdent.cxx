@@ -27,7 +27,7 @@
 #include "StrMod/STR_ClassIdent.h"
 
 namespace strmod {
-/** The heart of the <a href="http://www.omnifarious.org/StrMod>StreamModule System</a>.
+/** The heart of the StreamModule System (<A HREF="http://www.omnifarious.org/StrMod">Homepage</A>)
  *
  * This is the namespace for classes in the StreamModule and StrChunk
  * subsystems.  Here are a list of the important top-level classes:

@@ -97,7 +97,6 @@ class StrChunkPtr : public lcore::RefCountPtrT<StrChunk>
    //@}
 
  protected:
-   //! See class Protocol
    virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 };
 

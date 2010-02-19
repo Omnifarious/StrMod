@@ -19,6 +19,6 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AC_OUTPUT(Makefile LCore/Makefile UniEvent/Makefile EHnet++/Makefile StrMod/Makefile distbin/proclibsrc.pl)
+AC_OUTPUT(Makefile LCore/Makefile UniEvent/Makefile EHnet++/Makefile StrMod/Makefile xml/Makefile distbin/proclibsrc.pl)
 
 chmod 755 distbin/proclibsrc.pl

@@ -1,0 +1,85 @@
+------------------------------------------------------------------------
+rev 65: 	hopper | 2003-01-28 11:08:24
+Changed paths:
+   D /trunk/C++/libNet/tests-cppunit/ChangeLog
+   A /trunk/C++/libNet/tests-cppunit/ChangeLog.1 (from /trunk/C++/libNet/tests-cppunit/ChangeLog:60)
+
+Moved ChangeLog files around to prepare for new Subversion log style
+ChangeLogs that will be added in each release.
+------------------------------------------------------------------------
+rev 60: 	hopper | 2003-01-28 10:46:49
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp
+
+tests-cppunit/XMLUTF8Test.cpp is now a viable test.
+------------------------------------------------------------------------
+rev 50: 	hopper | 2003-01-21 06:03:24
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp
+
+Lurching along some more, see previous log entries.
+
+------------------------------------------------------------------------
+rev 49: 	hopper | 2003-01-16 22:53:28
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp
+
+Lurching even farther along.  Woohoo!
+------------------------------------------------------------------------
+rev 47: 	hopper | 2003-01-15 23:29:53
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp
+
+More lurching.
+------------------------------------------------------------------------
+rev 46: 	hopper | 2003-01-14 14:04:55
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp
+
+Slowly lurching my way towards an actual CppUnit test.
+------------------------------------------------------------------------
+rev 45: 	hopper | 2003-01-13 15:41:17
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit
+
+Ignore the test program.
+------------------------------------------------------------------------
+rev 44: 	hopper | 2003-01-13 13:50:26
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp
+
+Moving slowly towards a CppUnit test.
+
+------------------------------------------------------------------------
+rev 43: 	hopper | 2003-01-13 06:09:29
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp
+
+Changes to account for new locations of header files and namespaces.
+Minor preparation to become part of cppunit tests.
+
+------------------------------------------------------------------------
+rev 42: 	hopper | 2003-01-13 06:07:39
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit/ChangeLog
+
+Changes\!
+------------------------------------------------------------------------
+rev 41: 	hopper | 2003-01-13 04:34:43
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit/DependTest.cxx
+
+Added subversion keywords.
+------------------------------------------------------------------------
+rev 40: 	hopper | 2003-01-13 04:33:47
+Changed paths:
+   M /trunk/C++/libNet/tests-cppunit/DependTest.cxx
+
+Added test for xml directory.
+------------------------------------------------------------------------
+rev 37: 	hopper | 2003-01-13 03:25:49
+Changed paths:
+   A /trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp (from /trunk/C++/libNet/xml/XMLUTF8Parser.cpp:36)
+
+Moved the 'XMLUTF8Parser.cpp' file over to the tests-cppunit directory where
+it will be massaged into a test.

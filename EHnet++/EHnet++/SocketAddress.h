@@ -80,7 +80,6 @@ namespace ehnet {
  */
 class SocketAddress : virtual public lcore::Protocol
 {
-   typedef lcore::ClassIdent ClassIdent;
  public:
    static const NET_ClassIdent identifier;
 
@@ -89,7 +88,7 @@ class SocketAddress : virtual public lcore::Protocol
    //! No member variables, nothing to do
    virtual ~SocketAddress()                             { }
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || lcore::Protocol::AreYouA(cid));
    }
 
@@ -100,8 +99,7 @@ class SocketAddress : virtual public lcore::Protocol
    virtual ::sockaddr *SockAddr() = 0;
    /** Clone this address, no matter it's actual type
     *
-    * This is a non-virtual for compilers that don't support <a
-    * href="http://cpptips.hyperformix.com/Covariance.html">contravariance</a>
+    * This is a non-virtual for compilers that don't support <A HREF="http://cpptips.hyperformix.com/Covariance.html">contravariance</A>
     * in the return types of virtual functions.
    */
    SocketAddress *Copy() const                          { return(MakeCopy()); }

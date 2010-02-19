@@ -68,12 +68,9 @@ class TelnetChars {
     * want instead of generically expecting a character and being upset when
     * it doesn't qualify.
     *
-    * These are defined in RFCs <a
-    * href="http://info.internet.isi.edu/in-notes/rfc/files/rfc854.txt">854</a>,
-    * <a
-    * href="http://info.internet.isi.edu/in-notes/rfc/files/rfc885.txt">885</a>,
-    * and <a
-    * href="http://info.internet.isi.edu/in-notes/rfc/files/rfc1184.txt">1184</a>
+    * These are defined in RFCs <A HREF="http://info.internet.isi.edu/in-notes/rfc/files/rfc854.txt">854</A>,
+    * <A HREF="http://info.internet.isi.edu/in-notes/rfc/files/rfc885.txt">885</A>,
+    * and <A HREF="http://info.internet.isi.edu/in-notes/rfc/files/rfc1184.txt">1184</A>
     */
    enum Commands {
       C_EOF = TEOF,	//!< See TEOF

@@ -74,7 +74,7 @@ class STR_ClassIdent : public lcore::EH_ClassIdent {
     * compare against the identifier, then call the AreYouA methods of all the
     * superclasses.
     *
-    * @param cid Usually <class>::identifier for the class you want to ask if
+    * @param cid Usually &lt;class>::identifier for the class you want to ask if
     * the object is an instance of.
     */
    inline virtual int AreYouA(const ClassIdent &cid) const;

@@ -87,7 +87,7 @@ class TelnetParser : virtual public lcore::Protocol
       PS_Escape,  //!< Saw an IAC character in normal data
       PS_SubNeg,  //!< Saw an IAC {WILL,WONT,DO,DONT}, expecting option number
       PS_SuboptNum, //!< Saw an IAC SE and expecting an option number
-      PS_Subopt,  //!< Between IAC SE <num> and IAC SE
+      PS_Subopt,  //!< Between IAC SE &lt;num> and IAC SE
       PS_SuboptEscape  //!< Saw an IAC while in PS_Subopt
    };
 

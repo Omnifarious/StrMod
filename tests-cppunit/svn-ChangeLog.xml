@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<log><logentry revision="65">
+<author>hopper</author>
+<date>2003-01-28T11:08:24.069835Z</date>
+<paths><path action="D">/trunk/C++/libNet/tests-cppunit/ChangeLog</path><path action="A" copyfrom-path="/trunk/C++/libNet/tests-cppunit/ChangeLog" copyfrom-rev="60">/trunk/C++/libNet/tests-cppunit/ChangeLog.1</path></paths>
+<msg>Moved ChangeLog files around to prepare for new Subversion log style
+ChangeLogs that will be added in each release.</msg>
+</logentry><logentry revision="60">
+<author>hopper</author>
+<date>2003-01-28T10:46:49.238025Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp</path></paths>
+<msg>tests-cppunit/XMLUTF8Test.cpp is now a viable test.</msg>
+</logentry><logentry revision="50">
+<author>hopper</author>
+<date>2003-01-21T06:03:24.655441Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp</path></paths>
+<msg>Lurching along some more, see previous log entries.
+</msg>
+</logentry><logentry revision="49">
+<author>hopper</author>
+<date>2003-01-16T22:53:28.271389Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp</path></paths>
+<msg>Lurching even farther along.  Woohoo!</msg>
+</logentry><logentry revision="47">
+<author>hopper</author>
+<date>2003-01-15T23:29:53.785072Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp</path></paths>
+<msg>More lurching.</msg>
+</logentry><logentry revision="46">
+<author>hopper</author>
+<date>2003-01-14T14:04:55.679009Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp</path></paths>
+<msg>Slowly lurching my way towards an actual CppUnit test.</msg>
+</logentry><logentry revision="45">
+<author>hopper</author>
+<date>2003-01-13T15:41:17.311541Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit</path></paths>
+<msg>Ignore the test program.</msg>
+</logentry><logentry revision="44">
+<author>hopper</author>
+<date>2003-01-13T13:50:26.763074Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp</path></paths>
+<msg>Moving slowly towards a CppUnit test.
+</msg>
+</logentry><logentry revision="43">
+<author>hopper</author>
+<date>2003-01-13T06:09:29.566384Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp</path></paths>
+<msg>Changes to account for new locations of header files and namespaces.
+Minor preparation to become part of cppunit tests.
+</msg>
+</logentry><logentry revision="42">
+<author>hopper</author>
+<date>2003-01-13T06:07:39.998047Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit/ChangeLog</path></paths>
+<msg>Changes\!</msg>
+</logentry><logentry revision="41">
+<author>hopper</author>
+<date>2003-01-13T04:34:43.344845Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit/DependTest.cxx</path></paths>
+<msg>Added subversion keywords.</msg>
+</logentry><logentry revision="40">
+<author>hopper</author>
+<date>2003-01-13T04:33:47.659749Z</date>
+<paths><path action="M">/trunk/C++/libNet/tests-cppunit/DependTest.cxx</path></paths>
+<msg>Added test for xml directory.</msg>
+</logentry><logentry revision="37">
+<author>hopper</author>
+<date>2003-01-13T03:25:49.893295Z</date>
+<paths><path action="A" copyfrom-path="/trunk/C++/libNet/xml/XMLUTF8Parser.cpp" copyfrom-rev="36">/trunk/C++/libNet/tests-cppunit/XMLUTF8Test.cpp</path></paths>
+<msg>Moved the 'XMLUTF8Parser.cpp' file over to the tests-cppunit directory where
+it will be massaged into a test.</msg>
+</logentry></log>

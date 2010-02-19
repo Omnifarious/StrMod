@@ -36,19 +36,35 @@
 namespace strmod {
 namespace unievent {
 
+/** \class EventPtr Event.h UniEvent/Event.h
+ * A smart pointer class that points an Event and handles the reference count.
+ */
 class EventPtr : public lcore::RefCountPtrT<Event>
 {
  public:
+   //! An easier way to refer to RefCountPtrT<Evemt>
    typedef lcore::RefCountPtrT<Event> super1;
    static const UNEVT_ClassIdent identifier;
 
+   //@{
+   /**
+    * These all construct an EventPtr from the appropriate type and maintain the
+    * reference count to the pointed at Event.
+    */
    inline EventPtr(Event *eptr = 0);
    inline EventPtr(const EventPtr &b);
    inline EventPtr(const super1 &b);
+   //@}
 
+   //@{
+   /**
+    * These all set the value of an EventPtr value from the appropriate type and
+    * maintain the reference count to the pointed at EVent.
+    */
    inline const EventPtr &operator =(const EventPtr &b);
    inline const EventPtr &operator =(const super1 &b);
    inline const EventPtr &operator =(Event *b);
+   //@}
 
  protected:
    virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }

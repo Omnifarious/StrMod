@@ -48,8 +48,7 @@ class LinearExtent;
  * An interface to a reference counted chunk of data.
  *
  * The chunk of data is actually held by the derived classes.  Some chunks of
- * data even consist of other StrChunks.  This is an instance of the <a
- * href="http://exciton.cs.oberlin.edu/javaresources/DesignPatterns/composite.htm">Composite</a>
+ * data even consist of other StrChunks.  This is an instance of the <A HREF="http://exciton.cs.oberlin.edu/javaresources/DesignPatterns/composite.htm">Composite</A>
  * design pattern.
  *
  * StrChunks are supposed to be immutable after they're created.  Often

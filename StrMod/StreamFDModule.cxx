@@ -146,7 +146,7 @@ inline void StreamFDModule::EvMixin::triggerResumeWrite()
    }
 }
 
-//: This is one of the three helper classes for StreamFDModule::EvMixin
+//! This is one of the five helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollRdEv
    : public StreamFDModule::EvMixin, public unievent::Event
 {
@@ -159,7 +159,7 @@ class StreamFDModule::FDPollRdEv
    }
 };
 
-//: This is one of the three helper classes for StreamFDModule::EvMixin
+//! This is one of the five helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollWrEv
    : public StreamFDModule::EvMixin, public unievent::Event
 {
@@ -172,7 +172,7 @@ class StreamFDModule::FDPollWrEv
    }
 };
 
-//: This is one of the three helper classes for StreamFDModule::EvMixin
+//! This is one of the five helper classes for StreamFDModule::EvMixin
 class StreamFDModule::FDPollErEv
    : public StreamFDModule::EvMixin, public unievent::Event
 {
@@ -185,6 +185,7 @@ class StreamFDModule::FDPollErEv
    }
 };
 
+//! This is one of the five helper classes for StreamFDModule::EvMixin
 class StreamFDModule::ResumeReadEv
    : public StreamFDModule::EvMixin, public unievent::Event
 {
@@ -201,6 +202,7 @@ class StreamFDModule::ResumeReadEv
    }
 };
 
+//! This is one of the five helper classes for StreamFDModule::EvMixin
 class StreamFDModule::ResumeWriteEv
    : public StreamFDModule::EvMixin, public unievent::Event
 {

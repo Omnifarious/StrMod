@@ -69,7 +69,7 @@ class CharChopper : public StreamProcessor
    /** Make a CharChopper
     * @param chopchar The character to split by.
     *
-    * The character can be anything, including '\0'.
+    * The character can be anything, including '\\0'.
     */
    CharChopper(char chopchar) : chopchar_(chopchar)    { }
    // Derived class destructor doesn't do anything base class one doesn't do.
