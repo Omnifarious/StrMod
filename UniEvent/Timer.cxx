@@ -105,9 +105,9 @@ const Timer::interval_t operator -(const Timer::absolute_t &a,
    {
       timetdiff = -timetdiff;
       interval_t tdiffint =
-         interval_t(floor(timetdiff),
-                    (timetdiff - floor(timetdiff)) * 1000000000U);
-
+         interval_t(static_cast<unsigned long>(::floor(timetdiff)),
+                    static_cast<lcore::U4Byte>(timetdiff - floor(timetdiff)) *
+                    1000000000U);
       if (ai < tdiffint)
       {
          return interval_t(0, 0);
@@ -124,8 +124,9 @@ const Timer::interval_t operator -(const Timer::absolute_t &a,
    else
    {
       interval_t tdiffint =
-         interval_t(floor(timetdiff),
-                    (timetdiff - floor(timetdiff)) * 1000000000U);
+         interval_t(static_cast<unsigned long>(::floor(timetdiff)),
+                    static_cast<lcore::U4Byte>(timetdiff - floor(timetdiff)) *
+                    1000000000U);
       if (ai < bi)
       {
          return tdiffint - (bi - ai);

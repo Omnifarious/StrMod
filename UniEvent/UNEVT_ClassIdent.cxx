@@ -37,6 +37,8 @@ namespace unievent {
 /** \class UNEVT_ClassIdent UNEVT_ClassIdent.h UniEvent/UNEVT_ClassIdent.h
  * \brief An ignored blurb.
  *
+ * Use of the ClassIdent classes is being phased out in favor of RTTI.
+ *
  * Here is a list of currently used identifiers:
  * <pre>
  *   0UL  UNEVT_ClassIdent
@@ -53,6 +55,8 @@ namespace unievent {
  *  11UL  UNIXSignalHandler
  *  12UL  Timer
  *  13UL  UNIXTimer
+ *  14UL  TimerEventTracker
+ *  15UL  UnixEventPoll
  * </pre>
  */
 

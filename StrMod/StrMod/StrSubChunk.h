@@ -1,7 +1,7 @@
 #ifndef _STR_StrSubChunk_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -40,19 +40,20 @@
 namespace strmod {
 namespace strmod {
 
-class StrSubChunk : public StrChunk {
+class StrSubChunk : public StrChunk
+{
  public:
    static const STR_ClassIdent identifier;
 
    StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent);
    virtual ~StrSubChunk()                              { }
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual unsigned int Length() const;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
@@ -65,7 +66,7 @@ class StrSubChunk : public StrChunk {
 
 //-----------------------------inline functions--------------------------------
 
-inline int StrSubChunk::AreYouA(const ClassIdent &cid) const
+inline int StrSubChunk::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }

@@ -46,6 +46,9 @@
 
 #define _LCORE_RefCountPtrT_H_
 
+namespace strmod {
+namespace lcore {
+
 template <class T>
 class RefCountPtrT : public RefCountPtr {
  public:
@@ -87,11 +90,7 @@ inline T *RefCountPtrT<T>::operator ->() const
 template <class T>
 inline T *RefCountPtrT<T>::GetPtr() const
 {
-#ifndef NO_STATIC_CAST
    return(static_cast<T *>(RefCountPtr::GetPtr()));
-#else
-   return((T *)(RefCountPtr::GetPtr()));
-#endif
 }
 
 template <class T>
@@ -124,5 +123,8 @@ RefCountPtrT<T>::i_CheckType(ReferenceCounting *p) const
 {
    return(p->AreYouA(T::identifier) ? p : 0);
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef _STR_StreamFDModule_H_  //-*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -63,7 +63,8 @@ class GroupVector;
  * happens that the StreamFDModule can't deal with directly, such has EOF,
  * read or write errors, or unexpected file descriptor closings.
  */
-class StreamFDModule : public StreamModule {
+class StreamFDModule : public StreamModule
+{
  protected:
    class FPlug;
    friend class FPlug;
@@ -102,7 +103,7 @@ class StreamFDModule : public StreamModule {
       ErrFatal  //! General, fatal error affecting both reading and writing.  Must be highest enum value.
    };
    //! Typedef for set of error types.
-   typedef ::enum_set<ErrorType, ErrRead, ErrFatal> ErrorSet;
+   typedef lcore::enum_set<ErrorType, ErrRead, ErrFatal> ErrorSet;
 
 
    static const STR_ClassIdent identifier;
@@ -145,7 +146,7 @@ class StreamFDModule : public StreamModule {
    //! Closes the associated file descriptor.
    virtual ~StreamFDModule();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool canCreate(int side) const;
    inline virtual bool ownsPlug(const Plug *p) const;
@@ -210,7 +211,7 @@ class StreamFDModule : public StreamModule {
       virtual ~FPlug()                                  { }
 
       //: See base class.
-      inline virtual int AreYouA(const ClassIdent &cid) const;
+      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       //: Grab Plug::getParent, and cast it to the real type of the parent.
       inline StreamFDModule &getParent() const;
@@ -220,7 +221,9 @@ class StreamFDModule : public StreamModule {
 
     protected:
       //: See base class.
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       //: Forwards to getParent()->plugRead()
       inline virtual const StrChunkPtr i_Read();
@@ -228,7 +231,7 @@ class StreamFDModule : public StreamModule {
       inline virtual void i_Write(const StrChunkPtr &ptr);
    };
 
-   virtual const ClassIdent *i_GetIdent() const    { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    inline virtual Plug *i_MakePlug(int side);
 
@@ -263,15 +266,8 @@ class StreamFDModule : public StreamModule {
     */
    virtual void writeEOF();
 
-//     //! Set an error flag to <code>errnum</code> in the category <code>ecat</code>.
-//     void setErrorIn(ErrCategory ecat, int errnum);
-
-//     //! Set the flag that says we've read the EOF market to <code>newval</code>.
-//     void setReadEOF(bool newval);
-
    //! Set an error in a particular category.
-   void setErrorIn(ErrorType err, const unievent::UNIXError &errval)
-      throw();
+   void setErrorIn(ErrorType err, const unievent::UNIXError &errval);
 
    //! Called by readev_ and resumeread_'s triggerEvent.
    void eventRead();
@@ -324,7 +320,7 @@ class StreamFDModule : public StreamModule {
 
 //-----------------inline functions for class StreamFDModule-------------------
 
-inline int StreamFDModule::AreYouA(const ClassIdent &cid) const
+inline int StreamFDModule::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
@@ -399,7 +395,7 @@ inline StreamModule::Plug *StreamFDModule::i_MakePlug(int side)
 
 //-------------inline functions for class StreamFDModule::FPlug----------------
 
-inline int StreamFDModule::FPlug::AreYouA(const ClassIdent &cid) const
+inline int StreamFDModule::FPlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }

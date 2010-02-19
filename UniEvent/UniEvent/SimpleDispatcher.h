@@ -1,7 +1,7 @@
 #ifndef _UNEVT_SimpleDispatcher_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -39,7 +39,8 @@ class Event;
  * \brief A class that does the minimum necessary to support the Dispatcher
  * interface.
  */
-class SimpleDispatcher : public Dispatcher {
+class SimpleDispatcher : public Dispatcher
+{
    class Imp;
  public:
    static const UNEVT_ClassIdent identifier;
@@ -49,7 +50,7 @@ class SimpleDispatcher : public Dispatcher {
    //! Destroy one.
    virtual ~SimpleDispatcher();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual void addEvent(const EventPtr &ev);
 
@@ -66,7 +67,7 @@ class SimpleDispatcher : public Dispatcher {
    virtual bool onInterrupt(const EventPtr &ev);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
    Imp &imp_;
@@ -85,7 +86,7 @@ class SimpleDispatcher : public Dispatcher {
 
 //-----------------------------inline functions--------------------------------
 
-inline int SimpleDispatcher::AreYouA(const ClassIdent &cid) const
+inline int SimpleDispatcher::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Dispatcher::AreYouA(cid));
 }

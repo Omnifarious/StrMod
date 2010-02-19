@@ -1,3 +1,39 @@
+2002-08-30  Eric Hopper  <hopper@omnifarious.org>
+
+	* UnixEventPoll.cxx: Lots of small changes to work with slightly
+	different way of handling errno style errors with the UNIXError
+	class.
+
+	* UNIXError.cxx: A few changes because strerror_r doesn't appear
+	to work under Linux.  I'm falling back to strerror until the issue
+	can be resolved.
+
+	Also, changed constructor for UNIXError::S_noerror because of
+	changes made in UniEvent/UNIXError.h
+
+	* UniEvent/UNIXError.h: A few interface changes for how to
+	construct an EOF error, and a system error based on an errno
+	value.
+
+	Before, the constructor was grabbing the system errno value.
+	Well, it turns out there were often system calls being made before
+	it got to that part of the constructor, and these calls would wipe
+	out the value of errno.
+
+	So, I changed it so there's a static function of the UNIXError
+	class for grabbing errno values (so it's easy to change how it
+	happens in case threading or some other change to the standard
+	library mucks things up a lot), and changed the constructor to
+	require an errno value.  This arrange it so there was no longer
+	any overlap between the EOF error constructor and the Unix system
+	error constructor.
+
+2002-08-28  Eric M. Hopper  <hopper@omnifarious.org>
+
+	* Timer.cxx (operator -): Fixed a couple of warnings about
+	implicit, information losing casts from double to unsigned
+	integral types.
+
 2002-03-26  Eric M. Hopper  <hopper@omnifarious.org>
 
 	* tests/testUPoll.cxx:

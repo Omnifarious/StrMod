@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -18,10 +18,10 @@
 
 /* $Header$ */
 
-// For log, see ./ChangeLog
-//
-// $Revision$
-//
+ // For log, see ./ChangeLog
+ //
+ // $Revision$
+ //
  // Revision 1.2  1996/02/12 00:32:36  hopper
  // Fixed to use the new C++ standard library string class instead of all the
  // 'NetString' silliness.
@@ -70,10 +70,13 @@
 #include <sys/socket.h>
 #include <cstdlib>
 
-std::string InetAddress::AsString()
+namespace strmod {
+namespace ehnet {
+
+::std::string InetAddress::AsString()
 {
-   std::string portnum = ToDec(port);
-   std::string temp = hostname;
+   ::std::string portnum = ToDec(port);
+   ::std::string temp = hostname;
 
    /* I've seen a few alternative repesentations.  I guess the most common
       is the same as this, except with no "port ". */
@@ -84,7 +87,7 @@ std::string InetAddress::AsString()
    return(temp);
 }
 
-std::string InetAddress::GetHostname(bool forcelookup)
+::std::string InetAddress::GetHostname(bool forcelookup)
 {
    if (forcelookup) {
       hostname = IaddrToName(inaddr);
@@ -127,7 +130,7 @@ const InetAddress &InetAddress::operator =(const sockaddr_in &iadr)
    return(*this);
 }
 
-InetAddress::InetAddress(const std::string &h_name, U2Byte prt) :
+InetAddress::InetAddress(const ::std::string &h_name, U2Byte prt) :
         hostname(h_name), port(prt)
 {
    const char *c_hostname;
@@ -184,7 +187,7 @@ InetAddress::InetAddress(const sockaddr_in &iadr) : port(0)
 
 void InetAddress::InvalidateAddress()
 {
-   hostname = std::string("invalid.host.name");
+   hostname = ::std::string("invalid.host.name");
 
    inaddr.sin_addr.s_addr = INADDR_ANY;
 }
@@ -219,7 +222,7 @@ bool InetAddress::AsciiToQInum(const char *s, int &i,
    if (!isdigit(s[i])) {
       return(false);
    }
-   
+
    mynum = atoi(s + i);
    if (mynum < 0 || mynum > 255) {
       return(false);
@@ -241,10 +244,10 @@ bool InetAddress::AsciiToQInum(const char *s, int &i,
    return(true);
 }
 
-std::string InetAddress::ToDec(U2Byte num)
+::std::string InetAddress::ToDec(U2Byte num)
 {
    U2Byte top = 10000;
-   std::string temp;
+   ::std::string temp;
 
    while (top > 0 && (num / top) < 1)
       top /= 10;
@@ -258,3 +261,6 @@ std::string InetAddress::ToDec(U2Byte num)
    }
    return(temp);
 }
+
+} // end namespace ehnet
+} // end namespace lcore

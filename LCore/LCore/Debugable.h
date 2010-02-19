@@ -31,6 +31,9 @@
 
 #define _LCORE_Debugable_H_
 
+namespace strmod {
+namespace lcore {
+
 /** \class Debugable Debugable.h LCore/Debugable.h
  * Interface class for things that have certain common debugging functions.
  * You'll probable need to use a dynamic_cast to use this interface in a
@@ -53,7 +56,7 @@ class Debugable : virtual public Protocol {
    /** This should print out as much of the internal state of a class as would
     * be needed to debug it properly.
     */
-   virtual void printState(std::ostream &os) const = 0;
+   virtual void printState(::std::ostream &os) const = 0;
 
  protected:
    virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
@@ -65,5 +68,8 @@ inline int Debugable::AreYouA(const ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

@@ -57,6 +57,9 @@
 
 #define _LCORE_GenTypes_H_
 
+namespace strmod {
+namespace lcore {
+
 #ifdef BYTE_ORDER_DEFINED
 #   if !(defined(ORDER_UNIX) || defined(ORDER_XINU))
 #      error Byte order defined macro is defined, but no valid byte orderings \
@@ -316,5 +319,8 @@
       }
    #endif
 #endif
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef _STR_SocketModule_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -26,36 +26,37 @@
 
 // See ../ChangeLog for a change log.
 
+#include <EHnet++/SocketAddress.h>
+
 #ifndef _STR_StreamFDModule_H_
 #  include <StrMod/StreamFDModule.h>
 #endif
 
 #define _STR_SocketModule_H_
 
-class SocketAddress;
-
 namespace strmod {
 namespace strmod {
 
 class SockListenModule;
 
-class SocketModule : public StreamFDModule {
+class SocketModule : public StreamFDModule
+{
    friend class SockListenModule;  // This is so SockListenModule's can access
                                    // that one protected constructor down there
  public:
    static const STR_ClassIdent identifier;
 
    //! Create a SocketModule connected to the given address.
-   SocketModule(const SocketAddress &addr,
+   SocketModule(const ehnet::SocketAddress &addr,
                 unievent::Dispatcher &disp,
                 unievent::UnixEventRegistry &ureg,
 		bool blockconnect = true) throw(unievent::UNIXError);
    virtual ~SocketModule();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //: Who are we connected to?
-   const SocketAddress &GetPeerAddr()                  { return(peer_); }
+   const ehnet::SocketAddress &GetPeerAddr()           { return(peer_); }
 
  protected:
    virtual void writeEOF();
@@ -63,22 +64,22 @@ class SocketModule : public StreamFDModule {
    /** Create a SocketModule using the given fd.
     * Note that ownership of peer is being passed.
     */
-   SocketModule(int fd, SocketAddress *peer,
+   SocketModule(int fd, ehnet::SocketAddress *peer,
                 unievent::Dispatcher &disp,
                 unievent::UnixEventRegistry &ureg);
 
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
-   static int MakeSocket(SocketModule &obj, const SocketAddress &addr,
+   static int MakeSocket(SocketModule &obj, const ehnet::SocketAddress &addr,
                          bool blockconnect) throw(unievent::UNIXError);
 
  private:
-   SocketAddress &peer_;
+   ehnet::SocketAddress &peer_;
 };
 
 //-------------------------------inline functions------------------------------
 
-inline int SocketModule::AreYouA(const ClassIdent &cid) const
+inline int SocketModule::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamFDModule::AreYouA(cid));
 }

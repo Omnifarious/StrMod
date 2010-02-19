@@ -30,6 +30,12 @@
 
 #include "LCore/SPSClTypes.h"
 
+namespace strmod {
+namespace lcore {
+
 const SPSCORE_ClassIdent SPS_ClassIdent::identifier(0UL);
 const SPSCORE_ClassIdent SPS_ClassNum::identifier(1UL);
 const SPSCORE_ClassIdent SPSCORE_ClassIdent::identifier(2UL);
+
+} // namespace lcore
+} // namespace strmod

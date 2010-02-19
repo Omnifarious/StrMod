@@ -44,16 +44,17 @@ class EventPtr;
 /** \class Event Event.h UniEvent/Event.h
  * \brief An event to be queued up in a UNIDispatcher.
  */
-class Event : virtual public Protocol, public ReferenceCounting {
+class Event : virtual public lcore::Protocol, public lcore::ReferenceCounting
+{
  public:
    static const UNEVT_ClassIdent identifier;
 
    //! Nothing exciting here.
-   Event() : ReferenceCounting(0)                      { }
+   Event() : ReferenceCounting(0)                       { }
    //! This is an interface class, of course it has a virtual destructor.
-   virtual ~Event()                                    { }
+   virtual ~Event()                                     { }
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    /** Perform the action associated with the event.
     * If the event was triggered by a dispatcher, the dispatcher that triggered
@@ -71,15 +72,15 @@ class Event : virtual public Protocol, public ReferenceCounting {
     * events.  This method will only be called just before, during, or just
     * after the triggerEvent() method is called.
     */
-   virtual void interrupt()                            { }
+   virtual void interrupt()                             { }
 
    //! Alternate form of TriggerEvent
    inline void operator ()(Dispatcher *dispatcher);
    //! Alternate form of TriggerEvent
-   inline void operator ()()                           { (*this)(0); }
+   inline void operator ()()                            { (*this)(0); }
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
    // Purposely left undefined.
@@ -89,7 +90,7 @@ class Event : virtual public Protocol, public ReferenceCounting {
 
 //-----------------------------inline functions--------------------------------
 
-inline int Event::AreYouA(const ClassIdent &cid) const
+inline int Event::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }

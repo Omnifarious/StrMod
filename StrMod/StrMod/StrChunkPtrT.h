@@ -59,7 +59,8 @@ namespace strmod {
  * register as being a StrChunkPtr or RefCountPtr.
  */
 template <class Chunk>
-class StrChunkPtrT : public StrChunkPtr {
+class StrChunkPtrT : public StrChunkPtr
+{
  public:
    //! An easier way to refer to StrChunkPtr.
    typedef StrChunkPtr super1;
@@ -70,7 +71,7 @@ class StrChunkPtrT : public StrChunkPtr {
     * the reference count to the pointed at StrChunk.
     */
    inline StrChunkPtrT(const StrChunkPtrT<Chunk> &b) : super1(b)            { }
-   inline StrChunkPtrT(const RefCountPtrT<Chunk> &b) : super1(b.GetPtr())   { }
+   inline StrChunkPtrT(const lcore::RefCountPtrT<Chunk> &b) : super1(b.GetPtr())   { }
    inline StrChunkPtrT(Chunk *stptr = 0) : super1(stptr)                    { }
    //@}
 
@@ -91,13 +92,13 @@ class StrChunkPtrT : public StrChunkPtr {
     * maintain the reference count to the pointed at StrChunk.
     */
    inline const StrChunkPtrT<Chunk> &operator =(const StrChunkPtrT<Chunk> &b);
-   inline const StrChunkPtrT<Chunk> &operator =(const RefCountPtrT<Chunk> &b);
+   inline const StrChunkPtrT<Chunk> &operator =(const lcore::RefCountPtrT<Chunk> &b);
    inline const StrChunkPtrT<Chunk> &operator =(Chunk *b);
    //@}
 
  protected:
    //! See class RefCountPtr.  Used in ensuring type safety.
-   inline virtual ReferenceCounting *i_CheckType(ReferenceCounting *p) const;
+   inline virtual lcore::ReferenceCounting *i_CheckType(lcore::ReferenceCounting *p) const;
 };
 
 //-----------------------------inline functions--------------------------------
@@ -130,7 +131,7 @@ StrChunkPtrT<Chunk>::operator =(const StrChunkPtrT<Chunk> &b)
 
 template <class Chunk>
 inline const StrChunkPtrT<Chunk> &
-StrChunkPtrT<Chunk>::operator =(const RefCountPtrT<Chunk> &b)
+StrChunkPtrT<Chunk>::operator =(const lcore::RefCountPtrT<Chunk> &b)
 {
    super1::operator =(b);
    return(*this);
@@ -145,8 +146,8 @@ StrChunkPtrT<Chunk>::operator =(Chunk *b)
 }
 
 template <class Chunk>
-inline ReferenceCounting *
-StrChunkPtrT<Chunk>::i_CheckType(ReferenceCounting *p) const
+inline lcore::ReferenceCounting *
+StrChunkPtrT<Chunk>::i_CheckType(lcore::ReferenceCounting *p) const
 {
    return(((p != 0) && p->AreYouA(Chunk::identifier)) ? p : 0);
 }

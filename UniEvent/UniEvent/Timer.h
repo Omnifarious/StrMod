@@ -1,5 +1,23 @@
 #ifndef _UNEVT_Timer_H_  // -*-c++-*-
 
+/*
+ * Copyright 2002 Eric M. Hopper <hopper@omnifarious.org>
+ * 
+ *     This program is free software; you can redistribute it and/or modify it
+ *     under the terms of the GNU Lesser General Public License as published
+ *     by the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ * 
+ *     This program is distributed in the hope that it will be useful, but
+ *     WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *     Lesser General Public License for more details.
+ * 
+ *     You should have received a copy of the GNU Lesser General Public
+ *     License along with this program; if not, write to the Free Software
+ *     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 #ifdef __GNUG__
 #  pragma interface
 #endif
@@ -47,7 +65,8 @@ class EventPtr;
  * local time zone, and whether or not this can even be determined in the
  * environment are not important to the interface.
  */
-class Timer : public Protocol {
+class Timer : virtual public lcore::Protocol
+{
  public:
    /** \class interval_t Timer.h UniEvent/Timer.h
     * \brief A time interval.
@@ -62,9 +81,9 @@ class Timer : public Protocol {
        * the public interface for this class.
        */
       unsigned long seconds;  //!< Seconds
-      U4Byte nanoseconds;  //!< Billionths of a second.
+      lcore::U4Byte nanoseconds;  //!< Billionths of a second.
       //@}
-      inline interval_t(unsigned long secs = 0, U4Byte nanosecs = 0);
+      inline interval_t(unsigned long secs = 0, lcore::U4Byte nanosecs = 0);
       inline void normalize();
    };
    typedef ::time_t time_t;
@@ -80,7 +99,7 @@ class Timer : public Protocol {
       interval_t::nanoseconds;  //!< Billionths of a second past \c time.
 
       inline absolute_t(time_t time_param,
-                        unsigned long secs = 0, U4Byte nanosecs = 0) :
+                        unsigned long secs = 0, lcore::U4Byte nanosecs = 0) :
            interval_t(secs, nanosecs), time(time_param)
       {
       }
@@ -100,7 +119,7 @@ class Timer : public Protocol {
     */
    virtual ~Timer()                                              { }
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return (identifier == cid) || Protocol::AreYouA(cid);
    }
 
@@ -112,13 +131,13 @@ class Timer : public Protocol {
    virtual absolute_t currentTime() const = 0;
 
  protected:
-   inline virtual const ClassIdent *i_GetIdent() const   { return &identifier; }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 };
 
 //-----------------------------inline functions--------------------------------
 
 //! Construct a Timer::interval_t possibly from seconds and nanoseconds.
-inline Timer::interval_t::interval_t(unsigned long secs, U4Byte nanosecs)
+inline Timer::interval_t::interval_t(unsigned long secs, lcore::U4Byte nanosecs)
      : seconds(secs), nanoseconds(nanosecs)
 {
    normalize();

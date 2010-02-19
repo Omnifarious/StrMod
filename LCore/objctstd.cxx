@@ -21,6 +21,9 @@
  /* UNIX:@@:ObjectSTD.cc:@@: */
 /* MSDOS:@@:OBJECTSTD.CPP:@@: */
 
+namespace strmod {
+namespace lcore {
+
 int Object::DoEqual(const Object &b) const
 {
    if (AreYouA(b.GetIdent()))
@@ -30,3 +33,6 @@ int Object::DoEqual(const Object &b) const
    else
       return(0);
 }
+
+} // namespace lcore
+} // namespace strmod

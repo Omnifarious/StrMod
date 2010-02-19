@@ -1,7 +1,7 @@
 #ifndef _STR_InSerializer_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -51,7 +51,8 @@ class StrChunkPtr;
  *
  * See class OutSerializer for a more detailed explanation.
  */
-class InSerializer {
+class InSerializer
+{
  public:
    //! Construct an InSerializer that reads bytes from \c ptr.
    // \param ptr A pointer to a StrChunk to convert from.
@@ -64,25 +65,25 @@ class InSerializer {
    virtual ~InSerializer();
 
    //! Get a signed 1 octet value (2's complement) and move forward 1 octet.
-   S1Byte GetS1Byte();
+   lcore::S1Byte GetS1Byte();
    //! Get an unsigned 1 octet value and move forward 1 octet.
-   U1Byte GetU1Byte();
+   lcore::U1Byte GetU1Byte();
 
    //! Get a signed 2 octet value (2's complement) and move forward 2 octets.
-   S2Byte GetS2Byte();
+   lcore::S2Byte GetS2Byte();
    //! Get an unsigned 2 octet value and move forward 2 octets.
-   U2Byte GetU2Byte();
+   lcore::U2Byte GetU2Byte();
 
    //! Get a signed 4 octet value (2's complement) and move forward 2 octets.
-   S4Byte GetS4Byte();
+   lcore::S4Byte GetS4Byte();
    //! Get an unsigned 4 octet value and move forward 2 octets.
-   U4Byte GetU4Byte();
+   lcore::U4Byte GetU4Byte();
 
    //! Get a bool value and move forward 1 octet.
    inline bool GetBool()                               { return(GetU1Byte()); }
 
    //! Get a string value.  See OutSerializer for more on format.
-   const std::string GetString();
+   const ::std::string GetString();
 
    //! Get a \c len bytes and dump them in \c destbuf.
    // \param destbuf A memory area to copy bytes into.
@@ -104,43 +105,43 @@ class InSerializer {
 
 //-----------------------------inline functions--------------------------------
 
-inline InSerializer &operator >>(InSerializer &is, S1Byte &num)
+inline InSerializer &operator >>(InSerializer &is, lcore::S1Byte &num)
 {
    num = is.GetS1Byte();
    return(is);
 }
 
-inline InSerializer &operator >>(InSerializer &is, U1Byte &num)
+inline InSerializer &operator >>(InSerializer &is, lcore::U1Byte &num)
 {
    num = is.GetU1Byte();
    return(is);
 }
 
-inline InSerializer &operator >>(InSerializer &is, S2Byte &num)
+inline InSerializer &operator >>(InSerializer &is, lcore::S2Byte &num)
 {
    num = is.GetS2Byte();
    return(is);
 }
 
-inline InSerializer &operator >>(InSerializer &is, U2Byte &num)
+inline InSerializer &operator >>(InSerializer &is, lcore::U2Byte &num)
 {
    num = is.GetU2Byte();
    return(is);
 }
 
-inline InSerializer &operator >>(InSerializer &is, S4Byte &num)
+inline InSerializer &operator >>(InSerializer &is, lcore::S4Byte &num)
 {
    num = is.GetS4Byte();
    return(is);
 }
 
-inline InSerializer &operator >>(InSerializer &is, U4Byte &num)
+inline InSerializer &operator >>(InSerializer &is, lcore::U4Byte &num)
 {
    num = is.GetU4Byte();
    return(is);
 }
 
-inline InSerializer &operator >>(InSerializer &is, std::string &str)
+inline InSerializer &operator >>(InSerializer &is, ::std::string &str)
 {
    str = is.GetString();
    return(is);

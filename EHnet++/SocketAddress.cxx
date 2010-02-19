@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -19,7 +19,7 @@
 /* $Header$ */
 
  // For a log, see ./ChangeLog
-//
+ //
  // Revision 1.3  1996/02/20 01:05:52  hopper
  // Added some niceties to GNUmakefile.in
  // Changed SocketAddress.cc to use new #include convention.
@@ -69,7 +69,13 @@
 
 #include <iostream>
 
-void SocketAddress::PrintOn(std::ostream &os)
+namespace strmod {
+namespace ehnet {
+
+void SocketAddress::PrintOn(::std::ostream &os)
 {
    os << AsString();
 }
+
+} // end namespace ehnet
+} // end namespace lcore

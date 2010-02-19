@@ -59,7 +59,7 @@ class StrChunk;
  * here because many visitor classes will have build up and tear down
  * operations to perform before visiting.
  */
-class ChunkVisitor : public Protocol {
+class ChunkVisitor : public lcore::Protocol {
    friend class StrChunk;
  public:
    //! An exception to allow the visitor to halt the traversal.
@@ -72,12 +72,12 @@ class ChunkVisitor : public Protocol {
    //! Do nothing virtual destructor for interface class.
    virtual ~ChunkVisitor()                          { }
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || Protocol::AreYouA(cid));
    }
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const       { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 
    /** \name StrChunk visit functions
     */

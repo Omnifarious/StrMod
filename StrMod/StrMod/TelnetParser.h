@@ -1,7 +1,7 @@
 #ifndef _STR_TelnetParser_H_  // -*-c++-*-
 
 /*
- * Copyright 2001 by Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2001-2002 by Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -44,7 +44,8 @@ template <unsigned int n> class PreAllocBuffer;
  * Class for parsing out a stream of characters into telnet protocol
  * elements using the TelnetChunkBuilder class.
  */
-class TelnetParser : virtual public Protocol {
+class TelnetParser : virtual public lcore::Protocol
+{
  public:
    static const STR_ClassIdent identifier;
 
@@ -53,7 +54,7 @@ class TelnetParser : virtual public Protocol {
    //! Destroy a parser.
    virtual ~TelnetParser();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Process a buffer, calling the builder, and advancing the state.
    void processData(const void *data, size_t len,
@@ -90,9 +91,10 @@ class TelnetParser : virtual public Protocol {
       PS_SuboptEscape  //!< Saw an IAC while in PS_Subopt
    };
 
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
+   typedef lcore::U1Byte U1Byte;
    TelnetChars::OptionNegotiations negtype_;
    U1Byte subopt_type_;
    size_t curpos_;
@@ -118,7 +120,7 @@ class TelnetParser : virtual public Protocol {
 
 //-----------------------------inline functions--------------------------------
 
-inline int TelnetParser::AreYouA(const ClassIdent &cid) const
+inline int TelnetParser::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Protocol::AreYouA(cid));
 }

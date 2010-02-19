@@ -26,7 +26,10 @@
 #include "LCore/LCoreError.h"
 #include <iostream>
 
-std::ostream &operator <<(std::ostream &os, const LCoreError &err)
+namespace strmod {
+namespace lcore {
+
+::std::ostream &operator <<(::std::ostream &os, const LCoreError &err)
 {
    bool out = false;
    if (err.getSourceFile())
@@ -47,3 +50,6 @@ std::ostream &operator <<(std::ostream &os, const LCoreError &err)
       << (err.getDesc() ? err.getDesc() : "<no description>");
    return os;
 }
+
+} // namespace lcore
+} // namespace strmod

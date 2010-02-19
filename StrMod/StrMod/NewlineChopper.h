@@ -1,7 +1,7 @@
 #ifndef _STR_NewlineChopper_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -38,18 +38,25 @@
 namespace strmod {
 namespace strmod {
 
-class NewlineChopper : public CharChopper {
+/** \class NewlineChopper NewlineChopper.h StrMod/NewlineChopper.h
+ * \brief Just a CharChopper that's hard wired to '\\n' as the character.
+ *
+ * This is such a common case, I thought it deserved its own class.
+ */
+class NewlineChopper : public CharChopper
+{
  public:
    typedef CharChopper parentclass;
    static const STR_ClassIdent identifier;
 
+   //! Just pass a newline character to parent consructor.
    NewlineChopper() : CharChopper('\n')                { }
    // Derived class destructor doesn't do anything base class one doesn't do.
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
    NewlineChopper(const NewlineChopper &b);
@@ -57,9 +64,9 @@ class NewlineChopper : public CharChopper {
 
 //-----------------------------inline functions--------------------------------
 
-inline int NewlineChopper::AreYouA(const ClassIdent &cid) const
+inline int NewlineChopper::AreYouA(const lcore::ClassIdent &cid) const
 {
-   return((identifier == cid) || parentclass::AreYouA(cid));
+   return((identifier == cid) || CharChopper::AreYouA(cid));
 }
 
 };  // namespace strmod

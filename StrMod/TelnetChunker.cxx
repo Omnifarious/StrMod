@@ -46,6 +46,8 @@
 namespace strmod {
 namespace strmod {
 
+using lcore::U1Byte;
+
 const STR_ClassIdent TelnetChunker::identifier(33UL);
 const STR_ClassIdent TelnetChunker::TelnetData::identifier(34UL);
 const STR_ClassIdent TelnetChunker::SingleChar::identifier(35UL);

@@ -31,6 +31,9 @@
 
 #define _LCORE_enum_set_H_
 
+namespace strmod {
+namespace lcore {
+
 /**
  * \class enum_set enum_set.h LCore/enum_set.h
  *
@@ -183,7 +186,7 @@ inline enum_set<enum_t, first, last>::enum_set(enum_t val1, enum_t val2,
 }
 
 template <class enum_t, enum_t first, enum_t last>
-inline enum_set<enum_t, first, last>::enum_set(const enum_set<enum_t, first, last> &other)
+inline enum_set<enum_t, first, last>::enum_set(const self_t &other)
      : parent_t(other)
 {
 }
@@ -267,7 +270,7 @@ inline bool enum_set<enum_t, first, last>::operator[](enum_t __pos) const
 
 template <class enum_t, enum_t first, enum_t last>
 inline const enum_set<enum_t, first, last> &
-enum_set<enum_t, first, last>::operator =(const enum_set<enum_t, first, last> &b)
+enum_set<enum_t, first, last>::operator =(const self_t &b)
 {
    parent_t::operator =(b);
    return *this;
@@ -334,5 +337,8 @@ operator^(const enum_set<enum_t, first, last> &__x,
    result ^= __y;
    return result;
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef _STR_SimpleMulti_H_  // -*- mode: c++; c-file-style: "hopper"; -*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -55,7 +55,8 @@ namespace strmod {
  * plug.  Please don't take advantage of this detail.  In the future, 'multi'
  * side plugs will be actually deleted.
  */
-class SimpleMultiplexer : public StreamModule {
+class SimpleMultiplexer : public StreamModule
+{
  protected:
    class MultiPlug;
    friend class MultiPlug;
@@ -85,7 +86,7 @@ class SimpleMultiplexer : public StreamModule {
    //! Also destroys all Plug's and any unsent data.
    virtual ~SimpleMultiplexer();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool canCreate(int side) const;
    virtual bool ownsPlug(const Plug *plug) const;
@@ -98,7 +99,7 @@ class SimpleMultiplexer : public StreamModule {
     public:
       static const STR_ClassIdent identifier;
 
-      inline virtual int AreYouA(const ClassIdent &cid) const;
+      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       //: Which module owns this plug?
       inline SimpleMultiplexer &getParent() const;
@@ -110,7 +111,9 @@ class SimpleMultiplexer : public StreamModule {
       inline SinglePlug(SimpleMultiplexer &parent);
       inline virtual ~SinglePlug();
 
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       //: See base class.
       virtual const StrChunkPtr i_Read();
@@ -129,7 +132,7 @@ class SimpleMultiplexer : public StreamModule {
       // status' event, update all multi-plugs to be writeable.</p>
       // <p>If other isn't writeable, then update all multi-plugs to be
       // non-writeable.</p>
-      virtual void otherIsWriteable(); 
+      virtual void otherIsWriteable();
    };
 
    /** Called whenever a plug is disconnected.
@@ -230,7 +233,7 @@ class SimpleMultiplexer : public StreamModule {
 
 //-----------------------------inline functions--------------------------------
 
-inline int SimpleMultiplexer::AreYouA(const ClassIdent &cid) const
+inline int SimpleMultiplexer::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
@@ -258,7 +261,7 @@ inline void SimpleMultiplexer::postScan(MultiPlug &toend)
 
 //--
 
-inline int SimpleMultiplexer::SinglePlug::AreYouA(const ClassIdent &cid) const
+inline int SimpleMultiplexer::SinglePlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }

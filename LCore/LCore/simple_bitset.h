@@ -14,7 +14,10 @@
 
 #define _LCORE_simple_bitset_H_
 
+namespace strmod {
+namespace lcore {
 namespace priv {
+
 class _base_simple_bitset
 {
  public:
@@ -44,7 +47,8 @@ inline size_t _base_simple_bitset::countbits(const bits_t bitary[],
    }
    return count;
 }
-}
+
+} // namespace priv
 
 template <size_t Tsize> class simple_bitset : private priv::_base_simple_bitset
 {
@@ -259,5 +263,32 @@ simple_bitset<Tsize>::to_string() const
 }
 
 #include <LCore/simple_bitset_optim.h>
+
+template <size_t Tsize> inline const simple_bitset<Tsize>
+operator &(const simple_bitset<Tsize> &a, const simple_bitset<Tsize> &b)
+{
+   simple_bitset<Tsize> res = a;
+   res &= b;
+   return res;
+}
+
+template <size_t Tsize> inline const simple_bitset<Tsize>
+operator |(const simple_bitset<Tsize> &a, const simple_bitset<Tsize> &b)
+{
+   simple_bitset<Tsize> res = a;
+   res |= b;
+   return res;
+}
+
+template <size_t Tsize> inline const simple_bitset<Tsize>
+operator ^(const simple_bitset<Tsize> &a, const simple_bitset<Tsize> &b)
+{
+   simple_bitset<Tsize> res = a;
+   res ^= b;
+   return res;
+}
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

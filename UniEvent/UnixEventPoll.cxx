@@ -1,3 +1,21 @@
+/*
+ * Copyright 2002 Eric M. Hopper <hopper@omnifarious.org>
+ * 
+ *     This program is free software; you can redistribute it and/or modify it
+ *     under the terms of the GNU Lesser General Public License as published
+ *     by the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ * 
+ *     This program is distributed in the hope that it will be useful, but
+ *     WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *     Lesser General Public License for more details.
+ * 
+ *     You should have received a copy of the GNU Lesser General Public
+ *     License along with this program; if not, write to the Free Software
+ *     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 /* $Header$ */
 
 // For a log, see ChangeLog
@@ -28,6 +46,8 @@ typedef struct sigaction i_sigaction;
 
 namespace strmod {
 namespace unievent {
+
+const UNEVT_ClassIdent UnixEventPoll::identifier(15UL);
 
 typedef UnixEventPoll::FDCondSet FDCondSet;
 typedef i_sigaction local_sigaction;
@@ -302,12 +322,12 @@ void UnixEventPoll::doPoll(bool wait)
             (waittil.nanoseconds / 1000000U);
          pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(),
                              polltimeout);
-         myerrno = errno;
+         myerrno = UNIXError::getErrno();
       }
       else
       {
          pollresult = ::poll(&(impl_.polllist_[0]), impl_.polllist_.size(), 0);
-         myerrno = errno;
+         myerrno = UNIXError::getErrno();
       }
       postExpired(currentTime(), dispatcher_);
       if (pollresult >= 0)
@@ -456,7 +476,9 @@ void UnixEventPoll::handleSignal(int signo)
    handled_by_S[signo] = this;
    if (::sigaction(signo, &act, 0) != 0)
    {
-      throw UNIXError("sigaction", errno, LCoreError(LCORE_GET_COMPILERINFO()));
+      const int myerrno = UNIXError::getErrno();
+      throw UNIXError("sigaction", myerrno,
+                      lcore::LCoreError(LCORE_GET_COMPILERINFO()));
    }
    sigaddset(&impl_.handled_, signo);
 }

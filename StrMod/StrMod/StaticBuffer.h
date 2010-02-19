@@ -1,7 +1,7 @@
 #ifndef _STR_StaticBuffer_H_  // -*- mode: c++; c-file-style: "hopper" -*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -39,7 +39,10 @@ namespace strmod {
  * not change or move for the lifetime of the StaticBuffer.  Oftentimes, these
  * will be things like string constants and such.
  */
-class StaticBuffer : public StrChunk {
+class StaticBuffer : public StrChunk
+{
+ private:
+   typedef lcore::U1Byte U1Byte;
  public:
    static const STR_ClassIdent identifier;
 
@@ -55,7 +58,7 @@ class StaticBuffer : public StrChunk {
     */
    virtual ~StaticBuffer()                              { }
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return (identifier == cid) || StrChunk::AreYouA(cid);
    }
 
@@ -67,7 +70,7 @@ class StaticBuffer : public StrChunk {
    inline const U1Byte *getCharP();
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    inline virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
@@ -84,7 +87,7 @@ inline StaticBuffer::StaticBuffer(const void *buf, size_t buflen)
 {
 }
 
-inline const U1Byte *StaticBuffer::getCharP()
+inline const lcore::U1Byte *StaticBuffer::getCharP()
 {
    return(static_cast<const U1Byte *>(buf_));
 }

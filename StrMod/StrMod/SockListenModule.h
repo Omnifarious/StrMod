@@ -1,7 +1,7 @@
 #ifndef _STR_SockListenModule_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright (C) 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -33,6 +33,7 @@
 #include <UniEvent/EventPtr.h>
 #include <UniEvent/UnixEventRegistry.h>
 #include <UniEvent/UNIXError.h>
+#include <EHnet++/SocketAddress.h>
 
 #ifndef _STR_StreamModule_H_
 #   include <StrMod/StreamModule.h>
@@ -53,8 +54,6 @@
 
 #define _STR_SockListenModule_H_
 
-class SocketAddress;
-
 namespace strmod {
 namespace strmod {
 
@@ -72,7 +71,8 @@ class SocketModuleChunk;
  * the methods for this class are going to act like this SockModuleChunk is
  * empty.
  */
-class SocketModuleChunk : public StrChunk {
+class SocketModuleChunk : public StrChunk
+{
  public:
    static const STR_ClassIdent identifier;
 
@@ -81,7 +81,7 @@ class SocketModuleChunk : public StrChunk {
    //! If 'ReleaseModule' hasn't been called, also deletes wrapped SocketModule
    inline virtual ~SocketModuleChunk();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual unsigned int Length() const                 { return 0; }
 
@@ -101,7 +101,7 @@ class SocketModuleChunk : public StrChunk {
    }
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    //! Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
@@ -137,14 +137,14 @@ class SockListenModule : public StreamModule {
    /** \brief What address am I going to listen on, and what's the length of
     * the pending connection queue?
     */
-   SockListenModule(const SocketAddress &bind_addr,
+   SockListenModule(const ehnet::SocketAddress &bind_addr,
                     unievent::Dispatcher &disp,
                     unievent::UnixEventRegistry &ureg,
 		    int qlen = 1);
    //! Closes the socket being listened to.
    virtual ~SockListenModule();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool canCreate(int side = 0) const;
    inline SLPlug *makePlug(int side = 0);
@@ -159,7 +159,7 @@ class SockListenModule : public StreamModule {
    void clearError() throw();
 
    //! What's the local address for this socket?
-   const SocketAddress &GetBoundAddress() const { return(myaddr_); }
+   const ehnet::SocketAddress &GetBoundAddress() const { return(myaddr_); }
 
    /** \class SLPlug SockListenModule.h StrMod/SockListenModule.h
     * \brief A plug from a SockListenModule.
@@ -170,7 +170,7 @@ class SockListenModule : public StreamModule {
     public:
       static const STR_ClassIdent identifier;
 
-      inline virtual int AreYouA(const ClassIdent &cid) const;
+      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       inline SockListenModule &getParent() const;
       virtual int side() const                          { return(0); }
@@ -185,7 +185,9 @@ class SockListenModule : public StreamModule {
        * destroy these things at random.  */
       virtual ~SLPlug()                                 { }
 
-      virtual const ClassIdent *i_GetIdent() const      { return(&identifier); }
+      virtual const lcore::ClassIdent *i_GetIdent() const {
+         return &identifier;
+      }
 
       //! Forwards to getParent()->plugRead()
       virtual const StrChunkPtr i_Read();
@@ -195,14 +197,14 @@ class SockListenModule : public StreamModule {
    };
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    inline virtual Plug *i_MakePlug(int side);
 
    /** Make a socket module once I've done the accept.
     * Note, ownership of <code>peer</code> is being passed here.
     */
-   inline SocketModule *makeSocketModule(int fd, SocketAddress *peer,
+   inline SocketModule *makeSocketModule(int fd, ehnet::SocketAddress *peer,
 					 unievent::Dispatcher &disp,
                                          unievent::UnixEventRegistry &ureg);
 
@@ -223,7 +225,7 @@ class SockListenModule : public StreamModule {
    bool plug_pulled_;
    bool checking_read_;
    SocketModule *newmodule_;
-   SocketAddress &myaddr_;
+   ehnet::SocketAddress &myaddr_;
    Dispatcher &disp_;
    UnixEventRegistry &ureg_;
    FDPollEv *readevptr_;
@@ -246,14 +248,14 @@ inline SocketModuleChunk::~SocketModuleChunk()
    }
 }
 
-inline int SocketModuleChunk::AreYouA(const ClassIdent &cid) const
+inline int SocketModuleChunk::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }
 
 // ---------------------SockListenModule inline functions----------------------
 
-inline int SockListenModule::AreYouA(const ClassIdent &cid) const
+inline int SockListenModule::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamModule::AreYouA(cid));
 }
@@ -299,7 +301,7 @@ inline StreamModule::Plug *SockListenModule::i_MakePlug(int side)
 }
 
 inline SocketModule *
-SockListenModule::makeSocketModule(int fd, SocketAddress *peer,
+SockListenModule::makeSocketModule(int fd, ehnet::SocketAddress *peer,
                                    unievent::Dispatcher &disp,
                                    unievent::UnixEventRegistry &ureg)
 {
@@ -309,7 +311,7 @@ SockListenModule::makeSocketModule(int fd, SocketAddress *peer,
 
 //----------------------ListeningPlug inline functions-------------------------
 
-inline int SockListenModule::SLPlug::AreYouA(const ClassIdent &cid) const
+inline int SockListenModule::SLPlug::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || Plug::AreYouA(cid));
 }

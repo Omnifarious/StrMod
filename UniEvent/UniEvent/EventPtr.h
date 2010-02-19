@@ -36,9 +36,10 @@
 namespace strmod {
 namespace unievent {
 
-class EventPtr : public RefCountPtrT<Event> {
+class EventPtr : public lcore::RefCountPtrT<Event>
+{
  public:
-   typedef RefCountPtrT<Event> super1;
+   typedef lcore::RefCountPtrT<Event> super1;
    static const UNEVT_ClassIdent identifier;
 
    inline EventPtr(Event *eptr = 0);
@@ -50,7 +51,7 @@ class EventPtr : public RefCountPtrT<Event> {
    inline const EventPtr &operator =(Event *b);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 };
 
 //-----------------------------inline functions--------------------------------

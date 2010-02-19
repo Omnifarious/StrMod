@@ -71,7 +71,8 @@ class StrChunkPtr;
  * module which operates this way, the EchoModule, which merely echoes all of
  * its input to its output.  */
 
-class StreamModule : public Protocol {
+class StreamModule : public lcore::Protocol
+{
  public:
    class Plug;
    friend class Plug;
@@ -107,7 +108,7 @@ class StreamModule : public Protocol {
    //! Prudently virtual in an abstract base class.
    virtual ~StreamModule()               { pdstrategy_ = 0; }
 
-   inline virtual int AreYouA(const ClassIdent &id) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &id) const;
 
    //! Can a plug be created on the given side?
    virtual bool canCreate(int side) const = 0;
@@ -155,7 +156,7 @@ class StreamModule : public Protocol {
    inline void setPDStrategy(PlugDisconnectStrategy *pds);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 
    /**
     * Called whenever a plug is disconnected.
@@ -202,7 +203,7 @@ class StreamModule::Plug : public Protocol {
    //! Does some tricky things to avoid having the disconnect strategy called.
    inline virtual ~Plug();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Can this plug be read from?
    bool isReadable() const   { return(flags_.canread_ && !flags_.isreading_); }
@@ -238,7 +239,7 @@ class StreamModule::Plug : public Protocol {
        bool notifyonwrite_ : 1; ///< Does the plug need to be told if its partner can be written to?
    };
 
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 
    /**
     * Set whether this plug is readable or not.
@@ -388,7 +389,7 @@ class StreamModule::Plug : public Protocol {
 
 //-----------------------------inline functions--------------------------------
 
-inline int StreamModule::AreYouA(const ClassIdent &id) const
+inline int StreamModule::AreYouA(const lcore::ClassIdent &id) const
 {
    return((identifier == id) || Protocol::AreYouA(id));
 }
@@ -460,7 +461,7 @@ inline StreamModule::Plug::~Plug()
    }
 }
 
-inline int StreamModule::Plug::AreYouA(const ClassIdent &id) const
+inline int StreamModule::Plug::AreYouA(const lcore::ClassIdent &id) const
 {
    return((identifier == id) || Protocol::AreYouA(id));
 }

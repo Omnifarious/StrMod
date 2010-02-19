@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -21,6 +21,9 @@
  /* UNIX:@@:defs/Protocol.cc:@@: */
 /* MSDOS:@@:DEFS/DEFPROTO.CPP:@@: */
 
+namespace strmod {
+namespace lcore {
+
 /**
  * Globally unique identifier for this class.
  *
@@ -28,3 +31,6 @@
  * const identifier object in it.
  */
 const LCore_ClassIdent Protocol::identifier(7UL);
+
+} // namespace lcore
+} // namespace strmod

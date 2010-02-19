@@ -40,6 +40,9 @@
 
 #define _LCORE_WFClTypes_H_
 
+namespace strmod {
+namespace lcore {
+
 class WFCORE_ClassIdent;
 
 class WF_ClassNum : public ClassNum {
@@ -162,5 +165,8 @@ inline WFCORE_ClassIdent::WFCORE_ClassIdent(U4Byte cnum) :
      WF_ClassIdent(WF_ClassNum(WF_ClassNum::Core, cnum))
 {
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

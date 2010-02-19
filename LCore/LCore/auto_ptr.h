@@ -39,6 +39,9 @@
 
 #define _LCORE_ScopedPtr_H_
 
+namespace strmod {
+namespace lcore {
+
 template<class T> class ScopedPtr {
  public:
    ScopedPtr(T *ptr) : myptr(ptr)                       { }
@@ -66,5 +69,8 @@ template<class T> ScopedPtr<T>::~ScopedPtr()
    if (myptr)
       delete myptr;
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

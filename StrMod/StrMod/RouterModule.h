@@ -1,7 +1,7 @@
 #ifndef _STR_RouterModule_H_  // -*-c++-*-
 
 /*
- * Copyright 2000 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2000-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -47,7 +47,8 @@ namespace strmod {
  * \brief Provides an abstract base for classes that route chunks from a plug to
  * a set of other plugs based on contents.
  */
-class RouterModule : public StreamModule {
+class RouterModule : public StreamModule
+{
  protected:
    class RPlug;
    friend class RPlug;
@@ -64,7 +65,7 @@ class RouterModule : public StreamModule {
    //! Destroy the RouterModule and all of its plugs.
    virtual ~RouterModule();
 
-   virtual int AreYouA(const ClassIdent &cid) const {
+   virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || StreamModule::AreYouA(cid));
    }
 
@@ -75,7 +76,7 @@ class RouterModule : public StreamModule {
    virtual bool deletePlug(Plug *plug);
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual Plug *i_MakePlug(int side) = 0;
 
@@ -132,7 +133,7 @@ class RouterModule::RPlug : public StreamModule::Plug {
  public:
    static const STR_ClassIdent identifier;
 
-   inline virtual int AreYouA(const ClassIdent &cid) const {
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const {
       return((identifier == cid) || Plug::AreYouA(cid));
    }
 
@@ -149,10 +150,10 @@ class RouterModule::RPlug : public StreamModule::Plug {
  protected:
    inline RPlug(RouterModule &parent);
 
-   virtual const ClassIdent *i_GetIdent() const          { return &identifier; }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual const StrChunkPtr i_Read();
-   virtual void i_Write(const StrChunkPtr &ptr); 
+   virtual void i_Write(const StrChunkPtr &ptr);
 
  private:
    bool deleted_;

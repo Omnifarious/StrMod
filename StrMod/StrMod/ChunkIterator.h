@@ -1,7 +1,7 @@
 #ifndef _STR_ChunkIterator_H_  // -*-c++-*-
 
 /*
- * Copyright 2000 by Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 2000-2002 by Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -43,6 +43,7 @@ class StrChunk::__iterator
  private:
    class shared;
    friend class shared;
+   typedef lcore::U1Byte U1Byte;
 
  public:
    typedef ::std::bidirectional_iterator_tag iterator_category;

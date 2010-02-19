@@ -1,7 +1,7 @@
 #ifndef _STR_PassThrough_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -39,17 +39,26 @@
 namespace strmod {
 namespace strmod {
 
-class PassThrough : public StreamProcessor {
+/** \class PassThrough PassThrough.h StrMod/PassThrough.h
+ * This is a StreamProcessor that does nothing.
+ *
+ * Oftentimes, when using a ProcessorModule, you will want no processing to be
+ * done in one direction or the other.  That's what PassThrough StreamProcessor
+ * is for.
+ */
+class PassThrough : public StreamProcessor
+{
  public:
    static const STR_ClassIdent identifier;
 
+   //! Doesn't do anything, so doesn't need much in its constructor.
    PassThrough()                                       { }
    // Derived class destructor doesn't do anything base class one doesn't do.
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    inline virtual void processIncoming();
 
@@ -59,7 +68,7 @@ class PassThrough : public StreamProcessor {
 
 //-----------------------------inline functions--------------------------------
 
-inline int PassThrough::AreYouA(const ClassIdent &cid) const
+inline int PassThrough::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StreamProcessor::AreYouA(cid));
 }

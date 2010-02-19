@@ -62,6 +62,7 @@ typedef struct stat statbuf_t;
 using unievent::Dispatcher;
 using unievent::UnixEventRegistry;
 using unievent::UNIXError;
+using lcore::LCoreError;
 
 const STR_ClassIdent StreamFDModule::identifier(8UL);
 const STR_ClassIdent StreamFDModule::FPlug::identifier(9UL);
@@ -444,7 +445,8 @@ const UNIXError &StreamFDModule::getErrorIn(ErrorType err) const throw ()
    }
 }
 
-void StreamFDModule::setErrorIn(ErrorType err, const UNIXError &errval) throw ()
+void StreamFDModule::setErrorIn(ErrorType err,
+                                const unievent::UNIXError &errval)
 {
    void *rawmem = errorinfo_.errdata_[err];
    if (errorinfo_.used_.test(err))
@@ -640,8 +642,7 @@ void StreamFDModule::doReadFD()
       if (size == 0)
       {
          setErrorIn(ErrRead,
-                    UNIXError("read", LCoreError(LCORE_GET_COMPILERINFO()),
-                              true));
+                    UNIXError("read", LCoreError(LCORE_GET_COMPILERINFO())));
 	 // cerr << fd_ << ": read EOF\n";
 	 if (flags_.chunkeof)
 	 {
@@ -780,8 +781,7 @@ void StreamFDModule::writeEOF()
       ureg_.freeFD(fd_);
       fd_ = -1;
       setErrorIn(ErrWrite,
-                 UNIXError("write", LCoreError(LCORE_GET_COMPILERINFO()),
-                           true));
+                  UNIXError("write", LCoreError(LCORE_GET_COMPILERINFO())));
       {
          UNIXError tmp("write", EBADF, LCoreError(LCORE_GET_COMPILERINFO()));
          setErrorIn(ErrFatal, tmp);

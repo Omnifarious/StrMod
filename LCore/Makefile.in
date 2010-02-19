@@ -65,7 +65,7 @@ pwd_test: always
 	fi; fi
 
 $(MYINCLUDEDIR): pwd_test
-	$(MYMAKE) $(MYINCLUDEBASE) 
+	$(MYMAKE) $(MYINCLUDEBASE)
 	rm -f $@
 	ln -s `$(CAT) pwd_test`/LCore $@
 

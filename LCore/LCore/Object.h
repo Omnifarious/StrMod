@@ -1,4 +1,4 @@
-#ifndef _LCORE_Object_H_
+#ifndef _LCORE_Object_H_  // -*- c++ -*-
 
 /*
  * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
@@ -40,12 +40,20 @@
 
 #define _LCORE_Object_H_
 
+namespace strmod {
+namespace lcore {
+
 class ClassIdent;
 
 class Object {
-   friend int operator ==(const Object &a, const Object &b);
-   friend std::ostream &operator <<(std::ostream &os, const Object &ob);
-   friend std::ostream &operator <<(std::ostream &os, Object &ob);
+ public:
+   static const ClassIdent identifier;
+
+   Object()                                       {}
+   virtual ~Object()                              {}
+
+   const ClassIdent &GetIdent() const             { return(*i_GetIdent()); }
+   inline virtual int AreYouA(const ClassIdent &cid) const;
 
  protected:
    virtual void PrintOn(std::ostream &os) const;
@@ -54,14 +62,11 @@ class Object {
    int DoEqual(const Object &b) const;
    inline virtual const ClassIdent *i_GetIdent() const;
 
- public:
-   static const ClassIdent identifier;
+ private:
+   friend int operator ==(const Object &a, const Object &b);
+   friend std::ostream &operator <<(std::ostream &os, const Object &ob);
+   friend std::ostream &operator <<(std::ostream &os, Object &ob);
 
-   const ClassIdent &GetIdent() const             { return(*i_GetIdent()); }
-   inline virtual int AreYouA(const ClassIdent &cid) const;
-
-   Object()                                       {}
-   virtual ~Object()                              {}
 };
 
 #define AreYouA_Template(parent)      return((identifier == cid) || \
@@ -72,7 +77,11 @@ class Object {
 					  parent::AreYouA(cid));
 
 #ifndef _LCORE_ClassTypes_H_
+}  // end namespace lcore
+}  // end namespace strmod
    #include <LCore/ClassTypes.h>
+namespace strmod {
+namespace lcore {
 #endif
 
 inline void Object::PrintOn(std::ostream &os)
@@ -111,5 +120,8 @@ inline std::ostream &operator <<(std::ostream &os, Object &ob)
    ob.PrintOn(os);
    return(os);
 }
+
+} // namespace lcore
+} // namespace strmod
 
 #endif

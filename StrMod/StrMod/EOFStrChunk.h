@@ -1,7 +1,7 @@
 #ifndef _STR_EOFStrChunk_H_  // -*-c++-*-
 
 /*
- * Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+ * Copyright 1991-2002 Eric M. Hopper <hopper@omnifarious.org>
  * 
  *     This program is free software; you can redistribute it and/or modify it
  *     under the terms of the GNU Lesser General Public License as published
@@ -48,19 +48,20 @@ namespace strmod {
  * invokes a special EOF handling virtual function instead of physically writing
  * the chunk to the file descriptor.
  */
-class EOFStrChunk : public StrChunk {
+class EOFStrChunk : public StrChunk
+{
  public:
    static const STR_ClassIdent identifier;
 
    EOFStrChunk()                                       { }
    inline virtual ~EOFStrChunk();
 
-   inline virtual int AreYouA(const ClassIdent &cid) const;
+   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual unsigned int Length() const                 { return(0); }
 
  protected:
-   virtual const ClassIdent *i_GetIdent() const        { return(&identifier); }
+   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation)             { }
@@ -74,7 +75,7 @@ inline EOFStrChunk::~EOFStrChunk()
 {
 }
 
-inline int EOFStrChunk::AreYouA(const ClassIdent &cid) const
+inline int EOFStrChunk::AreYouA(const lcore::ClassIdent &cid) const
 {
    return((identifier == cid) || StrChunk::AreYouA(cid));
 }
