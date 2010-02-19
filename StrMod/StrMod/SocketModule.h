@@ -55,14 +55,18 @@ class SocketModule : public StreamFDModule
 
    inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
-   //: Who are we connected to?
-   const ehnet::SocketAddress &GetPeerAddr()           { return(peer_); }
+   //! Who are we connected to?
+   const ehnet::SocketAddress &GetPeerAddr()           	{ return(peer_); }
+
+   //! What is the local IP address?
+   const ehnet::SocketAddress &GetSelfAddr()		{ return(*self_); }
 
  protected:
    virtual void writeEOF();
 
-   /** Create a SocketModule using the given fd.
-    * Note that ownership of peer is being passed.
+   //! Create a SocketModule using the given fd.
+   /*!
+     Note that ownership of peer is being passed.
     */
    SocketModule(int fd, ehnet::SocketAddress *peer,
                 unievent::Dispatcher &disp,
@@ -75,6 +79,9 @@ class SocketModule : public StreamFDModule
 
  private:
    ehnet::SocketAddress &peer_;
+   ehnet::SocketAddress *self_;
+
+   void setSelfAddr(int fd);
 };
 
 //-------------------------------inline functions------------------------------

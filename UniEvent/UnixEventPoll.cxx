@@ -85,6 +85,7 @@ struct sigdata
    sigdata() : handler_registered_(false) { }
 };
 typedef std::vector<sigdata> siglist;
+} // anonymous namespace
 
 struct UnixEventPoll::Imp
 {
@@ -103,6 +104,7 @@ struct UnixEventPoll::Imp
    }
 };
 
+namespace {
 /** A convenience class for creating a C++ block in which signal
  * delivery is disabled and automatically re-enabled upon exit from
  * the block.

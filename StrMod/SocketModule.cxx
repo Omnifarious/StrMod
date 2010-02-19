@@ -26,6 +26,7 @@
 #endif
 
 #include <EHnet++/SocketAddress.h>
+#include <EHnet++/InetAddress.h>
 #include "StrMod/SocketModule.h"
 #include "StrMod/FDUtil.h"
 #include <cstring>
@@ -58,23 +59,28 @@ SocketModule::SocketModule(const SocketAddress &addr,
    throw(UNIXError)
      : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, ureg,
 		      StreamFDModule::CheckBoth),
-       peer_(*(addr.Copy()))
+       peer_(*(addr.Copy())),
+       self_(NULL)
 {
    setMaxChunkSize(64U * 1024U);
+   setSelfAddr(getFD());
 }
 
 SocketModule::~SocketModule()  // This might be changed later to add
 {                              // a shutdown message sent to the
    delete &peer_;              // socket on the other side of the
+   delete self_;
 }                              // connection.
 
 SocketModule::SocketModule(int fd, SocketAddress *pr,
                            unievent::Dispatcher &disp,
                            unievent::UnixEventRegistry &ureg)
      : StreamFDModule(fd, disp, ureg, StreamFDModule::CheckBoth),
-       peer_(*pr)
+       peer_(*pr),
+       self_(NULL)
 {
    setMaxChunkSize(64U * 1024U);
+   setSelfAddr(fd);
 }
 
 void SocketModule::writeEOF()
@@ -127,6 +133,32 @@ static inline void doConnect(int fd, SocketAddress &peer) throw(UNIXError)
       {
          throw UNIXError("connect", myerrno,
                          LCoreError(LCORE_GET_COMPILERINFO()));
+      }
+   }
+}
+
+void SocketModule::setSelfAddr(int fd)
+{
+   unsigned char addrbuf[8192];
+   struct sockaddr *saddr = reinterpret_cast<struct sockaddr *>(addrbuf);
+   size_t length = sizeof(addrbuf);
+
+   if (getsockname(fd, saddr, &length) == 0)
+   {
+      if (saddr->sa_family != AF_INET)
+      {
+         // ::std::cerr << "Got connection from non-AF_INET peer" << std::endl;
+         // Got connection from non-AF_INET peer.
+         setErrorIn(ErrFatal,
+                    UNIXError("<none>", 0,
+                              LCoreError("Got connection from non-AF_INET peer",
+                                         LCORE_GET_COMPILERINFO())));
+      }
+      else
+      {
+         sockaddr_in *sinad = reinterpret_cast<struct sockaddr_in *>(saddr);
+         self_ = new ehnet::InetAddress(*sinad);
+         // ::std::cerr << "self_ = " << *(self_) << std::endl;
       }
    }
 }
