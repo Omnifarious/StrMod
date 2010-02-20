@@ -1,0 +1,13 @@
+syntax:glob
+Makefile
+pwd_test
+
+syntax:re
+^generated$
+^include$
+^autom4te\.cache$
+^libNet\.objlist$
+^config\.log$
+^config\.status$
+^configure$
+^distbin/proclibsrc\.pl$
