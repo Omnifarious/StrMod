@@ -30,6 +30,7 @@
 #include <LCore/RefCounting.h>
 #include <vector>
 #include <algorithm>
+#include <cstring>
 
 namespace strmod {
 namespace strmod {
@@ -282,7 +283,7 @@ bool StrChunk::__iterator::isLessThan(const __iterator &other) const
    }
    else
    {
-      return(memcmp(&shared_, &(other.shared_), sizeof(shared_)) < 0);
+      return(::std::memcmp(&shared_, &(other.shared_), sizeof(shared_)) < 0);
    }
 }
 

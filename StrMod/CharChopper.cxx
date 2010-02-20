@@ -40,6 +40,7 @@
 #include <StrMod/DynamicBuffer.h>
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 
 namespace strmod {
 namespace strmod {
@@ -145,7 +146,7 @@ void CharChopper::processIncoming()
 	    {
 	       curdata_ = new DynamicBuffer(32);
 	    }
-	    memcpy(curdata_->getVoidP(), buf, count);
+	    ::std::memcpy(curdata_->getVoidP(), buf, count);
 	    usedsize_ = count;
 	 }
 	 else
@@ -164,7 +165,7 @@ void CharChopper::processIncoming()
 	       }
 	       curdata_->resize(curlen);
 	    }
-	    memcpy(curdata_->getCharP() + usedshadow, buf, count);
+	    ::std::memcpy(curdata_->getCharP() + usedshadow, buf, count);
 	    usedsize_ = usedshadow = (usedshadow + count);
 	 }
       }

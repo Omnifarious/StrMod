@@ -69,6 +69,7 @@
 #include <cctype>
 #include <sys/socket.h>
 #include <cstdlib>
+#include <cstring>
 
 namespace strmod {
 namespace ehnet {
@@ -120,7 +121,7 @@ const InetAddress &InetAddress::operator =(const sockaddr_in &iadr)
 
    /* Make sure we look a lot like the OS thinks an inaddr should look. */
    inaddr.sin_family = AF_INET;
-   memset(inaddr.sin_zero, '\0', sizeof(inaddr.sin_zero));
+   ::std::memset(inaddr.sin_zero, '\0', sizeof(inaddr.sin_zero));
 
    /* Cache the hostname and port info.  We could instead do this every time
       someone asks, but it would be kind of wasteful. */
@@ -136,7 +137,7 @@ InetAddress::InetAddress(const ::std::string &h_name, U2Byte prt) :
    const char *c_hostname;
 
    c_hostname = h_name.c_str();
-   memset(&inaddr, '\0', sizeof(inaddr));
+   ::std::memset(&inaddr, '\0', sizeof(inaddr));
    inaddr.sin_family = AF_INET;
    inaddr.sin_port = htons(port);
    U4Byte saddr = 0;
@@ -166,7 +167,7 @@ InetAddress::InetAddress(const ::std::string &h_name, U2Byte prt) :
 
 InetAddress::InetAddress(U2Byte prt) : port(prt)
 {
-   memset(&inaddr, '\0', sizeof(inaddr));
+   ::std::memset(&inaddr, '\0', sizeof(inaddr));
    inaddr.sin_family = AF_INET;
    inaddr.sin_port = htons(port);
    inaddr.sin_addr.s_addr = INADDR_ANY;
@@ -181,7 +182,7 @@ InetAddress::InetAddress(const InetAddress &b) : hostname(b.hostname),
 
 InetAddress::InetAddress(const sockaddr_in &iadr) : port(0)
 {
-   memset(&inaddr, '\0', sizeof(inaddr));
+   ::std::memset(&inaddr, '\0', sizeof(inaddr));
    *this = iadr;
 }
 
