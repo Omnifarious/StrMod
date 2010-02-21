@@ -36,12 +36,7 @@ OBJDIR = $(MYOUTDIR)/obj
 LIBDIR = $(MYOUTDIR)/lib
 LIBSRC = $(MYOUTDIR)/lib_src
 
-LIBCXX = classimp.cxx  defproto.cxx  hopclimp.cxx  objctstr.cxx \
-         progrimp.cxx  clsprgid.cxx  cltpsstr.cxx  gentyimp.cxx \
-         objctstd.cxx  objecimp.cxx  protoimp.cxx  defeh_cl.cxx \
-         defspscl.cxx  defrefco.cxx  refcoimp.cxx  rfcntptr.cxx \
-         rfcntptt.cxx  debugabl.cxx  lcerror.cxx   enum_set.cxx \
-         simple_bitset.cxx
+LIBCXX = gentyimp.cxx lcerror.cxx enum_set.cxx simple_bitset.cxx
 
 TESTCCS = tests/refcnt.cxx
 

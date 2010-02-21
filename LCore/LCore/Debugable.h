@@ -26,8 +26,7 @@
 
 // For a log, see ../ChangeLog
 
-#include <LCore/HopClTypes.h>
-#include <LCore/Protocol.h>
+#include <iosfwd>
 
 #define _LCORE_Debugable_H_
 
@@ -39,11 +38,9 @@ namespace lcore {
  * You'll probable need to use a dynamic_cast to use this interface in a
  * generic way in most cases.
  */
-class Debugable : virtual public Protocol {
+class Debugable {
  public:
-   static const LCore_ClassIdent identifier;
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
+   virtual ~Debugable() {}
 
    /** \brief This should ALWAYS return true.  It says whether the class
     * invariant holds or not.
@@ -57,17 +54,7 @@ class Debugable : virtual public Protocol {
     * be needed to debug it properly.
     */
    virtual void printState(::std::ostream &os) const = 0;
-
- protected:
-   virtual const ClassIdent *i_GetIdent() const         { return(&identifier); }
 };
-
-//-----------------------------inline functions--------------------------------
-
-inline int Debugable::AreYouA(const ClassIdent &cid) const
-{
-   return((identifier == cid) || Protocol::AreYouA(cid));
-}
 
 } // namespace lcore
 } // namespace strmod
