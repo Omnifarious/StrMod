@@ -61,8 +61,6 @@
 
 #include <string>
 #include <iosfwd>  // ostream
-#include <LCore/Protocol.h>
-#include <EHnet++/NET_ClassIdent.h>
 
 #define _EHNET_SocketAddress_H_
 
@@ -78,19 +76,12 @@ namespace ehnet {
  * system calls take.  It includes a virtual 'Copy' method to clone copies when
  * you don't know the actual type of the address.
  */
-class SocketAddress : virtual public lcore::Protocol
-{
+class SocketAddress {
  public:
-   static const NET_ClassIdent identifier;
-
    //! An abstract SocketAddress really doesn't have any parameters
    SocketAddress()                                      { }
    //! No member variables, nothing to do
    virtual ~SocketAddress()                             { }
-
-   virtual int AreYouA(const lcore::ClassIdent &cid) const {
-      return((identifier == cid) || lcore::Protocol::AreYouA(cid));
-   }
 
    //! Send a textual representation of the address to the given ostream.
    virtual void PrintOn(::std::ostream &);
@@ -109,8 +100,6 @@ class SocketAddress : virtual public lcore::Protocol
    virtual ::std::string AsString() = 0;
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    //! Clone this address, no matter it's actual type
    virtual SocketAddress *MakeCopy() const = 0;
 };

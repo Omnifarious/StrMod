@@ -90,10 +90,8 @@ class InetAddress : public SocketAddress {
  private:
    typedef lcore::U2Byte U2Byte;
    typedef lcore::U4Byte U4Byte;
-   typedef lcore::ClassIdent ClassIdent;
- public:
-   static const NET_ClassIdent identifier;
 
+ public:
    /** Create an InetAddress from a hostname/dotted-quad and port #
     * @param h_name A host name (i.e. omnifarious.omnifarious.org) , or dotted-quad (i.e. 208.42.65.33).
     * @param prt A TCP or UDP port number.
@@ -112,10 +110,6 @@ class InetAddress : public SocketAddress {
    InetAddress(const ::sockaddr_in &iadr);
    //! No pointers or anything, so not much to destroy
    virtual ~InetAddress()                               { }
-
-   virtual int AreYouA(const ClassIdent &cid) const {
-      return((identifier == cid) || SocketAddress::AreYouA(cid));
-   }
 
    virtual ::sockaddr *SockAddr()         { return (::sockaddr *)(&inaddr); }
    InetAddress *Copy() const              { return (InetAddress *)MakeCopy(); }
@@ -140,8 +134,6 @@ class InetAddress : public SocketAddress {
    const InetAddress &operator =(const ::sockaddr_in &iadr);
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    inline virtual SocketAddress *MakeCopy() const;
 
    //! Mark this address as invalid

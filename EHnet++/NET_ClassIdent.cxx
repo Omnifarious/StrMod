@@ -28,8 +28,6 @@
 #  pragma implementation "NET_ClassIdent.h"
 #endif
 
-#include "EHnet++/NET_ClassIdent.h"
-
 namespace strmod {
 
 /** Some classes to handle network addresses, should be overhauled
