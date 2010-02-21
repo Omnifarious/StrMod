@@ -41,7 +41,7 @@ inline bool Lexer::isnamebody(const char c)
 {
    return
       isnamestart(c) ||
-      (c >= '\x30') && (c <= '\x39') || // 0-9
+      ((c >= '\x30') && (c <= '\x39')) || // 0-9
       (c == dot) || (c == dash) ||
       (c == '\xB7');  // Extender, whatever that is.
 }
