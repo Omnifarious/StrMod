@@ -27,6 +27,7 @@
 // For a log, see ../ChangeLog
 
 #include <StrMod/StrChunk.h>
+#include <StrMod/StrChunkPtr.h>
 #include <LCore/GenTypes.h>
 #include <iterator>
 
@@ -38,7 +39,7 @@ namespace strmod {
 /** \class StrChunk::__iterator ChunkIterator.h StrMod/ChunkIterator.h
  * The const_iterator class for StrChunk.
  */
-class StrChunk::__iterator
+class StrChunk::iterator__
 {
  private:
    class shared;
@@ -53,30 +54,30 @@ class StrChunk::__iterator
    typedef const U1Byte &reference;
 
    //! Creates an iterator that's always at the end()
-   __iterator();
+   iterator__();
    //! Creates an interator pointat the beginning of a StrChunk.
-   __iterator(const StrChunkPtr &chnk);
+   iterator__(const StrChunkPtr &chnk);
    //! Creates an iterator using the shared data already generated.
-   __iterator(shared *sh);
+   iterator__(const ::std::tr1::shared_ptr<shared> &sh);
    //! Copies one iterator to another.  Manages reference count on shared area.
-   __iterator(const __iterator &other);
+   iterator__(const iterator__ &other);
    //! Destroys an iterator, possibly destroying shared data too if refcount is only 1
-   ~__iterator();
+   ~iterator__();
 
    //! Am I an iterator over this chunk?
    bool isFor(const StrChunkPtr &chnk) const;
 
    //! Am I equal to other?  Do I iterator over the same StrChunk and am I at
    //! the same spot?
-   bool isEqual(const __iterator &other) const;
+   bool isEqual(const iterator__ &other) const;
    //! Am I less than other?
-   bool isLessThan(const __iterator &other) const;
+   bool isLessThan(const iterator__ &other) const;
 
    //! How many characters are there between me and another iterator?
-   difference_type distance(const __iterator &other) const;
+   difference_type distance(const iterator__ &other) const;
 
    //! Make me into a copy of another iterator.
-   const __iterator &operator =(const __iterator &other);
+   const iterator__ &operator =(const iterator__ &other);
 
    //! Using this operator will almost certainly result in a compiler error.
    inline pointer operator->() const;
@@ -84,29 +85,23 @@ class StrChunk::__iterator
    inline reference operator *() const;
 
    //! Move forward one.  Prefix operator, so it's more efficient.
-   inline const __iterator &operator ++();
+   inline const iterator__ &operator ++();
    //! Move forward one.  Postfix operator, so it's less efficient.
-   inline const __iterator operator ++(int);
+   inline const iterator__ operator ++(int);
    //! Move to one past the last character.
    void moveToEnd();
    //! Move backward one.  Prefix operator, so it's more efficient.
-   inline const __iterator &operator --();
+   inline const iterator__ &operator --();
    //! Move backward one.  Postfix operator, so it's less efficient.
-   inline const __iterator operator --(int);
+   inline const iterator__ operator --(int);
    //! Move to the first character (which may be one past the last character
    //! if the StrChunk is empty.
    void moveToBegin();
 
- protected:
-   //! Set the secret storage compartment in a StrChunk to val.
-   inline static void setStorage(StrChunk &chnk, void *val);
-   //! Get what's in the secret storage compartment inside a StrChunk.
-   inline static void *getStorage(StrChunk &chnk);
-
  private:
    class ExtVisitor;
    friend class ExtVisitor;
-   shared *shared_;
+   ::std::tr1::shared_ptr<shared> shared_;
    unsigned int abspos_;
    unsigned int extpos_;
    unsigned int extlast_;  // Index of last element (not length) of extbase_.
@@ -121,45 +116,45 @@ class StrChunk::__iterator
 
 //-----------------------------inline functions--------------------------------
 
-inline StrChunk::__iterator::pointer
-StrChunk::__iterator::operator->() const
+inline StrChunk::iterator__::pointer
+StrChunk::iterator__::operator->() const
 {
    return(&(extbase_[extpos_]));
 }
 
-inline StrChunk::__iterator::reference
-StrChunk::__iterator::operator *() const
+inline StrChunk::iterator__::reference
+StrChunk::iterator__::operator *() const
 {
    return(extbase_[extpos_]);
 }
 
-inline const StrChunk::__iterator &StrChunk::__iterator::operator ++()
+inline const StrChunk::iterator__ &StrChunk::iterator__::operator ++()
 {
    move_forward();
    return(*this);
 }
 
-inline const StrChunk::__iterator StrChunk::__iterator::operator ++(int)
+inline const StrChunk::iterator__ StrChunk::iterator__::operator ++(int)
 {
-   __iterator tmp(*this);
+   iterator__ tmp(*this);
    move_forward();
    return(tmp);
 }
 
-inline const StrChunk::__iterator &StrChunk::__iterator::operator --()
+inline const StrChunk::iterator__ &StrChunk::iterator__::operator --()
 {
    move_backward();
    return(*this);
 }
 
-inline const StrChunk::__iterator StrChunk::__iterator::operator --(int)
+inline const StrChunk::iterator__ StrChunk::iterator__::operator --(int)
 {
-   __iterator tmp(*this);
+   iterator__ tmp(*this);
    move_backward();
    return(tmp);
 }
 
-inline void StrChunk::__iterator::move_forward()
+inline void StrChunk::iterator__::move_forward()
 {
    if (extpos_ < extlast_)
    {
@@ -172,7 +167,7 @@ inline void StrChunk::__iterator::move_forward()
    }
 }
 
-inline void StrChunk::__iterator::move_backward()
+inline void StrChunk::iterator__::move_backward()
 {
    if (extpos_ > 0)
    {
@@ -185,56 +180,46 @@ inline void StrChunk::__iterator::move_backward()
    }
 }
 
-inline void StrChunk::__iterator::setStorage(StrChunk &chnk, void *val)
-{
-   chnk.iter_storage = val;
-}
-
-inline void *StrChunk::__iterator::getStorage(StrChunk &chnk)
-{
-   return(chnk.iter_storage);
-}
-
 //--
 
 inline bool
-operator ==(const StrChunk::__iterator &a, const StrChunk::__iterator &b)
+operator ==(const StrChunk::iterator__ &a, const StrChunk::iterator__ &b)
 {
    return(a.isEqual(b));
 }
 
 inline bool
-operator !=(const StrChunk::__iterator &a, const StrChunk::__iterator &b)
+operator !=(const StrChunk::iterator__ &a, const StrChunk::iterator__ &b)
 {
    return(! a.isEqual(b));
 }
 
 inline bool
-operator <(const StrChunk::__iterator &a, const StrChunk::__iterator &b)
+operator <(const StrChunk::iterator__ &a, const StrChunk::iterator__ &b)
 {
    return(a.isLessThan(b));
 }
 
 inline bool
-operator >(const StrChunk::__iterator &a, const StrChunk::__iterator &b)
+operator >(const StrChunk::iterator__ &a, const StrChunk::iterator__ &b)
 {
    return(b.isLessThan(a));
 }
 
 inline bool
-operator <=(const StrChunk::__iterator &a, const StrChunk::__iterator &b)
+operator <=(const StrChunk::iterator__ &a, const StrChunk::iterator__ &b)
 {
    return(! b.isLessThan(a));
 }
 
 inline bool
-operator >=(const StrChunk::__iterator &a, const StrChunk::__iterator &b)
+operator >=(const StrChunk::iterator__ &a, const StrChunk::iterator__ &b)
 {
    return(! a.isLessThan(b));
 }
 
-inline StrChunk::__iterator::difference_type
-operator -(const StrChunk::__iterator &a, const StrChunk::__iterator &b)
+inline StrChunk::iterator__::difference_type
+operator -(const StrChunk::iterator__ &a, const StrChunk::iterator__ &b)
 {
    return(a.distance(b));
 }
