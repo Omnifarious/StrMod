@@ -1,7 +1,7 @@
 #ifndef _STR_StrChunkDecorator_H_  // -*-c++-*-
 
 /*
- * Copyright 1991-2004 Eric M. Hopper <hopper@omnifarious.org>
+ * Copyright 2004-2010 Eric M. Hopper <hopper@omnifarious.org>
  *
  *     This file originally created by Jim Hodapp <jhodapp@iupui.edu>
  *

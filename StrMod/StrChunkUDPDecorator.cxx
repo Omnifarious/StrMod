@@ -1,5 +1,5 @@
 /*
- * Copyright 1991-2004 Eric M. Hopper <hopper@omnifarious.org>
+ * Copyright 1991-2010 Eric M. Hopper <hopper@omnifarious.org>
  *
  *     This file originally created by Jim Hodapp <jhodapp@iupui.edu>
  *

@@ -1,5 +1,5 @@
 /* acconfig.h -- Used by autoconf to generate config.h.in
-   Copyright (C) 1995 Eric Hopper
+   Copyright 1995-2010 Eric Hopper <hopper@omnifarious.org>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

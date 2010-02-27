@@ -1,6 +1,6 @@
 #! /usr/gnu/bin/perl
 
-# Copyright (C) 1991-9 Eric M. Hopper <hopper@omnifarious.mn.org>
+# Copyright 1991-2010 Eric M. Hopper <hopper@omnifarious.org>
 # 
 #     This program is free software; you can redistribute it and/or modify it
 #     under the terms of the GNU Lesser General Public License as published by
