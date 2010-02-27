@@ -29,17 +29,3 @@
 #endif
 
 #include <UniEvent/EventPtr.h>
-
-#ifdef __GNUG__
-#  pragma implementation "EventPtrT.h"
-#endif
-
-#include <UniEvent/EventPtrT.h>
-
-namespace strmod {
-namespace unievent {
-
-const UNEVT_ClassIdent EventPtr::identifier(5UL);
-
-}; // namespace unievent
-}; // namespace strmod

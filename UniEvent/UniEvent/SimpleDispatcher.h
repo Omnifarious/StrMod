@@ -42,14 +42,10 @@ class Event;
 class SimpleDispatcher : public Dispatcher
 {
  public:
-   static const UNEVT_ClassIdent identifier;
-
    //! Create one.
    SimpleDispatcher();
    //! Destroy one.
    virtual ~SimpleDispatcher();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual void addEvent(const EventPtr &ev);
 
@@ -64,9 +60,6 @@ class SimpleDispatcher : public Dispatcher
    virtual void addBusyPollEvent(const EventPtr &ev);
    virtual bool onQueueEmpty(const EventPtr &ev);
    virtual bool onInterrupt(const EventPtr &ev);
-
- protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
    class Imp;
@@ -85,11 +78,6 @@ class SimpleDispatcher : public Dispatcher
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline int SimpleDispatcher::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Dispatcher::AreYouA(cid));
-}
 
 void SimpleDispatcher::stopDispatching()
 {

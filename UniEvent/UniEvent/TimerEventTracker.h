@@ -42,8 +42,6 @@ class Dispatcher;
 class TimerEventTracker : virtual public Timer, virtual public lcore::Debugable
 {
  public:
-   static const UNEVT_ClassIdent identifier;
-
    /** \brief Construct using the ANSI C time function to provide an initial
     * base.
     */
@@ -52,11 +50,6 @@ class TimerEventTracker : virtual public Timer, virtual public lcore::Debugable
    explicit TimerEventTracker(const absolute_t &now);
    //! Nothing special or unexpected
    virtual ~TimerEventTracker();
-
-   virtual int AreYouA(const lcore::ClassIdent &cid) const {
-      return((identifier == cid) || Timer::AreYouA(cid)
-             || Debugable::AreYouA(cid));
-   }
 
    virtual void postAt(const absolute_t &t, const EventPtr &ev);
    // Leave the implementation of postIn as it is in Timer.
@@ -89,9 +82,6 @@ class TimerEventTracker : virtual public Timer, virtual public lcore::Debugable
 
    virtual bool invariant() const                               { return true; }
    virtual void printState(::std::ostream &os) const;
-
- protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
  private:
    class Imp;

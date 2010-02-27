@@ -60,13 +60,13 @@ void RegistryDispatcherGlue::dispatcher(Dispatcher *disp)
    if (disp != disp_)
    {
       emptyev_->parentGone();
-      emptyev_.ReleasePtr();
+      emptyev_.reset();
       busyev_->parentGone();
-      busyev_.ReleasePtr();
+      busyev_.reset();
 
       disp_ = disp;
-      emptyev_ = new EmptyEvent(this);
-      busyev_ = new BusyEvent(this);
+      emptyev_.reset(new EmptyEvent(this));
+      busyev_.reset(new BusyEvent(this));
 
       if (disp_)
       {

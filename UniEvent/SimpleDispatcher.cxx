@@ -25,11 +25,3 @@
 #endif
 
 #include "UniEvent/SimpleDispatcher.h"
-
-namespace strmod {
-namespace unievent {
-
-const UNEVT_ClassIdent SimpleDispatcher::identifier(4UL);
-
-}; // namespace unievent
-}; // namespace strmod

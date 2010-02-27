@@ -14,8 +14,6 @@
 namespace strmod {
 namespace unievent {
 
-const UNEVT_ClassIdent Timer::identifier(12UL);
-
 bool operator <(const Timer::interval_t &a, const Timer::interval_t &b)
 {
    Timer::interval_t an(a);

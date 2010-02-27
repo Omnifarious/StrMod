@@ -35,8 +35,6 @@
 namespace strmod {
 namespace unievent {
 
-const UNEVT_ClassIdent TimerEventTracker::identifier(14UL);
-
 typedef Timer::interval_t interval_t;
 typedef Timer::absolute_t absolute_t;
 
@@ -214,7 +212,7 @@ void TimerEventTracker::printState(::std::ostream &os) const
    const timerheap_t::const_iterator end = curheap.end();
    for (timerheap_t::const_iterator i = curheap.begin(); i != end; ++i)
    {
-      os << "   [" << i->first << ", " << i->second.GetPtr() << "]\n";
+      os << "   [" << i->first << ", " << i->second.get() << "]\n";
    }
    os << ")";
 }

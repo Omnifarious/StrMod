@@ -26,90 +26,16 @@
 
 // For log see ../ChangeLog
 
-#ifndef _UNEVT_Event_H_
-#  include <UniEvent/Event.h>
-#endif
-#include <LCore/RefCountPtrT.h>
+#include <tr1/memory>
 
 #define _UNEVT_EventPtr_H_
 
 namespace strmod {
 namespace unievent {
 
-/** \class EventPtr Event.h UniEvent/Event.h
- * A smart pointer class that points an Event and handles the reference count.
- */
-class EventPtr : public lcore::RefCountPtrT<Event>
-{
- public:
-   //! An easier way to refer to RefCountPtrT<Evemt>
-   typedef lcore::RefCountPtrT<Event> super1;
-   static const UNEVT_ClassIdent identifier;
+class Event;
 
-   //@{
-   /**
-    * These all construct an EventPtr from the appropriate type and maintain the
-    * reference count to the pointed at Event.
-    */
-   inline EventPtr(Event *eptr = 0);
-   inline EventPtr(const EventPtr &b);
-   inline EventPtr(const super1 &b);
-   //@}
-
-   //@{
-   /**
-    * These all set the value of an EventPtr value from the appropriate type and
-    * maintain the reference count to the pointed at EVent.
-    */
-   inline const EventPtr &operator =(const EventPtr &b);
-   inline const EventPtr &operator =(const super1 &b);
-   inline const EventPtr &operator =(Event *b);
-   //@}
-
- protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-};
-
-//-----------------------------inline functions--------------------------------
-
-inline EventPtr::EventPtr(Event *eptr)
-{
-   if (eptr) {
-      i_SetPtr(eptr);
-   }
-}
-
-inline EventPtr::EventPtr(const EventPtr &b)
-{
-   if (b.GetPtr()) {
-      i_SetPtr(b.GetPtr());
-   }
-}
-
-inline EventPtr::EventPtr(const super1 &b)
-{
-   if (b.GetPtr()) {
-      i_SetPtr(b.GetPtr());
-   }
-}
-
-inline const EventPtr &EventPtr::operator =(const EventPtr &b)
-{
-   super1::operator =(b);
-   return(*this);
-}
-
-inline const EventPtr &EventPtr::operator =(const super1 &b)
-{
-   super1::operator =(b);
-   return(*this);
-}
-
-inline const EventPtr &EventPtr::operator =(Event *b)
-{
-   super1::operator =(b);
-   return(*this);
-}
+typedef ::std::tr1::shared_ptr<Event> EventPtr;
 
 } // namespace unievent
 } // namespace strmod

@@ -25,11 +25,3 @@
 #endif
 
 #include "UniEvent/Dispatcher.h"
-
-namespace strmod {
-namespace unievent {
-
-const UNEVT_ClassIdent Dispatcher::identifier(1UL);
-
-};
-};

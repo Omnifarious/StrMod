@@ -31,15 +31,12 @@
 #include <ctime>
 #include <iosfwd>
 #include <LCore/GenTypes.h>
-#include <LCore/Protocol.h>
-#include <UniEvent/UNEVT_ClassIdent.h>
+#include <UniEvent/EventPtr.h>
 
 #define _UNEVT_Timer_H_
 
 namespace strmod {
 namespace unievent {
-
-class EventPtr;
 
 /** \class Timer Timer.h UniEvent/Timer.h
  * \brief Posts events that happen based on time.
@@ -65,7 +62,7 @@ class EventPtr;
  * local time zone, and whether or not this can even be determined in the
  * environment are not important to the interface.
  */
-class Timer : virtual public lcore::Protocol
+class Timer
 {
  public:
    /** \class interval_t Timer.h UniEvent/Timer.h
@@ -113,7 +110,6 @@ class Timer : virtual public lcore::Protocol
       }
       interval_t::normalize;
    };
-   static const UNEVT_ClassIdent identifier;
 
    /** Construct a Timer
     */
@@ -123,19 +119,12 @@ class Timer : virtual public lcore::Protocol
     */
    virtual ~Timer()                                              { }
 
-   virtual int AreYouA(const lcore::ClassIdent &cid) const {
-      return (identifier == cid) || Protocol::AreYouA(cid);
-   }
-
    //! Post an event at a particular time
    virtual void postAt(const absolute_t &t, const EventPtr &ev) = 0;
    //! Post an event after a certain amount of time has expired.
    virtual void postIn(const interval_t &off, const EventPtr &ev);
    //! What time is it now?!
    virtual absolute_t currentTime() const = 0;
-
- protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 };
 
 //-----------------------------inline functions--------------------------------

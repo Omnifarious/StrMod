@@ -29,6 +29,8 @@
 #include "UniEvent/EventPtr.h"
 #include <iostream>
 #include <deque>
+#include <tr1/memory>
+#include <cassert>
 #include <signal.h>
 //  #include <unistd.h>
 
@@ -38,16 +40,16 @@ namespace unievent {
 //! Private implementation details of SimpleDispatcher.
 class SimpleDispatcher::Imp {
  public:
-   typedef std::deque<Event *> EVListBase;
+   typedef ::std::tr1::shared_ptr<Event> evptr_t;
+   typedef ::std::deque<evptr_t> EVListBase;
    class EVList : private EVListBase {
     public:
-      inline void addElement(Event *ev);
+      inline void addElement(const evptr_t &ev);
       inline bool qEmpty();
       inline size_t size() const { return EVListBase::size(); }
       inline void moveFrontTo(EVList &b);
-      inline Event *noref_pop_front();
-
-      inline ~EVList();
+      using EVListBase::front;
+      using EVListBase::pop_front;
    };
 
    EVList mainq_;
@@ -56,7 +58,7 @@ class SimpleDispatcher::Imp {
    EventPtr onempty_;
    EventPtr oninterrupt_;
    volatile sig_atomic_t interrupted_;
-   Event *curevt_;
+   evptr_t curevt_;
 };
 
 namespace {
@@ -66,9 +68,8 @@ void interruptUnblock(void *data);
 
 }
 
-inline void SimpleDispatcher::Imp::EVList::addElement(Event *ev)
+inline void SimpleDispatcher::Imp::EVList::addElement(const evptr_t &ev)
 {
-   ev->AddReference();
    push_back(ev);
 }
 
@@ -77,39 +78,12 @@ inline bool SimpleDispatcher::Imp::EVList::qEmpty()
    return(size() <= 0);
 }
 
-inline SimpleDispatcher::Imp::EVList::~EVList()
-{
-   while (!qEmpty())
-   {
-      Event *ev = front();
-
-      pop_front();
-      if (ev->NumReferences() > 0)
-      {
-	 ev->DelReference();
-      }
-      if (ev->NumReferences() <= 0)
-      {
-	 delete ev;
-      }
-   }
-}
-
 inline void SimpleDispatcher::Imp::EVList::moveFrontTo(EVList &b)
 {
    assert(size() > 0);
-   Event *ev = front();
+   evptr_t ev = front();
    pop_front();
    b.push_back(ev);
-}
-
-//! Remove and return the front element without altering the reference count.
-inline Event *SimpleDispatcher::Imp::EVList::noref_pop_front()
-{
-   assert(size() > 0);
-   Event *ev = front();
-   pop_front();
-   return ev;
 }
 
 SimpleDispatcher::SimpleDispatcher()
@@ -117,7 +91,6 @@ SimpleDispatcher::SimpleDispatcher()
 {
    imp_.internalevnum_ = 0;
    imp_.interrupted_ = 0;
-   imp_.curevt_ = 0;
 }
 
 SimpleDispatcher::~SimpleDispatcher()
@@ -132,12 +105,12 @@ SimpleDispatcher::~SimpleDispatcher()
 
 void SimpleDispatcher::addEvent(const EventPtr &ev)
 {
-   imp_.mainq_.addElement(ev.GetPtr());
+   imp_.mainq_.addElement(ev);
 }
 
 void SimpleDispatcher::addBusyPollEvent(const EventPtr &ev)
 {
-   imp_.busypoll_.addElement(ev.GetPtr());
+   imp_.busypoll_.addElement(ev);
 }
 
 inline void SimpleDispatcher::i_DispatchEvent(Imp &imp,
@@ -146,23 +119,21 @@ inline void SimpleDispatcher::i_DispatchEvent(Imp &imp,
    assert(!imp.mainq_.qEmpty());
    assert(enclosing != 0);
 
-   Event *ev = 0;
+   typedef ::std::tr1::shared_ptr<Event> evptr_t;
+   evptr_t ev;
 
    {
       void *tmp = interruptBlock();
       if (imp_.interrupted_)
       {
          imp_.interrupted_ = 0;
-         ev = imp_.oninterrupt_.GetPtr();
-         if (ev)
-         {
-            ev->AddReference();
-            imp_.oninterrupt_.ReleasePtr();
-         }
+         ev = imp_.oninterrupt_;
+         imp_.oninterrupt_.reset();
       }
       if (!ev)
       {
-         ev = imp.mainq_.noref_pop_front();
+         ev = imp.mainq_.front();
+         imp.mainq_.pop_front();
       }
       imp_.curevt_ = ev;
       interruptUnblock(tmp);
@@ -170,16 +141,8 @@ inline void SimpleDispatcher::i_DispatchEvent(Imp &imp,
    ev->triggerEvent(enclosing);
    {
       void *tmp = interruptBlock();
-      imp_.curevt_ = 0;
+      imp_.curevt_.reset();
       interruptUnblock(tmp);
-   }
-   if (ev->NumReferences() > 0)
-   {
-      ev->DelReference();
-   }
-   if (ev->NumReferences() <= 0)
-   {
-      delete ev;
    }
 }
 
@@ -217,9 +180,9 @@ SimpleDispatcher::checkEmptyBusy(Imp &imp, bool &checkbusy)
          if (imp.onempty_)  // mainq empty, and there's an 'onempty' event.
          {
             // Post 'onempty' event to mainq.
-            imp.mainq_.addElement(imp.onempty_.GetPtr());
+            imp.mainq_.addElement(imp.onempty_);
             imp.internalevnum_ = 1;
-            imp.onempty_.ReleasePtr();
+            imp.onempty_.reset();
             retval = 1;
          }
       }

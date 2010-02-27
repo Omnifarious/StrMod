@@ -9,6 +9,9 @@
 // For a log, see ../ChangeLog
 
 #include <LCore/enum_set.h>
+#ifndef _UNEVT_EventPtr_H_
+#  include <UniEvent/EventPtr.h>
+#endif
 
 #define _UNEVT_UnixEventRegistry_H_
 
@@ -16,7 +19,6 @@ namespace strmod {
 namespace unievent {
 
 class Dispatcher;
-class EventPtr;
 
 /** \class UnixEventRegistry UnixEventRegistry.h UniEvent/UnixEventRegistry.h
  * \brief Manages events associated with various file descriptors and/or

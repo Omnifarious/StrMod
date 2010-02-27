@@ -47,8 +47,6 @@ typedef struct sigaction i_sigaction;
 namespace strmod {
 namespace unievent {
 
-const UNEVT_ClassIdent UnixEventPoll::identifier(15UL);
-
 typedef UnixEventPoll::FDCondSet FDCondSet;
 typedef i_sigaction local_sigaction;
 
@@ -193,7 +191,7 @@ class equal_evtptr
  public:
    equal_evtptr(const EventPtr &compptr) : compptr_(compptr) { }
    bool operator ()(const EventPtr &evtptr) {
-      return evtptr.GetPtr() == compptr_.GetPtr();
+      return evtptr == compptr_;
    }
 
  private:

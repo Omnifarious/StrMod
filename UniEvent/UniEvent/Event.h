@@ -26,35 +26,23 @@
 
 // For log see ../ChangeLog
 
-#include <LCore/Protocol.h>
-#include <LCore/RefCounting.h>
-#ifndef _UNEVT_UNEVT_ClassIdent_H_
-#  include <UniEvent/UNEVT_ClassIdent.h>
-#endif
-
 #define _UNEVT_Event_H_
-
 
 namespace strmod {
 namespace unievent {
 
 class Dispatcher;
-class EventPtr;
 
 /** \class Event Event.h UniEvent/Event.h
  * \brief An event to be queued up in a UNIDispatcher.
  */
-class Event : virtual public lcore::Protocol, public lcore::ReferenceCounting
+class Event
 {
  public:
-   static const UNEVT_ClassIdent identifier;
-
    //! Nothing exciting here.
-   Event() : ReferenceCounting(0)                       { }
+   Event()                                              { }
    //! This is an interface class, of course it has a virtual destructor.
    virtual ~Event()                                     { }
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    /** Perform the action associated with the event.
     * If the event was triggered by a dispatcher, the dispatcher that triggered
@@ -79,9 +67,6 @@ class Event : virtual public lcore::Protocol, public lcore::ReferenceCounting
    //! Alternate form of TriggerEvent
    inline void operator ()()                            { (*this)(0); }
 
- protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
  private:
    // Purposely left undefined.
    Event(const Event &b);
@@ -89,11 +74,6 @@ class Event : virtual public lcore::Protocol, public lcore::ReferenceCounting
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline int Event::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Protocol::AreYouA(cid));
-}
 
 inline void Event::operator ()(Dispatcher *dispatcher)
 {

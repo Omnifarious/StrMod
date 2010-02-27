@@ -26,15 +26,14 @@
 
 // For log see ../ChangeLog
 
-#include <LCore/Protocol.h>
-#include <UniEvent/UNEVT_ClassIdent.h>
+#ifndef _UNEVT_EventPtr_H_
+#  include <UniEvent/EventPtr.h>
+#endif
 
 #define _UNEVT_Dispatcher_H_
 
 namespace strmod {
 namespace unievent {
-
-class EventPtr;
 
 /** \class Dispatcher Dispatcher.h UniEvent/Dispatcher.h
  * \brief An interface for a simple queuer and dispatcher of events.
@@ -43,17 +42,13 @@ class EventPtr;
  * Event objects that are removed from the queue in FIFO order and 'fired' by
  * calling their triggerEvent methods.
  */
-class Dispatcher : virtual public lcore::Protocol
+class Dispatcher
 {
  public:
-   static const UNEVT_ClassIdent identifier;
-
    //! Because every class (even abstract ones) should have a constructor.
    Dispatcher()                                     { }
    //! Because abstract classes should have a virtual destructor.
    virtual ~Dispatcher()                            { }
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Add an event to the queue.
    virtual void addEvent(const EventPtr &ev) = 0;
@@ -136,9 +131,6 @@ class Dispatcher : virtual public lcore::Protocol
    //! Does the queue have any events in it?
    virtual bool isQueueEmpty() const = 0;
 
- protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
  private:
    //! Purposely left undefined.
    Dispatcher(const Dispatcher &b);
@@ -147,11 +139,6 @@ class Dispatcher : virtual public lcore::Protocol
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline int Dispatcher::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Protocol::AreYouA(cid));
-}
 
 inline void Dispatcher::dispatchEvent(Dispatcher *enclosing)
 {
