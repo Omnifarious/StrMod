@@ -36,7 +36,7 @@ OBJDIR = $(MYOUTDIR)/obj
 LIBDIR = $(MYOUTDIR)/lib
 LIBSRC = $(MYOUTDIR)/lib_src
 
-LIBCXX = gentyimp.cxx lcerror.cxx enum_set.cxx simple_bitset.cxx
+LIBCXX = gentyimp.cxx lcerror.cxx simple_bitset.cxx
 
 TESTCCS = tests/refcnt.cxx
 

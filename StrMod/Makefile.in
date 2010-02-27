@@ -46,7 +46,7 @@ LIBCXX = EchoModule.cxx  StreamModule.cxx  \
          CharChopper.cxx  PassThrough.cxx  NewlineChopper.cxx  BufferChunk.cxx \
          PreAllocBuffer.cxx  DynamicBuffer.cxx  BufferChunkFactory.cxx \
          InfiniteModule.cxx  TelnetParser.cxx  TelnetChunker.cxx \
-         TelnetChars.cxx  TelnetChunkBuilder.cxx  LocalCopy.cxx \
+         TelnetChars.cxx  TelnetChunkBuilder.cxx \
          ChunkVisitor.cxx  UseTrackingVisitor.cxx  GraphVizVisitor.cxx \
          ChunkIterator.cxx  StaticBuffer.cxx  ApplyVisitor.cxx \
          SimpleTelnetClient.cxx  RouterModule.cxx  StrChunkDecorator.cxx \

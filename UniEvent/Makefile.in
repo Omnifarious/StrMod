@@ -37,7 +37,7 @@ LIBDIR = $(MYOUTDIR)/lib
 LIBSRC = $(MYOUTDIR)/lib_src
 
 LIBCXX = Event.cxx                Dispatcher.cxx          SimpleDispatcher.cxx \
-         SimpleDispatcherImp.cxx  UNIXError.cxx           EventPtr.cxx \
+         SimpleDispatcherImp.cxx  UNIXError.cxx \
          Timer.cxx                UnixEventRegistry.cxx   UnixEventPoll.cxx \
          TimerEventTracker.cxx    RegistryDispatcherGlue.cxx
 
