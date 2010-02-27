@@ -30,11 +30,3 @@
 #endif
 
 #include <StrMod/NewlineChopper.h>
-
-namespace strmod {
-namespace strmod {
-
-const STR_ClassIdent NewlineChopper::identifier(27UL);
-
-};  // End namespace strmod
-};  // End namespace strmod

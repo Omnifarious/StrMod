@@ -37,8 +37,6 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent GraphVizVisitor::identifier(48UL);
-
 /*!
  * @param root The root of the StrChunk DAG to be printed.
  *
@@ -53,7 +51,7 @@ const StrChunkPtr GraphVizVisitor::visit(const StrChunkPtr &root, std::ostream &
    static char name = 'A';
    if (root)
    {
-      data_ = new DynamicBuffer;
+      data_.reset(new DynamicBuffer);
       data_->resize(root->Length());
       rootpos_ = 0;
       edges_.clear();
@@ -63,7 +61,7 @@ const StrChunkPtr GraphVizVisitor::visit(const StrChunkPtr &root, std::ostream &
           startVisit(root);
           {
               const void *dataptr = data_->getVoidP();
-              out << "n_" << root.GetPtr() << " -> d_" << dataptr << ";\n";
+              out << "n_" << root.get() << " -> d_" << dataptr << ";\n";
               printData(data_->getVoidP(), data_->Length());
               out.flush();
               assert(data_->Length() == rootpos_);
@@ -74,15 +72,14 @@ const StrChunkPtr GraphVizVisitor::visit(const StrChunkPtr &root, std::ostream &
           // Clean ourselves up if an exception happens.
           out_ = NULL;
           rootpos_ = 0;
-          delete data_;
-          data_ = 0;
+          data_.reset();
           edges_.clear();
           throw;
       }
       out_ = NULL;
       rootpos_ = 0;
       retval = data_;
-      data_ = 0;
+      data_.reset();
       edges_.clear();
    }
    return(retval);
@@ -92,10 +89,10 @@ void GraphVizVisitor::use_visitStrChunk(const StrChunkPtr &chunk,
                                         const LinearExtent &used)
    throw(halt_visitation)
 {
-   const void *parent = getParent().GetPtr();
+   const void *parent = getParent().get();
    if (parent)
    {
-      const void *me = chunk.GetPtr();
+      const void *me = chunk.get();
       const edge_t edge(me, parent);
       if (edges_.find(edge) == edges_.end())
       {
@@ -109,7 +106,7 @@ void GraphVizVisitor::use_visitDataBlock(const void *start, size_t len,
                                          const void *realstart, size_t reallen)
    throw(halt_visitation)
 {
-   const void *parent = getParent().GetPtr();
+   const void *parent = getParent().get();
    const void *me = realstart;
    const edge_t edge(me, parent);
    if (edges_.find(edge) == edges_.end())

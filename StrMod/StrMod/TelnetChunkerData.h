@@ -32,8 +32,7 @@
 #include <StrMod/TelnetChunker.h>
 #include <StrMod/TelnetChars.h>
 #include <StrMod/StrChunk.h>
-#include <StrMod/STR_ClassIdent.h>
-#include <StrMod/StrChunkPtrT.h>
+#include <StrMod/StrChunkPtr.h>
 #include <StrMod/BufferChunk.h>
 
 #define _STR_TelnetChunkerData_H_
@@ -50,14 +49,10 @@ namespace strmod {
 class TelnetChunker::TelnetData : public StrChunk
 {
  public:
-   static const STR_ClassIdent identifier;
-
    //! Constructors for abstract base classes don't do much.
    TelnetData()                                         { }
    //! Destructors for abstract base classes don't do much.
    virtual ~TelnetData()                                { }
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    // Redeclare this just to show we know what we're doing and it's still
    // abstract.
@@ -65,7 +60,6 @@ class TelnetChunker::TelnetData : public StrChunk
 
  protected:
    typedef lcore::U1Byte U1Byte;
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    // Redeclare this just to show we know what we're doing and it's still
    // abstract.
@@ -81,12 +75,8 @@ class TelnetChunker::TelnetData : public StrChunk
 class TelnetChunker::SingleChar : public TelnetChunker::TelnetData
 {
  public:
-   static const STR_ClassIdent identifier;
-
    //! Construct a SingleChar for a particular command.
    inline SingleChar(TelnetChars::Commands opt);
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual unsigned int Length() const                  { return(2); }
 
@@ -101,8 +91,6 @@ class TelnetChunker::SingleChar : public TelnetChunker::TelnetData
       throw(std::domain_error);
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
 
@@ -120,33 +108,28 @@ class TelnetChunker::SingleChar : public TelnetChunker::TelnetData
  */
 class TelnetChunker::Suboption : public TelnetChunker::TelnetData {
  public:
-   static const STR_ClassIdent identifier;
-
+   typedef ::std::tr1::shared_ptr<BufferChunk> bufchnkptr_t;
    //! Construct a telnet suboption request.
    inline Suboption(U1Byte type,
-		    const StrChunkPtrT<BufferChunk> &cooked,
+		    const bufchnkptr_t &cooked,
 		    const StrChunkPtr &raw);
    /** Construct a telnet suboption request, generating the 'raw' data.
     *
     * The generated raw data is created by replacing any instances of IAC in
     * the cooked data with IAC IAC.
     */
-   Suboption(U1Byte type, const StrChunkPtrT<BufferChunk> &cooked);
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
+   Suboption(U1Byte type, const bufchnkptr_t &cooked);
 
    inline virtual unsigned int Length() const;
 
    //! Which suboption is this data for?
    inline U1Byte getType() const                       { return(optstart_[2]); }
    //! What's the suboption data with all the escapes processed?
-   inline const StrChunkPtrT<BufferChunk> &getCooked() const;
+   inline const bufchnkptr_t &getCooked() const;
    //! What's the suboption data without any escape processing?
    inline const StrChunkPtr &getRaw() const            { return(raw_); }
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    //! Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
@@ -157,10 +140,10 @@ class TelnetChunker::Suboption : public TelnetChunker::TelnetData {
    const StrChunkPtr raw_;
    const unsigned int rawlen_;
    // The contents stripped of escape characters and such.
-   const StrChunkPtrT<BufferChunk> cooked_;
+   const bufchnkptr_t cooked_;
 
    static const StrChunkPtr
-   cookedToRaw(const StrChunkPtrT<BufferChunk> &cooked);
+   cookedToRaw(const bufchnkptr_t &cooked);
 };
 
 //---
@@ -170,13 +153,9 @@ class TelnetChunker::Suboption : public TelnetChunker::TelnetData {
  */
 class TelnetChunker::OptionNegotiation : public TelnetChunker::TelnetData {
  public:
-   static const STR_ClassIdent identifier;
-
    //! Create a particular kind of option negotiation for a particular option.
    inline OptionNegotiation(TelnetChars::OptionNegotiations request,
                             U1Byte type);
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual unsigned int Length() const                  { return(3); }
 
@@ -186,8 +165,6 @@ class TelnetChunker::OptionNegotiation : public TelnetChunker::TelnetData {
    U1Byte getType() const                               { return(buf_[2]); }
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
 
@@ -198,23 +175,11 @@ class TelnetChunker::OptionNegotiation : public TelnetChunker::TelnetData {
 
 //-----------------------------inline functions--------------------------------
 
-inline int TelnetChunker::TelnetData::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StrChunk::AreYouA(cid));
-}
-
-//---
-
 inline TelnetChunker::SingleChar::SingleChar(TelnetChars::Commands opt)
      : opt_(opt)
 {
    buf_[0] = TelnetChars::IAC;
    buf_[1] = opt_;
-}
-
-inline int TelnetChunker::SingleChar::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || TelnetData::AreYouA(cid));
 }
 
 inline bool TelnetChunker::SingleChar::isSpecial(U1Byte c)
@@ -233,7 +198,7 @@ inline bool TelnetChunker::SingleChar::isSpecial(U1Byte c)
  */
 inline
 TelnetChunker::Suboption::Suboption(
-   U1Byte type, const StrChunkPtrT<BufferChunk> &cooked, const StrChunkPtr &raw)
+   U1Byte type, const bufchnkptr_t &cooked, const StrChunkPtr &raw)
      : raw_(raw), rawlen_(raw->Length()), cooked_(cooked)
 {
    optstart_[0] = TelnetChars::IAC;
@@ -241,17 +206,12 @@ TelnetChunker::Suboption::Suboption(
    optstart_[2] = type;
 }
 
-inline int TelnetChunker::Suboption::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || TelnetData::AreYouA(cid));
-}
-
 inline unsigned int TelnetChunker::Suboption::Length() const
 {
    return(5 + rawlen_);
 }
 
-inline const StrChunkPtrT<BufferChunk> &
+inline const ::std::tr1::shared_ptr<BufferChunk> &
 TelnetChunker::Suboption::getCooked() const
 {
    return(cooked_);
@@ -273,12 +233,6 @@ TelnetChunker::OptionNegotiation::OptionNegotiation(
    buf_[0] = 255;
    buf_[1] = request_;
    buf_[2] = type;
-}
-
-inline int
-TelnetChunker::OptionNegotiation::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || TelnetData::AreYouA(cid));
 }
 
 };  // namespace strmod

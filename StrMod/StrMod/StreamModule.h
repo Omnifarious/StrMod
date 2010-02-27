@@ -29,12 +29,6 @@
 #include <cassert>
 #include <cstddef>
 
-#include <LCore/Protocol.h>
-
-#ifndef _STR_STR_ClassIdent_H_
-#   include <StrMod/STR_ClassIdent.h>
-#endif
-
 #ifndef _STR_StrChunkPtr_H_
 #   include <StrMod/StrChunkPtr.h>
 #endif
@@ -43,8 +37,6 @@
 
 namespace strmod {
 namespace strmod {
-
-class StrChunkPtr;
 
 /** \class StreamModule StreamModule.h StrMod/StreamModule.h
  * An abstract base for objects that can be modules in the StreamModule
@@ -71,7 +63,7 @@ class StrChunkPtr;
  * module which operates this way, the EchoModule, which merely echoes all of
  * its input to its output.  */
 
-class StreamModule : public lcore::Protocol
+class StreamModule
 {
  public:
    class Plug;
@@ -101,14 +93,10 @@ class StreamModule : public lcore::Protocol
       virtual void plugDisconnected(StreamModule *m, Plug *p) = 0;
    };
 
-   static const STR_ClassIdent identifier;
-
    //! Abstract class, doesn't do much.
    StreamModule() : pdstrategy_(NULL)    { }
    //! Prudently virtual in an abstract base class.
    virtual ~StreamModule()               { pdstrategy_ = 0; }
-
-   inline virtual int AreYouA(const lcore::ClassIdent &id) const;
 
    //! Can a plug be created on the given side?
    virtual bool canCreate(int side) const = 0;
@@ -156,8 +144,6 @@ class StreamModule : public lcore::Protocol
    inline void setPDStrategy(PlugDisconnectStrategy *pds);
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
-
    /**
     * Called whenever a plug is disconnected.
     *
@@ -193,17 +179,15 @@ class StreamModule : public lcore::Protocol
 /** \class StreamModule::Plug StreamModule.h StrMod/StreamModule.h
  * A point of connection between one StreamModule and another.
  */
-class StreamModule::Plug : public Protocol {
+class StreamModule::Plug
+{
  public:
    friend class StreamModule;
-   static const STR_ClassIdent identifier;
 
    //! A Plug has to have a parent.
    inline Plug(StreamModule &parent);
    //! Does some tricky things to avoid having the disconnect strategy called.
    inline virtual ~Plug();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Can this plug be read from?
    bool isReadable() const   { return(flags_.canread_ && !flags_.isreading_); }
@@ -238,8 +222,6 @@ class StreamModule::Plug : public Protocol {
        bool notifyonread_  : 1; ///< Does the plug need to be told if its partner can be read from?
        bool notifyonwrite_ : 1; ///< Does the plug need to be told if its partner can be written to?
    };
-
-   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 
    /**
     * Set whether this plug is readable or not.
@@ -389,11 +371,6 @@ class StreamModule::Plug : public Protocol {
 
 //-----------------------------inline functions--------------------------------
 
-inline int StreamModule::AreYouA(const lcore::ClassIdent &id) const
-{
-   return((identifier == id) || Protocol::AreYouA(id));
-}
-
 inline StreamModule::Plug *StreamModule::makePlug(int side)
 {
    if (canCreate(side)) {
@@ -459,11 +436,6 @@ inline StreamModule::Plug::~Plug()
       // avoid calling a partially destructed parent, and various similar
       // kinds of nastiness.
    }
-}
-
-inline int StreamModule::Plug::AreYouA(const lcore::ClassIdent &id) const
-{
-   return((identifier == id) || Protocol::AreYouA(id));
 }
 
 inline void StreamModule::Plug::unPlug()

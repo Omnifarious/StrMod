@@ -38,7 +38,6 @@
 #include "StrMod/PreAllocBuffer.h"
 #include "StrMod/DynamicBuffer.h"
 #include "StrMod/ApplyVisitor.h"
-#include "StrMod/StrChunkPtrT.h"
 #include "StrMod/StrChunkPtr.h"
 #include <cassert>
 #include <deque>
@@ -48,12 +47,6 @@ namespace strmod {
 
 using lcore::U1Byte;
 
-const STR_ClassIdent TelnetChunker::identifier(33UL);
-const STR_ClassIdent TelnetChunker::TelnetData::identifier(34UL);
-const STR_ClassIdent TelnetChunker::SingleChar::identifier(35UL);
-const STR_ClassIdent TelnetChunker::Suboption::identifier(36UL);
-const STR_ClassIdent TelnetChunker::OptionNegotiation::identifier(37UL);
-
 const U1Byte TelnetChunker::Suboption::optend_[2] = {
    TelnetChars::IAC, TelnetChars::SE
 };
@@ -62,6 +55,8 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
  private:
    static const int qsize_ = 16;
  public:
+   typedef ::std::tr1::shared_ptr<BufferChunk> bufchnkptr_t;
+
    Builder() : curlen_(0)                                   { }
    virtual ~Builder()                                       { }
 
@@ -71,7 +66,7 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
                                       U1Byte opt_type);
    virtual void addSuboption(U1Byte opt_type,
                              size_t regionbegin, size_t regionend,
-                             StrChunkPtrT<BufferChunk> &cooked);
+                             bufchnkptr_t &cooked);
 
    void addOutgoing(const StrChunkPtr &ptr);
 
@@ -85,16 +80,16 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
    const StrChunkPtr getFromQueue();
 
  private:
-   std::deque<StrChunk *> chunks_;
+   ::std::deque<StrChunkPtr> chunks_;
    StrChunkPtr curchunk_;
    size_t curlen_;
 
-   inline StrChunk *makeDataPtr(size_t regionbegin, size_t regionend);
+   inline StrChunkPtr makeDataPtr(size_t regionbegin, size_t regionend);
 };
 
 inline void TelnetChunker::Builder::clearIncoming()
 {
-   curchunk_.ReleasePtr();
+   curchunk_.reset();
    curlen_ = 0;
 }
 
@@ -115,18 +110,18 @@ inline bool TelnetChunker::Builder::hasData() const
    return !chunks_.empty();
 }
 
-inline StrChunk *
+inline StrChunkPtr
 TelnetChunker::Builder::makeDataPtr(size_t regionbegin, size_t regionend)
 {
    if ((regionbegin == 0) && (regionend == curlen_))
    {
-      return curchunk_.GetPtr();
+      return curchunk_;
    }
    else
    {
-      return new StrSubChunk(curchunk_,
-                             LinearExtent(regionbegin,
-                                          regionend - regionbegin));
+      return StrChunkPtr(new StrSubChunk(curchunk_,
+                                         LinearExtent(regionbegin,
+                                                      regionend - regionbegin)));
    }
 }
 
@@ -140,49 +135,40 @@ void TelnetChunker::Builder::addDataBlock(size_t regionbegin, size_t regionend)
    {
       return;
    }
-   StrChunk *ptr = makeDataPtr(regionbegin, regionend);
-   ptr->AddReference();
-   chunks_.push_back(ptr);
+   chunks_.push_back(makeDataPtr(regionbegin, regionend));
 }
 
 void TelnetChunker::Builder::addCharCommand(TelnetChars::Commands command)
 {
-   StrChunk *ptr = new SingleChar(command);
-   ptr->AddReference();
-   chunks_.push_back(ptr);
+   chunks_.push_back(StrChunkPtr(new SingleChar(command)));
 }
 
 void TelnetChunker::Builder::addNegotiationCommand(
    TelnetChars::OptionNegotiations negtype, U1Byte opt_type)
 {
-   StrChunk *ptr = new OptionNegotiation(negtype, opt_type);
-   ptr->AddReference();
-   chunks_.push_back(ptr);
+   chunks_.push_back(StrChunkPtr(new OptionNegotiation(negtype, opt_type)));
 }
 
-void TelnetChunker::Builder::addSuboption(U1Byte opt_type,
-                                          size_t regionbegin, size_t regionend,
-                                          StrChunkPtrT<BufferChunk> &cooked)
+void TelnetChunker::Builder::addSuboption(
+   U1Byte opt_type, size_t regionbegin, size_t regionend,
+   ::std::tr1::shared_ptr<BufferChunk> &cooked
+   )
 {
    assert(curchunk_);
    assert(regionend > regionbegin);
    assert(regionbegin < curlen_);
    assert(regionend <= curlen_);
-   StrChunk *data = 0;
+   StrChunkPtr data;
    if (regionend > regionbegin)
    {
       data = makeDataPtr(regionbegin, regionend);
    }
-   StrChunk *ptr = new Suboption(opt_type, cooked, data);
-   ptr->AddReference();
-   chunks_.push_back(ptr);
+   chunks_.push_back(StrChunkPtr(new Suboption(opt_type, cooked, data)));
 }
 
 void TelnetChunker::Builder::addOutgoing(const StrChunkPtr &ptr)
 {
-   StrChunk *rawptr = ptr.GetPtr();
-   rawptr->AddReference();
-   chunks_.push_back(rawptr);
+   chunks_.push_back(ptr);
 }
 
 void TelnetChunker::Builder::addIncoming(const StrChunkPtr &ptr)
@@ -201,18 +187,15 @@ void TelnetChunker::Builder::addIncoming(const StrChunkPtr &ptr)
    }
    else
    {
-      StrChunkPtrT<GroupChunk> gc;
-      if ((curchunk_->NumReferences() == 1) &&
-          curchunk_->AreYouA(GroupChunk::identifier))
+      using ::std::tr1::dynamic_pointer_cast;
+      typedef ::std::tr1::shared_ptr<GroupChunk> grpchnkptr_t;
+      grpchnkptr_t gc;
+      if (!curchunk_.unique() ||
+          !(gc = dynamic_pointer_cast<GroupChunk, StrChunk>(curchunk_)))
       {
-         gc = static_cast<GroupChunk *>(curchunk_.GetPtr());
-      }
-      else
-      {
-         GroupChunk *tmp = new GroupChunk;
-         tmp->push_back(curchunk_);
-         gc = tmp;
-         curchunk_ = tmp;
+         gc.reset(new GroupChunk);
+         gc->push_back(curchunk_);
+         curchunk_ = gc;
       }
       gc->push_back(ptr);
       curlen_ += inlen;
@@ -223,19 +206,14 @@ void TelnetChunker::Builder::addIncoming(const StrChunkPtr &ptr)
 
 const StrChunkPtr TelnetChunker::Builder::getFromQueue()
 {
+   StrChunkPtr ptr;
    assert(!chunks_.empty());
    if (!chunks_.empty())
    {
-      StrChunk *ptr = chunks_.front();
+      ptr = chunks_.front();
       chunks_.pop_front();
-      assert(ptr->NumReferences() > 0);
-      ptr->DelReference();
-      return(ptr);
    }
-   else
-   {
-      return 0;
-   }
+   return ptr;
 }
 
 struct TelnetChunker::Internals {
@@ -307,7 +285,7 @@ void TelnetChunker::processIncoming()
          data_.builder_.clearIncoming();
          if (!data_.builder_.hasData())
          {
-            incoming_.ReleasePtr();
+            incoming_.reset();
             // Yeah, a bit ugly, but I think cleaner than adding a flag.
             return;
          }
@@ -339,7 +317,7 @@ void TelnetChunker::processIncoming()
    }
    if (!data_.builder_.hasData())
    {
-      incoming_.ReleasePtr();
+      incoming_.reset();
    }
 }
 
@@ -350,7 +328,7 @@ void TelnetChunker::SingleChar::acceptVisitor(ChunkVisitor &visitor)
 }
 
 TelnetChunker::Suboption::Suboption(U1Byte type,
-                                    const StrChunkPtrT<BufferChunk> &cooked)
+                                    const bufchnkptr_t &cooked)
      : raw_(cookedToRaw(cooked)), rawlen_(raw_->Length()), cooked_(cooked)
 {
    optstart_[0] = TelnetChars::IAC;
@@ -359,7 +337,7 @@ TelnetChunker::Suboption::Suboption(U1Byte type,
 }
 
 const StrChunkPtr
-TelnetChunker::Suboption::cookedToRaw(const StrChunkPtrT<BufferChunk> &cooked)
+TelnetChunker::Suboption::cookedToRaw(const bufchnkptr_t &cooked)
 {
    const U1Byte * const cookedbuf = cooked->getCharP();
    const size_t cookedlen = cooked->Length();
@@ -380,15 +358,15 @@ TelnetChunker::Suboption::cookedToRaw(const StrChunkPtrT<BufferChunk> &cooked)
    {
       // Every IAC currently in cooked will be replaced with IAC IAC.
       size_t rawlen = cooked->Length() + countIAC;
-      BufferChunk *raw = 0;
+      bufchnkptr_t raw;
       if (rawlen <= 16)
       {
-         raw = new PreAllocBuffer<16>;
+         raw.reset(new PreAllocBuffer<16>);
          raw->resize(rawlen);
       }
       else
       {
-         raw = new DynamicBuffer(rawlen);
+         raw.reset(new DynamicBuffer(rawlen));
       }
       {
          U1Byte * const rawbuf = raw->getCharP();
@@ -409,7 +387,7 @@ TelnetChunker::Suboption::cookedToRaw(const StrChunkPtrT<BufferChunk> &cooked)
          }
          assert(o == rawlen);
       }
-      return(raw);
+      return raw;
    }
 }
 

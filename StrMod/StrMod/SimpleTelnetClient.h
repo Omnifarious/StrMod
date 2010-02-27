@@ -27,7 +27,6 @@
 // For a log, see ../ChangeLog
 
 #include <StrMod/StreamModule.h>
-#include <StrMod/STR_ClassIdent.h>
 
 #define _STR_SimpleTelnet_H_
 
@@ -50,12 +49,9 @@ class SimpleTelnetClient : public StreamModule {
    friend class SPlug;
  public:
    enum Sides { ToServer, ToUser };
-   static const STR_ClassIdent identifier;
 
    SimpleTelnetClient();
    ~SimpleTelnetClient();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool canCreate(int side) const;
    inline virtual bool ownsPlug(const Plug *plug) const;
@@ -68,8 +64,6 @@ class SimpleTelnetClient : public StreamModule {
    void reset();
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    virtual Plug *i_MakePlug(int side);
 
    //: Handles sending telnet protocol messages for initial negotiation
@@ -91,21 +85,13 @@ class SimpleTelnetClient : public StreamModule {
       friend class SimpleTelnetClient;
 		friend class SPlug;
 
-      static const STR_ClassIdent identifier;
-
       UPlug(SimpleTelnetClient &parent) : Plug(parent)  { }
       ~UPlug()                                          { }
-
-      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       inline SimpleTelnetClient &getParent() const;
       virtual int side() const                          { return(ToUser); }
 
     protected:
-      virtual const lcore::ClassIdent *i_GetIdent() const {
-         return &identifier;
-      }
-
       virtual bool needsNotifyReadable() const          { return(true); }
       inline virtual void otherIsReadable();
 
@@ -120,21 +106,13 @@ class SimpleTelnetClient : public StreamModule {
       friend class SimpleTelnetClient;
 		friend class UPlug;
 
-      static const STR_ClassIdent identifier;
-
       SPlug(SimpleTelnetClient &parent) : Plug(parent)  { }
       ~SPlug()                                          { }
-
-      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       inline SimpleTelnetClient &getParent() const;
       virtual int side() const                          { return(ToServer); }
 
     protected:
-      virtual const lcore::ClassIdent *i_GetIdent() const {
-         return &identifier;
-      }
-
       virtual bool needsNotifyWriteable() const         { return(true); }
       inline virtual void otherIsWriteable();
 
@@ -157,11 +135,6 @@ class SimpleTelnetClient : public StreamModule {
 
 //------------------------------inline function--------------------------------
 
-inline int SimpleTelnetClient::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((cid == identifier) || StreamModule::AreYouA(cid));
-}
-
 inline bool SimpleTelnetClient::canCreate(int side) const
 {
    return(((side == ToServer) && !splugcreated_) ||
@@ -175,11 +148,6 @@ inline  bool SimpleTelnetClient::ownsPlug(const Plug *plug) const
 }
 
 //--
-
-inline int SimpleTelnetClient::UPlug::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Plug::AreYouA(cid));
-}
 
 inline SimpleTelnetClient &SimpleTelnetClient::UPlug::getParent() const
 {
@@ -203,11 +171,6 @@ inline bool SimpleTelnetClient::UPlug::canReadOther() const
 }
 
 //--
-
-inline int SimpleTelnetClient::SPlug::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Plug::AreYouA(cid));
-}
 
 inline SimpleTelnetClient &SimpleTelnetClient::SPlug::getParent() const
 {

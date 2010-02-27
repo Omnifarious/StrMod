@@ -29,7 +29,7 @@
 #include <cstddef>
 #include <iterator>
 #include <deque>
-#include <StrMod/STR_ClassIdent.h>
+#include <tr1/memory>
 #include <StrMod/StreamModule.h>
 
 #define _STR_RouterModule_H_
@@ -58,16 +58,10 @@ class RouterModule : public StreamModule
    typedef std::back_insert_iterator<RPlugList> RPlugAdder;
 
  public:
-   static const STR_ClassIdent identifier;
-
    //! Construct, given the strmod::unievent::Dispatcher to use to post scan events.
    explicit RouterModule(unievent::Dispatcher &disp);
    //! Destroy the RouterModule and all of its plugs.
    virtual ~RouterModule();
-
-   virtual int AreYouA(const lcore::ClassIdent &cid) const {
-      return((identifier == cid) || StreamModule::AreYouA(cid));
-   }
 
    virtual bool canCreate(int side) const = 0;
 
@@ -76,8 +70,6 @@ class RouterModule : public StreamModule
    virtual bool deletePlug(Plug *plug);
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    virtual Plug *i_MakePlug(int side) = 0;
 
    /** Add a new plug to the internal list of all plugs.
@@ -110,7 +102,7 @@ class RouterModule : public StreamModule
    friend class ScanEvent;
    unievent::Dispatcher &disp_;
    bool scan_posted_;
-   ScanEvent * const scan_;
+   const ::std::tr1::shared_ptr<ScanEvent> scan_;
    bool inroutingdone_;
    RPlugList allplugs_;
    RPlugList writeable_;
@@ -131,12 +123,6 @@ class RouterModule : public StreamModule
 class RouterModule::RPlug : public StreamModule::Plug {
    friend class RouterModule;
  public:
-   static const STR_ClassIdent identifier;
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const {
-      return((identifier == cid) || Plug::AreYouA(cid));
-   }
-
    inline RouterModule &getParent() const;
 
    virtual int side() const = 0;
@@ -149,8 +135,6 @@ class RouterModule::RPlug : public StreamModule::Plug {
 
  protected:
    inline RPlug(RouterModule &parent);
-
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual const StrChunkPtr i_Read();
    virtual void i_Write(const StrChunkPtr &ptr);

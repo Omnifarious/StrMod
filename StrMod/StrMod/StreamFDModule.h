@@ -32,7 +32,6 @@
 #include <cstddef>  // size_t
 
 #include <UniEvent/EventPtr.h>
-#include <UniEvent/EventPtrT.h>
 #include <UniEvent/UnixEventRegistry.h>
 #include <UniEvent/UNIXError.h>
 
@@ -105,8 +104,6 @@ class StreamFDModule : public StreamModule
    //! Typedef for set of error types.
    typedef lcore::enum_set<ErrorType, ErrRead, ErrFatal> ErrorSet;
 
-
-   static const STR_ClassIdent identifier;
    /** \brief This is the maximum number of bytes to read or write without going
     * back to the dispatcher.
     *
@@ -145,8 +142,6 @@ class StreamFDModule : public StreamModule
 		  IOCheckFlags checkmask = CheckBoth);
    //! Closes the associated file descriptor.
    virtual ~StreamFDModule();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool canCreate(int side) const;
    inline virtual bool ownsPlug(const Plug *p) const;
@@ -204,14 +199,9 @@ class StreamFDModule : public StreamModule
    class FPlug : public Plug {
       friend class StreamFDModule;
     public:
-      static const STR_ClassIdent identifier;
-
       //: Note that this can ONLY be constructed using a StreamFDModule.
       FPlug(StreamFDModule &parent) : Plug(parent)      { }
       virtual ~FPlug()                                  { }
-
-      //: See base class.
-      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       //: Grab Plug::getParent, and cast it to the real type of the parent.
       inline StreamFDModule &getParent() const;
@@ -220,18 +210,11 @@ class StreamFDModule : public StreamModule
       virtual int side() const                          { return(0); }
 
     protected:
-      //: See base class.
-      virtual const lcore::ClassIdent *i_GetIdent() const {
-         return &identifier;
-      }
-
       //: Forwards to getParent()->plugRead()
       inline virtual const StrChunkPtr i_Read();
       //: Forwards to getParent()->plugWrite()
       inline virtual void i_Write(const StrChunkPtr &ptr);
    };
-
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    inline virtual Plug *i_MakePlug(int side);
 
@@ -321,11 +304,6 @@ class StreamFDModule : public StreamModule
 
 //-----------------inline functions for class StreamFDModule-------------------
 
-inline int StreamFDModule::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamModule::AreYouA(cid));
-}
-
 inline bool StreamFDModule::canCreate(int side) const
 {
    return (side == 0 && !flags_.plugmade);
@@ -379,11 +357,6 @@ inline StreamModule::Plug *StreamFDModule::i_MakePlug(int side)
 }
 
 //-------------inline functions for class StreamFDModule::FPlug----------------
-
-inline int StreamFDModule::FPlug::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Plug::AreYouA(cid));
-}
 
 inline StreamFDModule &StreamFDModule::FPlug::getParent() const
 {

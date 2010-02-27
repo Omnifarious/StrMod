@@ -55,12 +55,8 @@ class EchoModule : public StreamModule
    class EPlug;
    friend class EPlug;
  public:
-   static const STR_ClassIdent identifier;
-
    EchoModule();
    virtual ~EchoModule();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool canCreate(int side = 0) const;
    inline Plug *makePlug(int side = 0);
@@ -68,8 +64,6 @@ class EchoModule : public StreamModule
    virtual bool deletePlug(Plug *plug);
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    virtual void plugDisconnected(Plug *plug);
 
    inline virtual Plug *i_MakePlug(int side);
@@ -78,10 +72,6 @@ class EchoModule : public StreamModule
    class EPlug : public Plug {
       friend class EchoModule;
     public:
-      static const STR_ClassIdent identifier;
-
-      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
       inline EchoModule &getParent() const;
 
       virtual int side() const                          { return(0); }
@@ -89,10 +79,6 @@ class EchoModule : public StreamModule
     protected:
       inline EPlug(EchoModule &parnt);
       inline virtual ~EPlug();
-
-      virtual const lcore::ClassIdent *i_GetIdent() const {
-         return &identifier;
-      }
 
       virtual bool needsNotifyReadable() const          { return(true); }
       virtual bool needsNotifyWriteable() const         { return(true); }
@@ -111,11 +97,6 @@ class EchoModule : public StreamModule
 };
 
 //-------------------------------inline functions------------------------------
-
-inline int EchoModule::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamModule::AreYouA(cid));
-}
 
 bool EchoModule::canCreate(int side) const
 {
@@ -149,11 +130,6 @@ inline EchoModule::EPlug::EPlug(EchoModule &parnt) : Plug(parnt)
 
 inline EchoModule::EPlug::~EPlug()
 {
-}
-
-inline int EchoModule::EPlug::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Plug::AreYouA(cid));
 }
 
 inline EchoModule &EchoModule::EPlug::getParent() const

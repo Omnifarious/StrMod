@@ -47,8 +47,6 @@ class InfiniteModule : public StreamModule
    friend class IPlug;
 
  public:
-   static const STR_ClassIdent identifier;
-
    /** Construct given a chunk to repeatedly send.
     * @param chnk The chunk to repeatedly send.
    */
@@ -57,16 +55,12 @@ class InfiniteModule : public StreamModule
    InfiniteModule();
    virtual ~InfiniteModule();
 
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
    inline virtual bool canCreate(int side = 0) const;
    inline Plug *makePlug(int side = 0);
    inline virtual bool ownsPlug(const Plug *plug) const;
    virtual bool deletePlug(Plug *plug);
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    virtual Plug *i_MakePlug(int side);
 
  private:
@@ -74,21 +68,13 @@ class InfiniteModule : public StreamModule
     public:
       friend class InfiniteModule;
 
-      static const STR_ClassIdent identifier;
-
       IPlug(InfiniteModule &parent) : Plug(parent)      { }
       ~IPlug()                                          { }
-
-      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       inline InfiniteModule &getParent() const;
       virtual int side() const                          { return(0); }
 
     protected:
-      virtual const lcore::ClassIdent *i_GetIdent() const {
-         return &identifier;
-      }
-
       inline virtual const StrChunkPtr i_Read();
       inline virtual void i_Write(const StrChunkPtr &tr);
    };
@@ -99,11 +85,6 @@ class InfiniteModule : public StreamModule
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline int InfiniteModule::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamModule::AreYouA(cid));
-}
 
 inline bool InfiniteModule::canCreate(int side) const
 {
@@ -121,11 +102,6 @@ inline bool InfiniteModule::ownsPlug(const Plug *plug) const
 }
 
 //--
-
-inline int InfiniteModule::IPlug::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Plug::AreYouA(cid));
-}
 
 inline InfiniteModule &InfiniteModule::IPlug::getParent() const
 {

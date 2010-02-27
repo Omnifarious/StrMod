@@ -29,12 +29,6 @@
 #include <cassert>
 #include <cstddef>
 
-#include <LCore/Object.h>
-#include <LCore/RefCounting.h>
-
-#ifndef _STR_STR_ClassIdent_H_
-#  include <StrMod/STR_ClassIdent.h>
-#endif
 #include <StrMod/ChunkVisitor.h>
 
 #define _STR_StrChunk_H_
@@ -65,7 +59,7 @@ class LinearExtent;
  * a different tree.  It might even be found twice in the same tree.  This
  * complexity requires reference counts for tractable resource handling.
  */
-class StrChunk : public lcore::Object, public lcore::ReferenceCounting
+class StrChunk
 {
    friend class ChunkVisitor;
  public:
@@ -73,14 +67,11 @@ class StrChunk : public lcore::Object, public lcore::ReferenceCounting
    friend class __iterator;
    //! Give the type an STL name.
    typedef __iterator const_iterator;
-   static const STR_ClassIdent identifier;
 
    //! Not much to talk about.
-   StrChunk() : ReferenceCounting(0), iter_storage(0)  { }
+   StrChunk() : iter_storage(0)  { }
    //! Not much to talk about.
    virtual ~StrChunk()                                 { }
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Number of octets this chunk takes up.  May be deprecated.
    virtual unsigned int Length() const = 0;
@@ -97,9 +88,6 @@ class StrChunk : public lcore::Object, public lcore::ReferenceCounting
    //@}
 
  protected:
-   //! See class Protocol
-   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
-
    //! Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation) = 0;
@@ -126,11 +114,6 @@ class StrChunk : public lcore::Object, public lcore::ReferenceCounting
 };
 
 //------------------------inline functions for StrChunk------------------------
-
-inline int StrChunk::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Object::AreYouA(cid));
-}
 
 inline void StrChunk::call_visitStrChunk(ChunkVisitor &visitor,
                                          const StrChunkPtr &chunk)

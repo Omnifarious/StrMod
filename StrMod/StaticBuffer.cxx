@@ -25,11 +25,3 @@
 #endif
 
 #include "StrMod/StaticBuffer.h"
-
-namespace strmod {
-namespace strmod {
-
-const STR_ClassIdent StaticBuffer::identifier(46UL);
-
-};  // End namespace strmod
-};  // End namespace strmod

@@ -35,9 +35,6 @@ namespace {
 static StreamSplitterModule test;
 };
 
-const STR_ClassIdent StreamSplitterModule::identifier(10UL);
-const STR_ClassIdent StreamSplitterModule::SPPlug::identifier(11UL);
-
 StreamSplitterModule::StreamSplitterModule()
      : inplug_(*this, SideIn),
        outplug_(*this, SideOut),

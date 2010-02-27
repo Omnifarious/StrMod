@@ -35,7 +35,7 @@
 #include <cstddef>
 #include <cassert>
 #include <StrMod/StreamProcessor.h>
-#include <StrMod/StrChunkPtrT.h>
+#include <StrMod/StrChunkPtr.h>
 #include <StrMod/BufferChunk.h>
 #include <StrMod/GroupChunk.h>
 
@@ -64,8 +64,6 @@ class GroupVector;
 class CharChopper : public StreamProcessor
 {
  public:
-   static const STR_ClassIdent identifier;
-
    /** Make a CharChopper
     * @param chopchar The character to split by.
     *
@@ -74,16 +72,13 @@ class CharChopper : public StreamProcessor
    CharChopper(char chopchar) : chopchar_(chopchar)    { }
    // Derived class destructor doesn't do anything base class one doesn't do.
 
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
  private:
    const char chopchar_;
-   StrChunkPtrT<GroupChunk> groupdata_;
-   StrChunkPtrT<BufferChunk> curdata_;
+   typedef ::std::tr1::shared_ptr<GroupChunk> groupptr_t;
+   groupptr_t groupdata_;
+   ::std::tr1::shared_ptr<BufferChunk> curdata_;
    size_t usedsize_;
    enum { INYes, INNo, INMaybe } incoming_is_bc_;
-
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual void processIncoming();
 
@@ -98,17 +93,14 @@ class CharChopper : public StreamProcessor
 
 //-----------------------------inline functions--------------------------------
 
-inline int CharChopper::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamProcessor::AreYouA(cid));
-}
-
 inline void CharChopper::checkIncoming()
 {
    assert(incoming_);
    if (incoming_is_bc_ == INMaybe)
    {
-      if (incoming_->AreYouA(BufferChunk::identifier))
+      using ::std::tr1::dynamic_pointer_cast;
+
+      if (dynamic_pointer_cast<BufferChunk, StrChunk>(incoming_))
       {
 	 incoming_is_bc_ = INYes;
       }
@@ -121,7 +113,7 @@ inline void CharChopper::checkIncoming()
 
 inline void CharChopper::zeroIncoming()
 {
-   incoming_.ReleasePtr();
+   incoming_.reset();
    incoming_is_bc_ = INMaybe;
 }
 

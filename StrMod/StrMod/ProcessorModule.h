@@ -35,8 +35,13 @@
 // that used one StreamProcessor for the data flowing in each direction.
 //
 
-#include <StrMod/STR_ClassIdent.h>
-#include <StrMod/StreamModule.h>
+#ifndef _STR_StrChunkPtr_H_
+#  include <StrMod/StrChunkPtr.h>
+#endif
+#ifndef _STR_StreamModule_H_
+#  include <StrMod/StreamModule.h>
+#endif
+
 #include <cassert>
 
 #define _STR_ProcessorModule_H_
@@ -44,7 +49,6 @@
 namespace strmod {
 namespace strmod {
 
-class StrChunkPtr;
 class StreamProcessor;
 
 /** \class ProcessorModule ProcessorModule.h StrMod/ProcessorModule.h
@@ -56,8 +60,6 @@ class ProcessorModule : public StreamModule
    class PMPlug;
    friend class PMPlug;
  public:
-   static const STR_ClassIdent identifier;
-
    //! Labels for the sides of this StreamModule implementation
    enum PlugSide {
       OneSide,  //!< Distinguishable name.
@@ -92,8 +94,6 @@ class ProcessorModule : public StreamModule
     */
    virtual ~ProcessorModule()                           { }
 
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
    inline virtual bool canCreate(int side) const;
 
    inline virtual bool ownsPlug(const Plug *plug) const;
@@ -101,8 +101,6 @@ class ProcessorModule : public StreamModule
    virtual bool deletePlug(Plug *plug);
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    inline virtual Plug *i_MakePlug(int side);
 
  private:
@@ -110,23 +108,15 @@ class ProcessorModule : public StreamModule
       friend class ProcessorModule;
 
     public:
-      static const STR_ClassIdent identifier;
-
       inline PMPlug(ProcessorModule &prnt, Plug &sibling, PlugSide side,
 		    StreamProcessor &readproc, StreamProcessor &writeproc);
       virtual ~PMPlug();
-
-      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
       inline ProcessorModule &getParent() const;
 
       inline virtual int side() const                   { return(side_); }
 
     protected:
-      virtual const lcore::ClassIdent *i_GetIdent() const {
-         return &identifier;
-      }
-
       virtual const StrChunkPtr i_Read();
       virtual void i_Write(const StrChunkPtr &chnk);
 
@@ -149,11 +139,6 @@ class ProcessorModule : public StreamModule
 //-----------------------------inline functions--------------------------------
 
 //----------ProcessorModule::PMPlug inlines-----
-
-inline int ProcessorModule::PMPlug::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Plug::AreYouA(cid));
-}
 
 inline ProcessorModule &ProcessorModule::PMPlug::getParent() const
 {
@@ -182,11 +167,6 @@ inline ProcessorModule::ProcessorModule(StreamProcessor &from_one,
    pulled_.owns = own;
    side_.setWriteable(true);
    otherside_.setWriteable(true);
-}
-
-inline int ProcessorModule::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamModule::AreYouA(cid));
 }
 
 inline bool ProcessorModule::canCreate(int side) const

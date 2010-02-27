@@ -31,9 +31,6 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent InfiniteModule::identifier(41UL);
-const STR_ClassIdent InfiniteModule::IPlug::identifier(42UL);
-
 InfiniteModule::InfiniteModule(const StrChunkPtr &chnk)
      : feed_(chnk), plug_created_(false), plug_(*this)
 {
@@ -43,7 +40,9 @@ InfiniteModule::InfiniteModule()
      : plug_created_(false), plug_(*this)
 {
    const int bufsize = 8192;
-   PreAllocBuffer<bufsize> *buf = new PreAllocBuffer<bufsize>;
+   ::std::tr1::shared_ptr<PreAllocBuffer<bufsize> > buf(
+      new PreAllocBuffer<bufsize>
+      );
 
    buf->resize(bufsize);
    memset(buf->getVoidP(), '\0', bufsize);

@@ -31,8 +31,6 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent BufferChunk::identifier(24UL);
-
 lcore::U1Byte BufferChunk::junk_;
 
 void BufferChunk::acceptVisitor(ChunkVisitor &visitor)

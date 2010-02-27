@@ -45,15 +45,7 @@
 // StrChunk
 //
 
-#include <cassert>
-#include <LCore/Protocol.h>
-#include <LCore/RefCountPtrT.h>
-#ifndef _STR_STR_ClassIdent_H_
-#  include <StrMod/STR_ClassIdent.h>
-#endif
-#ifndef _STR_StrChunk_H_
-#  include <StrMod/StrChunk.h>
-#endif
+#include <tr1/memory>
 
 #define _STR_StrChunkPtr_H_
 
@@ -62,80 +54,7 @@ namespace strmod {
 
 class StrChunk;
 
-/** \class StrChunkPtr StrChunkPtr.h StrMod/StrChunkPtr.h
- * A smart pointer class that points a StrChunks and handles their reference
- * counts.
- */
-class StrChunkPtr : public lcore::RefCountPtrT<StrChunk>
-{
- public:
-   //! An easier way to refer to RefCountPtrT<StrChunk>
-   typedef lcore::RefCountPtrT<StrChunk> super1;
-   static const STR_ClassIdent identifier;
-
-   //@{
-   /**
-    * These all construct a StrChunkPtr from the appropriate type and maintain
-    * the reference count to the pointed at StrChunk.
-    */
-   inline StrChunkPtr(const StrChunkPtr &b);
-   inline StrChunkPtr(const super1 &b);
-   inline StrChunkPtr(StrChunk *stptr = 0);
-   //@}
-
-   //! See class Protocol
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
-   //@{
-   /**
-    * These all set a StrChunkPtrs value from the appropriate type and
-    * maintain the reference count to the pointed at StrChunk.
-    */
-   inline const StrChunkPtr &operator =(const StrChunkPtr &b);
-   inline const StrChunkPtr &operator =(const super1 &b);
-   inline const StrChunkPtr &operator =(StrChunk *b);
-   //@}
-
- protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
-};
-
-//-----------------------------inline functions--------------------------------
-
-inline StrChunkPtr::StrChunkPtr(const StrChunkPtr &b) : super1(b)
-{
-}
-
-inline StrChunkPtr::StrChunkPtr(const super1 &b) : super1(b)
-{
-}
-
-inline StrChunkPtr::StrChunkPtr(StrChunk *stptr) : super1(stptr)
-{
-}
-
-inline int StrChunkPtr::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Protocol::AreYouA(cid));
-}
-
-inline const StrChunkPtr &StrChunkPtr::operator =(const StrChunkPtr &b)
-{
-   super1::operator =(b);
-   return(*this);
-}
-
-inline const StrChunkPtr &StrChunkPtr::operator =(const super1 &b)
-{
-   super1::operator =(b);
-   return(*this);
-}
-
-inline const StrChunkPtr &StrChunkPtr::operator =(StrChunk *b)
-{
-   super1::operator =(b);
-   return(*this);
-}
+typedef ::std::tr1::shared_ptr<StrChunk> StrChunkPtr;
 
 }  // namespace strmod
 }  // namespace strmod

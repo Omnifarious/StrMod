@@ -25,14 +25,3 @@
 #endif
 
 #include "StrMod/StrChunk.h"
-#include "StrMod/LinearExtent.h"
-#include "StrMod/StrChunkPtr.h"
-
-namespace strmod {
-namespace strmod {
-
-//! A unique identifier for this class.
-const STR_ClassIdent StrChunk::identifier(6UL);
-
-}  // End namespace strmod
-}  // End namespace strmod

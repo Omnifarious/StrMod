@@ -28,11 +28,12 @@
 
 #include "StrMod/UseTrackingVisitor.h"
 #include "StrMod/StackSwapper.h"
+#include "StrMod/StrChunk.h"
+#include "StrMod/StrChunkPtr.h"
+#include <cassert>
 
 namespace strmod {
 namespace strmod {
-
-const STR_ClassIdent UseTrackingVisitor::identifier(47UL);
 
 /*!
  * @param ignorezeros Should the use_* Template Methods be called for

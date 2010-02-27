@@ -35,6 +35,8 @@
 #include <EHnet++/SocketAddress.h>
 #include <EHnet++/InetAddress.h>
 
+#include <UniEvent/Event.h>
+
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -52,10 +54,6 @@ namespace strmod {
 
 using ehnet::SocketAddress;
 using lcore::LCoreError;
-
-const STR_ClassIdent SockListenModule::identifier(13UL);
-const STR_ClassIdent SockListenModule::SLPlug::identifier(14UL);
-const STR_ClassIdent SocketModuleChunk::identifier(15UL);
 
 /**A parent class for the three sub event classes.
  *
@@ -131,7 +129,7 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
       : sockfd_(-1), has_error_(false), lplug_(*this),
         plug_pulled_(false), checking_read_(false), newmodule_(0),
 	myaddr_(*(bind_addr.Copy())),
-	disp_(disp), ureg_(ureg), readevptr_(0), errorevptr_(0)
+	disp_(disp), ureg_(ureg)
 {
    using unievent::UNIXError;
    sockfd_ = socket(myaddr_.SockAddr()->sa_family, SOCK_STREAM, PF_UNSPEC);
@@ -190,12 +188,10 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
       sockfd_ = -1;
       return;
    }
-   readevptr_ = new FDPollRdEv(*this);
-   std::cerr << "readevptr_ == " << readevptr_ << "\n";
-   readev_ = readevptr_;
-   errorevptr_ = new FDPollErEv(*this);
-   std::cerr << "errorevptr_ == " << errorevptr_ << "\n";
-   errorev_ = errorevptr_;
+   readev_.reset(new FDPollRdEv(*this));
+   std::cerr << "readev_.get() == " << readev_.get() << "\n";
+   errorev_.reset(new FDPollErEv(*this));
+   std::cerr << "errorev_.get() == " << errorev_.get() << "\n";
    checking_read_ = true;
    {
       static const UnixEventRegistry::FDCondSet
@@ -217,13 +213,13 @@ SockListenModule::~SockListenModule()
       ureg_.freeFD(sockfd_);
    }
    delete &myaddr_;
-   if (readevptr_)
+   if (readev_)
    {
-      readevptr_->parentGone();
+      readev_->parentGone();
    }
-   if (errorevptr_)
+   if (errorev_)
    {
-      errorevptr_->parentGone();
+      errorev_->parentGone();
    }
 }
 
@@ -384,7 +380,7 @@ SocketModule *SockListenModule::getNewModule()
 
 const SocketModuleChunkPtr SockListenModule::SLPlug::getConnection()
 {
-   return(new SocketModuleChunk(getParent().getNewModule()));
+   return SocketModuleChunkPtr(new SocketModuleChunk(getParent().getNewModule()));
 }
 
 const StrChunkPtr SockListenModule::SLPlug::i_Read()

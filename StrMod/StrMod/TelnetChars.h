@@ -26,7 +26,7 @@
 
 // For a log, see ../ChangLog
 
-#include <LCore/HopClTypes.h>
+#include <LCore/GenTypes.h>
 
 #define _STR_TelnetChars_H_
 

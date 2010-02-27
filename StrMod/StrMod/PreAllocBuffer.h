@@ -45,12 +45,8 @@ class PreAllocBufferBase : public BufferChunk
    void a_silly_member_function_to_make_sure_a_vtable_is_generated();
    typedef lcore::U1Byte U1Byte;
  public:
-   static const STR_ClassIdent identifier;
-
    PreAllocBufferBase()                                 { }
    virtual ~PreAllocBufferBase() = 0;
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //: See class Debugable
    virtual bool invariant() const = 0;
@@ -61,8 +57,6 @@ class PreAllocBufferBase : public BufferChunk
    virtual void resize(unsigned int newsize) throw(std::bad_alloc) = 0;
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    void i_destruct(const U1Byte * const preallocbuf);
    void i_resize(const unsigned int newsize,
 		 const unsigned int prebufsize,
@@ -102,13 +96,6 @@ class PreAllocBuffer : public PreAllocBufferBase {
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline int PreAllocBufferBase::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || BufferChunk::AreYouA(cid));
-}
-
-//---
 
 template <unsigned int TInitialAlloc>
 inline PreAllocBuffer<TInitialAlloc>::PreAllocBuffer()

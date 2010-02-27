@@ -26,14 +26,17 @@
 
 // For a log, see ../ChangeLog
 
-#include <StrMod/UseTrackingVisitor.h>
+#ifndef _STR_UseTrackingVisitor_H_
+#  include <StrMod/UseTrackingVisitor.h>
+#endif
+#ifndef _STR_StrChunkPtr_H_
+#  include <StrMod/StrChunkPtr.h>
+#endif
 
 #define _STR_ApplyVisitor_H_
 
 namespace strmod {
 namespace strmod {
-
-class StrChunkPtr;
 
 /** \class ApplyVisitor_Base ApplyVisitor.h StrMod/ApplyVisitor.h
  * A base class for the ApplyVisitor template that factors out the common code
@@ -46,8 +49,6 @@ class StrChunkPtr;
 */
 class ApplyVisitor_Base : public UseTrackingVisitor {
  public:
-   static const STR_ClassIdent identifier;
-
    /** \brief This constructor will set up apply to visit the given chunk.
     *
     * @param chunk The chunk to go through.
@@ -65,18 +66,12 @@ class ApplyVisitor_Base : public UseTrackingVisitor {
     */
    virtual ~ApplyVisitor_Base()                         { }
 
-   virtual int AreYouA(const lcore::ClassIdent &cid) const {
-      return((identifier == cid) || UseTrackingVisitor::AreYouA(cid));
-   }
-
    /** \brief Visits every data block according to the parameters given in
     * the constructor.
    */
    void apply();
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
       throw(halt_visitation)

@@ -32,9 +32,6 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent EchoModule::identifier(3UL);
-const STR_ClassIdent EchoModule::EPlug::identifier(4UL);
-
 EchoModule::EchoModule() : plugcreated_(false), eplug_(*this)
 {
 }

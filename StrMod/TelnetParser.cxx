@@ -29,14 +29,12 @@
 #include "StrMod/TelnetChars.h"
 #include "StrMod/LocalCopy.h"
 #include "StrMod/PreAllocBuffer.h"
-#include "StrMod/StrChunkPtrT.h"
+#include "StrMod/StrChunkPtr.h"
 #include <cassert>
 #include <cstddef>
 
 namespace strmod {
 namespace strmod {
-
-const STR_ClassIdent TelnetParser::identifier(50UL);
 
 TelnetParser::TelnetParser()
      : curpos_(0), state_(PS_Normal), regionbegin_(0), regionend_(0)
@@ -45,10 +43,6 @@ TelnetParser::TelnetParser()
 
 TelnetParser::~TelnetParser()
 {
-   if (cooked_)
-   {
-      delete cooked_;
-   }
 }
 
 inline void TelnetParser::stateNormal(ParserState &state, U1Byte ch)
@@ -142,7 +136,7 @@ inline void TelnetParser::stateSuboptNum(ParserState &state,
    {
       // Handle all but the extended suption.
       subopt_type_ = ch;
-      cooked_ = new PreAllocBuffer<48>;
+      cooked_.reset(new PreAllocBuffer<48>);
       cooked_->resize(48);
       cookedbuf_ = cooked_->getCharP();
       cooked_total_ = 48;
@@ -194,10 +188,10 @@ inline void TelnetParser::stateSuboptEscape(ParserState &state,
       regionend_ = i - 1;
       cooked_->resize(cooked_used_);
       {
-         StrChunkPtrT<BufferChunk> tmp(cooked_);
+         ::std::tr1::shared_ptr<BufferChunk> tmp(cooked_);
          builder.addSuboption(subopt_type_, regionbegin_, regionend_, tmp);
       }
-      cooked_ = 0;
+      cooked_.reset();
       regionbegin_ = i + 1;
       state = PS_Normal;
    }
@@ -334,11 +328,9 @@ void TelnetParser::reset(TelnetChunkBuilder &builder)
       // Abort/finish off any suboptions currently being parsed.
       regionend_ = curpos_;
       cooked_->resize(cooked_used_);
-      {
-         StrChunkPtrT<BufferChunk> tmp(cooked_);
-         builder.addSuboption(subopt_type_, regionbegin_, regionend_, tmp);
-      }
-      cooked_ = 0;
+      ::std::tr1::shared_ptr<BufferChunk> tmp(cooked_);
+      cooked_.reset();
+      builder.addSuboption(subopt_type_, regionbegin_, regionend_, tmp);
    }
    regionbegin_ = curpos_;
    state_ = PS_Normal;

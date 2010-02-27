@@ -26,6 +26,7 @@
 
 // For a log, see ../ChangeLog
 
+#include <LCore/GenTypes.h>
 #include <StrMod/StrChunk.h>
 #include <cstddef>
 
@@ -44,8 +45,6 @@ class StaticBuffer : public StrChunk
  private:
    typedef lcore::U1Byte U1Byte;
  public:
-   static const STR_ClassIdent identifier;
-
    /** Construct a StaticBuffer pointing at the given buffer area.
     *
     * @param buf The area to point at.
@@ -58,10 +57,6 @@ class StaticBuffer : public StrChunk
     */
    virtual ~StaticBuffer()                              { }
 
-   virtual int AreYouA(const lcore::ClassIdent &cid) const {
-      return (identifier == cid) || StrChunk::AreYouA(cid);
-   }
-
    virtual unsigned int Length() const                  { return buflen_; }
 
    //! Get a void pointer to the memory pointed at by this chunk.
@@ -70,8 +65,6 @@ class StaticBuffer : public StrChunk
    inline const U1Byte *getCharP();
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    inline virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
 

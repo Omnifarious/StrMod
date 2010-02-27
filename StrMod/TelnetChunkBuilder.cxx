@@ -25,11 +25,3 @@
 #endif
 
 #include "StrMod/TelnetChunkBuilder.h"
-
-namespace strmod {
-namespace strmod {
-
-const STR_ClassIdent TelnetChunkBuilder::identifier(49UL);
-
-};  // End namespace strmod
-};  // End namespace strmod

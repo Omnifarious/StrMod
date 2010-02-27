@@ -27,6 +27,7 @@
 // For a log, see ../ChangeLog
 
 #include <StrMod/UseTrackingVisitor.h>
+#include <StrMod/StrChunkPtr.h>
 #include <set>
 #include <utility>
 
@@ -44,16 +45,10 @@ class BufferChunk;
 class GraphVizVisitor : public UseTrackingVisitor
 {
  public:
-   static const STR_ClassIdent identifier;
-
    //! Constructor, doesn't do much.
    GraphVizVisitor() : out_(0)      { }
    //! Destructor, also doesn't do much.
    virtual ~GraphVizVisitor()       { }
-
-   virtual int AreYouA(const lcore::ClassIdent &cid) const {
-      return((identifier == cid) || UseTrackingVisitor::AreYouA(cid));
-   }
 
    /**
     * Visits the chunk DAG printing out a GraphViz parsable graph description,
@@ -62,8 +57,6 @@ class GraphVizVisitor : public UseTrackingVisitor
    const StrChunkPtr visit(const StrChunkPtr &root, std::ostream &out);
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
       throw(halt_visitation);
@@ -77,8 +70,8 @@ class GraphVizVisitor : public UseTrackingVisitor
  private:
    typedef std::pair<const void *, const void *> edge_t;
    typedef std::set<edge_t> edgeset_t;
-   std::ostream *out_;
-   BufferChunk *data_;
+   ::std::ostream *out_;
+   ::std::tr1::shared_ptr<BufferChunk> data_;
    size_t rootpos_;
    edgeset_t edges_;
 };

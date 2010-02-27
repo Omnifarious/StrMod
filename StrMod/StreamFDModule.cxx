@@ -65,9 +65,6 @@ using unievent::UnixEventRegistry;
 using unievent::UNIXError;
 using lcore::LCoreError;
 
-const STR_ClassIdent StreamFDModule::identifier(8UL);
-const STR_ClassIdent StreamFDModule::FPlug::identifier(9UL);
-
 /** \class StreamFDModule::EvMixin
  * \brief A parent class for StreamFDModule events that provides some behavior
  * for the module being deleted.
@@ -250,12 +247,12 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
       }
       catch (...)
       {
-         curchunk_.ReleasePtr();
+         curchunk_.reset();
          throw;
       }
       if (iovecs_.size() <= 0)
       {
-         curchunk_.ReleasePtr();
+         curchunk_.reset();
       }
       else
       {
@@ -329,7 +326,9 @@ inline void StreamFDModule::BufferList::advanceBy(size_t numbytes)
    if ((curbyte_ + numbytes) >= totalbytes_)
    {
       totalbytes_ = curbyte_ = 0;
-      curchunk_.ReleasePtr();
+      {
+         curchunk_.reset();
+      }
       curvecidx_ = 0;
       iovecs_.clear();
       return;
@@ -470,7 +469,9 @@ void StreamFDModule::setErrorIn(ErrorType err,
    if (errorinfo_.events_[err])
    {
       disp_.addEvent(errorinfo_.events_[err]);
-      errorinfo_.events_[err].ReleasePtr();
+      {
+         errorinfo_.events_[err].reset();
+      }
    }
 }
 
@@ -509,8 +510,8 @@ const StrChunkPtr StreamFDModule::plugRead()
    // ::std::cerr << " ----> Entering StreamFDModule::plugRead().\n";
    assert(buffed_read_);
 
-   StrChunkPtr retval = buffed_read_;
-   buffed_read_.ReleasePtr();
+   StrChunkPtr retval;
+   retval.swap(buffed_read_);
    doReadFD();
    read_since_read_posted_ += retval->Length();
    if (!buffed_read_ ||
@@ -627,7 +628,7 @@ void StreamFDModule::doReadFD()
       // A normal pointer offers a speed advantage, and we don't know whether
       // we want to set buffed_read until the read succeeds.
       const size_t maxsize = getMaxChunkSize();
-      DynamicBuffer *dbchunk = new DynamicBuffer(maxsize);
+      ::std::tr1::shared_ptr<DynamicBuffer> dbchunk(new DynamicBuffer(maxsize));
 
       errno = 0;
       // ::std::cerr << "Reading...\n";
@@ -638,17 +639,11 @@ void StreamFDModule::doReadFD()
 
       if (size > 0) {
          dbchunk->resize(size);
-         buffed_read_ = dbchunk;
+         buffed_read_ =  dbchunk;
 //  	 ::std::cerr << fd_ << ": just read: <";
 //  	 ::std::cerr.write(dbchunk->GetCharP(), dbchunk->Length());
 //  	 ::std::cerr << ">\n";
-         dbchunk = 0;
-      } else {
-         delete dbchunk;
-         dbchunk = 0;
       }
-
-      assert(dbchunk == 0);
    }
 
    if (size <= 0)
@@ -663,7 +658,7 @@ void StreamFDModule::doReadFD()
          // ::std::cerr << fd_ << ": read EOF\n";
 	 if (flags_.chunkeof)
 	 {
-	    buffed_read_ = new EOFStrChunk;
+	    buffed_read_ = StrChunkPtr(new EOFStrChunk);
 	    // ::std::cerr << fd_ << ": sending EOF chunk\n";
 	 }
       }
@@ -718,7 +713,8 @@ void StreamFDModule::doWriteFD()
 
    if (curbuflist_.bytesLeft() <= 0)
    {
-      if (cur_write_->AreYouA(EOFStrChunk::identifier))
+      using ::std::tr1::dynamic_pointer_cast;
+      if (dynamic_pointer_cast<EOFStrChunk, StrChunk>(cur_write_))
       {
          if (!flags_.eofwritten)
          {
@@ -786,7 +782,7 @@ void StreamFDModule::doWriteFD()
 
    if (length <= 0)
    {
-      cur_write_.ReleasePtr();
+      cur_write_.reset();
    }
 }
 
@@ -845,15 +841,15 @@ StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
    {
       // Assignments done in a careful order to try to be exception safe.
       FDPollRdEv *readev = new FDPollRdEv(*this);
-      readev_ = readev;
+      readev_ = EventPtr(readev);
       FDPollWrEv *writeev = new FDPollWrEv(*this);
-      writeev_ = writeev;
+      writeev_ = EventPtr(writeev);
       FDPollErEv *errorev = new FDPollErEv(*this);
-      errorev_ = errorev;
+      errorev_ = EventPtr(errorev);
       ResumeReadEv *rread = new ResumeReadEv(*this);
-      resumeread_ = rread;
+      resumeread_ = EventPtr(rread);
       ResumeWriteEv *rwrite = new ResumeWriteEv(*this);
-      resumewrite_ = rwrite;
+      resumewrite_ = EventPtr(rwrite);
 
       // Set up these pointers so there's a set of things to call the
       // 'parentGone' method on.

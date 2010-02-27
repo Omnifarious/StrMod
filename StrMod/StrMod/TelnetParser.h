@@ -27,10 +27,12 @@
 // For a log, see ../ChangeLog
 
 #include <cstddef>
-#include <LCore/Protocol.h>
-#include <LCore/HopClTypes.h>
-#include <StrMod/TelnetChars.h>
-#include <StrMod/STR_ClassIdent.h>
+#ifndef _STR_TelnetChars_H_
+#  include <StrMod/TelnetChars.h>
+#endif
+#ifndef _STR_StrChunkPtr_H_
+#  include <StrMod/StrChunkPtr.h>
+#endif
 
 #define _STR_TelnetParser_H_
 
@@ -44,17 +46,13 @@ template <unsigned int n> class PreAllocBuffer;
  * Class for parsing out a stream of characters into telnet protocol
  * elements using the TelnetChunkBuilder class.
  */
-class TelnetParser : virtual public lcore::Protocol
+class TelnetParser
 {
  public:
-   static const STR_ClassIdent identifier;
-
    //! Construct a parser in the 'start' state.
    TelnetParser();
    //! Destroy a parser.
    virtual ~TelnetParser();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Process a buffer, calling the builder, and advancing the state.
    void processData(const void *data, size_t len,
@@ -91,8 +89,6 @@ class TelnetParser : virtual public lcore::Protocol
       PS_SuboptEscape  //!< Saw an IAC while in PS_Subopt
    };
 
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
  private:
    typedef lcore::U1Byte U1Byte;
    TelnetChars::OptionNegotiations negtype_;
@@ -104,7 +100,7 @@ class TelnetParser : virtual public lcore::Protocol
    U1Byte *cookedbuf_;
    size_t cooked_total_;
    size_t cooked_used_;
-   PreAllocBuffer<48> *cooked_;
+   ::std::tr1::shared_ptr<PreAllocBuffer<48> > cooked_;
 
    inline void stateNormal(ParserState &state, const U1Byte ch);
    inline void stateEscape(ParserState &state, const U1Byte ch, size_t i,
@@ -119,11 +115,6 @@ class TelnetParser : virtual public lcore::Protocol
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline int TelnetParser::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Protocol::AreYouA(cid));
-}
 
 inline void TelnetParser::dropBytes(size_t bytes)
 {

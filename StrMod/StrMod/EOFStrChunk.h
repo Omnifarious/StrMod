@@ -31,9 +31,7 @@
 #ifndef _STR_StrChunk_H_
 #  include <StrMod/StrChunk.h>
 #endif
-#ifndef _STR_StrChunkPtrT_H_
-#  include <StrMod/StrChunkPtrT.h>
-#endif
+#include <tr1/memory>
 
 #define _STR_EOFStrChunk_H_
 
@@ -51,33 +49,22 @@ namespace strmod {
 class EOFStrChunk : public StrChunk
 {
  public:
-   static const STR_ClassIdent identifier;
-
    EOFStrChunk()                                       { }
    inline virtual ~EOFStrChunk();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual unsigned int Length() const                 { return(0); }
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation)             { }
 };
 
-typedef StrChunkPtrT<EOFStrChunk> EOFStrChunkPtr;
+typedef ::std::tr1::shared_ptr<EOFStrChunk> EOFStrChunkPtr;
 
 //-----------------------------inlune functions--------------------------------
 
 inline EOFStrChunk::~EOFStrChunk()
 {
-}
-
-inline int EOFStrChunk::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StrChunk::AreYouA(cid));
 }
 
 }  // namespace strmod

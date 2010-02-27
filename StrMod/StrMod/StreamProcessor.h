@@ -38,8 +38,6 @@
 
 #include <cassert>
 #include <LCore/GenTypes.h>
-#include <LCore/Protocol.h>
-#include <StrMod/STR_ClassIdent.h>
 #include <StrMod/StrChunkPtr.h>
 
 #define _STR_StreamProcessor_H_
@@ -64,17 +62,13 @@ namespace strmod {
  *
  * Another prime example is a process in a Unix pipeline.
  */
-class StreamProcessor : virtual public lcore::Protocol
+class StreamProcessor
 {
  public:
-   static const STR_ClassIdent identifier;
-
    //! Abstract base classes don't have substansive constructors.
    inline StreamProcessor();
    //! Abstract base classes don't have substansive destructors.
    virtual ~StreamProcessor();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    /** Can you put data into this thing?
     * Note that this is \c !incoming_.  This means that if you need
@@ -99,8 +93,6 @@ class StreamProcessor : virtual public lcore::Protocol
    StrChunkPtr outgoing_;  //!< Where to stick data that's ready to go out.
    bool outgoing_ready_;   //!< Set this when the data in \c outgoing_ is actually ready to go out.
 
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    /** Do something with your incoming_ data.
     * \pre <code>(incoming_ && !outoing_ready_)</code> will
     * <strong>always</strong> be true when entering this function, meaning
@@ -122,11 +114,6 @@ class StreamProcessor : virtual public lcore::Protocol
 inline StreamProcessor::StreamProcessor()
      : outgoing_ready_(false)
 {
-}
-
-inline int StreamProcessor::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Protocol::AreYouA(cid));
 }
 
 inline bool StreamProcessor::canWriteTo() const
@@ -155,8 +142,7 @@ inline const StrChunkPtr StreamProcessor::readFrom()
 
    StrChunkPtr tmp;
 
-   tmp = outgoing_;
-   outgoing_.ReleasePtr();
+   tmp.swap(outgoing_);
    outgoing_ready_ = false;
    if (incoming_)
    {

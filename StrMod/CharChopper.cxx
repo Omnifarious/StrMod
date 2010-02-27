@@ -33,7 +33,7 @@
 #include <StrMod/CharChopper.h>
 #include <StrMod/StrChunk.h>
 #include <StrMod/ChunkIterator.h>
-#include <StrMod/StrChunkPtrT.h>
+#include <StrMod/StrChunkPtr.h>
 #include <StrMod/GroupChunk.h>
 #include <StrMod/StrSubChunk.h>
 #include <StrMod/PreAllocBuffer.h>
@@ -45,13 +45,11 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent CharChopper::identifier(26UL);
-
 void CharChopper::addChunk(const StrChunkPtr &chnk)
 {
    bool iscurdata = false;
 
-   if (chnk.GetPtr() == curdata_.GetPtr())
+   if (chnk == curdata_)
    {
       curdata_->resize(usedsize_);
       iscurdata = true;
@@ -64,13 +62,15 @@ void CharChopper::addChunk(const StrChunkPtr &chnk)
    {
       if (!groupdata_)
       {
-	 if (outgoing_->AreYouA(GroupChunk::identifier))
+         using ::std::tr1::dynamic_pointer_cast;
+	 if (groupptr_t tmp =
+             dynamic_pointer_cast<GroupChunk, StrChunk>(outgoing_))
 	 {
-	    groupdata_ = static_cast<GroupChunk *>(outgoing_.GetPtr());
+	    groupdata_.swap(tmp);
 	 }
 	 else
 	 {
-	    groupdata_ = new GroupChunk;
+	    groupdata_.reset(new GroupChunk);
 	    groupdata_->push_back(outgoing_);
 	    outgoing_ = groupdata_;
 	 }
@@ -78,7 +78,7 @@ void CharChopper::addChunk(const StrChunkPtr &chnk)
       }
       else
       {
-	 assert(outgoing_.GetPtr() == groupdata_.GetPtr());
+	 assert(outgoing_ == groupdata_);
 	 groupdata_->push_back(chnk);
       }
    }
@@ -86,13 +86,13 @@ void CharChopper::addChunk(const StrChunkPtr &chnk)
    {
       if (groupdata_)
       {
-	 groupdata_.ReleasePtr();
+	 groupdata_.reset();
       }
       outgoing_ = chnk;
    }
    if (iscurdata)
    {
-      curdata_.ReleasePtr();
+      curdata_.reset();
    }
 }
 
@@ -139,12 +139,12 @@ void CharChopper::processIncoming()
 	 {
 	    if (foundchar)
 	    {
-	       curdata_ = new PreAllocBuffer<16>;
+	       curdata_.reset(new PreAllocBuffer<16>);
 	       curdata_->resize(count);
 	    }
 	    else
 	    {
-	       curdata_ = new DynamicBuffer(32);
+	       curdata_.reset(new DynamicBuffer(32));
 	    }
 	    ::std::memcpy(curdata_->getVoidP(), buf, count);
 	    usedsize_ = count;
@@ -177,7 +177,8 @@ void CharChopper::processIncoming()
 	 }
 	 else
 	 {
-	    addChunk(new StrSubChunk(incoming_, LinearExtent(0, count)));
+	    addChunk(StrChunkPtr(new StrSubChunk(incoming_,
+                                                 LinearExtent(0, count))));
 	 }
       }
       if (count >= inlen)
@@ -186,8 +187,8 @@ void CharChopper::processIncoming()
       }
       else
       {
-	 replaceIncoming(new StrSubChunk(incoming_,
-					 LinearExtent(count, inlen)));
+	 replaceIncoming(StrChunkPtr(new StrSubChunk(incoming_,
+                                                     LinearExtent(count, inlen))));
       }
       if (foundchar && curdata_)
       {

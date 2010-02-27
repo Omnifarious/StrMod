@@ -34,7 +34,6 @@
 #endif
 
 #include "StrMod/StrSubChunk.h"
-#include "StrMod/StrChunkPtrT.h"
 #include "StrMod/StrChunkPtr.h"
 #include "StrMod/ChunkVisitor.h"
 #include <cassert>
@@ -43,18 +42,16 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent StrSubChunk::identifier(18UL);
-
 StrSubChunk::StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent)
      : subchunk_(chunk), subext_(extent)
 {
    assert(subchunk_);
+   using ::std::tr1::shared_ptr;
+   using ::std::tr1::dynamic_pointer_cast;
 
-   if (subchunk_->AreYouA(identifier))
+   if (shared_ptr<StrSubChunk> subc =
+       dynamic_pointer_cast<StrSubChunk, StrChunk>(chunk))
    {
-      StrChunkPtrT<StrSubChunk> subc
-	 = static_cast<StrSubChunk *>(subchunk_.GetPtr());
-
       subext_ = subc->subext_.SubExtent(subext_);
       subchunk_ = subc->subchunk_;
    }

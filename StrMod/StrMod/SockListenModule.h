@@ -43,8 +43,8 @@
 #  include <StrMod/StrChunk.h>
 #endif
 
-#ifndef _STR_StrChunkPtrT_H_
-#  include <StrMod/StrChunkPtrT.h>
+#ifndef _STR_StrChunkPtr_H_
+#  include <StrMod/StrChunkPtr.h>
 #endif
 
 #ifndef _STR_SocketModule_H_
@@ -73,14 +73,10 @@ class SocketModuleChunk;
 class SocketModuleChunk : public StrChunk
 {
  public:
-   static const STR_ClassIdent identifier;
-
    //! Creates a SocketModule chunk wrapping SocketModule 'mod'.
    explicit SocketModuleChunk(SocketModule *mod) : module_(mod)  { }
    //! If 'ReleaseModule' hasn't been called, also deletes wrapped SocketModule
    inline virtual ~SocketModuleChunk();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual unsigned int Length() const                 { return 0; }
 
@@ -100,8 +96,6 @@ class SocketModuleChunk : public StrChunk
    }
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    //! Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation)             { }
@@ -110,7 +104,7 @@ class SocketModuleChunk : public StrChunk
    SocketModule *module_;
 };
 
-typedef StrChunkPtrT<SocketModuleChunk> SocketModuleChunkPtr;
+typedef ::std::tr1::shared_ptr<SocketModuleChunk> SocketModuleChunkPtr;
 
 //--------------------------SockListenModule class-----------------------------
 
@@ -131,7 +125,6 @@ class SockListenModule : public StreamModule {
  public:
    class SLPlug;  // Declared at end of public section for clarity.
    friend class SLPlug;
-   static const STR_ClassIdent identifier;
 
    /** \brief What address am I going to listen on, and what's the length of
     * the pending connection queue?
@@ -142,8 +135,6 @@ class SockListenModule : public StreamModule {
 		    int qlen = 1);
    //! Closes the socket being listened to.
    virtual ~SockListenModule();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool canCreate(int side = 0) const;
    inline SLPlug *makePlug(int side = 0);
@@ -167,10 +158,6 @@ class SockListenModule : public StreamModule {
       friend class SockListenModule;
 
     public:
-      static const STR_ClassIdent identifier;
-
-      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
       inline SockListenModule &getParent() const;
       virtual int side() const                          { return(0); }
 
@@ -184,10 +171,6 @@ class SockListenModule : public StreamModule {
        * destroy these things at random.  */
       virtual ~SLPlug()                                 { }
 
-      virtual const lcore::ClassIdent *i_GetIdent() const {
-         return &identifier;
-      }
-
       //! Forwards to getParent()->plugRead()
       virtual const StrChunkPtr i_Read();
       /** \brief A dead operation that either assert fails, or is a no-op that
@@ -196,8 +179,6 @@ class SockListenModule : public StreamModule {
    };
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    inline virtual Plug *i_MakePlug(int side);
 
    /** Make a socket module once I've done the accept.
@@ -227,10 +208,8 @@ class SockListenModule : public StreamModule {
    ehnet::SocketAddress &myaddr_;
    Dispatcher &disp_;
    UnixEventRegistry &ureg_;
-   FDPollEv *readevptr_;
-   unievent::EventPtr readev_;
-   FDPollEv *errorevptr_;
-   unievent::EventPtr errorev_;
+   ::std::tr1::shared_ptr<FDPollEv> readev_;
+   ::std::tr1::shared_ptr<FDPollEv> errorev_;
 
    void eventRead();
    void eventError();
@@ -247,17 +226,7 @@ inline SocketModuleChunk::~SocketModuleChunk()
    }
 }
 
-inline int SocketModuleChunk::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StrChunk::AreYouA(cid));
-}
-
 // ---------------------SockListenModule inline functions----------------------
-
-inline int SockListenModule::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamModule::AreYouA(cid));
-}
 
 inline bool SockListenModule::canCreate(int side) const
 {
@@ -309,11 +278,6 @@ SockListenModule::makeSocketModule(int fd, ehnet::SocketAddress *peer,
 }
 
 //-----------------SockListenModule::SLPlug inline functions-------------------
-
-inline int SockListenModule::SLPlug::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Plug::AreYouA(cid));
-}
 
 inline SockListenModule &SockListenModule::SLPlug::getParent() const
 {

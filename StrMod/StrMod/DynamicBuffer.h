@@ -39,27 +39,13 @@ namespace strmod {
 class DynamicBuffer : public BufferChunk
 {
  public:
-   static const STR_ClassIdent identifier;
-
    DynamicBuffer()                                      { }
    DynamicBuffer(unsigned int len) throw(std::bad_alloc);
    DynamicBuffer(const void *data, unsigned int len) throw(std::bad_alloc);
    virtual ~DynamicBuffer();
 
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
    virtual void resize(unsigned int newsize) throw(std::bad_alloc);
-
- protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 };
-
-//-----------------------------inline functions--------------------------------
-
-inline int DynamicBuffer::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || BufferChunk::AreYouA(cid));
-}
 
 }  // namespace strmod
 }  // namespace strmod

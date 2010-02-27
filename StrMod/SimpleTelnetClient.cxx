@@ -27,15 +27,13 @@
 #include "StrMod/SimpleTelnetClient.h"
 #include "StrMod/TelnetChunkerData.h"
 #include "StrMod/TelnetChars.h"
+#include <tr1/memory>
+#include <cassert>
 
 namespace strmod {
 namespace strmod {
 
 using lcore::U1Byte;
-
-const STR_ClassIdent SimpleTelnetClient::identifier(43UL);
-const STR_ClassIdent SimpleTelnetClient::UPlug::identifier(44UL);
-const STR_ClassIdent SimpleTelnetClient::SPlug::identifier(45UL);
 
 SimpleTelnetClient::SimpleTelnetClient()
      : sent_do_supga_(false), sent_do_echo_(false),
@@ -111,7 +109,7 @@ bool SimpleTelnetClient::doProtocol()
 	 sent_do_echo_ = true;
       }
 
-      toserver_ = new TelnetChunker::OptionNegotiation(TelnetChars::O_DO, sendopt);
+      toserver_ = StrChunkPtr(new TelnetChunker::OptionNegotiation(TelnetChars::O_DO, sendopt));
       return(true);
    }
    return(false);
@@ -133,46 +131,55 @@ void SimpleTelnetClient::updatePlugFlags()
 const StrChunkPtr SimpleTelnetClient::userRead()
 {
    StrChunkPtr tmp = touser_;
-   touser_.ReleasePtr();
+   touser_.reset();
    updatePlugFlags();
    return(tmp);
 }
 
 void SimpleTelnetClient::serverWrite(const StrChunkPtr &ptr)
 {
-   assert(!toserver_);
-   if (ptr->AreYouA(TelnetChunker::TelnetData::identifier))
-   {
-      if (ptr->AreYouA(TelnetChunker::OptionNegotiation::identifier))
-      {
-	 StrChunkPtrT<TelnetChunker::OptionNegotiation> optneg =
-	    static_cast<TelnetChunker::OptionNegotiation *>(ptr.GetPtr());
+   typedef TelnetChunker::TelnetData tdata_t;
+   typedef TelnetChunker::OptionNegotiation topt_t;
+   using ::std::tr1::shared_ptr;
+   using ::std::tr1::dynamic_pointer_cast;
+   typedef shared_ptr<tdata_t> tdptr_t;
+   typedef shared_ptr<topt_t> toptr_t;
 
+   assert(!toserver_);
+
+   if (tdptr_t dptr = dynamic_pointer_cast<tdata_t, StrChunk>(ptr))
+   {
+      if (toptr_t optneg = dynamic_pointer_cast<topt_t, tdata_t>(dptr))
+      {
 	 if (optneg->getRequest() == TelnetChars::O_WILL)
 	 {
 	    if ((optneg->getType() != 1) && (optneg->getType() != 3))
 	    {
-	       toserver_ = new TelnetChunker::OptionNegotiation(
-		  TelnetChars::O_DONT, optneg->getType());
+	       toserver_.reset(new TelnetChunker::OptionNegotiation(
+                                  TelnetChars::O_DONT, optneg->getType()
+                                  ));
 	    }
 	 }
 	 else if (optneg->getRequest() == TelnetChars::O_DO)
 	 {
 	    if (optneg->getType() == 3)
 	    {
-	       toserver_ = new TelnetChunker::OptionNegotiation(
-		  TelnetChars::O_WILL, 3);
+	       toserver_.reset(new TelnetChunker::OptionNegotiation(
+                                  TelnetChars::O_WILL, 3
+                                  ));
 	    }
 	    else
 	    {
-	       toserver_ = new TelnetChunker::OptionNegotiation(
-		  TelnetChars::O_WONT, optneg->getType());
+	       toserver_.reset(new TelnetChunker::OptionNegotiation(
+                                  TelnetChars::O_WONT, optneg->getType()
+                                  ));
 	    }
 	 }
 	 else if (optneg->getRequest() == TelnetChars::O_DONT)
 	 {
-	    toserver_ = new TelnetChunker::OptionNegotiation(
-	       TelnetChars::O_WONT, optneg->getType());
+	    toserver_.reset(new TelnetChunker::OptionNegotiation(
+                               TelnetChars::O_WONT, optneg->getType()
+                               ));
 	 }
 	 // WONTs are always ignored.  The rule about no automated retries of
 	 // failed negotiations prevents us from resending a DO if the server
@@ -195,7 +202,7 @@ const StrChunkPtr SimpleTelnetClient::SPlug::i_Read()
    if (parent.toserver_)
    {
       StrChunkPtr tmp = parent.toserver_;
-      parent.toserver_.ReleasePtr();
+      parent.toserver_.reset();
       if (!parent.doProtocol())  // if doProtocol didn't put more in toserver_
       {
 	 parent.updatePlugFlags();

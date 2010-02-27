@@ -49,17 +49,11 @@ namespace strmod {
 class PassThrough : public StreamProcessor
 {
  public:
-   static const STR_ClassIdent identifier;
-
    //! Doesn't do anything, so doesn't need much in its constructor.
    PassThrough()                                       { }
    // Derived class destructor doesn't do anything base class one doesn't do.
 
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    inline virtual void processIncoming();
 
  private:
@@ -68,17 +62,12 @@ class PassThrough : public StreamProcessor
 
 //-----------------------------inline functions--------------------------------
 
-inline int PassThrough::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamProcessor::AreYouA(cid));
-}
-
 inline void PassThrough::processIncoming()
 {
    assert(!outgoing_);
    outgoing_ = incoming_;
    outgoing_ready_ = true;
-   incoming_.ReleasePtr();
+   incoming_.reset();
 }
 
 };  // namespace strmod

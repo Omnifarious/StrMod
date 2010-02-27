@@ -33,8 +33,6 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent DynamicBuffer::identifier(39UL);
-
 DynamicBuffer::DynamicBuffer(unsigned int len) throw(std::bad_alloc)
 {
    resize(len);

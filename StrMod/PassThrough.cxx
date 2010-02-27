@@ -30,11 +30,3 @@
 #endif
 
 #include <StrMod/PassThrough.h>
-
-namespace strmod {
-namespace strmod {
-
-const STR_ClassIdent PassThrough::identifier(28UL);
-
-};  // End namespace strmod
-};  // End namespace strmod

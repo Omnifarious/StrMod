@@ -26,7 +26,6 @@
 
 // For a log, see ../ChangeLog
 
-#include <StrMod/STR_ClassIdent.h>
 #include <StrMod/StreamProcessor.h>
 
 #define _STR_TelnetChunker_H_
@@ -51,7 +50,6 @@ class TelnetChunker : public StreamProcessor
    class Suboption;
    class OptionNegotiation;
 
-   static const STR_ClassIdent identifier;
    //! The maximum size an unfinished suboption can reach before it's aborted.
    static const unsigned int MAX_SUBOPTSIZE = (64U * 1024U);
 
@@ -65,12 +63,8 @@ class TelnetChunker : public StreamProcessor
     */
    virtual ~TelnetChunker();
 
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
  protected:
    class Builder;
-
-   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
 
    virtual void processIncoming();
 
@@ -80,13 +74,6 @@ class TelnetChunker : public StreamProcessor
    friend class Internals;
    Internals &data_;
 };
-
-//-----------------------------inline functions--------------------------------
-
-inline int TelnetChunker::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamProcessor::AreYouA(cid));
-}
 
 };  // namespace strmod
 };  // namespace strmod

@@ -41,9 +41,6 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent ProcessorModule::identifier(29UL);
-const STR_ClassIdent ProcessorModule::PMPlug::identifier(30UL);
-
 bool ProcessorModule::deletePlug(Plug *plug)
 {
    if ((plug == &side_) && pulled_.side)

@@ -43,8 +43,6 @@ namespace strmod {
 class UseTrackingVisitor : public ChunkVisitor
 {
  public:
-   static const STR_ClassIdent identifier;
-
    /**
     * Constructor.
     */
@@ -54,14 +52,7 @@ class UseTrackingVisitor : public ChunkVisitor
     */
    virtual ~UseTrackingVisitor()                      { }
 
-   virtual int AreYouA(const lcore::ClassIdent &cid) const   {
-      return((identifier == cid) || ChunkVisitor::AreYouA(cid));
-   }
-
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
-
    /** \name Only overload these
     * <strong>Only overload these functions, not the various private visit*
     * functions down below.</strong>

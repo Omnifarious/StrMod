@@ -28,7 +28,6 @@
 
 #include <StrMod/ChunkVisitor.h>
 #include <StrMod/StrChunk.h>
-#include <StrMod/STR_ClassIdent.h>
 #include <StrMod/LinearExtent.h>
 #include <LCore/GenTypes.h>
 #include <LCore/Debugable.h>
@@ -49,7 +48,6 @@ class BufferChunk : public StrChunk, virtual public lcore::Debugable
    typedef lcore::U1Byte U1Byte;
  public:
    class Factory;
-   static const STR_ClassIdent identifier;
 
    /** As a convenience, initialize the protected variables maintained by the
     * derived classes.
@@ -62,8 +60,6 @@ class BufferChunk : public StrChunk, virtual public lcore::Debugable
     * deletion.
     */
    virtual ~BufferChunk()                               { }
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual bool invariant() const;
 
@@ -99,8 +95,6 @@ class BufferChunk : public StrChunk, virtual public lcore::Debugable
    virtual void resize(unsigned int newsize) throw(std::bad_alloc) = 0;
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
 
@@ -131,11 +125,6 @@ class BufferChunk : public StrChunk, virtual public lcore::Debugable
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline int BufferChunk::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StrChunk::AreYouA(cid));
-}
 
 inline bool BufferChunk::invariant() const
 {

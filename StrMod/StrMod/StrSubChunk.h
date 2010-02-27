@@ -49,18 +49,12 @@ namespace strmod {
 class StrSubChunk : public StrChunk
 {
  public:
-   static const STR_ClassIdent identifier;
-
    StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent);
    virtual ~StrSubChunk()                              { }
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    inline virtual unsigned int Length() const;
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
@@ -71,11 +65,6 @@ class StrSubChunk : public StrChunk
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline int StrSubChunk::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StrChunk::AreYouA(cid));
-}
 
 inline unsigned int StrSubChunk::Length() const
 {

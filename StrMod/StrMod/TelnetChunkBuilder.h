@@ -27,10 +27,12 @@
 // For a log, see ../ChangeLog
 
 #include <cstddef>
-#include <LCore/Protocol.h>
-#include <LCore/HopClTypes.h>
-#include <StrMod/STR_ClassIdent.h>
-#include <StrMod/TelnetChars.h>
+#ifndef _STR_TelnetChars_H_
+#  include <StrMod/TelnetChars.h>
+#endif
+#ifndef _STR_StrChunkPtr_H_
+#  include <StrMod/StrChunkPtr.h>
+#endif
 
 #define _STR_TelnetChunkBuilder_H_
 
@@ -38,7 +40,6 @@ namespace strmod {
 namespace strmod {
 
 class BufferChunk;
-template <class T> class StrChunkPtrT;
 
 /** \class TelnetChunkBuilder TelnetChunkBuilder.h StrMod/TelnetChunkBuilder.h
  * Interface class for things that build telnet protocol data streams.
@@ -47,13 +48,9 @@ template <class T> class StrChunkPtrT;
  * block by block.  The TelnetParser uses it, and the TelnetChunker implements
  * it to build up TelnetChunker::TelnetChunk objects.
  */
-class TelnetChunkBuilder : virtual public lcore::Protocol
+class TelnetChunkBuilder
 {
  public:
-   static const STR_ClassIdent identifier;
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
    /** Add a data block to the stream.
     * \param regionbegin Where the region begins in some data buffer the child
     * class should know about (STL style).
@@ -82,18 +79,8 @@ class TelnetChunkBuilder : virtual public lcore::Protocol
     */
    virtual void addSuboption(lcore::U1Byte opt_type,
                              size_t regionbegin, size_t regionend,
-                             StrChunkPtrT<BufferChunk> &cooked) = 0;
-
- protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
+                             ::std::tr1::shared_ptr<BufferChunk> &cooked) = 0;
 };
-
-//-----------------------------inline functions--------------------------------
-
-inline int TelnetChunkBuilder::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Protocol::AreYouA(cid));
-}
 
 };  // namespace strmod
 };  // namespace strmod

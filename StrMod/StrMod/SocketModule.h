@@ -44,16 +44,12 @@ class SocketModule : public StreamFDModule
    friend class SockListenModule;  // This is so SockListenModule's can access
                                    // that one protected constructor down there
  public:
-   static const STR_ClassIdent identifier;
-
    //! Create a SocketModule connected to the given address.
    SocketModule(const ehnet::SocketAddress &addr,
                 unievent::Dispatcher &disp,
                 unievent::UnixEventRegistry &ureg,
                 bool blockconnect = true) throw(unievent::UNIXError);
    virtual ~SocketModule();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    //! Who are we connected to?
    const ehnet::SocketAddress &GetPeerAddr()           	{ return(peer_); }
@@ -72,8 +68,6 @@ class SocketModule : public StreamFDModule
                 unievent::Dispatcher &disp,
                 unievent::UnixEventRegistry &ureg);
 
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    static int MakeSocket(SocketModule &obj, const ehnet::SocketAddress &addr,
                          bool blockconnect) throw(unievent::UNIXError);
 
@@ -83,13 +77,6 @@ class SocketModule : public StreamFDModule
 
    void setSelfAddr(int fd);
 };
-
-//-------------------------------inline functions------------------------------
-
-inline int SocketModule::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamFDModule::AreYouA(cid));
-}
 
 };  // namespace strmod
 };  // namespace strmod

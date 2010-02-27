@@ -37,8 +37,6 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent GroupChunk::identifier(20UL);
-
 // We deal with StrChunk *'s directly because it's more efficient.  We try
 // to hide this fact as much as possible from the outside world.
 
@@ -48,39 +46,18 @@ GroupChunk::GroupChunk() : totalsize_(0)
 
 GroupChunk::~GroupChunk()
 {
-   ChunkList::iterator i;
-   ChunkList::iterator end;
-
-   end = chnklist_.end();
-   for (i = chnklist_.begin(); i != end; ++i) {
-      StrChunk *ptr = *i;
-
-      *i = 0;
-      if (ptr) {
-	 ptr->DelReference();
-	 if (ptr->NumReferences() <= 0) {
-	    delete ptr;
-	 }
-      }
-   }
 }
 
 void GroupChunk::push_back(const StrChunkPtr &chnk)
 {
-   StrChunk *ptr = chnk.GetPtr();
-
-   ptr->AddReference();
-   chnklist_.push_back(ptr);
-   totalsize_ += ptr->Length();
+   chnklist_.push_back(chnk);
+   totalsize_ += chnk->Length();
 }
 
 void GroupChunk::push_front(const StrChunkPtr &chnk)
 {
-   StrChunk *ptr = chnk.GetPtr();
-
-   ptr->AddReference();
-   chnklist_.push_front(ptr);
-   totalsize_ += ptr->Length();
+   chnklist_.push_front(chnk);
+   totalsize_ += chnk->Length();
 }
 
 void GroupChunk::acceptVisitor(ChunkVisitor &visitor)

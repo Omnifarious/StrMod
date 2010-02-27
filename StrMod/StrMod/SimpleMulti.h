@@ -69,7 +69,6 @@ class SimpleMultiplexer : public StreamModule
       SingleSide,  //!< Writing to this plug writes to all plugs connected to MultiSide plugs.
       MultiSide  //!< Writing to his plug writes to the plug connected to the SingleSide plug.
    };
-   static const STR_ClassIdent identifier;
 
    /** Construct a SimpleMultiplexer
     *
@@ -86,8 +85,6 @@ class SimpleMultiplexer : public StreamModule
    //! Also destroys all Plug's and any unsent data.
    virtual ~SimpleMultiplexer();
 
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
    inline virtual bool canCreate(int side) const;
    virtual bool ownsPlug(const Plug *plug) const;
    virtual bool deletePlug(Plug *plug);
@@ -97,10 +94,6 @@ class SimpleMultiplexer : public StreamModule
       friend class SimpleMultiplexer;
       friend class MultiPlug;
     public:
-      static const STR_ClassIdent identifier;
-
-      inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
       //: Which module owns this plug?
       inline SimpleMultiplexer &getParent() const;
 
@@ -110,10 +103,6 @@ class SimpleMultiplexer : public StreamModule
     protected:
       inline SinglePlug(SimpleMultiplexer &parent);
       inline virtual ~SinglePlug();
-
-      virtual const lcore::ClassIdent *i_GetIdent() const {
-         return &identifier;
-      }
 
       //: See base class.
       virtual const StrChunkPtr i_Read();
@@ -224,7 +213,7 @@ class SimpleMultiplexer : public StreamModule
    MPlugList delplugs_;
    bool scan_posted_;
    StrChunkPtr mchunk_;
-   ScanEvent * const scan_;
+   const ::std::tr1::shared_ptr<ScanEvent> scan_;
    unievent::Dispatcher &dispatcher_;
    unsigned int readable_multis_;
    unsigned int readable_multiothers_;
@@ -232,11 +221,6 @@ class SimpleMultiplexer : public StreamModule
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline int SimpleMultiplexer::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StreamModule::AreYouA(cid));
-}
 
 inline bool SimpleMultiplexer::canCreate(int side) const
 {
@@ -260,11 +244,6 @@ inline void SimpleMultiplexer::postScan(MultiPlug &toend)
 }
 
 //--
-
-inline int SimpleMultiplexer::SinglePlug::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Plug::AreYouA(cid));
-}
 
 inline SimpleMultiplexer::SinglePlug::SinglePlug(SimpleMultiplexer &parent)
      : Plug(parent)

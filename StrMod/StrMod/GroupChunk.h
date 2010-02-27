@@ -30,15 +30,18 @@
 // be one chunk.
 //
 
-#include <StrMod/StrChunk.h>
+#ifndef _STR_StrChunk_H_
+#  include <StrMod/StrChunk.h>
+#endif
+#ifndef _STR_StrChunkPtr_H_
+#  include <StrMod/StrChunkPtr.h>
+#endif
 #include <deque>
 
 #define _STR_GroupChunk_H_
 
 namespace strmod {
 namespace strmod {
-
-class StrChunkPtr;
 
 /** \class GroupChunk GroupChunk.h StrMod/GroupChunk.h
  * \brief A StrChunk that consists of a concatentation of other StrChunks.
@@ -53,16 +56,12 @@ class StrChunkPtr;
  */
 class GroupChunk : public StrChunk
 {
-   typedef std::deque<StrChunk *> ChunkList;
+   typedef std::deque<StrChunkPtr> ChunkList;
  public:
-   static const STR_ClassIdent identifier;
-
    //! Construct an empty GroupChunk
    GroupChunk();
    //! Dereferences all direct children.
    virtual ~GroupChunk();
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
 
    virtual unsigned int Length() const                 { return(totalsize_); }
 
@@ -72,8 +71,6 @@ class GroupChunk : public StrChunk
    void push_front(const StrChunkPtr &chnk);
 
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
-
    //: Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
       throw(ChunkVisitor::halt_visitation);
@@ -85,13 +82,6 @@ class GroupChunk : public StrChunk
    GroupChunk(const GroupChunk &);
    void operator =(const GroupChunk &);
 };
-
-//-----------------------------inline functions--------------------------------
-
-inline int GroupChunk::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || StrChunk::AreYouA(cid));
-}
 
 }  // namespace strmod
 }  // namespace strmod

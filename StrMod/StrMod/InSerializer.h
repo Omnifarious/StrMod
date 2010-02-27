@@ -36,13 +36,14 @@
 
 #include <LCore/GenTypes.h>
 #include <string>
+#ifndef _STR_StrChunkPtr_H_
+#  include <StrMod/StrChunkPtr.h>
+#endif
 
 #define _STR_InSerializer_H_
 
 namespace strmod {
 namespace strmod {
-
-class StrChunkPtr;
 
 /** \class InSerializer InSerializer.h StrMod/InSerializer.h
  * Provides a simple way to 'deserialize' a StrChunk.

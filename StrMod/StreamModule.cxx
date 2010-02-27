@@ -30,11 +30,6 @@
 namespace strmod {
 namespace strmod {
 
-//! A unique identifier for this class.
-const STR_ClassIdent StreamModule::identifier(1UL);
-//! A unique identifier for this class.
-const STR_ClassIdent StreamModule::Plug::identifier(2UL);
-
 /*!
  * \param other A reference to the plug to plug into.  <strong>(A pointer to
  * it is stored)</strong>.

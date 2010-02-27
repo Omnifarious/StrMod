@@ -29,9 +29,6 @@
 //! author="Eric Hopper" lib=StrMod
 
 #include <cstddef>  // NULL
-#ifndef _STR_STR_ClassIdent_H_
-#   include <StrMod/STR_ClassIdent.h>
-#endif
 #ifndef _STR_StrChunkPtr_H_
 #   include <StrMod/StrChunkPtr.h>
 #endif
@@ -73,8 +70,6 @@ namespace strmod {
 class StreamSplitterModule : public StreamModule
 {
  public:
-   static const STR_ClassIdent identifier;
-
    //! Create a splitter module who's plugs are connected to nothing.
    StreamSplitterModule();
    //! Delete splitter module and destroy all plugs it owns.
@@ -101,8 +96,6 @@ class StreamSplitterModule : public StreamModule
    class SPPlug : public Plug {
       friend class StreamSplitterModule;
     public:
-      static const STR_ClassIdent identifier;
-
       SPPlug(StreamSplitterModule &p, Sides s) : Plug(p), side_(s)           { }
       virtual ~SPPlug()                                                      { }
 
@@ -111,10 +104,6 @@ class StreamSplitterModule : public StreamModule
       virtual int side() const                          { return(side_); }
 
     protected:
-      virtual const lcore::ClassIdent *i_GetIdent() const {
-         return &identifier;
-      }
-
       virtual const StrChunkPtr i_Read();
       virtual void i_Write(const StrChunkPtr &ptr);
 
@@ -130,8 +119,6 @@ class StreamSplitterModule : public StreamModule
     private:
       Sides side_;
    };
-
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    /** See base class.  This one sets the read/writeable flags on the other
     * plugs to be right.

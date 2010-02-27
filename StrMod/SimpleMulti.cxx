@@ -50,10 +50,6 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug
    friend class SimpleMultiplexer;
    friend class SinglePlug;
  public:
-   static const STR_ClassIdent identifier;
-
-   inline virtual int AreYouA(const lcore::ClassIdent &cid) const;
-
    inline SimpleMultiplexer &getParent() const;
 
    virtual int side() const                           { return(MultiSide); }
@@ -69,8 +65,6 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug
    inline MultiPlug(SimpleMultiplexer &parent);
    //! A destructor.  Calls unPlug()
    inline virtual ~MultiPlug();
-
-   virtual const lcore::ClassIdent *i_GetIdent() const  { return &identifier; }
 
    virtual const StrChunkPtr i_Read();
 
@@ -110,8 +104,6 @@ class SimpleMultiplexer::ScanEvent : public unievent::Event {
  private:
    typedef unievent::Dispatcher Dispatcher;
  public:
-   static const STR_ClassIdent identifier;
-
    //! This keeps a reference to parent.
    ScanEvent(SimpleMultiplexer &parent) : parent_(&parent)                   { }
 
@@ -119,27 +111,14 @@ class SimpleMultiplexer::ScanEvent : public unievent::Event {
 
    void parentGone()                                    { parent_ = 0; }
 
- protected:
-   virtual const lcore::ClassIdent *i_GetIdent()        { return &identifier; }
-
  private:
    SimpleMultiplexer *parent_;
 };
-
-int SimpleMultiplexer::MultiPlug::AreYouA(const lcore::ClassIdent &cid) const
-{
-   return((identifier == cid) || Plug::AreYouA(cid));
-}
 
 SimpleMultiplexer &SimpleMultiplexer::MultiPlug::getParent() const
 {
    return(static_cast<SimpleMultiplexer &>(Plug::getParent()));
 }
-
-const STR_ClassIdent SimpleMultiplexer::identifier(21UL);
-const STR_ClassIdent SimpleMultiplexer::MultiPlug::identifier(22UL);
-const STR_ClassIdent SimpleMultiplexer::SinglePlug::identifier(23UL);
-const STR_ClassIdent SimpleMultiplexer::ScanEvent::identifier(32UL);
 
 SimpleMultiplexer::MultiPlug::MultiPlug(SimpleMultiplexer &parent)
      : Plug(parent), has_written_(false),
@@ -397,7 +376,6 @@ SimpleMultiplexer::SimpleMultiplexer(unievent::Dispatcher &disp)
        scan_(new ScanEvent(*this)), dispatcher_(disp),
        readable_multis_(0), readable_multiothers_(0), writeable_multiothers_(0)
 {
-   scan_->AddReference();
 }
 
 SimpleMultiplexer::~SimpleMultiplexer()
@@ -411,11 +389,6 @@ SimpleMultiplexer::~SimpleMultiplexer()
       mplugs_.pop_front();
       mplug->unPlug();
       delete mplug;
-   }
-   scan_->DelReference();
-   if (scan_->NumReferences() <= 0)
-   {
-      delete scan_;
    }
 }
 
@@ -454,7 +427,7 @@ void SimpleMultiplexer::multiDidRead(MultiPlug &mplug)
    {
 //        cerr << "readable_multis_ == 0 && writeable_multiothers_ == "
 //  	   << writeable_multiothers_ << "\n";
-      mchunk_.ReleasePtr();
+      mchunk_.reset();
       if (writeable_multiothers_ > 0)
       {
 	 setWriteableFlagFor(&splug_, true);

@@ -51,8 +51,6 @@ using unievent::UNIXError;
 using ehnet::SocketAddress;
 using lcore::LCoreError;
 
-const STR_ClassIdent SocketModule::identifier(12UL);
-
 // MakeSocket sets makesock_errno_.
 SocketModule::SocketModule(const SocketAddress &addr,
                            unievent::Dispatcher &disp,

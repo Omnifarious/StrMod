@@ -29,11 +29,3 @@
 #endif
 
 #include "StrMod/BufferChunkFactory.h"
-
-namespace strmod {
-namespace strmod {
-
-const STR_ClassIdent BufferChunk::Factory::identifier(40UL);
-
-};  // End namespace strmod
-};  // End namespace strmod

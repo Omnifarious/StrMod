@@ -33,27 +33,17 @@
 namespace strmod {
 namespace strmod {
 
-using lcore::ClassIdent;
-
-const STR_ClassIdent RouterModule::identifier(52UL);
-const STR_ClassIdent RouterModule::RPlug::identifier(53UL);
-
 using unievent::Dispatcher;
 using unievent::Event;
 
 class RouterModule::ScanEvent : public Event {
  public:
-   static const STR_ClassIdent identifier;
-
    //: This keeps a reference to parent.
    ScanEvent(RouterModule &parent) : parent_(&parent)   { }
 
    inline virtual void triggerEvent(Dispatcher *dispatcher = 0);
 
    void parentGone()                                    { parent_ = 0; }
-
- protected:
-   virtual const ClassIdent *i_GetIdent()               { return(&identifier); }
 
  private:
    RouterModule *parent_;
@@ -67,13 +57,10 @@ inline void RouterModule::ScanEvent::triggerEvent(Dispatcher *dispatcher)
    }
 }
 
-const STR_ClassIdent RouterModule::ScanEvent::identifier(54UL);
-
 RouterModule::RouterModule(Dispatcher &disp)
      : disp_(disp), scan_posted_(false), scan_(new ScanEvent(*this)),
        inroutingdone_(false), outgoingcopies_(0)
 {
-   scan_->AddReference();
 }
 
 RouterModule::~RouterModule()
@@ -84,12 +71,6 @@ RouterModule::~RouterModule()
 
       allplugs_.pop_front();
       delete rplug;
-   }
-   assert(scan_->NumReferences() > 0);
-   scan_->DelReference();
-   if (scan_->NumReferences() <= 0)
-   {
-      delete scan_;
    }
 }
 
@@ -272,14 +253,14 @@ void RouterModule::processIncoming(RPlug &source, const StrChunkPtr &chunk)
                }
                if (outgoingcopies_ <= 0)
                {
-                  routedchunk_.ReleasePtr();
+                  routedchunk_.reset();
                }
             }
          } // End scope of skippedplugs
       } // End outgoingcopies_ > 0
       else // outgoingcopies_ <= 0
       {
-         routedchunk_.ReleasePtr();
+         routedchunk_.reset();
       }
    }  // End scope of dests and all other local variables.
    assert((outgoingcopies_ > 0 && routedchunk_) ||
@@ -301,7 +282,7 @@ const StrChunkPtr RouterModule::RPlug::i_Read()
    setReadable(false);
    if (--parent.outgoingcopies_ == 0)
    {
-      parent.routedchunk_.ReleasePtr();
+      parent.routedchunk_.reset();
       if (!parent.inroutingdone_)
       {
          parent.routingDone();

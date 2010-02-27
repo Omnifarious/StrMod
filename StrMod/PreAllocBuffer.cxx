@@ -32,8 +32,6 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent PreAllocBufferBase::identifier(38UL);
-
 void
 PreAllocBufferBase::a_silly_member_function_to_make_sure_a_vtable_is_generated()
 {

@@ -36,8 +36,6 @@
 namespace strmod {
 namespace strmod {
 
-const STR_ClassIdent StreamProcessor::identifier(25UL);
-
 StreamProcessor::~StreamProcessor()
 {
    // outgoing_ and incoming_ are smart pointers and will automagically handle

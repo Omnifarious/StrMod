@@ -28,16 +28,16 @@
 
 #include <cstddef>
 #include <stdexcept>
-#include <LCore/Protocol.h>
-#include <StrMod/STR_ClassIdent.h>
 #include <StrMod/LinearExtent.h>
+#ifndef _STR_StrChunkPtr_H_
+#  include <StrMod/StrChunkPtr.h>
+#endif
 
 #define _STR_ChunkVisitor_H_
 
 namespace strmod {
 namespace strmod {
 
-class StrChunkPtr;
 class StrChunk;
 
 /** \class ChunkVisitor ChunkVisitor.h StrMod/ChunkVisitor.h
@@ -58,26 +58,20 @@ class StrChunk;
  * here because many visitor classes will have build up and tear down
  * operations to perform before visiting.
  */
-class ChunkVisitor : public lcore::Protocol {
+class ChunkVisitor
+{
    friend class StrChunk;
  public:
    //! An exception to allow the visitor to halt the traversal.
    class halt_visitation : public std::exception {
    };
-   static const STR_ClassIdent identifier;
 
    //! Do nothing constructor for interface class.
    ChunkVisitor()                                   { }
    //! Do nothing virtual destructor for interface class.
    virtual ~ChunkVisitor()                          { }
 
-   virtual int AreYouA(const lcore::ClassIdent &cid) const {
-      return((identifier == cid) || Protocol::AreYouA(cid));
-   }
-
  protected:
-   virtual const lcore::ClassIdent *i_GetIdent() const { return(&identifier); }
-
    /** \name StrChunk visit functions
     */
    //@{
