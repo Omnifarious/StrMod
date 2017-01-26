@@ -96,8 +96,8 @@ class Timer
       friend const absolute_t operator +(const absolute_t &a,
                                          const interval_t &b);
       time_t time;  //!< The OSes idea of an absolute time.
-      interval_t::seconds;  //!< Seconds past \c time.
-      interval_t::nanoseconds;  //!< Billionths of a second past \c time.
+      using interval_t::seconds;  //!< Seconds past \c time.
+      using interval_t::nanoseconds;  //!< Billionths of a second past \c time.
 
       inline absolute_t(time_t time_param,
                         unsigned long secs = 0, lcore::U4Byte nanosecs = 0) :
@@ -108,7 +108,7 @@ class Timer
            interval_t(interval), time(time_param)
       {
       }
-      interval_t::normalize;
+      using interval_t::normalize;
    };
 
    /** Construct a Timer
