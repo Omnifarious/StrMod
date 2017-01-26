@@ -49,7 +49,7 @@ class StrChunk::iterator__::shared : public StrChunk::private_iter_state,
     */
    struct rawdata {
       const void *base_;  ///< Location of data area
-      unsigned int len_;  ///< Length of data area
+      size_t len_;  ///< Length of data area
    };
    StrChunkPtr root_;  ///< The StrChunk I'm the share iterator data area for.
    rawdata *dataexts_;  ///< A list of the data chunks in root_.
