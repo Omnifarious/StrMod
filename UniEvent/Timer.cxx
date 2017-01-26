@@ -243,5 +243,5 @@ operator -(const Timer::interval_t &a, const Timer::interval_t &b)
    return os;
 }
 
-};  // namespace unievent
-};  // namespace strmod
+}  // namespace unievent
+}  // namespace strmod

@@ -83,7 +83,7 @@ inline StackSwapper<T>::~StackSwapper()
    classvar_ = oldval_;
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

@@ -117,7 +117,7 @@ void InfiniteModule::IPlug::i_Write(const StrChunkPtr &ptr)
 {
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

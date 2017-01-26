@@ -224,7 +224,7 @@ operator -(const StrChunk::iterator__ &a, const StrChunk::iterator__ &b)
    return(a.distance(b));
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

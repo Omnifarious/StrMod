@@ -149,7 +149,7 @@ TelnetChars::convertCharToOptionNegotiation(
    return false;
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

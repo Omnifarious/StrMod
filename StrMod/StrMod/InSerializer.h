@@ -148,7 +148,7 @@ inline InSerializer &operator >>(InSerializer &is, ::std::string &str)
    return(is);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

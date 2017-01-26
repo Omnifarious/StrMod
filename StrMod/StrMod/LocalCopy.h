@@ -75,7 +75,7 @@ const T &LocalCopy<T>::operator =(const T &b)
    return local = b;
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

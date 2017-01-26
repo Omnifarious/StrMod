@@ -44,5 +44,5 @@ void BufferChunk::printState(std::ostream &os) const
    os << "BufferChunk(buf_ == " << buf_ << ", buflen_ == " << buflen_ << ")";
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

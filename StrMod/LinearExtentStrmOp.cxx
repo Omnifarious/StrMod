@@ -46,5 +46,5 @@ std::ostream &operator <<(std::ostream &os, const LinearExtent &ext)
 	     << ")-->" << end << ")");
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

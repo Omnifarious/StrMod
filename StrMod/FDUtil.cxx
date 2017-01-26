@@ -65,5 +65,5 @@ bool FDUtil::setBlock(int fd, int &myerrno)
    return(true);
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

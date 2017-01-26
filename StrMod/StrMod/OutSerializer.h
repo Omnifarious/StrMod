@@ -235,7 +235,7 @@ inline OutSerializer &operator <<(OutSerializer &os, const char *str)
    return(os);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

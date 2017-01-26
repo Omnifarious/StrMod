@@ -75,7 +75,7 @@ class TelnetChunker : public StreamProcessor
    Internals &data_;
 };
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

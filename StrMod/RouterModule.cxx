@@ -302,5 +302,5 @@ void RouterModule::RPlug::i_Write(const StrChunkPtr &ptr)
    parent.processIncoming(*this, ptr);
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

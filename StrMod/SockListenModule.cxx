@@ -393,5 +393,5 @@ void SockListenModule::SLPlug::i_Write(const StrChunkPtr &chunk)
    assert(false);
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

@@ -125,7 +125,7 @@ inline void TelnetParser::dropBytes(size_t bytes)
    }
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

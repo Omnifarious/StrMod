@@ -70,7 +70,7 @@ inline void PassThrough::processIncoming()
    incoming_.reset();
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

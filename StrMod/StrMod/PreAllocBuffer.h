@@ -127,7 +127,7 @@ PreAllocBuffer<TInitialAlloc>::resize(unsigned int newsize) throw(std::bad_alloc
    i_resize(newsize, TInitialAlloc, preallocbuf_);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

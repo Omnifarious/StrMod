@@ -241,7 +241,7 @@ Timer::postIn(const interval_t &off, const EventPtr &ev)
    postAt(currentTime() + off, ev);
 }
 
-};  // namespace unievent
-};  // namespace strmod
+}  // namespace unievent
+}  // namespace strmod
 
 #endif

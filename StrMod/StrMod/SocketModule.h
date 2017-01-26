@@ -78,7 +78,7 @@ class SocketModule : public StreamFDModule
    void setSelfAddr(int fd);
 };
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

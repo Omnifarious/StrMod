@@ -34,8 +34,8 @@
 namespace strmod {
 namespace unievent {
 class Dispatcher;
-};
-};
+}
+}
 
 namespace strmod {
 namespace strmod {
@@ -259,7 +259,7 @@ inline SimpleMultiplexer &SimpleMultiplexer::SinglePlug::getParent() const
    return(static_cast<SimpleMultiplexer &>(Plug::getParent()));
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

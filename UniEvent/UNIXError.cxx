@@ -42,5 +42,5 @@ void UNIXError::getErrorString(char *buf, size_t buflen) const throw ()
    buf[buflen - 1] = '\0';
 }
 
-};
-};
+}
+}

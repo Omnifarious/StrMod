@@ -77,5 +77,5 @@ StreamModule::Plug *InfiniteModule::i_MakePlug(int side)
    return(&plug_);
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

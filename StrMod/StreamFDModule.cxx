@@ -922,5 +922,5 @@ StreamFDModule::~StreamFDModule()
    delete &errorinfo_;
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

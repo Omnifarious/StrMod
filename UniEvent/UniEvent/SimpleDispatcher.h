@@ -84,7 +84,7 @@ void SimpleDispatcher::stopDispatching()
    stop_flag_ = true;
 }
 
-}; // namespace unievent
-}; // namespace strmod
+} // namespace unievent
+} // namespace strmod
 
 #endif

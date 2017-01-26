@@ -235,7 +235,7 @@ StrChunk::iterator__::operator =(const iterator__ &other)
    extbase_ = other.extbase_;
    curext_ = other.curext_;
    return *this;
-};
+}
 
 bool StrChunk::iterator__::isEqual(const iterator__ &other) const
 {
@@ -404,5 +404,5 @@ StrChunk::iterator__ StrChunk::end()
    return tmp;
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

@@ -198,5 +198,5 @@ void CharChopper::processIncoming()
    }
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

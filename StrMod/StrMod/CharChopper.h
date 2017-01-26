@@ -122,7 +122,7 @@ inline void CharChopper::replaceIncoming(const StrChunkPtr &data)
    incoming_ = data;
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

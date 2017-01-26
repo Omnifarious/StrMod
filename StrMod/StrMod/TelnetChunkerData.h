@@ -235,7 +235,7 @@ TelnetChunker::OptionNegotiation::OptionNegotiation(
    buf_[2] = type;
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

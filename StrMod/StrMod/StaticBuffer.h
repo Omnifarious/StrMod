@@ -91,7 +91,7 @@ inline void StaticBuffer::acceptVisitor(ChunkVisitor &visitor)
    call_visitDataBlock(visitor, const_cast<void *>(buf_), buflen_);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

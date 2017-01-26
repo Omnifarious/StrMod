@@ -336,5 +336,5 @@ void TelnetParser::reset(TelnetChunkBuilder &builder)
    state_ = PS_Normal;
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

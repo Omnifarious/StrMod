@@ -193,7 +193,7 @@ inline void for_each(const StrChunkPtr &chunk, const LinearExtent &extent,
    av.apply();
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

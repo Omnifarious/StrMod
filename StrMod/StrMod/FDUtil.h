@@ -66,7 +66,7 @@ class FDUtil {
    static bool setBlock(int fd, int &myerrno);
 };
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

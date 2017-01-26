@@ -149,5 +149,5 @@ void GraphVizVisitor::printData(const void *data, size_t len)
    (*out_) << "\"];\n";
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

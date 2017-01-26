@@ -405,5 +405,5 @@ void TelnetChunker::OptionNegotiation::acceptVisitor(ChunkVisitor &visitor)
    call_visitDataBlock(visitor, buf_, 3);
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

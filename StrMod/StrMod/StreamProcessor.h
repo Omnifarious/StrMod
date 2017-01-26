@@ -152,7 +152,7 @@ inline const StrChunkPtr StreamProcessor::readFrom()
    return(tmp);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

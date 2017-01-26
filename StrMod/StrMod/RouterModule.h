@@ -37,8 +37,8 @@
 namespace strmod {
 namespace unievent {
 class Dispatcher;
-};
-};
+}
+}
 
 namespace strmod {
 namespace strmod {
@@ -166,7 +166,7 @@ inline RouterModule::RPlug::RPlug(RouterModule &parent)
 {
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

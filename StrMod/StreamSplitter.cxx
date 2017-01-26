@@ -33,7 +33,7 @@ namespace strmod {
 
 namespace {
 static StreamSplitterModule test;
-};
+}
 
 StreamSplitterModule::StreamSplitterModule()
      : inplug_(*this, SideIn),
@@ -205,5 +205,5 @@ void StreamSplitterModule::SPPlug::otherIsWriteable()
    }
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

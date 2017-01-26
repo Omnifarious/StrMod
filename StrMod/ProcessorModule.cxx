@@ -85,5 +85,5 @@ void ProcessorModule::PMPlug::i_Write(const StrChunkPtr &chnk)
    setWriteable(writeproc_.canWriteTo());
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

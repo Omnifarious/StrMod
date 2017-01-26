@@ -42,5 +42,5 @@ StreamProcessor::~StreamProcessor()
    // the deletion themselves.
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

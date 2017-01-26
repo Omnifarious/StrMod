@@ -269,5 +269,5 @@ size_t InSerializer::BytesLeft()
    return(impl_.BytesLeft());
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

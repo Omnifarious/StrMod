@@ -284,7 +284,7 @@ inline SockListenModule &SockListenModule::SLPlug::getParent() const
    return(static_cast<SockListenModule &>(Plug::getParent()));
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

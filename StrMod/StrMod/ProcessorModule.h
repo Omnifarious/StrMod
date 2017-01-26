@@ -204,7 +204,7 @@ inline StreamModule::Plug *ProcessorModule::i_MakePlug(int side)
    }
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

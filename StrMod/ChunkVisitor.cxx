@@ -37,5 +37,5 @@ void ChunkVisitor::call_acceptVisitor(const StrChunkPtr &chnk)
    chnk->acceptVisitor(*this);
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

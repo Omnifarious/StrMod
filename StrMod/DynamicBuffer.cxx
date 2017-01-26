@@ -93,5 +93,5 @@ void DynamicBuffer::resize(unsigned int newsize) throw(std::bad_alloc)
    }
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

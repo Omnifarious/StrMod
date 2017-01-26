@@ -76,7 +76,7 @@ class GraphVizVisitor : public UseTrackingVisitor
    edgeset_t edges_;
 };
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

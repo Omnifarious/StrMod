@@ -210,7 +210,7 @@ StreamSplitterModule::SPPlug::getWritePartner() const
    }
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

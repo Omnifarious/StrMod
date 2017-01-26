@@ -82,7 +82,7 @@ class TelnetChunkBuilder
                              ::std::tr1::shared_ptr<BufferChunk> &cooked) = 0;
 };
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

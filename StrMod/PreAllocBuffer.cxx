@@ -134,5 +134,5 @@ void PreAllocBufferBase::i_printState(std::ostream &os,
    os << ", buflen_ == " << buflen_ << ", prebufsize == " << prebufsize << ")";
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

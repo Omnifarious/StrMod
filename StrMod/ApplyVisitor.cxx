@@ -66,5 +66,5 @@ void ApplyVisitor_Base::apply()
    }
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

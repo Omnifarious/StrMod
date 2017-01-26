@@ -46,7 +46,7 @@ class BufferChunk::Factory
    virtual BufferChunk *makeChunk() = 0;
 };
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

@@ -193,7 +193,7 @@ inline bool SimpleTelnetClient::SPlug::canWriteOther() const
    return((other == NULL) ? false : getFlagsFrom(*other).canwrite_);
 }
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

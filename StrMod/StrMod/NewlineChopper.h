@@ -56,7 +56,7 @@ class NewlineChopper : public CharChopper
    NewlineChopper(const NewlineChopper &b);
 };
 
-};  // namespace strmod
-};  // namespace strmod
+}  // namespace strmod
+}  // namespace strmod
 
 #endif

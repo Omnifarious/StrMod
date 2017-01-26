@@ -249,5 +249,5 @@ void SimpleTelnetClient::UPlug::i_Write(const StrChunkPtr &ptr)
    }
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

@@ -165,5 +165,5 @@ void OutSerializer::resizeChunk(size_t newsize)
    assert(state_.chnklen_ >= newsize);
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

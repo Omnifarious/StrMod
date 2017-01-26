@@ -201,5 +201,5 @@ int SocketModule::MakeSocket(SocketModule &obj,
    return(fd);
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod

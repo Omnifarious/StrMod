@@ -139,5 +139,5 @@ void UseTrackingVisitor::do_acceptVisitor(const StrChunkPtr &chunk,
    call_acceptVisitor(chunk);
 }
 
-};  // End namespace strmod
-};  // End namespace strmod
+}  // End namespace strmod
+}  // End namespace strmod
