@@ -34,6 +34,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/param.h>
+#include <unistd.h>
 #include <string>
 
 namespace strmod {
