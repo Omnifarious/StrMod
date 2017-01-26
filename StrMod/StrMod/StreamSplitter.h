@@ -131,9 +131,9 @@ class StreamSplitterModule : public StreamModule
 
  private:
    struct {
-      int inmade : 1;
-      int outmade : 1;
-      int bimade : 1;
+      bool inmade : 1;
+      bool outmade : 1;
+      bool bimade : 1;
    } flags_;
    SPPlug inplug_;
    SPPlug outplug_;
