@@ -97,7 +97,7 @@ class UseTrackingVisitor : public ChunkVisitor
     * Retrieves the offset of where the currently visited chunk or piece of
     * data is within its parent.
     */
-   inline const LinearExtent::off_t parentOffset() const;
+   inline LinearExtent::off_t parentOffset() const;
 
    /**
     * Start a traversal of a chunk DAG.
@@ -136,7 +136,7 @@ inline const StrChunkPtr &UseTrackingVisitor::getParent() const
    return(curchnk_);
 }
 
-inline const LinearExtent::off_t UseTrackingVisitor::parentOffset() const
+inline LinearExtent::off_t UseTrackingVisitor::parentOffset() const
 {
    return(curpos_);
 }
