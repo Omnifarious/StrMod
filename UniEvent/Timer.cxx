@@ -94,7 +94,6 @@ const Timer::interval_t operator -(const Timer::absolute_t &a,
                                    const Timer::absolute_t &b)
 {
    typedef Timer::interval_t interval_t;
-   typedef Timer::absolute_t absolute_t;
    double timetdiff = ::difftime(a.time, b.time);
    const interval_t &ai = a;
    const interval_t &bi = b;
