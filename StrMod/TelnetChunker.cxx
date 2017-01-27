@@ -59,7 +59,7 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
    typedef ::std::shared_ptr<BufferChunk> bufchnkptr_t;
 
    Builder() : curlen_(0)                                   { }
-   virtual ~Builder()                                       { }
+   virtual ~Builder() = default;
 
    virtual void addDataBlock(size_t regionbegin, size_t regionend);
    virtual void addCharCommand(TelnetChars::Commands command);

@@ -170,7 +170,7 @@ class SockListenModule : public StreamModule {
       SLPlug(SockListenModule &parent) : Plug(parent)   { }
       /** \brief Protected because mere mortals shouldn't just create and
        * destroy these things at random.  */
-      virtual ~SLPlug()                                 { }
+      virtual ~SLPlug() = default;
 
       //! Forwards to getParent()->plugRead()
       virtual const StrChunkPtr i_Read();

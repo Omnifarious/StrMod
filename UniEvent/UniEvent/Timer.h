@@ -113,11 +113,11 @@ class Timer
 
    /** Construct a Timer
     */
-   Timer()                                                       { }
+   Timer() = default;
    /** \brief Destroy a Timer.
     * All events and the times they were supposed to happen are forgotten.
     */
-   virtual ~Timer()                                              { }
+   virtual ~Timer() = default;
 
    //! Post an event at a particular time
    virtual void postAt(const absolute_t &t, const EventPtr &ev) = 0;

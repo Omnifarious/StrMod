@@ -69,7 +69,7 @@ class InfiniteModule : public StreamModule
       friend class InfiniteModule;
 
       IPlug(InfiniteModule &parent) : Plug(parent)      { }
-      ~IPlug()                                          { }
+      ~IPlug() = default;
 
       inline InfiniteModule &getParent() const;
       virtual int side() const                          { return(0); }

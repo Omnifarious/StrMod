@@ -88,9 +88,9 @@ class Builder
    };
 
    //! It's an interface, so this doesn't do anything.
-   Builder() { }
+   Builder() = default;
    //! It's an interface, so this doesn't do anything.
-   virtual ~Builder() {}
+   virtual ~Builder() = default;
 
    /** The lexer encountered an element open tag, atributes may follow
     *

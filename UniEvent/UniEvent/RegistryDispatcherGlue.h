@@ -39,7 +39,7 @@ class RegistryDispatcherGlue
    {
     public:
       EmptyEvent(RegistryDispatcherGlue *parent) : parent_(parent)           { }
-      virtual ~EmptyEvent()                                     { }
+      virtual ~EmptyEvent() = default;
 
       inline virtual void triggerEvent(Dispatcher *dispatcher = 0)
       {
@@ -58,7 +58,7 @@ class RegistryDispatcherGlue
    {
     public:
       BusyEvent(RegistryDispatcherGlue *parent) : parent_(parent)            { }
-      virtual ~BusyEvent()                                      { }
+      virtual ~BusyEvent() = default;
 
       inline virtual void triggerEvent(Dispatcher *dispatcher = 0)
       {

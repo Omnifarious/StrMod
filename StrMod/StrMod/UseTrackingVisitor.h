@@ -50,7 +50,7 @@ class UseTrackingVisitor : public ChunkVisitor
    /**
     * \brief Destructor.  Doesn't do much.
     */
-   virtual ~UseTrackingVisitor()                      { }
+   virtual ~UseTrackingVisitor() = default;
 
  protected:
    /** \name Only overload these

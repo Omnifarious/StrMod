@@ -40,7 +40,7 @@ namespace lcore {
  */
 class Debugable {
  public:
-   virtual ~Debugable() {}
+   virtual ~Debugable() = 0;
 
    /** \brief This should ALWAYS return true.  It says whether the class
     * invariant holds or not.

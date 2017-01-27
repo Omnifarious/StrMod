@@ -22,7 +22,7 @@ class InterruptibleDispatcher : virtual public Dispatcher {
    //! Because every class (even abstract ones) should have a constructor.
    InterruptibleDispatcher()                        { }
    //! Because abstract classes should have a virtual destructor.
-   virtual ~InterruptibleDispatcher()               { }
+   virtual ~InterruptibleDispatcher() = default;
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 

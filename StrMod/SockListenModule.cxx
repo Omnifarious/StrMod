@@ -65,7 +65,7 @@ class SockListenModule::FDPollEv : public unievent::Event
 {
  public:
    inline FDPollEv(SockListenModule &parent);
-   virtual ~FDPollEv()                                 { }
+   virtual ~FDPollEv() = default;
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0) = 0;
 
@@ -108,7 +108,7 @@ class SockListenModule::FDPollRdEv : public SockListenModule::FDPollEv
 {
  public:
    inline FDPollRdEv(SockListenModule &parent) : FDPollEv(parent)   { }
-   virtual ~FDPollRdEv()                                            { }
+   virtual ~FDPollRdEv() = default;
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0)     { triggerRead(); }
 };
@@ -117,7 +117,7 @@ class SockListenModule::FDPollRdEv : public SockListenModule::FDPollEv
 class SockListenModule::FDPollErEv : public SockListenModule::FDPollEv {
  public:
    inline FDPollErEv(SockListenModule &parent) : FDPollEv(parent)   { }
-   virtual ~FDPollErEv()                                            { }
+   virtual ~FDPollErEv() = default;
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0)     { triggerError(); }
 };

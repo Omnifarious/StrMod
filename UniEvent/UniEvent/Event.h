@@ -42,7 +42,7 @@ class Event
    //! Nothing exciting here.
    Event()                                              { }
    //! This is an interface class, of course it has a virtual destructor.
-   virtual ~Event()                                     { }
+   virtual ~Event() = default;
 
    /** Perform the action associated with the event.
     * If the event was triggered by a dispatcher, the dispatcher that triggered

@@ -55,7 +55,7 @@ class StaticBuffer : public StrChunk
    /** Doesn't do a thing because it doesn't own the storage it's pointing
     * at.
     */
-   virtual ~StaticBuffer()                              { }
+   virtual ~StaticBuffer() = default;
 
    virtual unsigned int Length() const                  { return buflen_; }
 

@@ -49,8 +49,8 @@ namespace strmod {
 class EOFStrChunk : public StrChunk
 {
  public:
-   EOFStrChunk()                                       { }
-   inline virtual ~EOFStrChunk();
+   EOFStrChunk() = default;
+   inline virtual ~EOFStrChunk() = default;
 
    virtual unsigned int Length() const                 { return(0); }
 
@@ -62,10 +62,6 @@ class EOFStrChunk : public StrChunk
 typedef ::std::shared_ptr<EOFStrChunk> EOFStrChunkPtr;
 
 //-----------------------------inlune functions--------------------------------
-
-inline EOFStrChunk::~EOFStrChunk()
-{
-}
 
 }  // namespace strmod
 }  // namespace strmod

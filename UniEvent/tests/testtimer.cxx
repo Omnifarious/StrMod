@@ -41,7 +41,7 @@ using strmod::unievent::Timer;
 class SimpleEvent : public Event {
  public:
    SimpleEvent(double posttime) : posttime_(posttime) {}
-   virtual ~SimpleEvent() {}
+   virtual ~SimpleEvent() = default;
 
    virtual void triggerEvent(Dispatcher *dispatcher)
    {

@@ -39,7 +39,7 @@ class TelnetToAscii : public StreamProcessor {
 
    explicit TelnetToAscii(bool stripdata = false);
    explicit TelnetToAscii(const string &name, bool stripdata = false);
-   virtual ~TelnetToAscii()                                          { }
+   virtual ~TelnetToAscii() = default;
 
    inline virtual int AreYouA(const ClassIdent &cid) const;
 

@@ -201,7 +201,7 @@ class StreamFDModule : public StreamModule
     public:
       //: Note that this can ONLY be constructed using a StreamFDModule.
       FPlug(StreamFDModule &parent) : Plug(parent)      { }
-      virtual ~FPlug()                                  { }
+      virtual ~FPlug() = default;
 
       //: Grab Plug::getParent, and cast it to the real type of the parent.
       inline StreamFDModule &getParent() const;

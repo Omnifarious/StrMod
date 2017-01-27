@@ -67,9 +67,9 @@ class ChunkVisitor
    };
 
    //! Do nothing constructor for interface class.
-   ChunkVisitor()                                   { }
+   ChunkVisitor() = default;
    //! Do nothing virtual destructor for interface class.
-   virtual ~ChunkVisitor()                          { }
+   virtual ~ChunkVisitor() = default;
 
  protected:
    /** \name StrChunk visit functions

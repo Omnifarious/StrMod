@@ -92,7 +92,7 @@ class ProcessorModule : public StreamModule
     * If created with \c own equal to \c false, this function guaranteed not to
     * require subsidiary StreamProcessors to exist.
     */
-   virtual ~ProcessorModule()                           { }
+   virtual ~ProcessorModule() = default;
 
    inline virtual bool canCreate(int side) const;
 

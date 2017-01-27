@@ -59,7 +59,7 @@ class BufferChunk : public StrChunk, virtual public lcore::Debugable
     * any storage, it's left to the derived classes to do the actual
     * deletion.
     */
-   virtual ~BufferChunk()                               { }
+   virtual ~BufferChunk() = default;
 
    inline virtual bool invariant() const;
 

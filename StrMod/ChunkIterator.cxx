@@ -96,7 +96,7 @@ class StrChunk::iterator__::ExtVisitor : public UseTrackingVisitor {
    // and data extents are pointless.
    ExtVisitor() : UseTrackingVisitor(true)  { }
    //! And rarely interesting destructors either.
-   virtual ~ExtVisitor()                    { }
+   virtual ~ExtVisitor() = default;
 
    /**
     * Visit the StrChunk DAG rooted at root, filling up the shared data

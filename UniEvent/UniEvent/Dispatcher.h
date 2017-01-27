@@ -48,7 +48,7 @@ class Dispatcher
    //! Because every class (even abstract ones) should have a constructor.
    Dispatcher()                                     { }
    //! Because abstract classes should have a virtual destructor.
-   virtual ~Dispatcher()                            { }
+   virtual ~Dispatcher() = default;
 
    //! Add an event to the queue.
    virtual void addEvent(const EventPtr &ev) = 0;

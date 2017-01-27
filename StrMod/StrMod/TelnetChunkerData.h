@@ -51,9 +51,9 @@ class TelnetChunker::TelnetData : public StrChunk
 {
  public:
    //! Constructors for abstract base classes don't do much.
-   TelnetData()                                         { }
+   TelnetData() = default;
    //! Destructors for abstract base classes don't do much.
-   virtual ~TelnetData()                                { }
+   virtual ~TelnetData() = default;
 
    // Redeclare this just to show we know what we're doing and it's still
    // abstract.

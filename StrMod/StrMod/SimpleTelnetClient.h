@@ -86,7 +86,7 @@ class SimpleTelnetClient : public StreamModule {
 		friend class SPlug;
 
       UPlug(SimpleTelnetClient &parent) : Plug(parent)  { }
-      ~UPlug()                                          { }
+      ~UPlug() = default;
 
       inline SimpleTelnetClient &getParent() const;
       virtual int side() const                          { return(ToUser); }
@@ -107,7 +107,7 @@ class SimpleTelnetClient : public StreamModule {
 		friend class UPlug;
 
       SPlug(SimpleTelnetClient &parent) : Plug(parent)  { }
-      ~SPlug()                                          { }
+      ~SPlug() = default;
 
       inline SimpleTelnetClient &getParent() const;
       virtual int side() const                          { return(ToServer); }

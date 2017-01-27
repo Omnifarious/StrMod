@@ -79,7 +79,7 @@ class LinearExtent {
    //! An extent starting at \c offset having length \c length.
    inline LinearExtent(off_t offset, length_t length);
    //! Not meant to be inherited from, so not virtual.
-   inline ~LinearExtent();
+   inline ~LinearExtent() = default;
 
    //! Retrieve offset.
    inline off_t Offset() const;
@@ -161,10 +161,6 @@ inline LinearExtent::LinearExtent() : m_offset(0), m_length(0)
 
 inline LinearExtent::LinearExtent(off_t offset, length_t length)
      : m_offset(offset), m_length(length)
-{
-}
-
-inline LinearExtent::~LinearExtent()
 {
 }
 

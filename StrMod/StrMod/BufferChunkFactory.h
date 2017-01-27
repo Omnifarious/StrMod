@@ -40,8 +40,8 @@ namespace strmod {
 class BufferChunk::Factory
 {
  public:
-   Factory()                                            { }
-   virtual ~Factory()                                   { }
+   Factory() = default;
+   virtual ~Factory() = default;
 
    virtual BufferChunk *makeChunk() = 0;
 };

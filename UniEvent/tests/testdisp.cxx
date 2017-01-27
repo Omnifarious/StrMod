@@ -74,16 +74,16 @@ void CountingEvent::triggerEvent(UNIDispatcher *dispatcher)
 
 class GrowQueueEvent : public CountingEvent {
  public:
-   GrowQueueEvent()                                                         { }
-   inline virtual ~GrowQueueEvent()                                         { }
+   GrowQueueEvent() = default;
+   inline virtual ~GrowQueueEvent() = default;
 
    virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
 };
 
 class ShrinkQueueEvent : public CountingEvent {
  public:
-   ShrinkQueueEvent()                                                       { }
-   virtual ~ShrinkQueueEvent()                                              { }
+   ShrinkQueueEvent() = default;
+   virtual ~ShrinkQueueEvent() = default;
 
    virtual void triggerEvent(UNIDispatcher *dispatcher = 0);
 };

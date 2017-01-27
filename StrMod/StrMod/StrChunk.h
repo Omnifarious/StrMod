@@ -69,7 +69,7 @@ class StrChunk : public ::std::enable_shared_from_this<StrChunk>
    typedef iterator__ const_iterator;
 
    //! Not much to talk about.
-   virtual ~StrChunk()                                 { }
+   virtual ~StrChunk() = default;
 
    //! Number of octets this chunk takes up.  May be deprecated.
    virtual unsigned int Length() const = 0;

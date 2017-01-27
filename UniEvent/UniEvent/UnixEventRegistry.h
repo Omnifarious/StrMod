@@ -45,9 +45,9 @@ class UnixEventRegistry
    static const FDCondSet all_fdconds;
 
    //! This is an abstract base class, so the constructor has little meaning.
-   inline UnixEventRegistry();
+   inline UnixEventRegistry() = default;
    //! An abstract base class with no members, has nothing to destruct.
-   inline virtual ~UnixEventRegistry();
+   inline virtual ~UnixEventRegistry() = default;
 
    //! Register the event '*ev' to be fired on file descriptor condition true.
    virtual void registerFDCond(int fd,
@@ -96,14 +96,6 @@ class UnixEventRegistry
 };
 
 //-----------------------------inline functions--------------------------------
-
-inline UnixEventRegistry::UnixEventRegistry()
-{
-}
-
-inline UnixEventRegistry::~UnixEventRegistry()
-{
-}
 
 } // namespace unievent
 } // namespace strmod

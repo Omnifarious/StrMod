@@ -49,7 +49,7 @@ class GraphVizVisitor : public UseTrackingVisitor
    //! Constructor, doesn't do much.
    GraphVizVisitor() : out_(0)      { }
    //! Destructor, also doesn't do much.
-   virtual ~GraphVizVisitor()       { }
+   virtual ~GraphVizVisitor() = default;
 
    /**
     * Visits the chunk DAG printing out a GraphViz parsable graph description,

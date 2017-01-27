@@ -50,7 +50,7 @@ class StrSubChunk : public StrChunk
 {
  public:
    StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent);
-   virtual ~StrSubChunk()                              { }
+   virtual ~StrSubChunk() = default;
 
    inline virtual unsigned int Length() const;
 

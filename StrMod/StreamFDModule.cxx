@@ -150,7 +150,7 @@ class StreamFDModule::FDPollRdEv
 {
  public:
    inline FDPollRdEv(StreamFDModule &parent) : EvMixin(parent)  { }
-   virtual ~FDPollRdEv()                                        { }
+   virtual ~FDPollRdEv() = default;
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0) {
       triggerRead();
@@ -163,7 +163,7 @@ class StreamFDModule::FDPollWrEv
 {
  public:
    inline FDPollWrEv(StreamFDModule &parent) : EvMixin(parent)  { }
-   virtual ~FDPollWrEv()                                        { }
+   virtual ~FDPollWrEv() = default;
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0) {
       triggerWrite();
@@ -176,7 +176,7 @@ class StreamFDModule::FDPollErEv
 {
  public:
    inline FDPollErEv(StreamFDModule &parent) : EvMixin(parent)  { }
-   virtual ~FDPollErEv()                                        { }
+   virtual ~FDPollErEv() = default;
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0) {
       triggerError();
@@ -192,7 +192,7 @@ class StreamFDModule::ResumeReadEv
         : EvMixin(parent)
    {
    }
-   virtual ~ResumeReadEv()                            { }
+   virtual ~ResumeReadEv() = default;
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0)
    {
@@ -209,7 +209,7 @@ class StreamFDModule::ResumeWriteEv
         : EvMixin(parent)
    {
    }
-   virtual ~ResumeWriteEv()                            { }
+   virtual ~ResumeWriteEv() = default;
 
    virtual void triggerEvent(Dispatcher *dispatcher = 0)
    {
@@ -227,7 +227,7 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
    // and data extents are pointless.
    inline BufferList();
    //! And rarely interesting destructors either.
-   virtual ~BufferList()                    { }
+   virtual ~BufferList() = default;
 
    /**
     * Visit the StrChunk DAG rooted at chunk, filling up iovecs_ with what I

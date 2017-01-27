@@ -109,7 +109,7 @@ class InetAddress : public SocketAddress {
     */
    InetAddress(const ::sockaddr_in &iadr);
    //! No pointers or anything, so not much to destroy
-   virtual ~InetAddress()                               { }
+   virtual ~InetAddress() = default;
 
    virtual ::sockaddr *SockAddr()         { return (::sockaddr *)(&inaddr); }
    InetAddress *Copy() const              { return (InetAddress *)MakeCopy(); }

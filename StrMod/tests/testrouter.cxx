@@ -48,7 +48,7 @@ MyProcessor::MyProcessor() : ProcessorModule(chopper_, passthrough_, false)
 class BroadcastRouter : public RouterModule {
  public:
    BroadcastRouter(UNIDispatcher &disp) : RouterModule(disp) { }
-   virtual ~BroadcastRouter()                                { }
+   virtual ~BroadcastRouter() = default;
 
    virtual bool canCreate(int side) const                  { return side == 0; }
 
@@ -65,7 +65,7 @@ class BroadcastRouter : public RouterModule {
    class BRPlug : public RPlug {
     public:
       BRPlug(BroadcastRouter &parent) : RPlug(parent)      { }
-      virtual ~BRPlug()                                    { }
+      virtual ~BRPlug() = default;
 
       virtual int side() const                             { return 0; }
    };

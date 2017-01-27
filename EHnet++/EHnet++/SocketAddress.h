@@ -79,9 +79,9 @@ namespace ehnet {
 class SocketAddress {
  public:
    //! An abstract SocketAddress really doesn't have any parameters
-   SocketAddress()                                      { }
+   SocketAddress() = default;
    //! No member variables, nothing to do
-   virtual ~SocketAddress()                             { }
+   virtual ~SocketAddress() = default;
 
    //! Send a textual representation of the address to the given ostream.
    virtual void PrintOn(::std::ostream &);

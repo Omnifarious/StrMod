@@ -82,7 +82,7 @@ class StreamModule
        /**
         * Here so derived classes have a virtual destructor.
         */
-      virtual ~PlugDisconnectStrategy()  { }
+      virtual ~PlugDisconnectStrategy() = default;
 
       /**
        * Called by a module when one of its plugs has been disconnected.

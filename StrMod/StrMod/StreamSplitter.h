@@ -97,7 +97,7 @@ class StreamSplitterModule : public StreamModule
       friend class StreamSplitterModule;
     public:
       SPPlug(StreamSplitterModule &p, Sides s) : Plug(p), side_(s)           { }
-      virtual ~SPPlug()                                                      { }
+      virtual ~SPPlug() = default;
 
       inline StreamSplitterModule &getParent() const;
 
