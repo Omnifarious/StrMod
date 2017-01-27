@@ -27,6 +27,7 @@
 #include "StrMod/InfiniteModule.h"
 #include "StrMod/PreAllocBuffer.h"
 #include <cstring>  // memset
+#include <memory>
 
 namespace strmod {
 namespace strmod {
@@ -40,7 +41,7 @@ InfiniteModule::InfiniteModule()
      : plug_created_(false), plug_(*this)
 {
    const int bufsize = 8192;
-   ::std::tr1::shared_ptr<PreAllocBuffer<bufsize> > buf(
+   ::std::shared_ptr<PreAllocBuffer<bufsize> > buf(
       new PreAllocBuffer<bufsize>
       );
 

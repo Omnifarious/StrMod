@@ -41,6 +41,7 @@
 #include "StrMod/StrChunkPtr.h"
 #include <cassert>
 #include <deque>
+#include <memory>
 
 namespace strmod {
 namespace strmod {
@@ -55,7 +56,7 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
  private:
    static const int qsize_ = 16;
  public:
-   typedef ::std::tr1::shared_ptr<BufferChunk> bufchnkptr_t;
+   typedef ::std::shared_ptr<BufferChunk> bufchnkptr_t;
 
    Builder() : curlen_(0)                                   { }
    virtual ~Builder()                                       { }
@@ -151,7 +152,7 @@ void TelnetChunker::Builder::addNegotiationCommand(
 
 void TelnetChunker::Builder::addSuboption(
    U1Byte opt_type, size_t regionbegin, size_t regionend,
-   ::std::tr1::shared_ptr<BufferChunk> &cooked
+   ::std::shared_ptr<BufferChunk> &cooked
    )
 {
    assert(curchunk_);
@@ -187,8 +188,8 @@ void TelnetChunker::Builder::addIncoming(const StrChunkPtr &ptr)
    }
    else
    {
-      using ::std::tr1::dynamic_pointer_cast;
-      typedef ::std::tr1::shared_ptr<GroupChunk> grpchnkptr_t;
+      using ::std::dynamic_pointer_cast;
+      typedef ::std::shared_ptr<GroupChunk> grpchnkptr_t;
       grpchnkptr_t gc;
       if (!curchunk_.unique() ||
           !(gc = dynamic_pointer_cast<GroupChunk, StrChunk>(curchunk_)))

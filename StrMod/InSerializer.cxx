@@ -53,7 +53,7 @@ struct InSerializer::Impl {
 
 inline InSerializer::Impl::Impl(const void *buf, size_t size)
 {
-   ::std::tr1::shared_ptr<StaticBuffer> sbuf(new StaticBuffer(buf, size));
+   ::std::shared_ptr<StaticBuffer> sbuf(new StaticBuffer(buf, size));
    chnkptr_ = sbuf;
    i_ = sbuf->begin();
    end_ = sbuf->end();

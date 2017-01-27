@@ -25,7 +25,7 @@
 #  pragma implementation "ChunkIterator.h"
 #endif
 
-#include <tr1/memory>
+#include <memory>
 #include "StrMod/ChunkIterator.h"
 #include "StrMod/UseTrackingVisitor.h"
 #include <vector>
@@ -39,11 +39,10 @@ namespace strmod {
  * A bunch of data that can be share among all the StrChunk::__iterator
  * objects for a given StrChunk.
  */
-class StrChunk::iterator__::shared : public StrChunk::private_iter_state,
-               public ::std::tr1::enable_shared_from_this<StrChunk::iterator__::shared>
+class StrChunk::iterator__::shared : public StrChunk::private_iter_state
 {
  public:
-   typedef ::std::tr1::shared_ptr<shared> me_ptr_t;
+   typedef ::std::shared_ptr<shared> me_ptr_t;
    /**
     * Holds information about where to find a chunk of data and how big it is.
     */
@@ -72,17 +71,11 @@ class StrChunk::iterator__::shared : public StrChunk::private_iter_state,
     */
    static me_ptr_t forStrChunk(const StrChunkPtr &chnk) {
       typedef StrChunk::private_iter_state pis_t;
-      typedef ::std::tr1::shared_ptr<pis_t> pis_ptr_t;
+      typedef ::std::shared_ptr<pis_t> pis_ptr_t;
       pis_ptr_t iter_storage(chnk->iter_storage_.lock());
       me_ptr_t result;
-      {
-         // Using ::std::tr1::dynamic_pointer_cast fails because of the unusual
-         // acccess specifiers surrounding these types.
-         shared *tmp = dynamic_cast<shared *>(iter_storage.get());
-         if (tmp) {
-            result = tmp->shared_from_this();
-         }
-      }
+
+      result = ::std::dynamic_pointer_cast<shared>(iter_storage);
       if (!result) {
          result.reset(new shared(chnk));
          if (!iter_storage) {
@@ -199,7 +192,7 @@ StrChunk::iterator__::iterator__(const StrChunkPtr &chnk)
    moveToBegin();
 }
 
-StrChunk::iterator__::iterator__(const ::std::tr1::shared_ptr<shared> &sh)
+StrChunk::iterator__::iterator__(const ::std::shared_ptr<shared> &sh)
      : shared_(sh), abspos_(0), extpos_(0), extlast_(0),
        curext_(0), extbase_(0)
 {

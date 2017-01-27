@@ -27,6 +27,7 @@
 // For a log, see ../ChangeLog
 
 #include <cstddef>
+#include <memory>
 #ifndef _STR_TelnetChars_H_
 #  include <StrMod/TelnetChars.h>
 #endif
@@ -79,7 +80,7 @@ class TelnetChunkBuilder
     */
    virtual void addSuboption(lcore::U1Byte opt_type,
                              size_t regionbegin, size_t regionend,
-                             ::std::tr1::shared_ptr<BufferChunk> &cooked) = 0;
+                             ::std::shared_ptr<BufferChunk> &cooked) = 0;
 };
 
 }  // namespace strmod

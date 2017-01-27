@@ -10,7 +10,7 @@
 
 #define _UNEVT_RegistryDispatcherGlue_H_
 
-#include <tr1/memory>
+#include <memory>
 #include <UniEvent/Event.h>
 #include <UniEvent/EventPtr.h>
 
@@ -75,8 +75,8 @@ class RegistryDispatcherGlue
    };
    Dispatcher *disp_;
    UnixEventRegistry *ureg_;
-   ::std::tr1::shared_ptr<EmptyEvent> emptyev_;
-   ::std::tr1::shared_ptr<BusyEvent> busyev_;
+   ::std::shared_ptr<EmptyEvent> emptyev_;
+   ::std::shared_ptr<BusyEvent> busyev_;
 };
 
 } // namespace unievent

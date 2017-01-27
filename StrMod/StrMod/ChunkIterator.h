@@ -58,7 +58,7 @@ class StrChunk::iterator__
    //! Creates an interator pointat the beginning of a StrChunk.
    iterator__(const StrChunkPtr &chnk);
    //! Creates an iterator using the shared data already generated.
-   iterator__(const ::std::tr1::shared_ptr<shared> &sh);
+   iterator__(const ::std::shared_ptr<shared> &sh);
    //! Copies one iterator to another.  Manages reference count on shared area.
    iterator__(const iterator__ &other);
    //! Destroys an iterator, possibly destroying shared data too if refcount is only 1
@@ -101,7 +101,7 @@ class StrChunk::iterator__
  private:
    class ExtVisitor;
    friend class ExtVisitor;
-   ::std::tr1::shared_ptr<shared> shared_;
+   ::std::shared_ptr<shared> shared_;
    unsigned int abspos_;
    unsigned int extpos_;
    unsigned int extlast_;  // Index of last element (not length) of extbase_.

@@ -26,7 +26,7 @@
 
 // For log see ../ChangeLog
 
-#include <tr1/memory>
+#include <memory>
 
 #define _UNEVT_EventPtr_H_
 
@@ -35,7 +35,7 @@ namespace unievent {
 
 class Event;
 
-typedef ::std::tr1::shared_ptr<Event> EventPtr;
+typedef ::std::shared_ptr<Event> EventPtr;
 
 } // namespace unievent
 } // namespace strmod

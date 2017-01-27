@@ -32,6 +32,7 @@
 #include "StrMod/StrChunkPtr.h"
 #include <cassert>
 #include <cstddef>
+#include <memory>
 
 namespace strmod {
 namespace strmod {
@@ -188,7 +189,7 @@ inline void TelnetParser::stateSuboptEscape(ParserState &state,
       regionend_ = i - 1;
       cooked_->resize(cooked_used_);
       {
-         ::std::tr1::shared_ptr<BufferChunk> tmp(cooked_);
+         ::std::shared_ptr<BufferChunk> tmp(cooked_);
          builder.addSuboption(subopt_type_, regionbegin_, regionend_, tmp);
       }
       cooked_.reset();
@@ -328,7 +329,7 @@ void TelnetParser::reset(TelnetChunkBuilder &builder)
       // Abort/finish off any suboptions currently being parsed.
       regionend_ = curpos_;
       cooked_->resize(cooked_used_);
-      ::std::tr1::shared_ptr<BufferChunk> tmp(cooked_);
+      ::std::shared_ptr<BufferChunk> tmp(cooked_);
       cooked_.reset();
       builder.addSuboption(subopt_type_, regionbegin_, regionend_, tmp);
    }

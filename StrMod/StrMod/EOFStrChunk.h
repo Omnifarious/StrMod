@@ -31,7 +31,7 @@
 #ifndef _STR_StrChunk_H_
 #  include <StrMod/StrChunk.h>
 #endif
-#include <tr1/memory>
+#include <memory>
 
 #define _STR_EOFStrChunk_H_
 
@@ -59,7 +59,7 @@ class EOFStrChunk : public StrChunk
       throw(ChunkVisitor::halt_visitation)             { }
 };
 
-typedef ::std::tr1::shared_ptr<EOFStrChunk> EOFStrChunkPtr;
+typedef ::std::shared_ptr<EOFStrChunk> EOFStrChunkPtr;
 
 //-----------------------------inlune functions--------------------------------
 

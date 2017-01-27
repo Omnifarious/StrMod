@@ -62,7 +62,7 @@ void CharChopper::addChunk(const StrChunkPtr &chnk)
    {
       if (!groupdata_)
       {
-         using ::std::tr1::dynamic_pointer_cast;
+         using ::std::dynamic_pointer_cast;
 	 if (groupptr_t tmp =
              dynamic_pointer_cast<GroupChunk, StrChunk>(outgoing_))
 	 {

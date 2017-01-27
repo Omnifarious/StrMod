@@ -28,6 +28,7 @@
 
 #include <cstddef>
 #include <stdexcept>
+#include <memory>
 #include <LCore/GenTypes.h>
 #include <StrMod/TelnetChunker.h>
 #include <StrMod/TelnetChars.h>
@@ -108,7 +109,7 @@ class TelnetChunker::SingleChar : public TelnetChunker::TelnetData
  */
 class TelnetChunker::Suboption : public TelnetChunker::TelnetData {
  public:
-   typedef ::std::tr1::shared_ptr<BufferChunk> bufchnkptr_t;
+   typedef ::std::shared_ptr<BufferChunk> bufchnkptr_t;
    //! Construct a telnet suboption request.
    inline Suboption(U1Byte type,
 		    const bufchnkptr_t &cooked,
@@ -211,7 +212,7 @@ inline unsigned int TelnetChunker::Suboption::Length() const
    return(5 + rawlen_);
 }
 
-inline const ::std::tr1::shared_ptr<BufferChunk> &
+inline const ::std::shared_ptr<BufferChunk> &
 TelnetChunker::Suboption::getCooked() const
 {
    return(cooked_);

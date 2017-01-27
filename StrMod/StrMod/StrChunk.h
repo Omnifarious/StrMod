@@ -28,7 +28,7 @@
 
 #include <cassert>
 #include <cstddef>
-#include <tr1/memory>
+#include <memory>
 #include <StrMod/ChunkVisitor.h>
 
 #define _STR_StrChunk_H_
@@ -59,7 +59,7 @@ class LinearExtent;
  * a different tree.  It might even be found twice in the same tree.  This
  * complexity requires reference counts for tractable resource handling.
  */
-class StrChunk : public ::std::tr1::enable_shared_from_this<StrChunk>
+class StrChunk : public ::std::enable_shared_from_this<StrChunk>
 {
    friend class ChunkVisitor;
  public:
@@ -112,7 +112,7 @@ class StrChunk : public ::std::tr1::enable_shared_from_this<StrChunk>
     public:
       virtual ~private_iter_state() {}
    };
-   mutable ::std::tr1::weak_ptr<private_iter_state> iter_storage_;
+   mutable ::std::weak_ptr<private_iter_state> iter_storage_;
 };
 
 //------------------------inline functions for StrChunk------------------------

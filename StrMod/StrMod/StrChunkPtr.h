@@ -45,7 +45,7 @@
 // StrChunk
 //
 
-#include <tr1/memory>
+#include <memory>
 
 #define _STR_StrChunkPtr_H_
 
@@ -54,7 +54,7 @@ namespace strmod {
 
 class StrChunk;
 
-typedef ::std::tr1::shared_ptr<StrChunk> StrChunkPtr;
+typedef ::std::shared_ptr<StrChunk> StrChunkPtr;
 
 }  // namespace strmod
 }  // namespace strmod

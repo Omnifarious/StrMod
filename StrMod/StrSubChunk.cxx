@@ -46,8 +46,8 @@ StrSubChunk::StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent)
      : subchunk_(chunk), subext_(extent)
 {
    assert(subchunk_);
-   using ::std::tr1::shared_ptr;
-   using ::std::tr1::dynamic_pointer_cast;
+   using ::std::shared_ptr;
+   using ::std::dynamic_pointer_cast;
 
    if (shared_ptr<StrSubChunk> subc =
        dynamic_pointer_cast<StrSubChunk, StrChunk>(chunk))

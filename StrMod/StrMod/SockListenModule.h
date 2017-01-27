@@ -29,6 +29,7 @@
 // $Revision$
 
 #include <string>
+#include <memory>
 
 #include <UniEvent/EventPtr.h>
 #include <UniEvent/UnixEventRegistry.h>
@@ -104,7 +105,7 @@ class SocketModuleChunk : public StrChunk
    SocketModule *module_;
 };
 
-typedef ::std::tr1::shared_ptr<SocketModuleChunk> SocketModuleChunkPtr;
+typedef ::std::shared_ptr<SocketModuleChunk> SocketModuleChunkPtr;
 
 //--------------------------SockListenModule class-----------------------------
 
@@ -208,8 +209,8 @@ class SockListenModule : public StreamModule {
    ehnet::SocketAddress &myaddr_;
    Dispatcher &disp_;
    UnixEventRegistry &ureg_;
-   ::std::tr1::shared_ptr<FDPollEv> readev_;
-   ::std::tr1::shared_ptr<FDPollEv> errorev_;
+   ::std::shared_ptr<FDPollEv> readev_;
+   ::std::shared_ptr<FDPollEv> errorev_;
 
    void eventRead();
    void eventError();

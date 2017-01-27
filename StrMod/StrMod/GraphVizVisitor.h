@@ -30,6 +30,7 @@
 #include <StrMod/StrChunkPtr.h>
 #include <set>
 #include <utility>
+#include <memory>
 
 #define _STR_GraphVizVisitor_H_
 
@@ -71,7 +72,7 @@ class GraphVizVisitor : public UseTrackingVisitor
    typedef std::pair<const void *, const void *> edge_t;
    typedef std::set<edge_t> edgeset_t;
    ::std::ostream *out_;
-   ::std::tr1::shared_ptr<BufferChunk> data_;
+   ::std::shared_ptr<BufferChunk> data_;
    size_t rootpos_;
    edgeset_t edges_;
 };

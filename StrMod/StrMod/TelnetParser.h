@@ -27,6 +27,7 @@
 // For a log, see ../ChangeLog
 
 #include <cstddef>
+#include <memory>
 #ifndef _STR_TelnetChars_H_
 #  include <StrMod/TelnetChars.h>
 #endif
@@ -100,7 +101,7 @@ class TelnetParser
    U1Byte *cookedbuf_;
    size_t cooked_total_;
    size_t cooked_used_;
-   ::std::tr1::shared_ptr<PreAllocBuffer<48> > cooked_;
+   ::std::shared_ptr<PreAllocBuffer<48> > cooked_;
 
    inline void stateNormal(ParserState &state, const U1Byte ch);
    inline void stateEscape(ParserState &state, const U1Byte ch, size_t i,

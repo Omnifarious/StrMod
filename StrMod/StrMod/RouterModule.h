@@ -29,7 +29,7 @@
 #include <cstddef>
 #include <iterator>
 #include <deque>
-#include <tr1/memory>
+#include <memory>
 #include <StrMod/StreamModule.h>
 
 #define _STR_RouterModule_H_
@@ -102,7 +102,7 @@ class RouterModule : public StreamModule
    friend class ScanEvent;
    unievent::Dispatcher &disp_;
    bool scan_posted_;
-   const ::std::tr1::shared_ptr<ScanEvent> scan_;
+   const ::std::shared_ptr<ScanEvent> scan_;
    bool inroutingdone_;
    RPlugList allplugs_;
    RPlugList writeable_;

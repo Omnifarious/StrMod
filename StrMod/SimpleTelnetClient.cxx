@@ -27,8 +27,8 @@
 #include "StrMod/SimpleTelnetClient.h"
 #include "StrMod/TelnetChunkerData.h"
 #include "StrMod/TelnetChars.h"
-#include <tr1/memory>
 #include <cassert>
+#include <memory>
 
 namespace strmod {
 namespace strmod {
@@ -124,7 +124,7 @@ void SimpleTelnetClient::updatePlugFlags()
 		       (!toserver_ && splugcreated_
 			&& serverplug_.canWriteOther()));
 
-   setReadableFlagFor(&userplug_, touser_);
+   setReadableFlagFor(&userplug_, touser_ && true);
    setWriteableFlagFor(&serverplug_, (!touser_ && !toserver_));
 }
 
@@ -140,8 +140,8 @@ void SimpleTelnetClient::serverWrite(const StrChunkPtr &ptr)
 {
    typedef TelnetChunker::TelnetData tdata_t;
    typedef TelnetChunker::OptionNegotiation topt_t;
-   using ::std::tr1::shared_ptr;
-   using ::std::tr1::dynamic_pointer_cast;
+   using ::std::shared_ptr;
+   using ::std::dynamic_pointer_cast;
    typedef shared_ptr<tdata_t> tdptr_t;
    typedef shared_ptr<topt_t> toptr_t;
 

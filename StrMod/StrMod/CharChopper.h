@@ -34,6 +34,7 @@
 
 #include <cstddef>
 #include <cassert>
+#include <memory>
 #include <StrMod/StreamProcessor.h>
 #include <StrMod/StrChunkPtr.h>
 #include <StrMod/BufferChunk.h>
@@ -74,9 +75,9 @@ class CharChopper : public StreamProcessor
 
  private:
    const char chopchar_;
-   typedef ::std::tr1::shared_ptr<GroupChunk> groupptr_t;
+   typedef ::std::shared_ptr<GroupChunk> groupptr_t;
    groupptr_t groupdata_;
-   ::std::tr1::shared_ptr<BufferChunk> curdata_;
+   ::std::shared_ptr<BufferChunk> curdata_;
    size_t usedsize_;
    enum { INYes, INNo, INMaybe } incoming_is_bc_;
 
@@ -98,7 +99,7 @@ inline void CharChopper::checkIncoming()
    assert(incoming_);
    if (incoming_is_bc_ == INMaybe)
    {
-      using ::std::tr1::dynamic_pointer_cast;
+      using ::std::dynamic_pointer_cast;
 
       if (dynamic_pointer_cast<BufferChunk, StrChunk>(incoming_))
       {

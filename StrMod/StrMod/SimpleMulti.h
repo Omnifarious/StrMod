@@ -27,6 +27,7 @@
 // For log, see ../ChangeLog
 
 #include <list>
+#include <memory>
 #include <StrMod/StreamModule.h>
 
 #define _STR_SimpleMulti_H_
@@ -213,7 +214,7 @@ class SimpleMultiplexer : public StreamModule
    MPlugList delplugs_;
    bool scan_posted_;
    StrChunkPtr mchunk_;
-   const ::std::tr1::shared_ptr<ScanEvent> scan_;
+   const ::std::shared_ptr<ScanEvent> scan_;
    unievent::Dispatcher &dispatcher_;
    unsigned int readable_multis_;
    unsigned int readable_multiothers_;

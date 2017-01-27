@@ -628,7 +628,7 @@ void StreamFDModule::doReadFD()
       // A normal pointer offers a speed advantage, and we don't know whether
       // we want to set buffed_read until the read succeeds.
       const size_t maxsize = getMaxChunkSize();
-      ::std::tr1::shared_ptr<DynamicBuffer> dbchunk(new DynamicBuffer(maxsize));
+      ::std::shared_ptr<DynamicBuffer> dbchunk(new DynamicBuffer(maxsize));
 
       errno = 0;
       // ::std::cerr << "Reading...\n";
@@ -713,7 +713,7 @@ void StreamFDModule::doWriteFD()
 
    if (curbuflist_.bytesLeft() <= 0)
    {
-      using ::std::tr1::dynamic_pointer_cast;
+      using ::std::dynamic_pointer_cast;
       if (dynamic_pointer_cast<EOFStrChunk, StrChunk>(cur_write_))
       {
          if (!flags_.eofwritten)

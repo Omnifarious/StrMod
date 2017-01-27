@@ -29,7 +29,7 @@
 #include "UniEvent/EventPtr.h"
 #include <iostream>
 #include <deque>
-#include <tr1/memory>
+#include <memory>
 #include <cassert>
 #include <signal.h>
 //  #include <unistd.h>
@@ -40,7 +40,7 @@ namespace unievent {
 //! Private implementation details of SimpleDispatcher.
 class SimpleDispatcher::Imp {
  public:
-   typedef ::std::tr1::shared_ptr<Event> evptr_t;
+   typedef ::std::shared_ptr<Event> evptr_t;
    typedef ::std::deque<evptr_t> EVListBase;
    class EVList : private EVListBase {
     public:
@@ -119,7 +119,7 @@ inline void SimpleDispatcher::i_DispatchEvent(Imp &imp,
    assert(!imp.mainq_.qEmpty());
    assert(enclosing != 0);
 
-   typedef ::std::tr1::shared_ptr<Event> evptr_t;
+   typedef ::std::shared_ptr<Event> evptr_t;
    evptr_t ev;
 
    {
