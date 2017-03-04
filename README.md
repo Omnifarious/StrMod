@@ -2,10 +2,11 @@ OK, you've downloaded this thing, now what?
 
 The first thing to do would be to build it.
 
-This version should've come with a 'configure' script in the main
-directory.  If it didn't, you'll have to first run 'autoconf' to create
-it.  If you have autoconf, running autoconf with no arguments should
-work.
+This version should've come with a `configure` script in the main
+directory.  If it didn't (perhaps because you downloaded it from a
+repository), you'll have to first run `autoconf` (from the GNU autotools
+package) to create it.  If you have autoconf, running autoconf with no
+arguments should work.
 
 Now, the configure script should be run with `./configure`.  You can set
 the `CXX` and `CXXFLAGS` environment variables beforehand if you like.
