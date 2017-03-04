@@ -74,18 +74,13 @@ inline size_t InSerializer::Impl::BytesLeft() const
 }
 
 InSerializer::InSerializer(const StrChunkPtr &ptr)
-     : impl_(*(new Impl(ptr))), had_error_(false)
+     : implptr_(new Impl(ptr)), impl_(*implptr_), had_error_(false)
 {
 }
 
 InSerializer::InSerializer(const void *buf, size_t len)
-     : impl_(*(new Impl(buf, len))), had_error_(false)
+     : implptr_(new Impl(buf, len)), impl_(*implptr_), had_error_(false)
 {
-}
-
-InSerializer::~InSerializer()
-{
-   delete &impl_;
 }
 
 lcore::S1Byte InSerializer::GetS1Byte()

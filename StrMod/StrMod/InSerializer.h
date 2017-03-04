@@ -34,6 +34,7 @@
 // Added class to aid in serialization of simple data tyes.
 //
 
+#include <memory>
 #include <LCore/GenTypes.h>
 #include <string>
 #ifndef _STR_StrChunkPtr_H_
@@ -63,7 +64,7 @@ class InSerializer
    // \param len The number of bytes in the memory region to convert from.
    InSerializer(const void *buf, size_t len);
    //! It destroys things.  :-)
-   virtual ~InSerializer();
+   virtual ~InSerializer() = default;
 
    //! Get a signed 1 octet value (2's complement) and move forward 1 octet.
    lcore::S1Byte GetS1Byte();
@@ -100,6 +101,8 @@ class InSerializer
  private:
    struct Impl;
 
+   const ::std::unique_ptr<Impl> implptr_;
+   // The following always refers to *implptr_. An optimization.
    Impl &impl_;
    bool had_error_;
 };
