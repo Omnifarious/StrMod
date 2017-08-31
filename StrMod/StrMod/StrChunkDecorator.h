@@ -43,8 +43,7 @@ class StrChunkDecorator : public StrChunk {
    // Virtual members from StrChunk base class
    virtual unsigned int Length() const;
    //! Accept a ChunkVisitor, and maybe lead it through your children.
-   virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation);
+   virtual void acceptVisitor(ChunkVisitor &visitor);
 
  private:
    StrChunkPtr chunkptr_;

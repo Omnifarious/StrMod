@@ -59,12 +59,10 @@ class GraphVizVisitor : public UseTrackingVisitor
 
  protected:
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
-                                  const LinearExtent &used)
-      throw(halt_visitation);
+                                  const LinearExtent &used);
 
    virtual void use_visitDataBlock(const void *start, size_t len,
-                                   const void *realstart, size_t reallen)
-      throw(halt_visitation);
+                                   const void *realstart, size_t reallen);
 
    void printData(const void *data, size_t len);
 

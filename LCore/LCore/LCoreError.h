@@ -82,21 +82,21 @@ class LCoreError {
    //! Contruct an LCoreError with however much information you can give it.
    explicit inline
    LCoreError(const char *desc = 0, const char *sourcefile = 0,
-              unsigned int line = 0, const char *func = 0) throw ();
+              unsigned int line = 0, const char *func = 0) noexcept;
    //! Contruct an LCoreError with a description, and a CompilerInfo object
    explicit inline LCoreError(const char *desc, const CompilerInfo &inf)
-      throw();
+      noexcept;
    //! Construct an LCoreError with a CompilerInfo object, but no description.
-   inline LCoreError(const CompilerInfo &inf) throw();
+   inline LCoreError(const CompilerInfo &inf) noexcept;
 
    //! Get the description, may return NULL.
-   const char *getDesc() const throw ()                  { return desc_; }
+   const char *getDesc() const noexcept                  { return desc_; }
    //! Get the source file, may return NULL.
-   const char *getSourceFile() const throw ()            { return sourcefile_; }
+   const char *getSourceFile() const noexcept            { return sourcefile_; }
    //! Get the line number.
-   unsigned int getLine() const throw ()                 { return line_; }
+   unsigned int getLine() const noexcept                 { return line_; }
    //! Get the function name, may return NULL.
-   const char *getFunc() const throw ()                  { return func_; }
+   const char *getFunc() const noexcept                  { return func_; }
 
  private:
    const char * const desc_;
@@ -119,14 +119,14 @@ class LCoreError::CompilerInfo
    //! Constructs with a source file, line number, and possible function name.
    explicit inline
    CompilerInfo(const char *sourcefile, unsigned int line, const char *func = 0)
-      throw();
+      noexcept;
 
    //! Get the source file, may return NULL.
-   const char *getSourceFile() const throw()             { return sourcefile_; }
+   const char *getSourceFile() const noexcept            { return sourcefile_; }
    //! Get the line number.
-   unsigned int getLine() const throw ()                 { return line_; }
+   unsigned int getLine() const noexcept                 { return line_; }
    //! Get the function name, may return NULL.
-   const char *getFunc() const throw ()                  { return func_; }
+   const char *getFunc() const noexcept                  { return func_; }
 
  private:
    const char * const sourcefile_;
@@ -144,20 +144,20 @@ class LCoreError::CompilerInfo
  */
 inline
 LCoreError::LCoreError(const char *desc, const char *sourcefile,
-                       unsigned int line, const char *func) throw ()
+                       unsigned int line, const char *func) noexcept
      : desc_(desc), sourcefile_(sourcefile), line_(line), func_(func)
 {
 }
 
 inline
-LCoreError::LCoreError(const char *desc, const CompilerInfo &inf) throw()
+LCoreError::LCoreError(const char *desc, const CompilerInfo &inf) noexcept
      : desc_(desc),
        sourcefile_(inf.getSourceFile()), line_(inf.getLine()),
        func_(inf.getFunc())
 {
 }
 
-inline LCoreError::LCoreError(const CompilerInfo &inf) throw()
+inline LCoreError::LCoreError(const CompilerInfo &inf) noexcept
      : desc_(0),
        sourcefile_(inf.getSourceFile()), line_(inf.getLine()),
        func_(inf.getFunc())
@@ -168,7 +168,7 @@ inline LCoreError::LCoreError(const CompilerInfo &inf) throw()
 
 inline LCoreError::CompilerInfo::CompilerInfo(const char *sourcefile, 
                                               unsigned int line,
-                                              const char *func) throw()
+                                              const char *func) noexcept
      : sourcefile_(sourcefile), line_(line), func_(func)
 {
 }

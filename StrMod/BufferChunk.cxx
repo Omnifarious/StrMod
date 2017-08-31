@@ -34,7 +34,6 @@ namespace strmod {
 lcore::U1Byte BufferChunk::junk_;
 
 void BufferChunk::acceptVisitor(ChunkVisitor &visitor)
-   throw(ChunkVisitor::halt_visitation)
 {
    call_visitDataBlock(visitor, getVoidP(), buflen_);
 }

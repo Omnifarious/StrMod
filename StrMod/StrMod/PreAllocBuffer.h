@@ -54,13 +54,13 @@ class PreAllocBufferBase : public BufferChunk
    //: See class Debugable
    virtual void printState(std::ostream &os) const = 0;
 
-   virtual void resize(unsigned int newsize) throw(std::bad_alloc) = 0;
+   virtual void resize(unsigned int newsize) = 0;
 
  protected:
    void i_destruct(const U1Byte * const preallocbuf);
    void i_resize(const unsigned int newsize,
 		 const unsigned int prebufsize,
-		 U1Byte * const preallocbuf) throw(std::bad_alloc);
+		 U1Byte * const preallocbuf);
    bool i_invariant(const unsigned int prebufsize,
 		    const void * const prebuf) const;
    void i_printState(std::ostream &os,
@@ -89,7 +89,7 @@ class PreAllocBuffer : public PreAllocBufferBase {
 
    inline virtual void printState(std::ostream &os) const;
 
-   inline virtual void resize(unsigned int newsize) throw(std::bad_alloc);
+   inline virtual void resize(unsigned int newsize);
 
  private:
    U1Byte preallocbuf_[TInitialAlloc];
@@ -122,7 +122,7 @@ inline void PreAllocBuffer<TInitialAlloc>::printState(std::ostream &os) const
 
 template <unsigned int TInitialAlloc>
 inline void
-PreAllocBuffer<TInitialAlloc>::resize(unsigned int newsize) throw(std::bad_alloc)
+PreAllocBuffer<TInitialAlloc>::resize(unsigned int newsize)
 {
    i_resize(newsize, TInitialAlloc, preallocbuf_);
 }

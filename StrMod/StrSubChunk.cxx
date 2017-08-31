@@ -71,7 +71,6 @@ StrSubChunk::StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent)
 }
 
 void StrSubChunk::acceptVisitor(ChunkVisitor &visitor)
-   throw(ChunkVisitor::halt_visitation)
 {
    call_visitStrChunk(visitor, subchunk_, subext_);
 }

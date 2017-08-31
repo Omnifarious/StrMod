@@ -92,11 +92,10 @@ class BufferChunk : public StrChunk, virtual public lcore::Debugable
     *
     * Throws bad_alloc if the allocation fails, just like operator new.
     */
-   virtual void resize(unsigned int newsize) throw(std::bad_alloc) = 0;
+   virtual void resize(unsigned int newsize) = 0;
 
  protected:
-   virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation);
+   virtual void acceptVisitor(ChunkVisitor &visitor);
 
  protected:
    /** <code>buf_</code> is expected to be maintained by the derived class.

@@ -148,26 +148,26 @@ class StreamFDModule : public StreamModule
    inline virtual bool deletePlug(Plug *p);
 
    //! Check for an error in the given category.
-   bool hasErrorIn(ErrorType err) const throw ();
+   bool hasErrorIn(ErrorType err) const noexcept;
    //! Check for an error in one of the categories given by the set.
-   bool hasErrorIn(const ErrorSet &set) const throw ();
+   bool hasErrorIn(const ErrorSet &set) const noexcept;
    /** Ask to post an event when the given error type happens.
     * Currently only one event per error type is allowed.  If there is already
     * an event for a particular error type, that event will be forgotten about
     * and not posted.
     */
-   void onErrorIn(ErrorType err, const unievent::EventPtr &ev) throw();
+   void onErrorIn(ErrorType err, const unievent::EventPtr &ev) noexcept;
    /** Reset the error value for a particular category.
     * This does not work for the ErrFatal category.
     */
-   void resetErrorIn(ErrorType err) throw ();
+   void resetErrorIn(ErrorType err) noexcept;
    //! Get the error value for a particular category.
-   const unievent::UNIXError &getErrorIn(ErrorType err) const throw ();
+   const unievent::UNIXError &getErrorIn(ErrorType err) const noexcept;
 
    //! Set whether or not and EOFStrChunk is sent when an EOF is read.
-   inline void setSendChunkOnEOF(bool newval) throw();
+   inline void setSendChunkOnEOF(bool newval) noexcept;
    //! Does this module send a chunk on EOF?
-   inline bool getSendChunkOnEOF() throw()          { return flags_.chunkeof; }
+   inline bool getSendChunkOnEOF() noexcept         { return flags_.chunkeof; }
 
    //! Sets the maximum block size to be read in a single read operation.
    inline void setMaxChunkSize(size_t mbs);
@@ -265,7 +265,7 @@ class StreamFDModule : public StreamModule
    void eventResumeWrite();
 
    //! Get the file descriptor so a derived class can do something to it.
-   int getFD() const throw()                       { return fd_; }
+   int getFD() const noexcept                       { return fd_; }
 
  private:
    struct ErrorInfo;
@@ -323,7 +323,7 @@ inline bool StreamFDModule::deletePlug(Plug *p)
       return(false);
 }
 
-inline void StreamFDModule::setSendChunkOnEOF(bool newval) throw()
+inline void StreamFDModule::setSendChunkOnEOF(bool newval) noexcept
 {
    flags_.chunkeof = newval;
 }

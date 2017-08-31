@@ -61,7 +61,6 @@ void GroupChunk::push_front(const StrChunkPtr &chnk)
 }
 
 void GroupChunk::acceptVisitor(ChunkVisitor &visitor)
-   throw(ChunkVisitor::halt_visitation)
 {
    for (ChunkList::const_iterator i = chnklist_.begin(),
                             listend = chnklist_.end(); i != listend; ++i)

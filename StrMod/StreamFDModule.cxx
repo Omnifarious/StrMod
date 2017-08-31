@@ -276,14 +276,14 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
     */
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
-      throw(halt_visitation)             { }
+   {
+   }
 
    /*!
     * Add this new chunk of data to our list.
     */
    virtual void use_visitDataBlock(const void *start, size_t len,
                                    const void *realstart, size_t reallen)
-      throw(halt_visitation)
    {
       // Many routines depend on this if statement to ensure that there are no
       // zero length extents.
@@ -364,13 +364,13 @@ struct StreamFDModule::ErrorInfo {
 
 //------
 
-bool StreamFDModule::hasErrorIn(ErrorType err) const throw ()
+bool StreamFDModule::hasErrorIn(ErrorType err) const noexcept
 {
    // ::std::cerr << " ----> Entering StreamFDModule::hasErrorIn(ErrorType err).\n";
    return errorinfo_.used_.test(err);
 }
 
-bool StreamFDModule::hasErrorIn(const ErrorSet &set) const throw ()
+bool StreamFDModule::hasErrorIn(const ErrorSet &set) const noexcept
 {
    // ::std::cerr << " ----> Entering StreamFDModule::hasErrorIn(const ErrorSet &set).\n";
    ErrorSet tmp = errorinfo_.used_;
@@ -379,13 +379,13 @@ bool StreamFDModule::hasErrorIn(const ErrorSet &set) const throw ()
 }
 
 void StreamFDModule::onErrorIn(ErrorType err,
-                               const unievent::EventPtr &ev) throw()
+                               const unievent::EventPtr &ev) noexcept
 {
    // ::std::cerr << " ----> Entering StreamFDModule::onErrorIn().\n";
    errorinfo_.events_[err] = ev;
 }
 
-void StreamFDModule::resetErrorIn(ErrorType err) throw ()
+void StreamFDModule::resetErrorIn(ErrorType err) noexcept
 {
    // ::std::cerr << " ----> Entering StreamFDModule::resetErrorIn().\n";
    if ((err != ErrFatal) && errorinfo_.used_.test(err))
@@ -439,7 +439,7 @@ void StreamFDModule::resetErrorIn(ErrorType err) throw ()
    }
 }
 
-const UNIXError &StreamFDModule::getErrorIn(ErrorType err) const throw ()
+const UNIXError &StreamFDModule::getErrorIn(ErrorType err) const noexcept
 {
    // ::std::cerr << " ----> Entering StreamFDModule::getErrorIn(ErrorType err).\n";
    if (! errorinfo_.used_.test(err))

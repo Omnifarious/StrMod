@@ -56,7 +56,7 @@ void PreAllocBufferBase::i_destruct(const U1Byte * const preallocbuf)
 
 void PreAllocBufferBase::i_resize(const unsigned int newsize,
                                   const unsigned int prebufsize,
-                                  U1Byte * const preallocbuf) throw(std::bad_alloc)
+                                  U1Byte * const preallocbuf)
 {
    if (newsize <= prebufsize)
    {

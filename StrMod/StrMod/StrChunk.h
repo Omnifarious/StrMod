@@ -87,8 +87,7 @@ class StrChunk : public ::std::enable_shared_from_this<StrChunk>
 
  protected:
    //! Accept a ChunkVisitor, and maybe lead it through your children.
-   virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation) = 0;
+   virtual void acceptVisitor(ChunkVisitor &visitor) = 0;
 
    //@{
    /**
@@ -96,15 +95,12 @@ class StrChunk : public ::std::enable_shared_from_this<StrChunk>
     * ChunkVisitor methods.
     */
    inline void call_visitStrChunk(ChunkVisitor &visitor,
-                                  const StrChunkPtr &chunk)
-      throw(ChunkVisitor::halt_visitation);
+                                  const StrChunkPtr &chunk);
    inline void call_visitStrChunk(ChunkVisitor &visitor,
                                   const StrChunkPtr &chunk,
-                                  const LinearExtent &used)
-      throw(ChunkVisitor::halt_visitation);
+                                  const LinearExtent &used);
    inline void call_visitDataBlock(ChunkVisitor &visitor,
-                                   void *start, size_t len)
-      throw(ChunkVisitor::halt_visitation);
+                                   void *start, size_t len);
    //@}
 
  private:
@@ -119,7 +115,6 @@ class StrChunk : public ::std::enable_shared_from_this<StrChunk>
 
 inline void StrChunk::call_visitStrChunk(ChunkVisitor &visitor,
                                          const StrChunkPtr &chunk)
-   throw(ChunkVisitor::halt_visitation)
 {
    visitor.visitStrChunk(chunk);
 }
@@ -127,14 +122,12 @@ inline void StrChunk::call_visitStrChunk(ChunkVisitor &visitor,
 inline void StrChunk::call_visitStrChunk(ChunkVisitor &visitor,
                                          const StrChunkPtr &chunk,
                                          const LinearExtent &used)
-   throw(ChunkVisitor::halt_visitation)
 {
    visitor.visitStrChunk(chunk, used);
 }
 
 inline void StrChunk::call_visitDataBlock(ChunkVisitor &visitor,
                                           void *start, size_t len)
-   throw(ChunkVisitor::halt_visitation)
 {
    visitor.visitDataBlock(start, len);
 }

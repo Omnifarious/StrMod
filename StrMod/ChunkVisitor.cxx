@@ -32,7 +32,6 @@ namespace strmod {
 namespace strmod {
 
 void ChunkVisitor::call_acceptVisitor(const StrChunkPtr &chnk)
-   throw(halt_visitation)
 {
    chnk->acceptVisitor(*this);
 }

@@ -33,13 +33,13 @@
 namespace strmod {
 namespace strmod {
 
-DynamicBuffer::DynamicBuffer(unsigned int len) throw(std::bad_alloc)
+DynamicBuffer::DynamicBuffer(unsigned int len)
 {
    resize(len);
 }
 
 DynamicBuffer::DynamicBuffer(const void *data,
-			     unsigned int len) throw(std::bad_alloc)
+			     unsigned int len)
 {
    resize(len);
    memcpy(buf_, data, len);
@@ -56,7 +56,7 @@ DynamicBuffer::~DynamicBuffer()
    }
 }
 
-void DynamicBuffer::resize(unsigned int newsize) throw(std::bad_alloc)
+void DynamicBuffer::resize(unsigned int newsize)
 {
    #ifndef NDEBUG
    if (buf_ != 0)

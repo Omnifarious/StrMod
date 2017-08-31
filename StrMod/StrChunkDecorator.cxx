@@ -43,7 +43,6 @@ unsigned int StrChunkDecorator::Length() const
 }
 
 void StrChunkDecorator::acceptVisitor(ChunkVisitor &visitor)
-   throw(ChunkVisitor::halt_visitation)
 {
    call_visitStrChunk(visitor, chunkptr_);
 }

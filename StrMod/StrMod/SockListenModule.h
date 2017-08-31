@@ -99,7 +99,8 @@ class SocketModuleChunk : public StrChunk
  protected:
    //! Accept a ChunkVisitor, and maybe lead it through your children.
    virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation)             { }
+   {
+   }
 
  private:
    SocketModule *module_;
@@ -143,11 +144,11 @@ class SockListenModule : public StreamModule {
    inline virtual bool deletePlug(Plug *plug);
 
    //! Has there been an error of any kind?
-   bool hasError() const throw()               { return has_error_; }
+   bool hasError() const noexcept               { return has_error_; }
    //! What was the error, if any?
-   const unievent::UNIXError &getError() const throw();
+   const unievent::UNIXError &getError() const noexcept;
    //! Pretend no error happened.
-   void clearError() throw();
+   void clearError() noexcept;
 
    //! What's the local address for this socket?
    const ehnet::SocketAddress &GetBoundAddress() const { return(myaddr_); }
@@ -190,7 +191,7 @@ class SockListenModule : public StreamModule {
                                          unievent::UnixEventRegistry &ureg);
 
    //! Set an error so that hasError and getError return something.
-   inline void setError(const unievent::UNIXError &err) throw();
+   inline void setError(const unievent::UNIXError &err) noexcept;
 
    //! Return the new module (if any) and try to 'accept' another connection.
    SocketModule *getNewModule();

@@ -67,8 +67,7 @@ class UseTrackingVisitor : public ChunkVisitor
     * @param extent Which extent of the chunk is used.
     */
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
-                                  const LinearExtent &used)
-      throw(halt_visitation) = 0;
+                                  const LinearExtent &used) = 0;
    /**
     * \brief This is the Template Method function to visit an actual chunk of
     * data.  Called by the UseTracking machinery.
@@ -84,8 +83,7 @@ class UseTrackingVisitor : public ChunkVisitor
     * portions.
     */
    virtual void use_visitDataBlock(const void *start, size_t len,
-                                   const void *realstart, size_t reallen)
-      throw(halt_visitation) = 0;
+                                   const void *realstart, size_t reallen) = 0;
    //@}
 
    /**
@@ -112,21 +110,21 @@ class UseTrackingVisitor : public ChunkVisitor
 
    //! Don't overload this function in derived classes!  (Wish I had Java's
    //! 'final'.)
-   virtual void visitStrChunk(const StrChunkPtr &chunk)
-      throw(halt_visitation);
+   virtual void visitStrChunk(const StrChunkPtr &chunk);
+
    //! Don't overload this function in derived classes!  (Wish I had Java's
    //! 'final'.)
    virtual void visitStrChunk(const StrChunkPtr &chunk,
-			      const LinearExtent &used)
-      throw(halt_visitation);
+			      const LinearExtent &used);
+
    //! Don't overload this function in derived classes!  (Wish I had Java's
    //! 'final'.)
-   virtual void visitDataBlock(const void *start, size_t len)
-      throw(halt_visitation);
+   virtual void visitDataBlock(const void *start, size_t len);
+
 
    const LinearExtent computeUsed(const LinearExtent &used);
-   void do_acceptVisitor(const StrChunkPtr &chunk, const LinearExtent &chunkext)
-      throw(halt_visitation);
+   void do_acceptVisitor(const StrChunkPtr &chunk,
+                         const LinearExtent &chunkext);
 };
 
 //-----------------------------inline functions--------------------------------

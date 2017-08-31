@@ -46,7 +46,6 @@ UseTrackingVisitor::UseTrackingVisitor(bool ignorezeros)
 }
 
 void UseTrackingVisitor::visitStrChunk(const StrChunkPtr &chunk)
-   throw(halt_visitation)
 {
 //   cerr << "visitStrChunk 1: Visiting " << chunk.GetPtr() << " && curpos_ == " << curpos_ << "\n";
    assert(chunk);
@@ -67,7 +66,6 @@ void UseTrackingVisitor::visitStrChunk(const StrChunkPtr &chunk)
 
 void UseTrackingVisitor::visitStrChunk(const StrChunkPtr &chunk,
                                         const LinearExtent &used)
-   throw(halt_visitation)
 {
 //   cerr << "visitStrChunk 2: Visiting " << chunk.GetPtr() << " && curpos_ == " << curpos_ << "\n";
    assert(chunk);
@@ -88,7 +86,6 @@ void UseTrackingVisitor::visitStrChunk(const StrChunkPtr &chunk,
 }
 
 void UseTrackingVisitor::visitDataBlock(const void *data, size_t len)
-   throw(halt_visitation)
 {
 //   cerr << "visitDataBlock: Visiting " << data << " && curpos_ == " << curpos_ << "\n";
    assert(data != NULL);
@@ -129,7 +126,6 @@ const LinearExtent UseTrackingVisitor::computeUsed(const LinearExtent &used)
 
 void UseTrackingVisitor::do_acceptVisitor(const StrChunkPtr &chunk,
                                           const LinearExtent &chunkext)
-   throw(halt_visitation)
 {
    // curchnk_ is chunk for duration of function.  Automatically set back to
    // old value when function exits for any reason.

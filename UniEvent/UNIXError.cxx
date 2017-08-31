@@ -35,7 +35,7 @@ namespace unievent {
 
 const UNIXError UNIXError::S_noerror("<no error>", 0, LCoreError("<no error>"));
 
-void UNIXError::getErrorString(char *buf, size_t buflen) const throw ()
+void UNIXError::getErrorString(char *buf, size_t buflen) const noexcept
 {
    strncpy(buf, strerror(errnum_), buflen - 1);
 //   strerror_r(errnum_, buf, buflen);  // Doesn't work right for now.

@@ -137,14 +137,14 @@ class StrChunk::iterator__::ExtVisitor : public UseTrackingVisitor {
     */
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
-      throw(halt_visitation)                { }
+   {
+   }
 
    /*!
     * Add this new chunk of data to our list.
     */
    virtual void use_visitDataBlock(const void *start, size_t len,
                                    const void *realstart, size_t reallen)
-      throw(halt_visitation)
    {
       // Many routines depend on this if statement to ensure that there are no
       // zero length extents.

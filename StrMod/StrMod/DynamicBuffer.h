@@ -40,11 +40,11 @@ class DynamicBuffer : public BufferChunk
 {
  public:
    DynamicBuffer()                                      { }
-   DynamicBuffer(unsigned int len) throw(std::bad_alloc);
-   DynamicBuffer(const void *data, unsigned int len) throw(std::bad_alloc);
+   DynamicBuffer(unsigned int len);
+   DynamicBuffer(const void *data, unsigned int len);
    virtual ~DynamicBuffer();
 
-   virtual void resize(unsigned int newsize) throw(std::bad_alloc);
+   virtual void resize(unsigned int newsize);
 };
 
 }  // namespace strmod

@@ -78,18 +78,16 @@ class ChunkVisitor
    /**
     * Visit a StrChunk, with no extent constraints imposed by parent.
     */
-   virtual void visitStrChunk(const StrChunkPtr &chunk)
-      throw(halt_visitation) = 0;
+   virtual void visitStrChunk(const StrChunkPtr &chunk) = 0;
+
    /**
     * Visit a StrChunk, with extent constraints imposed by parent.
     */
    virtual void visitStrChunk(const StrChunkPtr &chunk,
-			      const LinearExtent &used)
-      throw(halt_visitation) = 0;
+			      const LinearExtent &used) = 0;
    //@}
    //! Visit some raw data in a StrChunk.
-   virtual void visitDataBlock(const void *start, size_t len)
-      throw(halt_visitation) = 0;
+   virtual void visitDataBlock(const void *start, size_t len) = 0;
 
    /**
     * Call the StrChunk's 'acceptVisitor' method to visit a StrChunk's
@@ -101,8 +99,7 @@ class ChunkVisitor
     *
     * @param chnk The StrChunk to call acceptVisitor on.
     */
-   void call_acceptVisitor(const StrChunkPtr &chnk)
-      throw(halt_visitation);
+   void call_acceptVisitor(const StrChunkPtr &chnk);
 };
 
 }  // namespace strmod

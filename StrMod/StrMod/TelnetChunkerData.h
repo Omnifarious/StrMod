@@ -64,8 +64,7 @@ class TelnetChunker::TelnetData : public StrChunk
 
    // Redeclare this just to show we know what we're doing and it's still
    // abstract.
-   virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation) = 0;
+   virtual void acceptVisitor(ChunkVisitor &visitor) = 0;
 };
 
 //---
@@ -88,12 +87,10 @@ class TelnetChunker::SingleChar : public TelnetChunker::TelnetData
    inline static bool isSpecial(U1Byte c);
 
    //! Convert the character to a member of the TelnetChars::Commands enum.
-   inline static TelnetChars::Commands charToCommand(U1Byte c)
-      throw(std::domain_error);
+   inline static TelnetChars::Commands charToCommand(U1Byte c);
 
  protected:
-   virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation);
+   virtual void acceptVisitor(ChunkVisitor &visitor);
 
  private:
    const TelnetChars::Commands opt_;
@@ -132,8 +129,7 @@ class TelnetChunker::Suboption : public TelnetChunker::TelnetData {
 
  protected:
    //! Accept a ChunkVisitor, and maybe lead it through your children.
-   virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation);
+   virtual void acceptVisitor(ChunkVisitor &visitor);
 
  private:
    static const U1Byte optend_[2];  // Always <IAC> <SE>  (255 240)
@@ -166,8 +162,7 @@ class TelnetChunker::OptionNegotiation : public TelnetChunker::TelnetData {
    U1Byte getType() const                               { return(buf_[2]); }
 
  protected:
-   virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation);
+   virtual void acceptVisitor(ChunkVisitor &visitor);
 
  private:
    TelnetChars::OptionNegotiations request_;

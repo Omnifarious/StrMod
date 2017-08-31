@@ -323,7 +323,6 @@ void TelnetChunker::processIncoming()
 }
 
 void TelnetChunker::SingleChar::acceptVisitor(ChunkVisitor &visitor)
-   throw(ChunkVisitor::halt_visitation)
 {
    call_visitDataBlock(visitor, buf_, 2);
 }
@@ -393,7 +392,6 @@ TelnetChunker::Suboption::cookedToRaw(const bufchnkptr_t &cooked)
 }
 
 void TelnetChunker::Suboption::acceptVisitor(ChunkVisitor &visitor)
-   throw(ChunkVisitor::halt_visitation)
 {
    call_visitDataBlock(visitor, optstart_, 3);
    call_visitStrChunk(visitor, raw_);
@@ -401,7 +399,6 @@ void TelnetChunker::Suboption::acceptVisitor(ChunkVisitor &visitor)
 }
 
 void TelnetChunker::OptionNegotiation::acceptVisitor(ChunkVisitor &visitor)
-   throw(ChunkVisitor::halt_visitation)
 {
    call_visitDataBlock(visitor, buf_, 3);
 }

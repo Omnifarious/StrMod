@@ -333,7 +333,7 @@ void SockListenModule::doAccept()
    }
 }
 
-void SockListenModule::clearError() throw()
+void SockListenModule::clearError() noexcept
 {
    using unievent::UNIXError;
    if (has_error_)
@@ -343,14 +343,14 @@ void SockListenModule::clearError() throw()
    }
 }
 
-const unievent::UNIXError &SockListenModule::getError() const throw()
+const unievent::UNIXError &SockListenModule::getError() const noexcept
 {
    using unievent::UNIXError;
    const void *raw = errorstore_;
    return *reinterpret_cast<const UNIXError *>(raw);
 }
 
-void SockListenModule::setError(const unievent::UNIXError &err) throw()
+void SockListenModule::setError(const unievent::UNIXError &err) noexcept
 {
    using unievent::UNIXError;
    void *raw = errorstore_;

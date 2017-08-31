@@ -56,7 +56,8 @@ class EOFStrChunk : public StrChunk
 
  protected:
    virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation)             { }
+   {
+   }
 };
 
 typedef ::std::shared_ptr<EOFStrChunk> EOFStrChunkPtr;

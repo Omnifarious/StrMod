@@ -74,13 +74,11 @@ class ApplyVisitor_Base : public UseTrackingVisitor {
  protected:
    virtual void use_visitStrChunk(const StrChunkPtr &chunk,
                                   const LinearExtent &used)
-      throw(halt_visitation)
    {
    }
 
    virtual void use_visitDataBlock(const void *start, size_t len,
-                                   const void *realstart, size_t reallen)
-      throw(halt_visitation) = 0;
+                                   const void *realstart, size_t reallen) = 0;
 
  private:
    const StrChunkPtr chunk_;
@@ -124,9 +122,10 @@ class ApplyVisitor : public ApplyVisitor_Base {
    inline virtual ~ApplyVisitor();
 
  protected:
-   inline virtual void use_visitDataBlock(const void *start, size_t len,
-                                          const void *realstart, size_t reallen)
-      throw(halt_visitation);
+   inline virtual void use_visitDataBlock(const void *start,
+                                          size_t len,
+                                          const void *realstart,
+                                          size_t reallen);
 
  private:
    _Function &func_;
@@ -154,9 +153,10 @@ ApplyVisitor<_Function>::~ApplyVisitor()
 }
 
 template <class _Function> inline void
-ApplyVisitor<_Function>::use_visitDataBlock(const void *start, size_t len,
-                                            const void *realstart, size_t reallen)
-   throw(halt_visitation)
+ApplyVisitor<_Function>::use_visitDataBlock(const void *start,
+                                            size_t len,
+                                            const void *realstart,
+                                            size_t reallen)
 {
    func_(start, len);
 }

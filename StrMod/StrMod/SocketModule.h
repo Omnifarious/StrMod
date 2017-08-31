@@ -48,7 +48,7 @@ class SocketModule : public StreamFDModule
    SocketModule(const ehnet::SocketAddress &addr,
                 unievent::Dispatcher &disp,
                 unievent::UnixEventRegistry &ureg,
-                bool blockconnect = true) throw(unievent::UNIXError);
+                bool blockconnect = true);
    virtual ~SocketModule();
 
    //! Who are we connected to?
@@ -69,7 +69,7 @@ class SocketModule : public StreamFDModule
                 unievent::UnixEventRegistry &ureg);
 
    static int MakeSocket(SocketModule &obj, const ehnet::SocketAddress &addr,
-                         bool blockconnect) throw(unievent::UNIXError);
+                         bool blockconnect);
 
  private:
    ehnet::SocketAddress &peer_;

@@ -65,8 +65,7 @@ class StaticBuffer : public StrChunk
    inline const U1Byte *getCharP();
 
  protected:
-   inline virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation);
+   inline virtual void acceptVisitor(ChunkVisitor &visitor);
 
  private:
    const void * const buf_;
@@ -86,7 +85,6 @@ inline const lcore::U1Byte *StaticBuffer::getCharP()
 }
 
 inline void StaticBuffer::acceptVisitor(ChunkVisitor &visitor)
-   throw(ChunkVisitor::halt_visitation)
 {
    call_visitDataBlock(visitor, const_cast<void *>(buf_), buflen_);
 }

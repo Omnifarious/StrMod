@@ -56,7 +56,6 @@ SocketModule::SocketModule(const SocketAddress &addr,
                            unievent::Dispatcher &disp,
                            unievent::UnixEventRegistry &ureg,
                            bool blockconnect)
-   throw(UNIXError)
      : StreamFDModule(MakeSocket(*this, addr, blockconnect), disp, ureg,
                       StreamFDModule::CheckBoth),
        peer_(*(addr.Copy())),
@@ -112,7 +111,7 @@ void SocketModule::writeEOF()
    }
 }
 
-static inline void setNonBlock(int fd) throw(UNIXError)
+static inline void setNonBlock(int fd)
 {
    int errval = 0;
 //     ::std::cerr << "In setNonBlock(" << fd << ", " << errval << ")\n";
@@ -124,7 +123,7 @@ static inline void setNonBlock(int fd) throw(UNIXError)
    }
 }
 
-static inline void doConnect(int fd, SocketAddress &peer) throw(UNIXError)
+static inline void doConnect(int fd, SocketAddress &peer)
 {
    if (connect(fd, peer.SockAddr(), peer.AddressSize()) < 0)
    {
@@ -165,7 +164,6 @@ void SocketModule::setSelfAddr(int fd)
 
 int SocketModule::MakeSocket(SocketModule &obj,
                              const SocketAddress &addr, bool blockconnect)
-   throw(UNIXError)
 {
    int fd = -1;
    try {

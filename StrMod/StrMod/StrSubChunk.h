@@ -56,8 +56,7 @@ class StrSubChunk : public StrChunk
 
  protected:
    //: Accept a ChunkVisitor, and maybe lead it through your children.
-   virtual void acceptVisitor(ChunkVisitor &visitor)
-      throw(ChunkVisitor::halt_visitation);
+   virtual void acceptVisitor(ChunkVisitor &visitor);
 
  private:
    StrChunkPtr subchunk_;
