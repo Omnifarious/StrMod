@@ -51,7 +51,7 @@ inline constexpr size_t _base_simple_bitset::countbits(const bits_t bitary[],
 
 } // namespace priv
 
-//! A template for 
+//! A template for a simple statically sized bitset.
 template <size_t Tsize> class simple_bitset : private priv::_base_simple_bitset
 {
  public:

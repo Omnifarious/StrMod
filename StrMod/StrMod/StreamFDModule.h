@@ -59,7 +59,7 @@ class GroupVector;
  * everything read from the file descriptor is read from the plug.
  *
  * There are (or will be) ways of asking for events to be posted when stuff
-//  * happens that the StreamFDModule can't deal with directly, such has EOF,
+ * happens that the StreamFDModule can't deal with directly, such has EOF,
  * read or write errors, or unexpected file descriptor closings.
  */
 class StreamFDModule : public StreamModule
