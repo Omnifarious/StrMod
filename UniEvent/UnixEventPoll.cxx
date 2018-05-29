@@ -143,6 +143,7 @@ UnixEventPoll::UnixEventPoll(Dispatcher *dispatcher)
 
 UnixEventPoll::~UnixEventPoll()
 {
+   delete &impl_;
 }
 
 void UnixEventPoll::registerFDCond(int fd,
