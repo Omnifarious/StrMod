@@ -23,18 +23,18 @@ class _base_simple_bitset
 {
  public:
    typedef unsigned long bits_t;
-   static const bits_t allones_ = ULONG_MAX;
-   static const size_t bits_t_bits = sizeof(bits_t) * 8;
    static const unsigned int bits_in[256];
-   inline static size_t countbits(const bits_t bitary[],
-                                  size_t size, bits_t lastmask);
+   static constexpr bits_t allones_ = ::std::numeric_limits<bits_t>::max();
+   static constexpr size_t bits_t_bits = sizeof(bits_t) * 8;
+   inline static constexpr size_t countbits(const bits_t bitary[],
+                                            size_t size, bits_t lastmask);
    static ::std::string to_string(const bits_t bitary[],
                                   size_t size, bits_t lastmask);
 };
 
-inline size_t _base_simple_bitset::countbits(const bits_t bitary[],
-                                             size_t size,
-                                             bits_t lastmask)
+inline constexpr size_t _base_simple_bitset::countbits(const bits_t bitary[],
+                                                       size_t size,
+                                                       bits_t lastmask)
 {
    size_t count = 0;
    for (size_t i = 0; i < size; ++i)
@@ -82,9 +82,9 @@ template <size_t Tsize> class simple_bitset : private priv::_base_simple_bitset
    inline const simple_bitset<Tsize> &operator =(const simple_bitset<Tsize> &rhs);
 
  private:
-   static const size_t numbits_ = Tsize;
-   static const size_t bitslen_ = Tsize / bits_t_bits + ((Tsize % bits_t_bits != 0) ? 1 : 0);
-   static const bits_t topmask_ = (Tsize % bits_t_bits == 0) ? allones_ : ((1 << Tsize % bits_t_bits) - 1);
+   static constexpr size_t numbits_ = Tsize;
+   static constexpr size_t bitslen_ = Tsize / bits_t_bits + ((Tsize % bits_t_bits != 0) ? 1 : 0);
+   static constexpr bits_t topmask_ = (Tsize % bits_t_bits == 0) ? allones_ : ((1 << Tsize % bits_t_bits) - 1);
    char pad1[12];
    bits_t bits_[bitslen_];
    char pad2[12];
