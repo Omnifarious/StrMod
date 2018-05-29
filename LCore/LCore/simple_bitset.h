@@ -11,6 +11,8 @@
 #include <cstddef>
 #include <climits>
 #include <string>
+#include <array>
+#include <limits>
 
 #define _LCORE_simple_bitset_H_
 
@@ -18,14 +20,33 @@ namespace strmod {
 namespace lcore {
 namespace priv {
 
+typedef ::std::array<unsigned int, 256> bitcounts_t;
+
+constexpr bitcounts_t make_bitcounts()
+{
+   bitcounts_t bitcounts = {0};
+   for (unsigned int i = 1; i < 256; ++i)
+   {
+      unsigned int shifter = i;
+      while (shifter) {
+         while (!(shifter & 0x1)) {
+            shifter >>= 1;
+         }
+         bitcounts[i]++;
+         shifter >>= 1;
+      }
+   }
+   return bitcounts;
+}
+
 //! A non-template base class of common methods that don't need to vary with the template parameter.
 class _base_simple_bitset
 {
  public:
    typedef unsigned long bits_t;
-   static const unsigned int bits_in[256];
    static constexpr bits_t allones_ = ::std::numeric_limits<bits_t>::max();
    static constexpr size_t bits_t_bits = sizeof(bits_t) * 8;
+   static auto constexpr bits_in = make_bitcounts();
    inline static constexpr size_t countbits(const bits_t bitary[],
                                             size_t size, bits_t lastmask);
    static ::std::string to_string(const bits_t bitary[],
