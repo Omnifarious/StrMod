@@ -41,8 +41,8 @@ class Event
  public:
    //! Nothing exciting here.
    Event()                                              { }
-   //! This is an interface class, of course it has a virtual destructor.
-   virtual ~Event() = default;
+   //! This is an abstract class, of course it has a virtual destructor.
+   virtual ~Event() = 0;
 
    /** Perform the action associated with the event.
     * If the event was triggered by a dispatcher, the dispatcher that triggered
@@ -74,6 +74,9 @@ class Event
 };
 
 //-----------------------------inline functions--------------------------------
+
+// Will be called explicitly by chuld class destructors.
+inline Event::~Event() = default;
 
 inline void Event::operator ()(Dispatcher *dispatcher)
 {

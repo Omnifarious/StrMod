@@ -69,7 +69,7 @@ class StrChunk : public ::std::enable_shared_from_this<StrChunk>
    typedef iterator__ const_iterator;
 
    //! Not much to talk about.
-   virtual ~StrChunk() = default;
+   virtual ~StrChunk() = 0;
 
    //! Number of octets this chunk takes up.  May be deprecated.
    virtual unsigned int Length() const = 0;
@@ -112,6 +112,10 @@ class StrChunk : public ::std::enable_shared_from_this<StrChunk>
 };
 
 //------------------------inline functions for StrChunk------------------------
+
+// It's pure virtual, but it will be called directory by destructors in child
+// classes.
+inline StrChunk::~StrChunk() = default;
 
 inline void StrChunk::call_visitStrChunk(ChunkVisitor &visitor,
                                          const StrChunkPtr &chunk)

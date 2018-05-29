@@ -56,6 +56,12 @@ class Debugable {
    virtual void printState(::std::ostream &os) const = 0;
 };
 
+//--
+
+// It's pure virtual, but it will be called directly by destructors in child
+// classes.
+inline Debugable::~Debugable() = default;
+
 } // namespace lcore
 } // namespace strmod
 
