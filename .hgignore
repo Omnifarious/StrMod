@@ -1,6 +1,7 @@
 syntax:glob
 Makefile
 pwd_test
+*~
 
 syntax:re
 ^generated$
