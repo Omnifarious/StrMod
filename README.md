@@ -1,3 +1,6 @@
+If you're looking at this on GitHub, the master repository is actually
+here: https://bitbucket.org/omnifarious/StrMod
+
 OK, you've downloaded this thing, now what?
 
 The first thing to do would be to build it.
