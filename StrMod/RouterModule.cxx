@@ -41,7 +41,7 @@ class RouterModule::ScanEvent : public Event {
    //: This keeps a reference to parent.
    ScanEvent(RouterModule &parent) : parent_(&parent)   { }
 
-   inline virtual void triggerEvent(Dispatcher *dispatcher = 0);
+   inline void triggerEvent(Dispatcher *dispatcher = 0) override;
 
    void parentGone()                                    { parent_ = 0; }
 
@@ -49,7 +49,7 @@ class RouterModule::ScanEvent : public Event {
    RouterModule *parent_;
 };
 
-inline void RouterModule::ScanEvent::triggerEvent(Dispatcher *dispatcher)
+inline void RouterModule::ScanEvent::triggerEvent(Dispatcher *)
 {
    if (parent_)
    {

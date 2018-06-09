@@ -51,9 +51,9 @@ class TimerEventTracker : virtual public Timer, virtual public lcore::Debugable
    //! Nothing special or unexpected
    virtual ~TimerEventTracker();
 
-   virtual void postAt(const absolute_t &t, const EventPtr &ev);
+   void postAt(const absolute_t &t, const EventPtr &ev) override;
    // Leave the implementation of postIn as it is in Timer.
-   virtual absolute_t currentTime() const = 0;
+   absolute_t currentTime() const override = 0;
 
    /** Post all expired timer events.
     * @param now What you want the current time to be for the purposes of expiration
@@ -80,8 +80,8 @@ class TimerEventTracker : virtual public Timer, virtual public lcore::Debugable
    interval_t nextExpirationIn(const absolute_t &now,
                                const interval_t &maxtime) const;
 
-   virtual bool invariant() const                               { return true; }
-   virtual void printState(::std::ostream &os) const;
+   bool invariant() const override                               { return true; }
+   void printState(::std::ostream &os) const override;
 
  private:
    class Imp;

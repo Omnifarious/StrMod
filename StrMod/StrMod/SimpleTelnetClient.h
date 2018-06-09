@@ -53,9 +53,9 @@ class SimpleTelnetClient : public StreamModule {
    SimpleTelnetClient();
    ~SimpleTelnetClient();
 
-   inline virtual bool canCreate(int side) const;
-   inline virtual bool ownsPlug(const Plug *plug) const;
-   virtual bool deletePlug(Plug *plug);
+   inline bool canCreate(int side) const override;
+   inline bool ownsPlug(const Plug *plug) const override;
+   bool deletePlug(Plug *plug) override;
 
    /** Resets the states of the sent_do_supga_ and sent_do_echo_ flags.
     * Resetting these flags has the effect of causing the client to attempt to
@@ -64,7 +64,7 @@ class SimpleTelnetClient : public StreamModule {
    void reset();
 
  protected:
-   virtual Plug *i_MakePlug(int side);
+   Plug *i_MakePlug(int side) override;
 
    //: Handles sending telnet protocol messages for initial negotiation
    bool doProtocol();
@@ -89,14 +89,14 @@ class SimpleTelnetClient : public StreamModule {
       ~UPlug() = default;
 
       inline SimpleTelnetClient &getParent() const;
-      virtual int side() const                          { return(ToUser); }
+      int side() const override                         { return(ToUser); }
 
     protected:
-      virtual bool needsNotifyReadable() const          { return(true); }
-      inline virtual void otherIsReadable();
+      bool needsNotifyReadable() const override         { return(true); }
+      inline void otherIsReadable() override;
 
-      inline virtual const StrChunkPtr i_Read();
-      inline virtual void i_Write(const StrChunkPtr &chnk);
+      inline const StrChunkPtr i_Read() override;
+      inline void i_Write(const StrChunkPtr &chnk) override;
 
       inline bool canReadOther() const;
    };
@@ -110,14 +110,14 @@ class SimpleTelnetClient : public StreamModule {
       ~SPlug() = default;
 
       inline SimpleTelnetClient &getParent() const;
-      virtual int side() const                          { return(ToServer); }
+      int side() const override                         { return(ToServer); }
 
     protected:
-      virtual bool needsNotifyWriteable() const         { return(true); }
-      inline virtual void otherIsWriteable();
+      bool needsNotifyWriteable() const override        { return(true); }
+      inline void otherIsWriteable() override;
 
-      inline virtual const StrChunkPtr i_Read();
-      inline virtual void i_Write(const StrChunkPtr &chnk);
+      inline const StrChunkPtr i_Read() override;
+      inline void i_Write(const StrChunkPtr &chnk) override;
 
       inline bool canWriteOther() const;
    };

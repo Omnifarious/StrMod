@@ -33,7 +33,7 @@ namespace {
 template <class T>
 class stack_deleter {
  public:
-   void operator()(T *p) { }
+   void operator()(T *) { }
 };
 
 }

@@ -111,10 +111,10 @@ class InetAddress : public SocketAddress {
    //! No pointers or anything, so not much to destroy
    virtual ~InetAddress() = default;
 
-   virtual ::sockaddr *SockAddr()         { return (::sockaddr *)(&inaddr); }
+   ::sockaddr *SockAddr() override        { return (::sockaddr *)(&inaddr); }
    InetAddress *Copy() const              { return (InetAddress *)MakeCopy(); }
-   virtual int AddressSize() const        { return sizeof(::sockaddr_in); }
-   virtual ::std::string AsString();
+   int AddressSize() const override        { return sizeof(::sockaddr_in); }
+   ::std::string AsString() override;
 
    //! Get the host name associated with this address, possibly the result of a reverse DNS lookup
    ::std::string GetHostname() const                    { return(hostname); }
@@ -134,7 +134,7 @@ class InetAddress : public SocketAddress {
    const InetAddress &operator =(const ::sockaddr_in &iadr);
 
  protected:
-   inline virtual SocketAddress *MakeCopy() const;
+   inline SocketAddress *MakeCopy() const override;
 
    //! Mark this address as invalid
    void InvalidateAddress();

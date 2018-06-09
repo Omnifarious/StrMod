@@ -162,7 +162,7 @@ void SocketModule::setSelfAddr(int fd)
    }
 }
 
-int SocketModule::MakeSocket(SocketModule &obj,
+int SocketModule::MakeSocket(SocketModule &,
                              const SocketAddress &addr, bool blockconnect)
 {
    int fd = -1;

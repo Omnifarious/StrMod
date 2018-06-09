@@ -52,10 +52,10 @@ class EOFStrChunk : public StrChunk
    EOFStrChunk() = default;
    inline virtual ~EOFStrChunk() = default;
 
-   virtual unsigned int Length() const                 { return(0); }
+   unsigned int Length() const override                 { return(0); }
 
  protected:
-   virtual void acceptVisitor(ChunkVisitor &visitor)
+   void acceptVisitor(ChunkVisitor &) override
    {
    }
 };

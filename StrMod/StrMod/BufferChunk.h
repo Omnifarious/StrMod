@@ -61,11 +61,11 @@ class BufferChunk : public StrChunk, virtual public lcore::Debugable
     */
    virtual ~BufferChunk() = default;
 
-   inline virtual bool invariant() const;
+   inline bool invariant() const override;
 
-   virtual void printState(std::ostream &os) const;
+   void printState(std::ostream &os) const override;
 
-   virtual unsigned int Length() const                  { return(buflen_); }
+   unsigned int Length() const override                  { return(buflen_); }
 
    /** Returns a reference to the byte at index bnum.
     *
@@ -95,7 +95,7 @@ class BufferChunk : public StrChunk, virtual public lcore::Debugable
    virtual void resize(unsigned int newsize) = 0;
 
  protected:
-   virtual void acceptVisitor(ChunkVisitor &visitor);
+   void acceptVisitor(ChunkVisitor &visitor) override;
 
  protected:
    /** <code>buf_</code> is expected to be maintained by the derived class.

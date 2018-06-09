@@ -52,11 +52,11 @@ class StrSubChunk : public StrChunk
    StrSubChunk(const StrChunkPtr &chunk, const LinearExtent &extent);
    virtual ~StrSubChunk() = default;
 
-   inline virtual unsigned int Length() const;
+   inline unsigned int Length() const override;
 
  protected:
    //: Accept a ChunkVisitor, and maybe lead it through your children.
-   virtual void acceptVisitor(ChunkVisitor &visitor);
+   void acceptVisitor(ChunkVisitor &visitor) override;
 
  private:
    StrChunkPtr subchunk_;

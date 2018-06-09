@@ -70,7 +70,7 @@ bool InfiniteModule::deletePlug(Plug *plug)
    }
 }
 
-StreamModule::Plug *InfiniteModule::i_MakePlug(int side)
+StreamModule::Plug *InfiniteModule::i_MakePlug(int)
 {
    plug_created_ = true;
    setReadableFlagFor(&plug_, true);

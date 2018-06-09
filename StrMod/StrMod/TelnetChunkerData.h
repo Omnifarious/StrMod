@@ -57,14 +57,14 @@ class TelnetChunker::TelnetData : public StrChunk
 
    // Redeclare this just to show we know what we're doing and it's still
    // abstract.
-   virtual unsigned int Length() const = 0;
+   unsigned int Length() const override = 0;
 
  protected:
    typedef lcore::U1Byte U1Byte;
 
    // Redeclare this just to show we know what we're doing and it's still
    // abstract.
-   virtual void acceptVisitor(ChunkVisitor &visitor) = 0;
+   void acceptVisitor(ChunkVisitor &visitor) override = 0;
 };
 
 //---
@@ -78,7 +78,7 @@ class TelnetChunker::SingleChar : public TelnetChunker::TelnetData
    //! Construct a SingleChar for a particular command.
    inline SingleChar(TelnetChars::Commands opt);
 
-   virtual unsigned int Length() const                  { return(2); }
+   unsigned int Length() const override                 { return(2); }
 
    //! What single character command am I?
    TelnetChars::Commands getCommand() const             { return(opt_); }
@@ -90,7 +90,7 @@ class TelnetChunker::SingleChar : public TelnetChunker::TelnetData
    inline static TelnetChars::Commands charToCommand(U1Byte c);
 
  protected:
-   virtual void acceptVisitor(ChunkVisitor &visitor);
+   void acceptVisitor(ChunkVisitor &visitor) override;
 
  private:
    const TelnetChars::Commands opt_;
@@ -118,7 +118,7 @@ class TelnetChunker::Suboption : public TelnetChunker::TelnetData {
     */
    Suboption(U1Byte type, const bufchnkptr_t &cooked);
 
-   inline virtual unsigned int Length() const;
+   inline unsigned int Length() const override;
 
    //! Which suboption is this data for?
    inline U1Byte getType() const                       { return(optstart_[2]); }
@@ -129,7 +129,7 @@ class TelnetChunker::Suboption : public TelnetChunker::TelnetData {
 
  protected:
    //! Accept a ChunkVisitor, and maybe lead it through your children.
-   virtual void acceptVisitor(ChunkVisitor &visitor);
+   void acceptVisitor(ChunkVisitor &visitor) override;
 
  private:
    static const U1Byte optend_[2];  // Always <IAC> <SE>  (255 240)
@@ -154,7 +154,7 @@ class TelnetChunker::OptionNegotiation : public TelnetChunker::TelnetData {
    inline OptionNegotiation(TelnetChars::OptionNegotiations request,
                             U1Byte type);
 
-   virtual unsigned int Length() const                  { return(3); }
+   unsigned int Length() const override                 { return(3); }
 
    //! What kind of negotiation is being made?
    TelnetChars::OptionNegotiations getRequest() const   { return(request_); }
@@ -162,7 +162,7 @@ class TelnetChunker::OptionNegotiation : public TelnetChunker::TelnetData {
    U1Byte getType() const                               { return(buf_[2]); }
 
  protected:
-   virtual void acceptVisitor(ChunkVisitor &visitor);
+   void acceptVisitor(ChunkVisitor &visitor) override;
 
  private:
    TelnetChars::OptionNegotiations request_;

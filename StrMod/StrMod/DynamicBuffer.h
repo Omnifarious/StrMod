@@ -44,7 +44,7 @@ class DynamicBuffer : public BufferChunk
    DynamicBuffer(const void *data, unsigned int len);
    virtual ~DynamicBuffer();
 
-   virtual void resize(unsigned int newsize);
+   void resize(unsigned int newsize) override;
 };
 
 }  // namespace strmod

@@ -63,7 +63,7 @@ class GroupChunk : public StrChunk
    //! Dereferences all direct children.
    virtual ~GroupChunk();
 
-   virtual unsigned int Length() const                 { return(totalsize_); }
+   unsigned int Length() const override                 { return(totalsize_); }
 
    //! Concatenate a StrChunk to the end of the GroupChunk
    void push_back(const StrChunkPtr &chnk);
@@ -72,7 +72,7 @@ class GroupChunk : public StrChunk
 
  protected:
    //: Accept a ChunkVisitor, and maybe lead it through your children.
-   virtual void acceptVisitor(ChunkVisitor &visitor);
+   void acceptVisitor(ChunkVisitor &visitor) override;
 
  private:
    ChunkList chnklist_;

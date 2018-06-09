@@ -63,14 +63,14 @@ class RouterModule : public StreamModule
    //! Destroy the RouterModule and all of its plugs.
    virtual ~RouterModule();
 
-   virtual bool canCreate(int side) const = 0;
+   bool canCreate(int side) const override = 0;
 
-   virtual bool ownsPlug(const Plug *plug) const;
+   bool ownsPlug(const Plug *plug) const override;
 
-   virtual bool deletePlug(Plug *plug);
+   bool deletePlug(Plug *plug) override;
 
  protected:
-   virtual Plug *i_MakePlug(int side) = 0;
+   Plug *i_MakePlug(int side) override = 0;
 
    /** Add a new plug to the internal list of all plugs.
     * Must be called before i_MakePlug returns a new plug!
@@ -125,7 +125,7 @@ class RouterModule::RPlug : public StreamModule::Plug {
  public:
    inline RouterModule &getParent() const;
 
-   virtual int side() const = 0;
+   int side() const override = 0;
 
    //! Get the 'deleted_' flag of this plug.
    bool getDeleted() const                               { return(deleted_); }
@@ -136,8 +136,8 @@ class RouterModule::RPlug : public StreamModule::Plug {
  protected:
    inline RPlug(RouterModule &parent);
 
-   virtual const StrChunkPtr i_Read();
-   virtual void i_Write(const StrChunkPtr &ptr);
+   const StrChunkPtr i_Read() override;
+   void i_Write(const StrChunkPtr &ptr) override;
 
  private:
    bool deleted_;

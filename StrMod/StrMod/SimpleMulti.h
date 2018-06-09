@@ -86,9 +86,9 @@ class SimpleMultiplexer : public StreamModule
    //! Also destroys all Plug's and any unsent data.
    virtual ~SimpleMultiplexer();
 
-   inline virtual bool canCreate(int side) const;
-   virtual bool ownsPlug(const Plug *plug) const;
-   virtual bool deletePlug(Plug *plug);
+   inline bool canCreate(int side) const override;
+   bool ownsPlug(const Plug *plug) const override;
+   bool deletePlug(Plug *plug) override;
 
  protected:
    class SinglePlug : public Plug {
@@ -99,22 +99,22 @@ class SimpleMultiplexer : public StreamModule
       inline SimpleMultiplexer &getParent() const;
 
       //: What side is this plug on?
-      virtual int side() const                          { return(SingleSide); }
+      int side() const override                          { return(SingleSide); }
 
     protected:
       inline SinglePlug(SimpleMultiplexer &parent);
       inline virtual ~SinglePlug();
 
       //: See base class.
-      virtual const StrChunkPtr i_Read();
+      const StrChunkPtr i_Read() override;
 
       //: See base class.
-      virtual void i_Write(const StrChunkPtr &ptr);
+      void i_Write(const StrChunkPtr &ptr) override;
 
       //: Because I try to be a 'pass-through' module.
-      virtual bool needsNotifyWriteable() const         { return(true); }
+      bool needsNotifyWriteable() const override         { return(true); }
       //: Not really a 'pass-through' read module.
-      virtual bool needsNotifyReadable() const          { return(false); }
+      bool needsNotifyReadable() const override          { return(false); }
 
       //: Rather complicated, see the long explanation.
       //
@@ -122,7 +122,7 @@ class SimpleMultiplexer : public StreamModule
       // status' event, update all multi-plugs to be writeable.</p>
       // <p>If other isn't writeable, then update all multi-plugs to be
       // non-writeable.</p>
-      virtual void otherIsWriteable();
+      void otherIsWriteable() override;
    };
 
    /** Called whenever a plug is disconnected.
@@ -132,9 +132,9 @@ class SimpleMultiplexer : public StreamModule
     * Also calls StreamModule::plugDisconnected so that PDstrategy handling and
     * things can be done there.
     */
-   inline virtual void plugDisconnected(Plug *plug);
+   inline void plugDisconnected(Plug *plug) override;
 
-   virtual Plug *i_MakePlug(int side);
+   Plug *i_MakePlug(int side) override;
 
    /** If a scan event isn't posted, post one.
     * A scan is always posted because a piece of data came into a MultiPlug, and

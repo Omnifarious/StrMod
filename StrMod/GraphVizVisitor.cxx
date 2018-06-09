@@ -86,7 +86,7 @@ const StrChunkPtr GraphVizVisitor::visit(const StrChunkPtr &root, std::ostream &
 }
 
 void GraphVizVisitor::use_visitStrChunk(const StrChunkPtr &chunk,
-                                        const LinearExtent &used)
+                                        const LinearExtent &)
 {
    const void *parent = getParent().get();
    if (parent)

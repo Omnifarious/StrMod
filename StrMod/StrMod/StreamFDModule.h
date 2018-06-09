@@ -143,9 +143,9 @@ class StreamFDModule : public StreamModule
    //! Closes the associated file descriptor.
    virtual ~StreamFDModule();
 
-   inline virtual bool canCreate(int side) const;
-   inline virtual bool ownsPlug(const Plug *p) const;
-   inline virtual bool deletePlug(Plug *p);
+   inline bool canCreate(int side) const override;
+   inline bool ownsPlug(const Plug *p) const override;
+   inline bool deletePlug(Plug *p) override;
 
    //! Check for an error in the given category.
    bool hasErrorIn(ErrorType err) const noexcept;
@@ -207,16 +207,16 @@ class StreamFDModule : public StreamModule
       inline StreamFDModule &getParent() const;
 
       //: This plug is always on side 0.
-      virtual int side() const                          { return(0); }
+      int side() const override                          { return(0); }
 
     protected:
       //: Forwards to getParent()->plugRead()
-      inline virtual const StrChunkPtr i_Read();
+      inline const StrChunkPtr i_Read() override;
       //: Forwards to getParent()->plugWrite()
-      inline virtual void i_Write(const StrChunkPtr &ptr);
+      inline void i_Write(const StrChunkPtr &ptr) override;
    };
 
-   inline virtual Plug *i_MakePlug(int side);
+   inline Plug *i_MakePlug(int side) override;
 
    //! Called by FPlug::i_Write.
    virtual void plugWrite(const StrChunkPtr &ptr);

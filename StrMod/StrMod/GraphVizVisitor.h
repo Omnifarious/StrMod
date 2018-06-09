@@ -58,11 +58,11 @@ class GraphVizVisitor : public UseTrackingVisitor
    const StrChunkPtr visit(const StrChunkPtr &root, std::ostream &out);
 
  protected:
-   virtual void use_visitStrChunk(const StrChunkPtr &chunk,
-                                  const LinearExtent &used);
+   void use_visitStrChunk(const StrChunkPtr &chunk,
+                          const LinearExtent &used) override;
 
-   virtual void use_visitDataBlock(const void *start, size_t len,
-                                   const void *realstart, size_t reallen);
+   void use_visitDataBlock(const void *start, size_t len,
+                           const void *realstart, size_t reallen) override;
 
    void printData(const void *data, size_t len);
 

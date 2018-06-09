@@ -79,7 +79,7 @@ class SocketModuleChunk : public StrChunk
    //! If 'ReleaseModule' hasn't been called, also deletes wrapped SocketModule
    inline virtual ~SocketModuleChunk();
 
-   virtual unsigned int Length() const                 { return 0; }
+   unsigned int Length() const override                 { return 0; }
 
    /** Returns the wrapped SocketModule, and possibly forget about its existence.
     * @param release If this parameter is true, the SocketModuleChunk forgets
@@ -98,7 +98,7 @@ class SocketModuleChunk : public StrChunk
 
  protected:
    //! Accept a ChunkVisitor, and maybe lead it through your children.
-   virtual void acceptVisitor(ChunkVisitor &visitor)
+   void acceptVisitor(ChunkVisitor &) override
    {
    }
 
@@ -138,10 +138,10 @@ class SockListenModule : public StreamModule {
    //! Closes the socket being listened to.
    virtual ~SockListenModule();
 
-   inline virtual bool canCreate(int side = 0) const;
+   inline bool canCreate(int side = 0) const override;
    inline SLPlug *makePlug(int side = 0);
-   inline virtual bool ownsPlug(const Plug *plug) const;
-   inline virtual bool deletePlug(Plug *plug);
+   inline bool ownsPlug(const Plug *plug) const override;
+   inline bool deletePlug(Plug *plug) override;
 
    //! Has there been an error of any kind?
    bool hasError() const noexcept               { return has_error_; }
@@ -161,7 +161,7 @@ class SockListenModule : public StreamModule {
 
     public:
       inline SockListenModule &getParent() const;
-      virtual int side() const                          { return(0); }
+      int side() const override                          { return(0); }
 
       //! Read a socket module chunk, if there is one.
       const SocketModuleChunkPtr getConnection();
@@ -174,14 +174,14 @@ class SockListenModule : public StreamModule {
       virtual ~SLPlug() = default;
 
       //! Forwards to getParent()->plugRead()
-      virtual const StrChunkPtr i_Read();
+      const StrChunkPtr i_Read() override;
       /** \brief A dead operation that either assert fails, or is a no-op that
        * throws away its data. */
-      virtual void i_Write(const StrChunkPtr &ptr);
+      void i_Write(const StrChunkPtr &ptr) override;
    };
 
  protected:
-   inline virtual Plug *i_MakePlug(int side);
+   inline Plug *i_MakePlug(int side) override;
 
    /** Make a socket module once I've done the accept.
     * Note, ownership of <code>peer</code> is being passed here.
