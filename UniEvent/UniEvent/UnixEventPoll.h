@@ -42,28 +42,28 @@ class UnixEventPoll : virtual public UnixEventRegistry,
    //! Currently doesn't clean signal handlers.
    virtual ~UnixEventPoll();
 
-   virtual bool invariant() const;
-   virtual void printState(::std::ostream &os) const;
+   bool invariant() const override;
+   void printState(::std::ostream &os) const override;
 
-   virtual void registerFDCond(int fd,
-                               const FDCondSet &condbits,
-                               const EventPtr &ev);
+   void registerFDCond(int fd,
+                       const FDCondSet &condbits,
+                       const EventPtr &ev) override;
 
-   virtual void freeFD(int fd);
+   void freeFD(int fd) override;
 
-   virtual void onSignal(int signo, const EventPtr &e);
+   void onSignal(int signo, const EventPtr &e) override;
 
-   virtual void clearSignal(int signo, const EventPtr &e);
+   void clearSignal(int signo, const EventPtr &e) override;
 
-   virtual void clearSignal(int signo);
+   void clearSignal(int signo) override;
 
    using TimerEventTracker::postAt;
    using TimerEventTracker::postIn;
 
    //! Uses the POSIX gettimeofday call.
-   virtual absolute_t currentTime() const;
+   absolute_t currentTime() const override;
 
-   virtual void doPoll(bool wait = false);
+   void doPoll(bool wait = false) override;
 
  private:
    struct Imp;

@@ -55,13 +55,13 @@ class InfiniteModule : public StreamModule
    InfiniteModule();
    virtual ~InfiniteModule();
 
-   inline virtual bool canCreate(int side = 0) const;
+   inline bool canCreate(int side = 0) const override;
    inline Plug *makePlug(int side = 0);
-   inline virtual bool ownsPlug(const Plug *plug) const;
-   virtual bool deletePlug(Plug *plug);
+   inline bool ownsPlug(const Plug *plug) const override;
+   bool deletePlug(Plug *plug) override;
 
  protected:
-   virtual Plug *i_MakePlug(int side);
+   Plug *i_MakePlug(int side) override;
 
  private:
    class IPlug : public Plug {
@@ -72,11 +72,11 @@ class InfiniteModule : public StreamModule
       ~IPlug() = default;
 
       inline InfiniteModule &getParent() const;
-      virtual int side() const                          { return(0); }
+      int side() const override                         { return(0); }
 
     protected:
-      inline virtual const StrChunkPtr i_Read();
-      inline virtual void i_Write(const StrChunkPtr &tr);
+      inline const StrChunkPtr i_Read() override;
+      inline void i_Write(const StrChunkPtr &tr) override;
    };
 
    StrChunkPtr feed_;
@@ -113,7 +113,7 @@ const StrChunkPtr InfiniteModule::IPlug::i_Read()
    return(getParent().feed_);
 }
 
-void InfiniteModule::IPlug::i_Write(const StrChunkPtr &ptr)
+void InfiniteModule::IPlug::i_Write(const StrChunkPtr &)
 {
 }
 

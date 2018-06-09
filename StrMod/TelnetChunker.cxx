@@ -61,13 +61,13 @@ class TelnetChunker::Builder : public TelnetChunkBuilder {
    Builder() : curlen_(0)                                   { }
    virtual ~Builder() = default;
 
-   virtual void addDataBlock(size_t regionbegin, size_t regionend);
-   virtual void addCharCommand(TelnetChars::Commands command);
-   virtual void addNegotiationCommand(TelnetChars::OptionNegotiations negtype,
-                                      U1Byte opt_type);
-   virtual void addSuboption(U1Byte opt_type,
-                             size_t regionbegin, size_t regionend,
-                             bufchnkptr_t &cooked);
+   void addDataBlock(size_t regionbegin, size_t regionend) override;
+   void addCharCommand(TelnetChars::Commands command) override;
+   void addNegotiationCommand(TelnetChars::OptionNegotiations negtype,
+                              U1Byte opt_type) override;
+   void addSuboption(U1Byte opt_type,
+                     size_t regionbegin, size_t regionend,
+                     bufchnkptr_t &cooked) override;
 
    void addOutgoing(const StrChunkPtr &ptr);
 

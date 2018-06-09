@@ -135,16 +135,15 @@ class StrChunk::iterator__::ExtVisitor : public UseTrackingVisitor {
     * I don't care about chunks, just data (because the iterator has to
     * iterate over the data) so do nothing when told about a chunk.
     */
-   virtual void use_visitStrChunk(const StrChunkPtr &chunk,
-                                  const LinearExtent &used)
+   void use_visitStrChunk(const StrChunkPtr &, const LinearExtent &) override
    {
    }
 
    /*!
     * Add this new chunk of data to our list.
     */
-   virtual void use_visitDataBlock(const void *start, size_t len,
-                                   const void *realstart, size_t reallen)
+   void use_visitDataBlock(const void *start, size_t len,
+                           const void *, size_t) override
    {
       // Many routines depend on this if statement to ensure that there are no
       // zero length extents.

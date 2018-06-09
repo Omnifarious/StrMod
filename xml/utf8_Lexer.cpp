@@ -133,6 +133,7 @@ inline void Lexer::advanceState(const char c, const size_t i,
          {
             ss.substate_ = XSBad;
          }
+         break;
 
        case XSDecEntity:
          if (c == semicolon)

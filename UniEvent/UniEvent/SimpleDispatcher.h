@@ -47,19 +47,19 @@ class SimpleDispatcher : public Dispatcher
    //! Destroy one.
    virtual ~SimpleDispatcher();
 
-   virtual void addEvent(const EventPtr &ev);
+   void addEvent(const EventPtr &ev) override;
 
-   virtual void dispatchEvents(unsigned int numevents,
-			       Dispatcher *enclosing = 0);
-   virtual void dispatchUntilEmpty(Dispatcher *enclosing = 0);
-   inline virtual void stopDispatching();
-   virtual void interrupt();
+   void dispatchEvents(unsigned int numevents,
+                       Dispatcher *enclosing = 0) override;
+   void dispatchUntilEmpty(Dispatcher *enclosing = 0) override;
+   inline void stopDispatching() override;
+   void interrupt() override;
 
-   virtual bool isQueueEmpty() const;
+   bool isQueueEmpty() const override;
 
-   virtual void addBusyPollEvent(const EventPtr &ev);
-   virtual bool onQueueEmpty(const EventPtr &ev);
-   virtual bool onInterrupt(const EventPtr &ev);
+   void addBusyPollEvent(const EventPtr &ev) override;
+   bool onQueueEmpty(const EventPtr &ev) override;
+   bool onInterrupt(const EventPtr &ev) override;
 
  private:
    class Imp;

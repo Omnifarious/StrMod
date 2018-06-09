@@ -41,9 +41,9 @@ class StrChunkDecorator : public StrChunk {
 
    // virtual void Redecorate() const = 0;
    // Virtual members from StrChunk base class
-   virtual unsigned int Length() const;
+   unsigned int Length() const override;
    //! Accept a ChunkVisitor, and maybe lead it through your children.
-   virtual void acceptVisitor(ChunkVisitor &visitor);
+   void acceptVisitor(ChunkVisitor &visitor) override;
 
  private:
    StrChunkPtr chunkptr_;

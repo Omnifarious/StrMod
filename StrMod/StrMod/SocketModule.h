@@ -58,7 +58,7 @@ class SocketModule : public StreamFDModule
    const ehnet::SocketAddress &GetSelfAddr()		{ return(*self_); }
 
  protected:
-   virtual void writeEOF();
+   void writeEOF() override;
 
    //! Create a SocketModule using the given fd.
    /*!

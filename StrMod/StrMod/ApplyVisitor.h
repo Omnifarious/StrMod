@@ -72,13 +72,12 @@ class ApplyVisitor_Base : public UseTrackingVisitor {
    void apply();
 
  protected:
-   virtual void use_visitStrChunk(const StrChunkPtr &chunk,
-                                  const LinearExtent &used)
+   void use_visitStrChunk(const StrChunkPtr &, const LinearExtent &) override
    {
    }
 
-   virtual void use_visitDataBlock(const void *start, size_t len,
-                                   const void *realstart, size_t reallen) = 0;
+   void use_visitDataBlock(const void *start, size_t len,
+                           const void *realstart, size_t reallen) override = 0;
 
  private:
    const StrChunkPtr chunk_;
@@ -155,8 +154,8 @@ ApplyVisitor<_Function>::~ApplyVisitor()
 template <class _Function> inline void
 ApplyVisitor<_Function>::use_visitDataBlock(const void *start,
                                             size_t len,
-                                            const void *realstart,
-                                            size_t reallen)
+                                            const void *,
+                                            size_t)
 {
    func_(start, len);
 }

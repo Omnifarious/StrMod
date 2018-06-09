@@ -81,7 +81,7 @@ class CharChopper : public StreamProcessor
    size_t usedsize_;
    enum { INYes, INNo, INMaybe } incoming_is_bc_;
 
-   virtual void processIncoming();
+   void processIncoming() override;
 
    void addChunk(const StrChunkPtr &chnk);
    inline void checkIncoming();

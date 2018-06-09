@@ -41,7 +41,7 @@ class RegistryDispatcherGlue
       EmptyEvent(RegistryDispatcherGlue *parent) : parent_(parent)           { }
       virtual ~EmptyEvent() = default;
 
-      inline virtual void triggerEvent(Dispatcher *dispatcher = 0)
+      inline void triggerEvent(Dispatcher * = 0) override
       {
          if (parent_)
          {
@@ -60,7 +60,7 @@ class RegistryDispatcherGlue
       BusyEvent(RegistryDispatcherGlue *parent) : parent_(parent)            { }
       virtual ~BusyEvent() = default;
 
-      inline virtual void triggerEvent(Dispatcher *dispatcher = 0)
+      inline void triggerEvent(Dispatcher * = 0) override
       {
          if (parent_)
          {

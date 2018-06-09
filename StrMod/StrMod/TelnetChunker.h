@@ -66,7 +66,7 @@ class TelnetChunker : public StreamProcessor
  protected:
    class Builder;
 
-   virtual void processIncoming();
+   void processIncoming() override;
 
  private:
    class DataFunctor;

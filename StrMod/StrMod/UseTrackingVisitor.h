@@ -110,16 +110,16 @@ class UseTrackingVisitor : public ChunkVisitor
 
    //! Don't overload this function in derived classes!  (Wish I had Java's
    //! 'final'.)
-   virtual void visitStrChunk(const StrChunkPtr &chunk);
+   void visitStrChunk(const StrChunkPtr &chunk) override;
 
    //! Don't overload this function in derived classes!  (Wish I had Java's
    //! 'final'.)
-   virtual void visitStrChunk(const StrChunkPtr &chunk,
-			      const LinearExtent &used);
+   void visitStrChunk(const StrChunkPtr &chunk,
+                      const LinearExtent &used) override;
 
    //! Don't overload this function in derived classes!  (Wish I had Java's
    //! 'final'.)
-   virtual void visitDataBlock(const void *start, size_t len);
+   void visitDataBlock(const void *start, size_t len) override;
 
 
    const LinearExtent computeUsed(const LinearExtent &used);

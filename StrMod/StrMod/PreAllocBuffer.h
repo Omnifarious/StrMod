@@ -49,12 +49,12 @@ class PreAllocBufferBase : public BufferChunk
    virtual ~PreAllocBufferBase() = 0;
 
    //: See class Debugable
-   virtual bool invariant() const = 0;
+   bool invariant() const override = 0;
 
    //: See class Debugable
-   virtual void printState(std::ostream &os) const = 0;
+   void printState(std::ostream &os) const override = 0;
 
-   virtual void resize(unsigned int newsize) = 0;
+   void resize(unsigned int newsize) override = 0;
 
  protected:
    void i_destruct(const U1Byte * const preallocbuf);
@@ -85,11 +85,11 @@ class PreAllocBuffer : public PreAllocBufferBase {
    inline PreAllocBuffer();
    inline virtual ~PreAllocBuffer();
 
-   inline virtual bool invariant() const;
+   inline bool invariant() const override;
 
-   inline virtual void printState(std::ostream &os) const;
+   inline void printState(std::ostream &os) const override;
 
-   inline virtual void resize(unsigned int newsize);
+   inline void resize(unsigned int newsize) override;
 
  private:
    U1Byte preallocbuf_[TInitialAlloc];

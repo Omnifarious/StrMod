@@ -54,7 +54,7 @@ class PassThrough : public StreamProcessor
    // Derived class destructor doesn't do anything base class one doesn't do.
 
  protected:
-   inline virtual void processIncoming();
+   inline void processIncoming() override;
 
  private:
    PassThrough(const PassThrough &b);

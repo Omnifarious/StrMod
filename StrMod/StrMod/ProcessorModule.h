@@ -94,14 +94,14 @@ class ProcessorModule : public StreamModule
     */
    virtual ~ProcessorModule() = default;
 
-   inline virtual bool canCreate(int side) const;
+   inline bool canCreate(int side) const override;
 
-   inline virtual bool ownsPlug(const Plug *plug) const;
+   inline bool ownsPlug(const Plug *plug) const override;
 
-   virtual bool deletePlug(Plug *plug);
+   bool deletePlug(Plug *plug) override;
 
  protected:
-   inline virtual Plug *i_MakePlug(int side);
+   inline Plug *i_MakePlug(int side) override;
 
  private:
    class PMPlug : public Plug {
@@ -114,11 +114,11 @@ class ProcessorModule : public StreamModule
 
       inline ProcessorModule &getParent() const;
 
-      inline virtual int side() const                   { return(side_); }
+      inline int side() const override                   { return(side_); }
 
     protected:
-      virtual const StrChunkPtr i_Read();
-      virtual void i_Write(const StrChunkPtr &chnk);
+      const StrChunkPtr i_Read() override;
+      void i_Write(const StrChunkPtr &chnk) override;
 
    private:
       Plug &sibling_;

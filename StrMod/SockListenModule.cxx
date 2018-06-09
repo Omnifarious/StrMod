@@ -67,7 +67,7 @@ class SockListenModule::FDPollEv : public unievent::Event
    inline FDPollEv(SockListenModule &parent);
    virtual ~FDPollEv() = default;
 
-   virtual void triggerEvent(Dispatcher *dispatcher = 0) = 0;
+   void triggerEvent(Dispatcher *dispatcher = 0) override = 0;
 
    inline void parentGone()                            { hasparent_ = false; }
 
@@ -110,7 +110,7 @@ class SockListenModule::FDPollRdEv : public SockListenModule::FDPollEv
    inline FDPollRdEv(SockListenModule &parent) : FDPollEv(parent)   { }
    virtual ~FDPollRdEv() = default;
 
-   virtual void triggerEvent(Dispatcher *dispatcher = 0)     { triggerRead(); }
+   void triggerEvent(Dispatcher * = 0) override               { triggerRead(); }
 };
 
 //: This is one of the three helper classes for SockListenModule::FDPollEv
@@ -119,7 +119,7 @@ class SockListenModule::FDPollErEv : public SockListenModule::FDPollEv {
    inline FDPollErEv(SockListenModule &parent) : FDPollEv(parent)   { }
    virtual ~FDPollErEv() = default;
 
-   virtual void triggerEvent(Dispatcher *dispatcher = 0)     { triggerError(); }
+   void triggerEvent(Dispatcher * = 0) override              { triggerError(); }
 };
 
 SockListenModule::SockListenModule(const SocketAddress &bind_addr,
@@ -388,7 +388,7 @@ const StrChunkPtr SockListenModule::SLPlug::i_Read()
    return(getConnection());
 }
 
-void SockListenModule::SLPlug::i_Write(const StrChunkPtr &chunk)
+void SockListenModule::SLPlug::i_Write(const StrChunkPtr &)
 {
    assert(false);
 }

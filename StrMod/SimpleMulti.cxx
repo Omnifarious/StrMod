@@ -52,7 +52,7 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug
  public:
    inline SimpleMultiplexer &getParent() const;
 
-   virtual int side() const                           { return(MultiSide); }
+   int side() const override                          { return(MultiSide); }
 
    //! Get the 'has_written_' flag of this plug.
    bool getHasWritten() const                         { return(has_written_); }
@@ -66,16 +66,16 @@ class SimpleMultiplexer::MultiPlug : public StreamModule::Plug
    //! A destructor.  Calls unPlug()
    inline virtual ~MultiPlug();
 
-   virtual const StrChunkPtr i_Read();
+   const StrChunkPtr i_Read() override;
 
-   virtual void i_Write(const StrChunkPtr &ptr);
+   void i_Write(const StrChunkPtr &ptr) override;
 
-   virtual bool needsNotifyWriteable() const        { return(true); }
-   virtual bool needsNotifyReadable() const         { return(true); }
+   bool needsNotifyWriteable() const override       { return(true); }
+   bool needsNotifyReadable() const override        { return(true); }
 
-   virtual void otherIsReadable();
+   void otherIsReadable() override;
 
-   virtual void otherIsWriteable();
+   void otherIsWriteable() override;
 
    /** Set the list position of this plug.
     * This function is to set the listpos_ iterator that's used for quick list
@@ -107,7 +107,7 @@ class SimpleMultiplexer::ScanEvent : public unievent::Event {
    //! This keeps a reference to parent.
    ScanEvent(SimpleMultiplexer &parent) : parent_(&parent)                   { }
 
-   inline virtual void triggerEvent(Dispatcher *dispatcher = 0);
+   inline void triggerEvent(Dispatcher *dispatcher = 0) override;
 
    void parentGone()                                    { parent_ = 0; }
 
@@ -245,7 +245,7 @@ void SimpleMultiplexer::MultiPlug::otherIsWriteable()
    }
 }
 
-void SimpleMultiplexer::ScanEvent::triggerEvent(Dispatcher *dispatcher)
+void SimpleMultiplexer::ScanEvent::triggerEvent(Dispatcher *)
 {
    if (parent_ != 0)
    {

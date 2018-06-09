@@ -82,9 +82,9 @@ class StreamSplitterModule : public StreamModule
       SideBiDir //!< Writing here goes out SideOut and reading comes from SideIn
    };
 
-   inline virtual bool canCreate(int side) const;
-   virtual bool deletePlug(Plug *plug);
-   inline virtual bool ownsPlug(const Plug *p) const;
+   inline bool canCreate(int side) const override;
+   bool deletePlug(Plug *plug) override;
+   inline bool ownsPlug(const Plug *p) const override;
 
  protected:
    class SPPlug;
@@ -101,17 +101,17 @@ class StreamSplitterModule : public StreamModule
 
       inline StreamSplitterModule &getParent() const;
 
-      virtual int side() const                          { return(side_); }
+      int side() const override                          { return(side_); }
 
     protected:
-      virtual const StrChunkPtr i_Read();
-      virtual void i_Write(const StrChunkPtr &ptr);
+      const StrChunkPtr i_Read() override;
+      void i_Write(const StrChunkPtr &ptr) override;
 
-      inline virtual bool needsNotifyReadable() const;
-      inline virtual bool needsNotifyWriteable() const;
+      inline bool needsNotifyReadable() const override;
+      inline bool needsNotifyWriteable() const override;
 
-      virtual void otherIsReadable();
-      virtual void otherIsWriteable();
+      void otherIsReadable() override;
+      void otherIsWriteable() override;
 
       inline SPPlug *getReadPartner() const;
       inline SPPlug *getWritePartner() const;
@@ -125,9 +125,9 @@ class StreamSplitterModule : public StreamModule
     *
     * It calls the base class version after doing its work.
     */
-   virtual void plugDisconnected(Plug *plug);
+   void plugDisconnected(Plug *plug) override;
 
-   virtual Plug *i_MakePlug(int side);
+   Plug *i_MakePlug(int side) override;
 
  private:
    struct {

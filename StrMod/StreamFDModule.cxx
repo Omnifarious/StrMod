@@ -152,7 +152,7 @@ class StreamFDModule::FDPollRdEv
    inline FDPollRdEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollRdEv() = default;
 
-   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+   void triggerEvent(Dispatcher * = 0) override {
       triggerRead();
    }
 };
@@ -165,7 +165,7 @@ class StreamFDModule::FDPollWrEv
    inline FDPollWrEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollWrEv() = default;
 
-   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+   void triggerEvent(Dispatcher * = 0) override {
       triggerWrite();
    }
 };
@@ -178,7 +178,7 @@ class StreamFDModule::FDPollErEv
    inline FDPollErEv(StreamFDModule &parent) : EvMixin(parent)  { }
    virtual ~FDPollErEv() = default;
 
-   virtual void triggerEvent(Dispatcher *dispatcher = 0) {
+   void triggerEvent(Dispatcher * = 0) override{
       triggerError();
    }
 };
@@ -194,7 +194,7 @@ class StreamFDModule::ResumeReadEv
    }
    virtual ~ResumeReadEv() = default;
 
-   virtual void triggerEvent(Dispatcher *dispatcher = 0)
+   void triggerEvent(Dispatcher * = 0) override
    {
       triggerResumeRead();
    }
@@ -211,7 +211,7 @@ class StreamFDModule::ResumeWriteEv
    }
    virtual ~ResumeWriteEv() = default;
 
-   virtual void triggerEvent(Dispatcher *dispatcher = 0)
+   void triggerEvent(Dispatcher * = 0) override
    {
       triggerResumeWrite();
    }
@@ -274,16 +274,16 @@ class StreamFDModule::BufferList : public UseTrackingVisitor {
     * I don't care about chunks, just data (because iovecs are all about data)
     * so do nothing when told about a chunk.
     */
-   virtual void use_visitStrChunk(const StrChunkPtr &chunk,
-                                  const LinearExtent &used)
+   void use_visitStrChunk(const StrChunkPtr &,
+                          const LinearExtent &) override
    {
    }
 
    /*!
     * Add this new chunk of data to our list.
     */
-   virtual void use_visitDataBlock(const void *start, size_t len,
-                                   const void *realstart, size_t reallen)
+   void use_visitDataBlock(const void *start, size_t len,
+                           const void *, size_t) override
    {
       // Many routines depend on this if statement to ensure that there are no
       // zero length extents.

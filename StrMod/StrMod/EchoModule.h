@@ -58,15 +58,15 @@ class EchoModule : public StreamModule
    EchoModule();
    virtual ~EchoModule();
 
-   inline virtual bool canCreate(int side = 0) const;
+   inline bool canCreate(int side = 0) const override;
    inline Plug *makePlug(int side = 0);
-   virtual bool ownsPlug(const Plug *plug) const   { return i_OwnsPlug(plug); }
-   virtual bool deletePlug(Plug *plug);
+   bool ownsPlug(const Plug *plug) const override   { return i_OwnsPlug(plug); }
+   bool deletePlug(Plug *plug) override;
 
  protected:
-   virtual void plugDisconnected(Plug *plug);
+   void plugDisconnected(Plug *plug) override;
 
-   inline virtual Plug *i_MakePlug(int side);
+   virtual Plug *i_MakePlug(int side) override;
 
  private:
    class EPlug : public Plug {
@@ -74,20 +74,20 @@ class EchoModule : public StreamModule
     public:
       inline EchoModule &getParent() const;
 
-      virtual int side() const                          { return(0); }
+      int side() const override                          { return(0); }
 
     protected:
       inline EPlug(EchoModule &parnt);
       inline virtual ~EPlug();
 
-      virtual bool needsNotifyReadable() const          { return(true); }
-      virtual bool needsNotifyWriteable() const         { return(true); }
+      bool needsNotifyReadable() const override          { return(true); }
+      bool needsNotifyWriteable() const override         { return(true); }
 
-      virtual void otherIsReadable();
-      virtual void otherIsWriteable();
+      void otherIsReadable() override;
+      void otherIsWriteable() override;
 
-      virtual const StrChunkPtr i_Read();
-      virtual void i_Write(const StrChunkPtr &ptr);
+      const StrChunkPtr i_Read() override;
+      void i_Write(const StrChunkPtr &ptr) override;
    };
 
    bool plugcreated_;

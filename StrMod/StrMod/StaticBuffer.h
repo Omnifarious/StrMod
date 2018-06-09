@@ -57,7 +57,7 @@ class StaticBuffer : public StrChunk
     */
    virtual ~StaticBuffer() = default;
 
-   virtual unsigned int Length() const                  { return buflen_; }
+   unsigned int Length() const override                  { return buflen_; }
 
    //! Get a void pointer to the memory pointed at by this chunk.
    const void *getVoidP()                               { return(buf_); }
@@ -65,7 +65,7 @@ class StaticBuffer : public StrChunk
    inline const U1Byte *getCharP();
 
  protected:
-   inline virtual void acceptVisitor(ChunkVisitor &visitor);
+   virtual void acceptVisitor(ChunkVisitor &visitor) override;
 
  private:
    const void * const buf_;
