@@ -9,16 +9,20 @@ target_compile_features(EHnet++_obj PUBLIC cxx_std_17)
 set_property(TARGET EHnet++_obj
   PROPERTY POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
 set_property(TARGET EHnet++ EHnet++_obj PROPERTY CXX_EXTENSIONS OFF)
-add_dependencies(EHnet++ LCore)
-add_dependencies(EHnet++_obj LCore)
+target_link_libraries(EHnet++ PUBLIC LCore)
 
-get_target_property(lcore_include_dirs LCore INTERFACE_INCLUDE_DIRECTORIES)
+# In CMake 3.12, this should become possible
+# target_link_libraries(EHnet++_obj PUBLIC LCore)
+
 target_include_directories(
   EHnet++ PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/pubinclude>"
-  ${lcore_include_dirs}
   "$<INSTALL_INTERFACE:include>"
   )
+
+# In CMake 3.12, this should no longer be necessary.
+get_target_property(lcore_include_dirs LCore INTERFACE_INCLUDE_DIRECTORIES)
+
 target_include_directories(
   EHnet++_obj PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/pubinclude>"
