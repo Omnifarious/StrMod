@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 3.11)
 
 project (libNet VERSION 0.6.0.0 LANGUAGES CXX)
 
+option(BUILD_SHARED_LIBS "Build libNet as a shared library." ON)
+
 add_subdirectory(LCore)
 add_subdirectory(EHnet++)
 add_subdirectory(UniEvent)
