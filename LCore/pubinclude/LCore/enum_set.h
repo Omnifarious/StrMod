@@ -47,7 +47,8 @@ class enum_set : private simple_bitset<last - first + 1>
 {
   private:
    typedef enum_set<enum_t, first, last> self_t;
-   //! Used to refer to private parent type to avoid errors in template parameter.
+   //! Used to refer to private parent type to avoid errors in template
+   //! parameter.
    typedef simple_bitset<last - first + 1> parent_t;
 //     typedef simple_bitset<last - first + 1>::reference pref;
   public:
@@ -96,6 +97,7 @@ class enum_set : private simple_bitset<last - first + 1>
    size_t count() const                            { return parent_t::count(); }
    //! How many total bits?
    size_t size() const                             { return parent_t::size(); }
+
 
    //! Copy one bitset into another
    inline const self_t &operator =(const self_t &b);

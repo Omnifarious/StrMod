@@ -39,8 +39,8 @@ class Debugable {
  public:
    virtual ~Debugable() = 0;
 
-   /** \brief This should ALWAYS return true.  It says whether the class
-    * invariant holds or not.
+   /** \brief This should return false if the object is in a state that should
+    *  be impossible.
     *
     * Your class invariant should be as strict as possible.  The class
     * invariant is used to detect when the class goes into a bad state, so all
