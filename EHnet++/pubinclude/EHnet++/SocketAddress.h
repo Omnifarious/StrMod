@@ -1,8 +1,5 @@
 #ifndef _EHNET_SocketAddress_H_  // -*-c++-*-
 
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 /*
  * Copyright 1991-2010 Eric M. Hopper <hopper@omnifarious.org>

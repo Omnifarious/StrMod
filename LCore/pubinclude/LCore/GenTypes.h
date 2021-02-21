@@ -49,10 +49,6 @@
 // Genesis!
 //
 
-#ifdef __GNUG__
-#  pragma interface
-#endif
-
 #include <arpa/inet.h>
 
 #define _LCORE_GenTypes_H_

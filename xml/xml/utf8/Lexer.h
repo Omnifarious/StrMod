@@ -8,9 +8,6 @@
  * $Rev$
  */
 
-#ifdef __GNUG__
-#  pragma interface
-#endif
 
 #include <xml/utf8/Builder.h>
 #include <cstddef>

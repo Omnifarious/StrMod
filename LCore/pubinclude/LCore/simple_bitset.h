@@ -1,8 +1,5 @@
 #ifndef _LCORE_simple_bitset_H_  // -*-c++-*-
 
-#ifdef __GNUG__
-#  pragma interface
-#endif
 
 /* $Header$ */
 

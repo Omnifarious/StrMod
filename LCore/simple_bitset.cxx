@@ -6,10 +6,6 @@
 #  pragma implementation "simple_bitset.h"
 #endif
 
-#ifdef __GNUG__
-#  pragma implementation "simple_bitset_optim.h"
-#endif
-
 #include "LCore/simple_bitset.h"
 #include <algorithm>
 

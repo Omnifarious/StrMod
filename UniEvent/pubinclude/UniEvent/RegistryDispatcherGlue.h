@@ -1,8 +1,5 @@
 #ifndef _UNEVT_RegistryDispatcherGlue_H_  // -*-c++-*-
 
-#ifdef __GNUG__
-#  pragma interface
-#endif
 
 /* $Header$ */
 

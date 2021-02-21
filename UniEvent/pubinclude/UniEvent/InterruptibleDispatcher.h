@@ -1,8 +1,5 @@
 #ifndef _UNEVT_InterruptibleDispatcher_H_  // -*-c++-*-
 
-#ifdef __GNUG__
-#  pragma interface
-#endif
 
 /* $Header$ */
 

@@ -2,9 +2,6 @@
 
 #define _XML_XMLUTF8Builder_H_
 
-#ifdef __GNUG__
-#  pragma interface
-#endif
 
 /* $URL$
  * $Author$

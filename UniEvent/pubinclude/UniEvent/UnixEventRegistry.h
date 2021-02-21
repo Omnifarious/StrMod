@@ -1,9 +1,5 @@
 #ifndef _UNEVT_UnixEventRegistry_H_  // -*-c++-*-
 
-#ifdef __GNUG__
-#  pragma interface
-#endif
-
 /* $Header$ */
 
 // For a log, see ../ChangeLog
