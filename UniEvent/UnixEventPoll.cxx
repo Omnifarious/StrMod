@@ -349,7 +349,7 @@ void UnixEventPoll::doPoll(bool wait)
             if (pollval.revents)
             {
                const FDCondSet condset = pollmask_to_condmask(pollval.revents);
-               const FDCondSet badset(FD_Closed, FD_Invalid);
+               const FDCondSet badset({FD_Closed, FD_Invalid});
                --pollresult;
                FDMap::iterator fdcur = impl_.fdmap_.lower_bound(pollval.fd);
                const FDMap::iterator fdend = impl_.fdmap_.upper_bound(pollval.fd);

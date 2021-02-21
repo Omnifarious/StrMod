@@ -195,11 +195,11 @@ SockListenModule::SockListenModule(const SocketAddress &bind_addr,
    checking_read_ = true;
    {
       static const UnixEventRegistry::FDCondSet
-         errorconds(UnixEventRegistry::FD_Error,
-                    UnixEventRegistry::FD_Closed,
-                    UnixEventRegistry::FD_Invalid);
+         errorconds({UnixEventRegistry::FD_Error,
+                     UnixEventRegistry::FD_Closed,
+                     UnixEventRegistry::FD_Invalid});
       static const UnixEventRegistry::FDCondSet
-         readcond(UnixEventRegistry::FD_Readable);
+         readcond({UnixEventRegistry::FD_Readable});
       ureg_.registerFDCond(sockfd_, errorconds, errorev_);
       ureg_.registerFDCond(sockfd_, readcond, readev_);
    }
@@ -269,7 +269,7 @@ void SockListenModule::doAccept()
       else if (!checking_read_)
       {
          static const UnixEventRegistry::FDCondSet
-            readcond(UnixEventRegistry::FD_Readable);
+            readcond({UnixEventRegistry::FD_Readable});
 	 ureg_.registerFDCond(sockfd_, readcond, readev_);
 	 checking_read_ = true;
       }

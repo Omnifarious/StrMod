@@ -403,7 +403,7 @@ void StreamFDModule::resetErrorIn(ErrorType err) noexcept
                if (!buffed_read_)
                {
                   static const UnixEventRegistry::FDCondSet
-                     readset(UnixEventRegistry::FD_Readable);
+                     readset({UnixEventRegistry::FD_Readable});
                   ureg_.registerFDCond(fd_, readset, readev_);
                   flags_.checkingrd = true;
                }
@@ -425,7 +425,7 @@ void StreamFDModule::resetErrorIn(ErrorType err) noexcept
                if (cur_write_)
                {
                   static const UnixEventRegistry::FDCondSet
-                     writeset(UnixEventRegistry::FD_Writeable);
+                     writeset({UnixEventRegistry::FD_Writeable});
                   ureg_.registerFDCond(fd_, writeset, writeev_);
                   flags_.checkingwr = true;
                }
@@ -670,7 +670,7 @@ void StreamFDModule::doReadFD()
             if (!flags_.checkingrd && (fd_ >= 0))
             {
                static const UnixEventRegistry::FDCondSet
-                  readset(UnixEventRegistry::FD_Readable);
+                  readset({UnixEventRegistry::FD_Readable});
                ureg_.registerFDCond(fd_, readset, readev_);
                flags_.checkingrd = true;
             }
@@ -758,7 +758,7 @@ void StreamFDModule::doWriteFD()
             if (!flags_.checkingwr && (fd_ >= 0))
             {
                static const UnixEventRegistry::FDCondSet
-                  writeset(UnixEventRegistry::FD_Writeable);
+                  writeset({UnixEventRegistry::FD_Writeable});
                ureg_.registerFDCond(fd_, writeset, writeev_);
                flags_.checkingwr = true;
             }
@@ -862,9 +862,9 @@ StreamFDModule::StreamFDModule(int fd, Dispatcher &disp,
 
    {
       UnixEventRegistry::FDCondSet
-         allerrors(UnixEventRegistry::FD_Error,
-                   UnixEventRegistry::FD_Closed,
-                   UnixEventRegistry::FD_Invalid);
+         allerrors({UnixEventRegistry::FD_Error,
+                    UnixEventRegistry::FD_Closed,
+                    UnixEventRegistry::FD_Invalid});
       ureg_.registerFDCond(fd_, allerrors, errorev_);
       // ::std::cerr << " ----> Registering FD error events.\n";
    }

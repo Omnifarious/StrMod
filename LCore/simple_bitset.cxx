@@ -13,10 +13,7 @@ namespace strmod {
 namespace lcore {
 namespace priv {
 
-const _base_simple_bitset::bits_t _base_simple_bitset::allones_;
-const size_t _base_simple_bitset::bits_t_bits;
-
-::std::string _base_simple_bitset::to_string(const bits_t bitary[],
+::std::string base_simple_bitset::to_string(const bits_t bitary[],
                                              size_t size, bits_t lastmask)
 {
    const size_t mysize = size;
