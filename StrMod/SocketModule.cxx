@@ -187,7 +187,7 @@ int SocketModule::MakeSocket(SocketModule &,
          doConnect(fd, peer);
       }
    }
-   catch(UNIXError e)
+   catch(UNIXError const &e)
    {
       if (fd >= 0)
       {

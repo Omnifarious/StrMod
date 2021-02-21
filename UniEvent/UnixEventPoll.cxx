@@ -467,7 +467,8 @@ void UnixEventPoll::signalHandler(int signo)
       char str[] = "UnixEventPoll::signalHandler - Got bad signal #0x00\n";
       str[49] = "0123456789ABCDEF"[(signo >> 8) & 0x0f];
       str[50] = "0123456789ABCDEF"[signo & 0x0f];
-      ::write(2, str, sizeof(str));
+      // Ignore errors or problems in writing to stderr.
+      (void)::write(2, str, sizeof(str));
       local_sigaction act;
       act.sa_handler = SIG_DFL;
       sigemptyset(&act.sa_mask);
