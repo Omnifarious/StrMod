@@ -204,7 +204,7 @@ void RouterModule::processIncoming(RPlug &source, const StrChunkPtr &chunk)
                          adder);
       } // End scope of constall
       outgoingcopies_ = dests.size();
-      if (outgoingcopies_ >= 0)
+      if (outgoingcopies_ > 0)
       {
          while (writeable_.size() > 0)
          {
