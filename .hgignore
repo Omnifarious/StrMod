@@ -37,3 +37,5 @@ syntax:re
 ^UniEvent/tests/testsig$
 ^UniEvent/tests/testtimer$
 ^UniEvent/tests/testupoll$
+^cmake-build[^/]*$
+^\.idea$
