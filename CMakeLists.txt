@@ -47,6 +47,10 @@ target_include_directories(
   ${strmod_include_dirs}
   )
 
+add_executable(PortForward examples/PortForward.cxx)
+target_compile_features(PortForward PUBLIC cxx_std_17)
+target_link_libraries(PortForward Net)
+
 include(GNUInstallDirs)
 
 install(TARGETS Net EXPORT NetTargets
