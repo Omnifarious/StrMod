@@ -1,5 +1,5 @@
 If you're looking at this on GitHub, the master repository is actually
-here: https://bitbucket.org/omnifarious/StrMod
+here: https://foss.heptapod.net/Omnifarious/StrMod
 
 OK, you've downloaded this thing, now what?
 
