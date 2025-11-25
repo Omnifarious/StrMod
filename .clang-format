@@ -1,0 +1,13 @@
+---
+# clang-format configuration for the repository's three-space "hopper" style
+# derived from the built-in LLVM preset.
+BasedOnStyle: LLVM
+IndentWidth: 3
+ContinuationIndentWidth: 3
+UseTab: Never
+NamespaceIndentation: None
+AccessModifierOffset: -2
+ConstructorInitializerIndentWidth: 5
+IndentCaseLabels: true
+BreakBeforeBraces: Linux
+...
